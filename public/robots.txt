@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin/
+Disallow: /login/
+Disallow: /signup/
+Disallow: /auth/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://marketplace.kuinbee.com/sitemap.xml
