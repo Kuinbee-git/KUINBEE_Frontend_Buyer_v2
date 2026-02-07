@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider } from "@/core/providers";
 import { generateMetadata } from "@/core/config";
+import { AuthModals } from "@/features/auth";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -44,6 +45,7 @@ export default function RootLayout({
             <ModalProvider>
               <QueryProvider>
                 {children}
+                <AuthModals />
                 <ToastProvider />
               </QueryProvider>
             </ModalProvider>
