@@ -2,7 +2,7 @@
  * Review service
  */
 
-import { apiClient, API_ENDPOINTS } from "@/lib/api";
+import { apiClient, API_ENDPOINTS } from "@/core/api";
 import type {
   Review,
   ReviewResponse,

@@ -2,7 +2,7 @@
 
 import NextLink from "next/link";
 import { type ComponentProps } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils/cn";
 
 type LinkProps = ComponentProps<typeof NextLink>;
 
