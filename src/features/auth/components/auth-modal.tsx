@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { Link } from "@/components/router/Link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/utils/cn";
 
 interface AuthModalProps {
