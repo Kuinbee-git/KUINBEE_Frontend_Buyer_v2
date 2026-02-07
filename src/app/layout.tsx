@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider, ThemeProvider, ToastProvider } from "@/lib/providers";
-import { siteConfig, generateMetadata } from "@/lib/config/seo.config";
+import { ModalProvider } from "@/lib/modal-context";
+import { AuthProvider } from "@/lib/auth-context";
+import { generateMetadata } from "@/lib/config/seo.config";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -20,6 +22,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('kuinbee-theme') || 'system';
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                const activeTheme = theme === 'system' ? systemTheme : theme;
+                document.documentElement.classList.add(activeTheme);
+              } catch (e) {}
+            `,
+          }}
+        />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
@@ -28,10 +42,14 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <QueryProvider>
-            {children}
-            <ToastProvider />
-          </QueryProvider>
+          <AuthProvider>
+            <ModalProvider>
+              <QueryProvider>
+                {children}
+                <ToastProvider />
+              </QueryProvider>
+            </ModalProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

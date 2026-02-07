@@ -1,26 +1,204 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
+@custom-variant dark (&:is(.dark *));
+
+/* KUINBEE Brand Colors - Light Theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutral surfaces */
+  --background: #f7f8fa;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  
+  /* Brand colors (identity only) */
+  --primary: #1a2240;
+  --primary-foreground: #ffffff;
+  --secondary: #4e5a7e;
+  --secondary-foreground: #ffffff;
+  
+  /* Muted/subtle */
+  --muted: #f3f5fb;
+  --muted-foreground: #6b7280;
+  --accent: #eef1fb;
+  --accent-foreground: #1a2240;
+  
+  /* State colors */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  
+  /* Borders */
+  --border: #e3e6f3;
+  --input: #e3e6f3;
+  --ring: #1a2240;
+  
+  --radius: 0.75rem;
+  
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #1a2240;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1fb;
+  --sidebar-accent-foreground: #1a2240;
+  --sidebar-border: #e3e6f3;
+  --sidebar-ring: #1a2240;
+}
+
+/* KUINBEE Brand Colors - Dark Theme */
+html.dark,
+.dark {
+  /* Neutral surfaces - using gradient colors */
+  --background: #0a0f1e;
+  --foreground: #f1f5f9;
+  --card: #0f1729;
+  --card-foreground: #f1f5f9;
+  --popover: #0f1729;
+  --popover-foreground: #f1f5f9;
+  
+  /* Brand colors (identity only) */
+  --primary: #e2e8f0;
+  --primary-foreground: #0a0f1e;
+  --secondary: #94a3b8;
+  --secondary-foreground: #0a0f1e;
+  
+  /* Muted/subtle - using mid gradient */
+  --muted: #1a2240;
+  --muted-foreground: #94a3b8;
+  --accent: #1a2240;
+  --accent-foreground: #f1f5f9;
+  
+  /* State colors */
+  --destructive: #f87171;
+  --destructive-foreground: #0a0f1e;
+  --success: #34d399;
+  --success-foreground: #0a0f1e;
+  
+  /* Borders - using gradient color */
+  --border: #1a2240;
+  --input: #1a2240;
+  --ring: #e2e8f0;
+  
+  /* Sidebar */
+  --sidebar: #0f1729;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #e2e8f0;
+  --sidebar-primary-foreground: #0a0f1e;
+  --sidebar-accent: #1a2240;
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: #1a2240;
+  --sidebar-ring: #e2e8f0;
 }
 
 @theme inline {
+  --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Custom Scrollbar Styling - Light Mode */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f3f5fb;
+    border-radius: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4e5a7e 0%, #1a2240 100%);
+    border-radius: 6px;
+    border: 2px solid #f3f5fb;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #1a2240 0%, #0f1729 100%);
+  }
+  
+  /* Custom Scrollbar Styling - Dark Mode */
+  .dark ::-webkit-scrollbar-track {
+    background: #0f1729;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4e5a7e 0%, #1a2240 100%);
+    border: 2px solid #0f1729;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #94a3b8 0%, #4e5a7e 100%);
+  }
+  
+  /* Firefox Scrollbar Styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #4e5a7e #f3f5fb;
+  }
+  
+  .dark * {
+    scrollbar-color: #4e5a7e #0f1729;
+  }
+  
+  /* Hide scrollbar utility */
+  .scrollbar-none {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  .scrollbar-none::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
