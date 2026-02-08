@@ -8,13 +8,13 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { OAuthSection } from "@/features/auth/components/oauth-section";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
-import { useAuth } from "@/core/providers/AuthProvider";
+import { useSignUp } from "@/hooks/api/useAuth";
+import type { ApiError } from "@/types";
 
 export function SignupModalContent() {
   const { openModal, closeModal } = useModal();
-  const { signup } = useAuth();
+  const signupMutation = useSignUp();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     organizationName: "",
@@ -32,28 +32,29 @@ export function SignupModalContent() {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      // TEMPORARY BYPASS: Accept any credentials
-      await signup(formData.email, formData.password, formData.organizationName);
-      closeModal(); // Close modal on successful signup
+      await signupMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password,
+      });
+      // Store email for verification modal
+      sessionStorage.setItem("pending_verification_email", formData.email);
+      closeModal();
+      // Show email verification modal
+      openModal("verify-email");
     } catch (err) {
-      setError("Unable to create account. Please try again.");
-    } finally {
-      setIsLoading(false);
+      const apiError = err as ApiError;
+      if (apiError.code === "EMAIL_ALREADY_IN_USE") {
+        setError("This email is already registered. Please log in instead.");
+      } else if (apiError.code === "VALIDATION_ERROR") {
+        setError(apiError.message || "Please check your input and try again.");
+      } else {
+        setError(apiError.message || "Unable to create account. Please try again.");
+      }
     }
   };
 
-  const handleOAuthGoogle = () => {
-    // Redirect to OAuth start endpoint
-    window.location.href = "/api/v1/user/auth/oauth/google/start";
-  };
 
-  const handleOAuthGitHub = () => {
-    // Redirect to OAuth start endpoint
-    window.location.href = "/api/v1/user/auth/oauth/github/start";
-  };
 
   return (
     <>
@@ -189,18 +190,21 @@ export function SignupModalContent() {
         {/* Submit button */}
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={
+            signupMutation.isPending ||
+            !formData.organizationName ||
+            !formData.email ||
+            !formData.password ||
+            !formData.agreedToTerms
+          }
           className="w-full h-11 mt-5 text-sm bg-white/20 text-white hover:bg-white/30 transition-colors rounded-lg border border-white/30"
         >
-          {isLoading ? "Creating account..." : "Create Account"}
+          {signupMutation.isPending ? "Creating account..." : "Create Account"}
         </Button>
       </form>
 
       {/* OAuth options */}
-      <OAuthSection
-        onGoogleClick={handleOAuthGoogle}
-        onGitHubClick={handleOAuthGitHub}
-      />
+      <OAuthSection />
 
       {/* Sign in link */}
       <div className="mt-6 text-center text-sm text-white/70">

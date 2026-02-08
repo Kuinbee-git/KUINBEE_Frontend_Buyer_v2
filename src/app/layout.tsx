@@ -41,15 +41,15 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider>
-          <AuthProvider>
-            <ModalProvider>
-              <QueryProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <ModalProvider>
                 {children}
                 <AuthModals />
                 <ToastProvider />
-              </QueryProvider>
-            </ModalProvider>
-          </AuthProvider>
+              </ModalProvider>
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

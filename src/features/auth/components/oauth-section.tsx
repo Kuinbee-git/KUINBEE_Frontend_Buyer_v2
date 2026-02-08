@@ -1,4 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
+import { API_BASE_URL } from "@/core/api";
 
 interface OAuthSectionProps {
   onGoogleClick?: () => void;
@@ -10,6 +11,43 @@ interface OAuthSectionProps {
  * Matches category card styling
  */
 export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps) {
+  const handleGoogleClick = async () => {
+    if (onGoogleClick) {
+      onGoogleClick();
+    } else {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/oauth/google/start`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        if (data.data?.url || data.url) {
+          window.location.href = data.data?.url || data.url;
+        }
+      } catch (error) {
+        console.error("Google OAuth failed:", error);
+      }
+    }
+  };
+
+  const handleGitHubClick = async () => {
+    if (onGitHubClick) {
+      onGitHubClick();
+    } else {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/oauth/github/start`, {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await response.json();
+        if (data.data?.url || data.url) {
+          window.location.href = data.data?.url || data.url;
+        }
+      } catch (error) {
+        console.error("GitHub OAuth failed:", error);
+      }
+    }
+  };
   return (
     <div className="space-y-4 mt-8">
       {/* Divider */}
@@ -27,7 +65,7 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
           type="button"
           variant="outline"
           className="h-11 text-sm border-white/25 bg-white/10 text-white hover:bg-white/20 hover:border-white/40 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-          onClick={onGoogleClick}
+          onClick={handleGoogleClick}
         >
           <svg className="h-[18px] w-[18px] mr-2" viewBox="0 0 24 24">
             <path
@@ -54,7 +92,7 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
           type="button"
           variant="outline"
           className="h-11 text-sm border-white/25 bg-white/10 text-white hover:bg-white/20 hover:border-white/40 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-          onClick={onGitHubClick}
+          onClick={handleGitHubClick}
         >
           <svg className="h-[18px] w-[18px] mr-2" fill="currentColor" viewBox="0 0 24 24">
             <path

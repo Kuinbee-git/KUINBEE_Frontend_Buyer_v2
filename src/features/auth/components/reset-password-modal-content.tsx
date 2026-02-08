@@ -1,22 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Lock, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
+import { useConfirmPasswordReset } from "@/hooks/api/useAuth";
+import { useSearchParams } from "next/navigation";
+import type { ApiError } from "@/types";
 
 export function ResetPasswordModalContent() {
   const { openModal } = useModal();
+  const searchParams = useSearchParams();
+  const resetMutation = useConfirmPasswordReset();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    email: "",
+    token: "",
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    // Get token and email from URL params
+    const token = searchParams.get("token") || "";
+    const email = searchParams.get("email") || "";
+    setFormData((prev) => ({ ...prev, token, email }));
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +46,23 @@ export function ResetPasswordModalContent() {
       return;
     }
 
-    setIsLoading(true);
-
-    // Simulate API call to POST /api/v1/user/auth/password/reset/confirm
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await resetMutation.mutateAsync({
+        email: formData.email,
+        token: formData.token,
+        newPassword: formData.password,
+      });
       openModal("reset-password-success");
-    }, 1000);
+    } catch (err) {
+      const apiError = err as ApiError;
+      if (apiError.code === "TOKEN_INVALID") {
+        setError("Invalid reset link. Please request a new one.");
+      } else if (apiError.code === "TOKEN_EXPIRED") {
+        setError("Reset link has expired. Please request a new one.");
+      } else {
+        setError(apiError.message || "Failed to reset password. Please try again.");
+      }
+    }
   };
 
   return (
@@ -148,10 +171,10 @@ export function ResetPasswordModalContent() {
 
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={resetMutation.isPending || !formData.password || !formData.confirmPassword}
           className="w-full h-11 mt-6 text-sm bg-white/20 text-white hover:bg-white/30 transition-colors rounded-lg border border-white/30"
         >
-          {isLoading ? "Resetting..." : "Reset Password"}
+          {resetMutation.isPending ? "Resetting..." : "Reset Password"}
         </Button>
       </form>
 

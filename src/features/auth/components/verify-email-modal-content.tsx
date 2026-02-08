@@ -1,24 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Mail, CheckCircle2 } from "lucide-react";
+import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
+import { useSendEmailVerification } from "@/hooks/api/useAuth";
+import type { ApiError } from "@/types";
 
 export function VerifyEmailModalContent() {
   const { openModal } = useModal();
-  const [isResending, setIsResending] = useState(false);
+  const sendVerificationMutation = useSendEmailVerification();
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get email from sessionStorage (set by login modal or signup modal)
+    const pendingEmail = sessionStorage.getItem("pending_verification_email");
+    if (pendingEmail) {
+      setEmail(pendingEmail);
+    }
+  }, []);
 
   const handleResend = async () => {
-    setIsResending(true);
     setResendSuccess(false);
+    setError(null);
 
-    // Simulate API call to POST /api/v1/user/auth/verify-email/send
-    setTimeout(() => {
-      setIsResending(false);
+    if (!email) {
+      setError("Email address not found. Please try signing up again.");
+      return;
+    }
+
+    try {
+      await sendVerificationMutation.mutateAsync({ email });
       setResendSuccess(true);
-    }, 1000);
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || "Failed to resend verification email. Please try again.");
+    }
   };
 
   return (
@@ -47,13 +66,25 @@ export function VerifyEmailModalContent() {
             Click the verification link in your email to activate your account.
             Link expires in 24 hours.
           </p>
+          {email && (
+            <p className="text-xs text-white/50 mt-2">
+              Sending to: {email}
+            </p>
+          )}
         </div>
+
+        {error && (
+          <div className="flex items-start gap-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3.5 py-2.5">
+            <AlertCircle className="h-4 w-4 text-red-200 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-100">{error}</p>
+          </div>
+        )}
 
         {resendSuccess && (
           <div className="flex items-start gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3.5 py-2.5">
             <CheckCircle2 className="h-4 w-4 text-emerald-200 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-emerald-100">
-              Email sent successfully.
+              Email sent successfully. Check your inbox.
             </p>
           </div>
         )}
@@ -64,11 +95,11 @@ export function VerifyEmailModalContent() {
         <Button
           type="button"
           onClick={handleResend}
-          disabled={isResending}
+          disabled={sendVerificationMutation.isPending || !email}
           variant="outline"
           className="w-full h-11 text-sm border-white/20 bg-white/10 text-white hover:bg-white/15 rounded-lg"
         >
-          {isResending ? "Sending..." : "Resend Email"}
+          {sendVerificationMutation.isPending ? "Sending..." : "Resend Email"}
         </Button>
 
         <div className="flex justify-center pt-2">

@@ -6,23 +6,26 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { KeyRound, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
+import { useRequestPasswordReset } from "@/hooks/api/useAuth";
+import type { ApiError } from "@/types";
 
 export function ForgotPasswordModalContent() {
   const { openModal } = useModal();
-  const [isLoading, setIsLoading] = useState(false);
+  const requestResetMutation = useRequestPasswordReset();
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setIsLoading(true);
 
-    // Simulate API call to POST /api/v1/user/auth/password/reset/request
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await requestResetMutation.mutateAsync({ email });
       openModal("reset-email-sent");
-    }, 1000);
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || "Failed to send reset link. Please try again.");
+    }
   };
 
   return (
@@ -74,10 +77,10 @@ export function ForgotPasswordModalContent() {
 
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={requestResetMutation.isPending || !email}
           className="w-full h-11 mt-6 text-sm bg-white/20 text-white hover:bg-white/30 transition-colors rounded-lg border border-white/30"
         >
-          {isLoading ? "Sending..." : "Send Reset Link"}
+          {requestResetMutation.isPending ? "Sending..." : "Send Reset Link"}
         </Button>
       </form>
 

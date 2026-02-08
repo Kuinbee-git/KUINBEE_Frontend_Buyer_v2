@@ -8,12 +8,14 @@ import { OAuthSection } from "@/features/auth/components/oauth-section";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
 import { useAuth } from "@/core/providers/AuthProvider";
+import { useLogin } from "@/hooks/api/useAuth";
+import type { ApiError } from "@/types";
 
 export function LoginModalContent() {
   const { openModal, closeModal } = useModal();
-  const { login } = useAuth();
+  const { refetch } = useAuth();
+  const loginMutation = useLogin();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: "",
@@ -23,28 +25,36 @@ export function LoginModalContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setIsLoading(true);
 
     try {
-      // TEMPORARY BYPASS: Accept any credentials
-      await login(formData.email, formData.password);
-      closeModal(); // Close modal on successful login
+      await loginMutation.mutateAsync({
+        email: formData.email,
+        password: formData.password,
+      });
+      await refetch();
+      closeModal();
     } catch (err) {
-      setError("Unable to sign in. Please try again.");
-    } finally {
-      setIsLoading(false);
+      const apiError = err as ApiError;
+      if (apiError.code === "EMAIL_NOT_VERIFIED") {
+        // Store email in sessionStorage so verify-email modal can use it
+        sessionStorage.setItem("pending_verification_email", formData.email);
+        setError("Please verify your email before logging in.");
+        // Close this modal and open verification modal after a brief delay
+        setTimeout(() => {
+          closeModal();
+          openModal("verify-email");
+        }, 100);
+      } else if (apiError.code === "INVALID_CREDENTIALS") {
+        setError("Invalid email or password.");
+      } else if (apiError.code === "FORBIDDEN") {
+        setError("Your account is not active. Please contact support.");
+      } else {
+        setError(apiError.message || "Unable to sign in. Please try again.");
+      }
     }
   };
 
-  const handleOAuthGoogle = () => {
-    // Redirect to OAuth start endpoint
-    window.location.href = "/api/v1/user/auth/oauth/google/start";
-  };
 
-  const handleOAuthGitHub = () => {
-    // Redirect to OAuth start endpoint
-    window.location.href = "/api/v1/user/auth/oauth/github/start";
-  };
 
   return (
     <>
@@ -135,18 +145,15 @@ export function LoginModalContent() {
         {/* Submit button */}
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={loginMutation.isPending}
           className="w-full h-11 mt-6 text-sm bg-white/20 text-white hover:bg-white/30 transition-colors rounded-lg border border-white/30"
         >
-          {isLoading ? "Signing in..." : "Sign in"}
+          {loginMutation.isPending ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 
       {/* OAuth options */}
-      <OAuthSection
-        onGoogleClick={handleOAuthGoogle}
-        onGitHubClick={handleOAuthGitHub}
-      />
+      <OAuthSection />
 
       {/* Sign up link */}
       <div className="mt-6 text-center text-sm text-white/70">
