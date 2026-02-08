@@ -16,10 +16,23 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
       onGoogleClick();
     } else {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/oauth/google/start`, {
-          method: "GET",
-          credentials: "include",
-        });
+        // Fetch with credentials to ensure cookies are sent for cross-origin
+        const callbackUrl = `${window.location.origin}/oauth/callback`;
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/user/auth/oauth/google/start?redirectTo=${encodeURIComponent(callbackUrl)}`,
+          {
+            method: "GET",
+            credentials: "include", // Important: sends cookies for cross-origin
+          }
+        );
+        
+        // If response is a redirect, the browser handles it automatically
+        // Otherwise parse the JSON response with the OAuth URL
+        if (response.redirected) {
+          // Browser already followed redirect
+          return;
+        }
+        
         const data = await response.json();
         if (data.data?.url || data.url) {
           window.location.href = data.data?.url || data.url;
@@ -35,10 +48,23 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
       onGitHubClick();
     } else {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/oauth/github/start`, {
-          method: "GET",
-          credentials: "include",
-        });
+        // Fetch with credentials to ensure cookies are sent for cross-origin
+        const callbackUrl = `${window.location.origin}/oauth/callback`;
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/user/auth/oauth/github/start?redirectTo=${encodeURIComponent(callbackUrl)}`,
+          {
+            method: "GET",
+            credentials: "include", // Important: sends cookies for cross-origin
+          }
+        );
+        
+        // If response is a redirect, the browser handles it automatically
+        // Otherwise parse the JSON response with the OAuth URL
+        if (response.redirected) {
+          // Browser already followed redirect
+          return;
+        }
+        
         const data = await response.json();
         if (data.data?.url || data.url) {
           window.location.href = data.data?.url || data.url;
