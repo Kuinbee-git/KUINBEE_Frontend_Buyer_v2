@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useConfirmEmailVerification } from "@/hooks/api/useAuth";
@@ -7,7 +8,7 @@ import { Button } from "@/shared/components/ui/button";
 import { CheckCircle2, AlertCircle, Mail } from "lucide-react";
 import type { ApiError } from "@/types";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const confirmMutation = useConfirmEmailVerification();
@@ -112,5 +113,26 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+            <div className="flex justify-center mb-6">
+              <div className="rounded-full bg-white/10 p-4">
+                <Mail className="h-8 w-8 text-white/60 animate-pulse" />
+              </div>
+            </div>
+            <p className="text-white text-center">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
