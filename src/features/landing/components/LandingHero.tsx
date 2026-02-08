@@ -107,6 +107,33 @@ export function LandingHero() {
       {/* Gradient background with dot pattern */}
       <InstitutionalBackground />
       
+      {/* Radial glow effects - visible brand-colored glows */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Top center glow - navy brand color */}
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[900px] blur-3xl opacity-75 dark:opacity-85"
+          style={{
+            background: 'radial-gradient(circle, rgba(26, 34, 64, 0.5) 0%, rgba(45, 58, 95, 0.35) 35%, rgba(26, 34, 64, 0.2) 55%, transparent 75%)'
+          }}
+        />
+        
+        {/* Left side glow - secondary brand color */}
+        <div 
+          className="absolute top-1/3 -left-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
+          style={{
+            background: 'radial-gradient(circle, rgba(78, 90, 126, 0.45) 0%, rgba(45, 58, 95, 0.3) 40%, rgba(36, 47, 82, 0.18) 60%, transparent 80%)'
+          }}
+        />
+        
+        {/* Right side glow - gradient mix */}
+        <div 
+          className="absolute top-1/3 -right-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
+          style={{
+            background: 'radial-gradient(circle, rgba(45, 58, 95, 0.45) 0%, rgba(78, 90, 126, 0.3) 40%, rgba(26, 34, 64, 0.18) 60%, transparent 80%)'
+          }}
+        />
+      </div>
+      
       {/* Bottom gradient blend for seamless transition */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background dark:from-[#0a0f1e] to-transparent z-10" />
 
