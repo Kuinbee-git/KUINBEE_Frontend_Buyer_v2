@@ -11,68 +11,46 @@ interface OAuthSectionProps {
  * Matches category card styling
  */
 export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps) {
-  const handleGoogleClick = async () => {
+  const handleGoogleClick = () => {
     if (onGoogleClick) {
       onGoogleClick();
-    } else {
-      try {
-        // Fetch with credentials to ensure cookies are sent for cross-origin
-        const callbackUrl = `${window.location.origin}/oauth/callback`;
-        const response = await fetch(
-          `${API_BASE_URL}/api/v1/user/auth/oauth/google/start?redirectTo=${encodeURIComponent(callbackUrl)}`,
-          {
-            method: "GET",
-            credentials: "include", // Important: sends cookies for cross-origin
-          }
-        );
-        
-        // If response is a redirect, the browser handles it automatically
-        // Otherwise parse the JSON response with the OAuth URL
-        if (response.redirected) {
-          // Browser already followed redirect
-          return;
-        }
-        
-        const data = await response.json();
-        if (data.data?.url || data.url) {
-          window.location.href = data.data?.url || data.url;
-        }
-      } catch (error) {
-        console.error("Google OAuth failed:", error);
-      }
+      return;
     }
+    
+    const callbackUrl = `${window.location.origin}/oauth/callback`;
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = `${API_BASE_URL}/api/v1/user/auth/oauth/google/start`;
+    
+    const redirectInput = document.createElement('input');
+    redirectInput.type = 'hidden';
+    redirectInput.name = 'redirectTo';
+    redirectInput.value = callbackUrl;
+    
+    form.appendChild(redirectInput);
+    document.body.appendChild(form);
+    form.submit();
   };
 
-  const handleGitHubClick = async () => {
+  const handleGitHubClick = () => {
     if (onGitHubClick) {
       onGitHubClick();
-    } else {
-      try {
-        // Fetch with credentials to ensure cookies are sent for cross-origin
-        const callbackUrl = `${window.location.origin}/oauth/callback`;
-        const response = await fetch(
-          `${API_BASE_URL}/api/v1/user/auth/oauth/github/start?redirectTo=${encodeURIComponent(callbackUrl)}`,
-          {
-            method: "GET",
-            credentials: "include", // Important: sends cookies for cross-origin
-          }
-        );
-        
-        // If response is a redirect, the browser handles it automatically
-        // Otherwise parse the JSON response with the OAuth URL
-        if (response.redirected) {
-          // Browser already followed redirect
-          return;
-        }
-        
-        const data = await response.json();
-        if (data.data?.url || data.url) {
-          window.location.href = data.data?.url || data.url;
-        }
-      } catch (error) {
-        console.error("GitHub OAuth failed:", error);
-      }
+      return;
     }
+    
+    const callbackUrl = `${window.location.origin}/oauth/callback`;
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = `${API_BASE_URL}/api/v1/user/auth/oauth/github/start`;
+    
+    const redirectInput = document.createElement('input');
+    redirectInput.type = 'hidden';
+    redirectInput.name = 'redirectTo';
+    redirectInput.value = callbackUrl;
+    
+    form.appendChild(redirectInput);
+    document.body.appendChild(form);
+    form.submit();
   };
   return (
     <div className="space-y-4 mt-8">
