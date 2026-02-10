@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { CheckCircle2, AlertCircle, Loader } from "lucide-react";
+import { API_BASE_URL } from "@/core/api";
 
 function OAuthCallbackContent() {
   const router = useRouter();
@@ -65,7 +66,7 @@ function OAuthCallbackContent() {
       if (!code && !state) {
         // Backend already handled OAuth and set session, just verify and redirect
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/auth/me`, {
+          const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/me`, {
             credentials: "include"
           });
           
