@@ -50,6 +50,11 @@ export class ApiClient {
         throw error;
       }
 
+      // Unwrap the response if it has success and data properties
+      if (data && typeof data === "object" && "success" in data && "data" in data) {
+        return data.data as T;
+      }
+
       return data;
     } catch (error) {
       // Re-throw API errors
