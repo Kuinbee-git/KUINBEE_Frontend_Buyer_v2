@@ -17,19 +17,9 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
       return;
     }
     
-    const callbackUrl = `${window.location.origin}/oauth/callback`;
-    const form = document.createElement('form');
-    form.method = 'GET';
-    form.action = `${API_BASE_URL}/api/v1/user/auth/oauth/google/start`;
-    
-    const redirectInput = document.createElement('input');
-    redirectInput.type = 'hidden';
-    redirectInput.name = 'redirectTo';
-    redirectInput.value = callbackUrl;
-    
-    form.appendChild(redirectInput);
-    document.body.appendChild(form);
-    form.submit();
+    window.location.href =
+      `${API_BASE_URL}/api/v1/user/auth/oauth/google/start` +
+      `?redirectTo=${encodeURIComponent("/oauth/callback")}`;
   };
 
   const handleGitHubClick = () => {
@@ -38,19 +28,9 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
       return;
     }
     
-    const callbackUrl = `${window.location.origin}/oauth/callback`;
-    const form = document.createElement('form');
-    form.method = 'GET';
-    form.action = `${API_BASE_URL}/api/v1/user/auth/oauth/github/start`;
-    
-    const redirectInput = document.createElement('input');
-    redirectInput.type = 'hidden';
-    redirectInput.name = 'redirectTo';
-    redirectInput.value = callbackUrl;
-    
-    form.appendChild(redirectInput);
-    document.body.appendChild(form);
-    form.submit();
+    window.location.href =
+      `${API_BASE_URL}/api/v1/user/auth/oauth/github/start` +
+      `?redirectTo=${encodeURIComponent("/oauth/callback")}`;
   };
   return (
     <div className="space-y-4 mt-8">
