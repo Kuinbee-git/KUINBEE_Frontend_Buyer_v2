@@ -62,30 +62,43 @@ function OAuthCallbackContent() {
         return;
       }
 
-      // If no code/state, check if user is already authenticated (session exists)
+      // If no code/state, backend already handled OAuth and set session
+      // The backend redirects here AFTER successful authentication
       if (!code && !state) {
-        // Backend already handled OAuth and set session, just verify and redirect
+        // Verify authentication by checking session
         try {
           const response = await fetch(`${API_BASE_URL}/api/v1/user/auth/me`, {
-            credentials: "include"
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
           });
-          
+
           if (response.ok) {
+            const data = await response.json();
+            console.log("Auth verified:", data);
             setStatus("success");
             setMessage("Successfully authenticated! Redirecting...");
             setTimeout(() => {
               router.push("/");
             }, 1500);
             return;
+          } else {
+            const errorData = await response.json();
+            console.error("Auth verification failed:", errorData);
+            setStatus("error");
+            setErrorCode("AUTH_VERIFICATION_FAILED");
+            setMessage("Authentication session not found. Please try signing in again.");
+            return;
           }
         } catch (err) {
-          // Fall through to error
+          console.error("Fetch error:", err);
+          setStatus("error");
+          setErrorCode("NETWORK_ERROR");
+          setMessage("Failed to verify authentication. Please check your connection and try again.");
+          return;
         }
-        
-        setStatus("error");
-        setErrorCode("MISSING_PARAMS");
-        setMessage("Missing authorization code or state. Please try signing in again.");
-        return;
       }
 
       try {
