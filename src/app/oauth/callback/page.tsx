@@ -61,8 +61,26 @@ function OAuthCallbackContent() {
         return;
       }
 
-      // Check for authorization code
-      if (!code || !state) {
+      // If no code/state, check if user is already authenticated (session exists)
+      if (!code && !state) {
+        // Backend already handled OAuth and set session, just verify and redirect
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/user/auth/me`, {
+            credentials: "include"
+          });
+          
+          if (response.ok) {
+            setStatus("success");
+            setMessage("Successfully authenticated! Redirecting...");
+            setTimeout(() => {
+              router.push("/");
+            }, 1500);
+            return;
+          }
+        } catch (err) {
+          // Fall through to error
+        }
+        
         setStatus("error");
         setErrorCode("MISSING_PARAMS");
         setMessage("Missing authorization code or state. Please try signing in again.");
@@ -70,15 +88,14 @@ function OAuthCallbackContent() {
       }
 
       try {
-        // The backend has already handled the code exchange and created the session
-        // via the callback endpoint. We just need to redirect to the home page.
+        // If we have code and state, backend still needs to process them
+        // (shouldn't happen with current flow, but keep as fallback)
         setStatus("success");
         setMessage("Successfully authenticated! Redirecting...");
         
-        // Redirect to home page after 2 seconds
         setTimeout(() => {
           router.push("/");
-        }, 2000);
+        }, 1500);
       } catch (err) {
         setStatus("error");
         setErrorCode("UNKNOWN");
