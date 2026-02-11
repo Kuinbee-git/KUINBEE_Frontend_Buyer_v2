@@ -11,6 +11,7 @@ import type {
   ReviewListQuery,
   PaginatedResponse,
   SuccessResponse,
+  ApiResponse,
 } from "@/types";
 
 export const reviewService = {

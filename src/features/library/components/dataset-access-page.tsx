@@ -21,6 +21,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LIBRARY_SIDEBAR_SECTIONS } from "@/constants/library-sidebar.constants";
+import { useLibraryItem, useDownloadUrl } from "@/hooks/api/useLibrary";
 
 // Access states
 type AccessStatus = "active" | "expired" | "revoked" | "not-entitled";
@@ -50,53 +51,121 @@ interface DatasetAccessPageProps {
 }
 
 export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
-  // Mock dataset access data - replace with real API call
-  const [datasetAccess] = useState<DatasetAccess>({
-    id: datasetId || "1",
-    datasetUniqueId: "FIN-2024-USD-001",
-    title: "US Treasury Bond Yields 2024",
-    category: "Finance & Markets",
-    supplierName: "Federal Reserve Economic Data",
-    accessType: "purchased",
-    grantedAt: "2024-12-15T10:30:00Z",
-    license: "Commercial Use License",
-    status: "active",
-  });
+  // Fetch dataset access details
+  const { 
+    data: libraryItemResponse, 
+    isLoading: isLoadingItem, 
+    error: itemError 
+  } = useLibraryItem(datasetId || "");
+  
+  const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
+  
+  // Fetch download URL conditionally
+  const {
+    data: downloadUrlResponse,
+    isLoading: isGenerating,
+    error: downloadError,
+    refetch: regenerateLink
+  } = useDownloadUrl(datasetId || "", shouldFetchDownload);
 
-  const [downloadState, setDownloadState] = useState<DownloadState>("no-link");
-  const [downloadLink, setDownloadLink] = useState<DownloadLink | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const libraryItem = libraryItemResponse?.item;
+  
+  // Map API response to component format
+  const datasetAccess: DatasetAccess | null = libraryItem ? {
+    id: libraryItem.datasetId,
+    datasetUniqueId: "N/A", // API doesn't provide
+    title: "N/A", // API doesn't provide
+    category: "Unknown", // API doesn't provide
+    supplierName: "Unknown", // API doesn't provide
+    accessType: libraryItem.accessType === "FREE_CLAIM" ? "free" : "purchased",
+    grantedAt: libraryItem.grantedAt,
+    license: "Unknown", // API doesn't provide
+    status: "active", // Assume active if we can fetch it
+  } : null;
+
+  // Loading state
+  if (isLoadingItem) {
+    return (
+      <div className="min-h-screen relative">
+        <div className="relative z-50">
+          <NotchNavigation />
+        </div>
+        <div className="fixed inset-0 -z-10">
+          <InstitutionalBackground />
+        </div>
+        <div className="relative pt-32 pb-12">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-8 flex justify-center lg:justify-start">
+              <MainSectionTabs />
+            </div>
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                <p className="text-sm text-muted-foreground">Loading dataset access...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (itemError || !datasetAccess) {
+    return (
+      <div className="min-h-screen relative">
+        <div className="relative z-50">
+          <NotchNavigation />
+        </div>
+        <div className="fixed inset-0 -z-10">
+          <InstitutionalBackground />
+        </div>
+        <div className="relative pt-32 pb-12">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-8 flex justify-center lg:justify-start">
+              <MainSectionTabs />
+            </div>
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <p className="text-lg font-medium mb-2">Unable to load dataset access</p>
+                <p className="text-sm text-muted-foreground">
+                  {itemError instanceof Error ? itemError.message : "Dataset not found or you don't have access"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Derive download state
+  const downloadState: DownloadState = 
+    downloadError ? "error" : 
+    downloadUrlResponse ? "link-generated" : 
+    "no-link";
 
   const handleGenerateLink = () => {
-    setIsGenerating(true);
-    
-    // Simulate API call to generate download link
-    setTimeout(() => {
-      setDownloadLink({
-        url: "https://kuinbee.io/secure/download/fin-2024-usd-001-xyz789",
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        generatedAt: new Date().toISOString(),
-      });
-      setDownloadState("link-generated");
-      setIsGenerating(false);
-    }, 1500);
+    setShouldFetchDownload(true);
   };
 
   const handleDownload = () => {
-    if (downloadLink) {
-      // In production, this would trigger the actual download
-      window.open(downloadLink.url, "_blank");
+    if (downloadUrlResponse?.url) {
+      window.open(downloadUrlResponse.url, "_blank");
     }
   };
 
   const handleRegenerateLink = () => {
-    setDownloadLink(null);
-    setDownloadState("no-link");
+    setShouldFetchDownload(false);
+    setTimeout(() => {
+      regenerateLink();
+    }, 100);
   };
 
   const handleCopyLink = () => {
-    if (downloadLink) {
-      navigator.clipboard.writeText(downloadLink.url);
+    if (downloadUrlResponse?.url) {
+      navigator.clipboard.writeText(downloadUrlResponse.url);
     }
   };
 
@@ -527,7 +596,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                     </div>
                   )}
 
-                  {downloadState === "link-generated" && downloadLink && (
+                  {downloadState === "link-generated" && downloadUrlResponse && (
                     <div className="space-y-4">
                       <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
                         <div className="flex items-start gap-3 mb-3">
@@ -547,20 +616,20 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                               Download URL
                             </div>
                             <div className="font-mono text-xs text-[#1a2240] dark:text-white break-all">
-                              {downloadLink.url}
+                              {downloadUrlResponse?.url}
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div>
                               <span className="text-[#4e5a7e]/70 dark:text-white/60">Generated:</span>{" "}
                               <span className="text-[#1a2240] dark:text-white">
-                                {new Date(downloadLink.generatedAt).toLocaleTimeString()}
+                                {new Date().toLocaleTimeString()}
                               </span>
                             </div>
                             <div>
                               <span className="text-[#4e5a7e]/70 dark:text-white/60">Expires:</span>{" "}
                               <span className="text-[#1a2240] dark:text-white">
-                                {new Date(downloadLink.expiresAt).toLocaleString()}
+                                {downloadUrlResponse?.expiresAt ? new Date(downloadUrlResponse.expiresAt).toLocaleString() : "N/A"}
                               </span>
                             </div>
                           </div>
@@ -609,7 +678,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         </div>
                       </div>
                       <Button
-                        onClick={() => setDownloadState("no-link")}
+                        onClick={handleRegenerateLink}
                         variant="outline"
                         className="w-full border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 h-11"
                       >

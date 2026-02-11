@@ -9,6 +9,12 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
+// Backend API wraps paginated responses in a data wrapper
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
 export interface SuccessResponse {
   success: true;
 }

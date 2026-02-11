@@ -3,20 +3,14 @@
 import * as React from "react";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
+import { useNavigationConfig } from "@/hooks/useNavigationConfig";
+import { categories, resources } from "@/config/navigation.config";
 
 import {
   ChevronDown,
   Menu,
   Database,
-  TrendingUp,
-  Zap,
-  Leaf,
-  Wheat,
-  BarChart3,
-  ShieldCheck,
-  FileText,
-  Scale,
-  BookOpen,
+  ArrowLeft,
   ArrowRight,
   Receipt,
   X,
@@ -24,6 +18,9 @@ import {
   LogOut,
   Settings,
   FolderOpen,
+  Heart,
+  ShoppingCart,
+  Search,
 } from "lucide-react";
 import { Button } from "./button";
 import { Badge } from "./badge";
@@ -195,65 +192,7 @@ function PurchaseStagingPanel({ dataset, onProceedToCheckout, onRemove }: Purcha
   );
 }
 
-const categories = [
-  {
-    name: "Finance & Markets",
-    href: "/datasets?category=finance",
-    icon: TrendingUp,
-    description: "Verified market data & financial indicators",
-  },
-  {
-    name: "Energy & Utilities",
-    href: "/datasets?category=energy",
-    icon: Zap,
-    description: "Regulated energy consumption & production data",
-  },
-  {
-    name: "Agriculture & Food",
-    href: "/datasets?category=agriculture",
-    icon: Wheat,
-    description: "Farming metrics & crop analytics",
-  },
-  {
-    name: "Environment & Climate",
-    href: "/datasets?category=environment",
-    icon: Leaf,
-    description: "Climate data & sustainability indicators",
-  },
-  {
-    name: "Economics & Trade",
-    href: "/datasets?category=economics",
-    icon: BarChart3,
-    description: "GDP metrics & trade statistics",
-  },
-];
-
-const resources = [
-  {
-    name: "Documentation",
-    href: "/docs",
-    icon: BookOpen,
-    description: "Technical specifications & usage guides",
-  },
-  {
-    name: "Compliance",
-    href: "/compliance",
-    icon: ShieldCheck,
-    description: "Regulatory framework & standards",
-  },
-  {
-    name: "Governance",
-    href: "/governance",
-    icon: Scale,
-    description: "Marketplace rules & oversight",
-  },
-  {
-    name: "Registry",
-    href: "/registry",
-    icon: FileText,
-    description: "Verified supplier directory",
-  },
-];
+// Categories and resources now imported from config
 
 interface NavLinkProps {
   href: string;
@@ -357,6 +296,8 @@ function MobileNav() {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
   const { openModal } = useModal();
+  const { user } = useAuth();
+  const navConfig = useNavigationConfig();
 
   const closeNav = () => setOpen(false);
 
@@ -387,76 +328,115 @@ function MobileNav() {
             <span>Kuinbee Registry</span>
           </SheetTitle>
           <SheetDescription className="sr-only">
-            Navigation menu for accessing data categories and resources
+            Navigation menu
           </SheetDescription>
         </SheetHeader>
 
         <nav className="flex flex-col gap-1 py-4">
-          {/* Categories Section */}
-          <div className="px-2 py-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Data Categories
-            </span>
-          </div>
-          {categories.map((item) => (
+          {/* Back button if configured */}
+          {navConfig.showBack && (
             <Link
-              key={item.name}
-              href={item.href}
+              href={navConfig.backUrl || "/"}
+              onClick={closeNav}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {navConfig.backLabel || "Back"}
+            </Link>
+          )}
+
+          {/* Direct Links */}
+          {navConfig.directLinks?.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
               onClick={closeNav}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-accent text-accent-foreground"
+                pathname === link.href
+                  ? "bg-accent text-accent-foreground font-semibold"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
-              <item.icon className="h-4 w-4" />
-              {item.name}
+              {link.label}
             </Link>
           ))}
 
+          {/* Categories Section */}
+          {navConfig.dropdowns?.includes("categories") && (
+            <>
+              <div className="px-2 py-2 mt-4">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Data Categories
+                </span>
+              </div>
+              {categories.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={closeNav}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                    pathname === item.href
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {item.icon && <item.icon className="h-4 w-4" />}
+                  {item.name}
+                </Link>
+              ))}
+            </>
+          )}
+
           {/* Resources Section */}
-          <div className="mt-4 px-2 py-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Governance & Resources
-            </span>
-          </div>
-          {resources.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={closeNav}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                pathname === item.href
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.name}
-            </Link>
-          ))}
+          {navConfig.dropdowns?.includes("resources") && (
+            <>
+              <div className="mt-4 px-2 py-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Resources
+                </span>
+              </div>
+              {resources.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={closeNav}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                    pathname === item.href
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  {item.icon && <item.icon className="h-4 w-4" />}
+                  {item.name}
+                </Link>
+              ))}
+            </>
+          )}
         </nav>
 
         {/* Mobile Auth Buttons */}
-        <div className="absolute inset-x-0 bottom-0 border-t bg-background p-4">
-          <div className="flex flex-col gap-2">
-            <Button
-              className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
-              onClick={handleSignup}
-            >
-              Sign Up
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full bg-transparent"
-              onClick={handleSignin}
-            >
-              Sign In
-            </Button>
+        {!user && (
+          <div className="absolute inset-x-0 bottom-0 border-t bg-background p-4">
+            <div className="flex flex-col gap-2">
+              <Button
+                className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                onClick={handleSignup}
+              >
+                Sign Up
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full bg-transparent"
+                onClick={handleSignin}
+              >
+                Sign In
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   );
@@ -466,6 +446,8 @@ export function NotchNavigation() {
   const [scrolled, setScrolled] = React.useState(false);
   const { openModal } = useModal();
   const { user, logout } = useAuth();
+  const navConfig = useNavigationConfig();
+  const pathname = usePathname();
 
   // Handle scroll state
   React.useEffect(() => {
@@ -535,33 +517,118 @@ export function NotchNavigation() {
               "flex items-center justify-between transition-all duration-500",
               scrolled ? "h-14 px-5" : "h-16 px-6"
             )}>
-              {/* Logo */}
-              <Link
-                href="/"
-                className="group flex items-center gap-2.5 transition-opacity hover:opacity-80"
-              >
-                <span className={cn(
-                  "font-semibold leading-none tracking-tight text-foreground dark:text-white transition-all duration-500",
-                  scrolled ? "text-xs" : "text-sm"
-                )}>
-                  Kuinbee
-                </span>
-              </Link>
+              {/* Left: Logo (Fixed Width) */}
+              <div className="w-32">
+                <Link
+                  href="/"
+                  className="group flex items-center gap-2 transition-opacity hover:opacity-80"
+                >
+                  {/* Show favicon black logo in light mode, dark logo in dark mode */}
+                  <img 
+                    src="/favicon-black.png" 
+                    alt="Kuinbee Logo"
+                    className={cn(
+                      "transition-all duration-500 block dark:hidden",
+                      scrolled ? "h-3 w-6" : "h-4 w-8"
+                    )}
+                  />
+                  <img 
+                    src="/favicon.svg" 
+                    alt="Kuinbee Logo Dark"
+                    className={cn(
+                      "transition-all duration-500 hidden dark:block dark:brightness-200",
+                      scrolled ? "h-6 w-6" : "h-8 w-8"
+                    )}
+                  />
+                  <span className={cn(
+                    "font-semibold leading-none tracking-tight text-foreground dark:text-white transition-all duration-500 hidden lg:inline",
+                    scrolled ? "text-xs" : "text-sm"
+                  )}>
+                    Kuinbee
+                  </span>
+                </Link>
+              </div>
 
-              {/* Desktop Navigation */}
+              {/* Center: Navigation (Flex-1, Centered) */}
               <nav className={cn(
-                "hidden items-center md:flex transition-all duration-500",
+                "hidden items-center md:flex flex-1 justify-center transition-all duration-500",
                 scrolled ? "gap-4" : "gap-6"
               )}>
-                <NavDropdown label="Categories" items={categories} />
-                <NavLink href="#verification">Verification</NavLink>
-                <NavLink href="#compliance">Compliance</NavLink>
-                <NavDropdown label="Resources" items={resources} />
+                {/* Back Button (if configured) */}
+                {navConfig.showBack && (
+                  <Link
+                    href={navConfig.backUrl || "/"}
+                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
+                  </Link>
+                )}
+
+                {/* Page Title (if configured) */}
+                {navConfig.pageTitle && (
+                  <span className="text-sm font-semibold text-foreground dark:text-white">
+                    {navConfig.pageTitle}
+                  </span>
+                )}
+
+                {/* Direct Links */}
+                {navConfig.directLinks?.map((link) => (
+                  <NavLink
+                    key={link.href}
+                    href={link.href}
+                    className={link.prominent ? "font-semibold" : ""}
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+
+                {/* Dropdowns */}
+                {navConfig.dropdowns?.includes("categories") && (
+                  <NavDropdown label="Categories" items={categories} />
+                )}
+                {navConfig.dropdowns?.includes("resources") && (
+                  <NavDropdown label="Resources" items={resources} />
+                )}
+
+                {/* Search Bar (if configured) */}
+                {navConfig.showSearch && (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-white/40" />
+                    <input
+                      type="search"
+                      placeholder={navConfig.searchPlaceholder || "Search..."}
+                      className="h-9 w-64 rounded-lg border border-border/40 dark:border-white/10 bg-background/50 dark:bg-white/5 pl-9 pr-3 text-sm text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-white/20"
+                    />
+                  </div>
+                )}
               </nav>
 
-              {/* Right Side Actions */}
-              <div className="flex items-center gap-2">
+              {/* Right Side Actions (Fixed Width - Equal to Logo) */}
+              <div className="w-32 flex items-center justify-end gap-2">
                 <ThemeToggle />
+                
+                {/* Wishlist Action */}
+                {navConfig.actions?.includes("wishlist") && (
+                  <Link href="/wishlist">
+                    <button
+                      className="relative p-2 text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors focus:outline-none"
+                      aria-label="Wishlist"
+                    >
+                      <Heart className="h-4 w-4" />
+                    </button>
+                  </Link>
+                )}
+
+                {/* Cart Action */}
+                {navConfig.actions?.includes("cart") && (
+                  <button
+                    className="relative p-2 text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors focus:outline-none"
+                    aria-label="Cart"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                  </button>
+                )}
                 
                 {/* Purchase Staging Utility (Conditional) */}
                 {stagedDataset && (

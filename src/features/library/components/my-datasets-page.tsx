@@ -1,95 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { OwnedDatasetCard, type OwnedDataset } from "./owned-dataset-card";
 import { Button } from "@/shared/components/ui/button";
-import { Database, RefreshCw, ArrowRight } from "lucide-react";
+import { Database, RefreshCw, ArrowRight, Loader2 } from "lucide-react";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LIBRARY_SIDEBAR_SECTIONS } from "@/constants/library-sidebar.constants";
+import { useLibrary } from "@/hooks/api/useLibrary";
 
 type ViewState = "loading" | "empty" | "error" | "data";
 
 export function MyDatasetsPage() {
   const router = useRouter();
-  const [viewState, setViewState] = useState<ViewState>("loading");
-  const [datasets, setDatasets] = useState<OwnedDataset[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Use real API hook
+  const { data: libraryResponse, isLoading, error, refetch } = useLibrary({ 
+    q: searchQuery || undefined,
+    page: 1,
+    pageSize: 20 
+  });
 
-  // Simulate data loading
-  useEffect(() => {
-    // Mock API call
-    setTimeout(() => {
-      // Mock datasets - replace with real API call
-      const mockDatasets: OwnedDataset[] = [
-        {
-          id: "1",
-          datasetUniqueId: "FIN-2024-USD-001",
-          title: "US Treasury Bond Yields 2024",
-          category: "Finance & Markets",
-          license: "Commercial",
-          grantedAt: "2024-12-15",
-          accessType: "purchased",
-          verification: {
-            supplierVerified: true,
-            datasetReviewed: true,
-          },
-          status: "active",
-        },
-        {
-          id: "2",
-          datasetUniqueId: "ENV-2024-CO2-042",
-          title: "Global Carbon Emissions - Q4 2024",
-          category: "Environment & Climate",
-          license: "Open Data",
-          grantedAt: "2024-11-28",
-          accessType: "free",
-          verification: {
-            supplierVerified: true,
-            datasetReviewed: false,
-          },
-          status: "active",
-        },
-        {
-          id: "3",
-          datasetUniqueId: "AGR-2024-CROP-118",
-          title: "India Crop Production Statistics",
-          category: "Agriculture & Food",
-          license: "Commercial",
-          grantedAt: "2024-11-10",
-          accessType: "purchased",
-          verification: {
-            supplierVerified: true,
-            datasetReviewed: true,
-          },
-          status: "active",
-        },
-      ];
+  // Map API response to OwnedDataset format
+  const datasets: OwnedDataset[] = libraryResponse?.items?.map(item => ({
+    id: item.datasetId,
+    datasetUniqueId: item.datasetUniqueId,
+    title: item.title,
+    category: "Unknown", // Category not in API response - would need separate call
+    license: "Unknown", // License not in API response
+    grantedAt: item.grantedAt.split('T')[0], // Convert ISO to date
+    accessType: item.accessType === "FREE_CLAIM" ? "free" : "purchased",
+    verification: {
+      supplierVerified: true, // Not in API response
+      datasetReviewed: true, // Not in API response
+    },
+    status: "active" as const,
+  })) || [];
 
-      // For demonstration, show different states based on mock data
-      // Comment/uncomment to test different states:
-      
-      // Empty state (no datasets)
-      // setDatasets([]);
-      // setViewState("empty");
-      
-      // Error state
-      // setViewState("error");
-      
-      // Data state (with datasets)
-      setDatasets(mockDatasets);
-      setViewState("data");
-    }, 800);
-  }, []);
+  // Determine view state
+  const viewState: ViewState = isLoading ? "loading" : error ? "error" : datasets.length === 0 ? "empty" : "data";
 
   const handleRetry = () => {
-    setViewState("loading");
-    // Trigger reload
-    setTimeout(() => {
-      setViewState("data");
-    }, 800);
+    refetch();
   };
 
   const handleAccessDataset = (dataset: OwnedDataset) => {

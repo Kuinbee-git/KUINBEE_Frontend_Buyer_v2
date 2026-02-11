@@ -10,6 +10,7 @@ import type {
   TicketDetailsResponse,
   TicketListQuery,
   PaginatedResponse,
+  ApiResponse,
 } from "@/types";
 
 export const supportService = {

@@ -6,6 +6,8 @@ import { Badge } from "@/shared/components/ui/badge";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";
 import {
   Shield,
   CheckCircle2,
@@ -29,9 +31,18 @@ import {
   Star,
   User,
   ThumbsUp,
+  Loader2,
+  Pencil,
+  Trash2,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
+import { useReviews, useCreateReview, useUpdateReview, useDeleteReview } from "@/hooks/api/useReviews";
+import { useQuestions, useAskQuestion } from "@/hooks/api/useQuestions";
+import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
+import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 /**
  * DATASET DETAIL PAGE — KUINBEE BUYER SIDE
@@ -109,7 +120,8 @@ interface DatasetDetailPageProps {
   onAddToWishlist?: () => void;
   onBack?: () => void;
   isInCart?: boolean;
-  isInWishlist?: boolean;
+  isInWishlist?: boolean; // This prop will be overridden by real API data
+  currentUserId?: string; // Add current user ID to check if user can edit/delete reviews
 }
 
 /**
@@ -128,13 +140,170 @@ export function DatasetDetailPage({
   onDownloadDataset,
   onLogin,
   onAddToCart,
-  onAddToWishlist,
+  onAddToWishlist, // Keep for backward compatibility
   onBack,
   isInCart,
-  isInWishlist,
+  isInWishlist: isInWishlistProp, // Rename to avoid conflict
+  currentUserId,
 }: DatasetDetailPageProps) {
   const isPaid = dataset.pricing.type === "paid";
   const isOwned = accessState === "owned";
+  const isLoggedIn = accessState !== "not-logged-in";
+
+  // Wishlist hooks
+  const { data: wishlistData } = useWishlist();
+  const addToWishlistMutation = useAddToWishlist();
+  const removeFromWishlistMutation = useRemoveFromWishlist();
+
+  // Check if dataset is in wishlist (use API data if logged in, fallback to prop)
+  const wishlistItems = wishlistData?.items || [];
+  const isInWishlist = isLoggedIn 
+    ? wishlistItems.some((item) => item.datasetId === dataset.id)
+    : isInWishlistProp;
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async () => {
+    if (!isLoggedIn) {
+      onLogin?.();
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        await removeFromWishlistMutation.mutateAsync(dataset.id);
+        toast.success("Removed from wishlist");
+      } else {
+        await addToWishlistMutation.mutateAsync(dataset.id);
+        toast.success("Added to wishlist");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update wishlist");
+    }
+  };
+
+  // Review state
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+
+  // Fetch reviews
+  const { data: reviewsData, isLoading: reviewsLoading } = useReviews(dataset.id);
+  const reviews = reviewsData?.items || [];
+  
+  // Calculate average rating
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    : 0;
+
+  // Mutations
+  const createReviewMutation = useCreateReview();
+  const updateReviewMutation = useUpdateReview();
+  const deleteReviewMutation = useDeleteReview();
+
+  // Handle review submission
+  const handleReviewSubmit = async () => {
+    if (!isLoggedIn) {
+      onLogin?.();
+      return;
+    }
+
+    if (reviewRating < 1 || reviewRating > 5) {
+      toast.error("Please select a rating between 1 and 5");
+      return;
+    }
+
+    try {
+      if (editingReviewId) {
+        // Update existing review
+        await updateReviewMutation.mutateAsync({
+          reviewId: editingReviewId,
+          data: {
+            rating: reviewRating,
+            comment: reviewComment || null,
+          },
+        });
+        toast.success("Review updated successfully");
+      } else {
+        // Create new review
+        await createReviewMutation.mutateAsync({
+          datasetId: dataset.id,
+          data: {
+            rating: reviewRating,
+            comment: reviewComment || null,
+          },
+        });
+        toast.success("Review submitted successfully");
+      }
+      
+      setIsReviewDialogOpen(false);
+      setEditingReviewId(null);
+      setReviewRating(5);
+      setReviewComment("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to submit review");
+    }
+  };
+
+  // Handle review delete
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm("Are you sure you want to delete this review?")) {
+      return;
+    }
+
+    try {
+      await deleteReviewMutation.mutateAsync({ reviewId });
+      toast.success("Review deleted successfully");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete review");
+    }
+  };
+
+  // Open edit dialog
+  const handleEditReview = (review: any) => {
+    setEditingReviewId(review.id);
+    setReviewRating(review.rating);
+    setReviewComment(review.comment || "");
+    setIsReviewDialogOpen(true);
+  };
+
+  // Q&A state
+  const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
+  const [questionText, setQuestionText] = useState("");
+
+  // Fetch questions
+  const { data: questionsData, isLoading: questionsLoading } = useQuestions(dataset.id);
+  const questions = questionsData?.items || [];
+
+  // Mutation
+  const askQuestionMutation = useAskQuestion();
+
+  // Handle question submission
+  const handleQuestionSubmit = async () => {
+    if (!isLoggedIn) {
+      onLogin?.();
+      return;
+    }
+
+    if (!questionText.trim()) {
+      toast.error("Please enter a question");
+      return;
+    }
+
+    try {
+      await askQuestionMutation.mutateAsync({
+        datasetId: dataset.id,
+        data: {
+          question: questionText,
+        },
+      });
+      toast.success("Question submitted successfully");
+      setIsQuestionDialogOpen(false);
+      setQuestionText("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to submit question");
+    }
+  };
 
   // Get currency symbol
   const getCurrencySymbol = (currency?: string) => {
@@ -239,7 +408,7 @@ export function DatasetDetailPage({
             <div className="flex items-center gap-2 mb-4">
               <Star className="h-4 w-4 text-yellow-500" />
               <span className="text-sm text-muted-foreground dark:text-white/60">
-                {dataset.rating} ({dataset.reviewCount} reviews)
+                {averageRating > 0 ? averageRating.toFixed(1) : "No ratings"} ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
               </span>
             </div>
 
@@ -548,9 +717,23 @@ export function DatasetDetailPage({
                         ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800"
                         : "bg-white dark:bg-[#1e2847] text-primary dark:text-white border border-primary/20 dark:border-white/20 hover:bg-primary/10 dark:hover:bg-white/10"
                     )}
-                    onClick={onAddToWishlist}
+                    onClick={() => {
+                      // Try API hook first, fallback to prop callback
+                      if (isLoggedIn) {
+                        handleWishlistToggle();
+                      } else if (onAddToWishlist) {
+                        onAddToWishlist();
+                      } else {
+                        onLogin?.();
+                      }
+                    }}
+                    disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
                   >
-                    <Heart className="w-3.5 h-3.5 mr-1.5" />
+                    {(addToWishlistMutation.isPending || removeFromWishlistMutation.isPending) ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <Heart className={cn("w-3.5 h-3.5 mr-1.5", isInWishlist && "fill-current")} />
+                    )}
                     {isInWishlist ? "Saved" : "Wishlist"}
                   </Button>
                 </div>
@@ -745,162 +928,379 @@ export function DatasetDetailPage({
                 <h3 className="text-lg font-semibold text-foreground dark:text-white">
                   Reviews & Ratings
                 </h3>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                    <span className="text-sm font-semibold text-foreground dark:text-white">
-                      {dataset.rating}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
+                      <span className="text-sm font-semibold text-foreground dark:text-white">
+                        {averageRating > 0 ? averageRating.toFixed(1) : "No ratings"}
+                      </span>
+                    </div>
+                    <span className="text-sm text-muted-foreground dark:text-white/60">
+                      ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
                     </span>
                   </div>
-                  <span className="text-sm text-muted-foreground dark:text-white/60">
-                    ({dataset.reviewCount} reviews)
-                  </span>
-                </div>
-              </div>
-
-              {/* Rating Distribution */}
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6 mb-6">
-                <div className="space-y-3">
-                  {[5, 4, 3, 2, 1].map((stars) => {
-                    const percentage = stars === 5 ? 65 : stars === 4 ? 25 : stars === 3 ? 8 : stars === 2 ? 2 : 0;
-                    return (
-                      <div key={stars} className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 w-16">
-                          <span className="text-sm text-muted-foreground dark:text-white/60">{stars}</span>
-                          <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
+                  <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (!isLoggedIn) {
+                            onLogin?.();
+                          } else {
+                            setEditingReviewId(null);
+                            setReviewRating(5);
+                            setReviewComment("");
+                            setIsReviewDialogOpen(true);
+                          }
+                        }}
+                        className="bg-white/90 dark:bg-[#1e2847]/80 border-border/40 dark:border-white/10"
+                      >
+                        <Star className="w-4 h-4 mr-2" />
+                        Write Review
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white/95 dark:bg-[#1e2847]/95 backdrop-blur-xl border-border/40 dark:border-white/10">
+                      <DialogHeader>
+                        <DialogTitle className="text-foreground dark:text-white">
+                          {editingReviewId ? "Edit Review" : "Write a Review"}
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground dark:text-white/60">
+                          Share your experience with this dataset
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-4">
+                        <div>
+                          <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
+                            Rating
+                          </label>
+                          <div className="flex items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => setReviewRating(star)}
+                                className="focus:outline-none transition-transform hover:scale-110"
+                              >
+                                <Star
+                                  className={cn(
+                                    "h-8 w-8",
+                                    star <= reviewRating
+                                      ? "fill-yellow-500 text-yellow-500"
+                                      : "text-muted-foreground dark:text-white/30"
+                                  )}
+                                />
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex-1 h-2 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
-                            style={{ width: `${percentage}%` }}
+                        <div>
+                          <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
+                            Comment (optional)
+                          </label>
+                          <Textarea
+                            value={reviewComment}
+                            onChange={(e) => setReviewComment(e.target.value)}
+                            placeholder="Share your thoughts about this dataset..."
+                            rows={4}
+                            className="bg-white dark:bg-[#0f1729] border-border/40 dark:border-white/20 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/50"
                           />
                         </div>
-                        <span className="text-xs text-muted-foreground dark:text-white/60 w-12 text-right">
-                          {percentage}%
-                        </span>
+                        <div className="flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsReviewDialogOpen(false);
+                              setEditingReviewId(null);
+                              setReviewRating(5);
+                              setReviewComment("");
+                            }}
+                            className="border-border/40 dark:border-white/20"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleReviewSubmit}
+                            disabled={createReviewMutation.isPending || updateReviewMutation.isPending}
+                            className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
+                          >
+                            {(createReviewMutation.isPending || updateReviewMutation.isPending) && (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            )}
+                            {editingReviewId ? "Update Review" : "Submit Review"}
+                          </Button>
+                        </div>
                       </div>
-                    );
-                  })}
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
+
+              {/* Loading State */}
+              {reviewsLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-[#1a2240] dark:text-white animate-spin" />
+                </div>
+              )}
+
+              {/* No Reviews */}
+              {!reviewsLoading && reviews.length === 0 && (
+                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-12 text-center">
+                  <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground dark:text-white/30" />
+                  <h4 className="text-lg font-semibold text-foreground dark:text-white mb-2">
+                    No reviews yet
+                  </h4>
+                  <p className="text-sm text-muted-foreground dark:text-white/60 mb-4">
+                    Be the first to share your experience with this dataset
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        onLogin?.();
+                      } else {
+                        setIsReviewDialogOpen(true);
+                      }
+                    }}
+                    className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Write the First Review
+                  </Button>
+                </div>
+              )}
 
               {/* Individual Reviews */}
-              <div className="space-y-4">
-                {/* Review 1 */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">
-                            Sarah Chen
-                          </div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">
-                            Data Analyst, Fortune 500 Financial Institution
-                          </div>
+              {!reviewsLoading && reviews.length > 0 && (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
+                          <User className="h-5 w-5 text-white" />
                         </div>
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-                          ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
+                                Anonymous User
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={cn(
+                                        "h-3.5 w-3.5",
+                                        star <= review.rating
+                                          ? "fill-yellow-500 text-yellow-500"
+                                          : "text-muted-foreground dark:text-white/30"
+                                      )}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-muted-foreground dark:text-white/60">
+                                  {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
+                                </span>
+                              </div>
+                            </div>
+                            {/* Edit/Delete buttons if user owns this review */}
+                            {currentUserId && review.id && (
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleEditReview(review)}
+                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleDeleteReview(review.id)}
+                                  disabled={deleteReviewMutation.isPending}
+                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
+                                >
+                                  {deleteReviewMutation.isPending ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                          {review.comment && (
+                            <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                              {review.comment}
+                            </p>
+                          )}
                         </div>
                       </div>
-                      <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mb-3">
-                        Excellent dataset with comprehensive coverage and consistent quality. The data is well-structured, 
-                        properly documented, and updated reliably. We've integrated this into our risk assessment pipeline 
-                        with minimal preprocessing required. The provider's support has been responsive and professional.
-                      </p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-white/60">
-                        <span>January 15, 2026</span>
-                        <button className="flex items-center gap-1 hover:text-foreground dark:hover:text-white transition-colors">
-                          <ThumbsUp className="h-3.5 w-3.5" />
-                          <span>Helpful (24)</span>
-                        </button>
-                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
+              )}
+            </div>
 
-                {/* Review 2 */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">
-                            Michael Rodriguez
-                          </div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">
-                            Research Director, Policy Think Tank
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4].map((star) => (
-                            <Star key={star} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-                          ))}
-                          <Star className="h-3.5 w-3.5 text-muted-foreground dark:text-white/30" />
-                        </div>
+            {/* Questions & Answers */}
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-foreground dark:text-white">
+                  Questions & Answers
+                </h3>
+                <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          onLogin?.();
+                        } else {
+                          setQuestionText("");
+                          setIsQuestionDialogOpen(true);
+                        }
+                      }}
+                      className="bg-white/90 dark:bg-[#1e2847]/80 border-border/40 dark:border-white/10"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Ask Question
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-white/95 dark:bg-[#1e2847]/95 backdrop-blur-xl border-border/40 dark:border-white/10">
+                    <DialogHeader>
+                      <DialogTitle className="text-foreground dark:text-white">
+                        Ask a Question
+                      </DialogTitle>
+                      <DialogDescription className="text-muted-foreground dark:text-white/60">
+                        Ask about this dataset and the supplier or admin will respond
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
+                          Your Question
+                        </label>
+                        <Textarea
+                          value={questionText}
+                          onChange={(e) => setQuestionText(e.target.value)}
+                          placeholder="Ask about dataset coverage, format, update frequency, licensing..."
+                          rows={4}
+                          className="bg-white dark:bg-[#0f1729] border-border/40 dark:border-white/20 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/50"
+                        />
                       </div>
-                      <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mb-3">
-                        High-quality dataset that meets our research needs. The geographic coverage is comprehensive and 
-                        the methodology is transparent. Only minor issue was some inconsistency in historical backfill data, 
-                        but recent data is excellent. Good value for the price.
-                      </p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-white/60">
-                        <span>December 8, 2025</span>
-                        <button className="flex items-center gap-1 hover:text-foreground dark:hover:text-white transition-colors">
-                          <ThumbsUp className="h-3.5 w-3.5" />
-                          <span>Helpful (18)</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Review 3 */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                      <User className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">
-                            Lisa Patel
-                          </div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">
-                            Chief Data Officer, Healthcare Analytics Firm
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mb-3">
-                        Outstanding dataset. Clean, reliable, and exactly as described. The licensing terms are clear and 
-                        fair. We've been using this for 6+ months in production and have had zero issues. The update 
-                        frequency matches our operational requirements perfectly. Highly recommended.
-                      </p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground dark:text-white/60">
-                        <span>November 22, 2025</span>
-                        <button className="flex items-center gap-1 hover:text-foreground dark:hover:text-white transition-colors">
-                          <ThumbsUp className="h-3.5 w-3.5" />
-                          <span>Helpful (31)</span>
-                        </button>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setIsQuestionDialogOpen(false);
+                            setQuestionText("");
+                          }}
+                          className="border-border/40 dark:border-white/20"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleQuestionSubmit}
+                          disabled={askQuestionMutation.isPending || !questionText.trim()}
+                          className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
+                        >
+                          {askQuestionMutation.isPending && (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          )}
+                          Submit Question
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </DialogContent>
+                </Dialog>
               </div>
+
+              {/* Loading State */}
+              {questionsLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 text-[#1a2240] dark:text-white animate-spin" />
+                </div>
+              )}
+
+              {/* No Questions */}
+              {!questionsLoading && questions.length === 0 && (
+                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-12 text-center">
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground dark:text-white/30" />
+                  <h4 className="text-lg font-semibold text-foreground dark:text-white mb-2">
+                    No questions yet
+                  </h4>
+                  <p className="text-sm text-muted-foreground dark:text-white/60 mb-4">
+                    Be the first to ask about this dataset
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        onLogin?.();
+                      } else {
+                        setIsQuestionDialogOpen(true);
+                      }
+                    }}
+                    className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Ask the First Question
+                  </Button>
+                </div>
+              )}
+
+              {/* Individual Questions */}
+              {!questionsLoading && questions.length > 0 && (
+                <div className="space-y-4">
+                  {questions.map((q: any) => (
+                    <div
+                      key={q.id}
+                      className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
+                          <MessageSquare className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-3">
+                            <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
+                              Question
+                            </div>
+                            <p className="text-sm text-foreground dark:text-white/90 leading-relaxed">
+                              {q.question}
+                            </p>
+                            <span className="text-xs text-muted-foreground dark:text-white/60 mt-1 inline-block">
+                              {formatDistanceToNow(new Date(q.createdAt), { addSuffix: true })}
+                            </span>
+                          </div>
+                          {/* Answer section - Note: The API returns Question type which doesn't include answer */}
+                          {/* In a real implementation, you'd need to check if answer exists on the object */}
+                          <div className="mt-4 pl-4 border-l-2 border-border/40 dark:border-white/10">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 dark:bg-blue-500/20">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <span className="text-xs font-semibold text-muted-foreground dark:text-white/60">
+                                SUPPLIER
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                              {(q as any).answer || "Awaiting response from supplier..."}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

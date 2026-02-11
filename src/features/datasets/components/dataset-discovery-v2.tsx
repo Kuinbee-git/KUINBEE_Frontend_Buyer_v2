@@ -19,8 +19,46 @@ import {
   CURRENCIES,
   SORT_LABELS 
 } from "./types";
+import { useDatasets, useCategories } from "@/hooks/api/useMarketplace";
+import type { DatasetSortOption, DatasetListQuery } from "@/types";
 
-// Mock datasets for demonstration
+// Map UI sort options to API sort format
+const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
+  const mapping: Record<SortOption, DatasetSortOption> = {
+    relevance: "relevance",
+    newest: "createdAt:desc",
+    oldest: "createdAt:asc",
+    "price-low": "price:asc",
+    "price-high": "price:desc",
+  };
+  return mapping[sort];
+};
+
+// Map API dataset to UI format
+const mapDatasetToUI = (apiDataset: any): Dataset => ({
+  id: apiDataset.id,
+  title: apiDataset.title,
+  provider: "Unknown", // API doesn't provide supplier name
+  category: "Unknown", // API uses categoryId, would need category lookup
+  license: apiDataset.license || "Unknown",
+  pricing: {
+    type: apiDataset.isPaid ? "paid" : "free",
+    amount: apiDataset.price ? parseFloat(apiDataset.price) : undefined,
+    currency: apiDataset.currency || "USD",
+  },
+  lastUpdated: apiDataset.updatedAt || apiDataset.createdAt,
+  status: "published",
+  description: apiDataset.title,
+  coverage: "N/A",
+  updateFrequency: "N/A",
+  records: 0,
+  quality: { completeness: 0, accuracy: 0, consistency: 0, timeliness: 0 },
+  verification: { supplierVerified: true, datasetReviewed: true, published: true },
+  rating: 0,
+  reviewCount: 0,
+});
+
+// Mock datasets for demonstration (fallback)
 const mockDatasets: Dataset[] = [
   {
     id: "DS-2026-001",
@@ -182,6 +220,73 @@ export function DatasetDiscoveryV2() {
     pageSize: 10,
   });
 
+  // Build API query from filter state
+  const apiQuery: DatasetListQuery = {
+    q: filters.search || undefined,
+    categoryId: filters.category || undefined,
+    isPaid: filters.pricingType === "all" ? undefined : filters.pricingType === "paid",
+    minPrice: filters.priceRange.min || undefined,
+    maxPrice: filters.priceRange.max || undefined,
+    currency: filters.currency,
+    sort: mapSortToAPI(filters.sortOrder),
+    page: filters.page,
+    pageSize: filters.pageSize,
+  };
+
+  // Fetch datasets from API
+  const { 
+    data: apiResponse, 
+    isLoading, 
+    error 
+  } = useDatasets(apiQuery);
+
+  // Fetch categories from API
+  const { data: categoriesResponse } = useCategories({ pageSize: 100 });
+  
+  // Create category mapping (id -> name) and list
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (categoriesResponse?.items) {
+      categoriesResponse.items.forEach(cat => {
+        map.set(cat.id, cat.name);
+      });
+    }
+    return map;
+  }, [categoriesResponse]);
+
+  // Get category items for display
+  const categoryItems = useMemo(() => {
+    return Array.from(categoryMap.entries()).map(([id, name]) => ({ id, name }));
+  }, [categoryMap]);
+
+  // Map API response to UI format
+  const allDatasets: Dataset[] = useMemo(() => {
+    if (!apiResponse?.items) return [];
+    return apiResponse.items.map(mapDatasetToUI);
+  }, [apiResponse]);
+
+  // Apply client-side license filter (API doesn't support license filter)
+  const filteredDatasets = useMemo(() => {
+    return allDatasets.filter((dataset) => {
+      const matchesLicense =
+        filters.licenses.length === 0 || filters.licenses.includes(dataset.license as any);
+      return matchesLicense;
+    });
+  }, [allDatasets, filters.licenses]);
+
+  // Pagination from API response
+  const totalPages = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : Math.ceil(filteredDatasets.length / filters.pageSize);
+  const totalCount = apiResponse?.total || filteredDatasets.length;
+  
+  // Use API response directly (already paginated), or paginate mock data
+  const paginatedDatasets = apiResponse?.items 
+    ? filteredDatasets // API response is already paginated
+    : filteredDatasets.slice(
+        (filters.page - 1) * filters.pageSize,
+        filters.page * filters.pageSize
+      );
+
+
   // Accordion states for filter sections
   const [accordionState, setAccordionState] = useState({
     sort: true,
@@ -197,69 +302,6 @@ export function DatasetDiscoveryV2() {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<"datasets" | "suppliers">("datasets");
-
-  // Filter logic - backend aligned
-  const filteredDatasets = useMemo(() => {
-    let results = mockDatasets.filter((dataset) => {
-      // 1. Keyword Search (q) - searches title, category, license
-      const matchesSearch =
-        filters.search === "" ||
-        dataset.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        dataset.category.toLowerCase().includes(filters.search.toLowerCase()) ||
-        dataset.license.toLowerCase().includes(filters.search.toLowerCase());
-
-      // 2. Category filter (categoryId)
-      const matchesCategory = !filters.category || dataset.category === filters.category;
-
-      // 3. Pricing type filter (isPaid)
-      const matchesPricing =
-        filters.pricingType === "all" ||
-        (filters.pricingType === "free" && dataset.pricing.type === "free") ||
-        (filters.pricingType === "paid" && dataset.pricing.type === "paid");
-
-      // 4. Price range filter (minPrice, maxPrice) - only when pricingType="paid"
-      let matchesPriceRange = true;
-      if (filters.pricingType === "paid" && dataset.pricing.type === "paid" && dataset.pricing.amount) {
-        const min = filters.priceRange.min ? parseFloat(filters.priceRange.min) : 0;
-        const max = filters.priceRange.max ? parseFloat(filters.priceRange.max) : Infinity;
-        matchesPriceRange = dataset.pricing.amount >= min && dataset.pricing.amount <= max;
-      }
-
-      // 6. License filter (license)
-      const matchesLicense =
-        filters.licenses.length === 0 || filters.licenses.includes(dataset.license);
-
-      return matchesSearch && matchesCategory && matchesPricing && matchesPriceRange && matchesLicense;
-    });
-
-    // 7. Sort order (sort)
-    if (filters.sortOrder === "newest") {
-      results.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
-    } else if (filters.sortOrder === "oldest") {
-      results.sort((a, b) => new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime());
-    } else if (filters.sortOrder === "price-low") {
-      results.sort((a, b) => {
-        const priceA = a.pricing.amount || 0;
-        const priceB = b.pricing.amount || 0;
-        return priceA - priceB;
-      });
-    } else if (filters.sortOrder === "price-high") {
-      results.sort((a, b) => {
-        const priceA = a.pricing.amount || 0;
-        const priceB = b.pricing.amount || 0;
-        return priceB - priceA;
-      });
-    }
-
-    return results;
-  }, [filters]);
-
-  // 8. Pagination
-  const totalPages = Math.ceil(filteredDatasets.length / filters.pageSize);
-  const paginatedDatasets = filteredDatasets.slice(
-    (filters.page - 1) * filters.pageSize,
-    filters.page * filters.pageSize
-  );
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -333,7 +375,7 @@ export function DatasetDiscoveryV2() {
               Discover and evaluate verified datasets from approved suppliers. Every dataset is reviewed before publication and listed with explicit pricing and access conditions.
             </p>
             <p className="text-xs md:text-sm font-medium text-[#1a2240]/70 dark:text-white/60">
-              {filteredDatasets.length} dataset{filteredDatasets.length !== 1 ? "s" : ""} available
+              {isLoading ? "Loading..." : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
             </p>
           </div>
 
@@ -426,19 +468,19 @@ export function DatasetDiscoveryV2() {
                         >
                           All Categories
                         </button>
-                        {CATEGORIES.map((cat: string) => (
+                        {categoryItems.map((cat) => (
                           <button
-                            key={cat}
-                            onClick={() => updateFilter({ category: cat })}
+                            key={cat.id}
+                            onClick={() => updateFilter({ category: cat.id })}
                             className={cn(
                               "w-full text-left px-3 py-2 rounded-lg text-xs transition-all duration-200 truncate",
-                              filters.category === cat
+                              filters.category === cat.id
                                 ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
                                 : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
                             )}
-                            title={cat}
+                            title={cat.name}
                           >
-                            {cat}
+                            {cat.name}
                           </button>
                         ))}
                       </div>
@@ -654,19 +696,19 @@ export function DatasetDiscoveryV2() {
                       >
                         All Categories
                       </button>
-                      {CATEGORIES.map((cat: string) => (
+                      {categoryItems.map((cat) => (
                         <button
-                          key={cat}
-                          onClick={() => updateFilter({ category: cat })}
+                          key={cat.id}
+                          onClick={() => updateFilter({ category: cat.id })}
                           className={cn(
                             "w-full text-left px-3 py-2 rounded-lg text-xs transition-all duration-200 truncate",
-                            filters.category === cat
+                            filters.category === cat.id
                               ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
                               : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
                           )}
-                          title={cat}
+                          title={cat.name}
                         >
-                          {cat}
+                          {cat.name}
                         </button>
                       ))}
                     </div>
@@ -837,7 +879,24 @@ export function DatasetDiscoveryV2() {
               </div>
 
               {/* Dataset List */}
-              {paginatedDatasets.length > 0 ? (
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 px-6">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mb-4"></div>
+                  <p className="text-muted-foreground dark:text-white/70">Loading datasets...</p>
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-20 px-6">
+                  <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
+                    <Search className="w-8 h-8 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                    Failed to load datasets
+                  </h3>
+                  <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
+                    {error instanceof Error ? error.message : "An error occurred"}
+                  </p>
+                </div>
+              ) : paginatedDatasets.length > 0 ? (
                 <div className="space-y-4">
                   {paginatedDatasets.map((dataset) => (
                     <DatasetCard
@@ -885,7 +944,7 @@ export function DatasetDiscoveryV2() {
                       Page {filters.page} of {totalPages}
                     </span>
                     <span className="text-[10px] md:text-xs text-[#4e5a7e]/70 dark:text-white/50 whitespace-nowrap">
-                      ({filteredDatasets.length} total)
+                      ({totalCount} total)
                     </span>
                   </div>
                   

@@ -8,6 +8,7 @@ import type {
   NotificationListQuery,
   PaginatedResponse,
   SuccessResponse,
+  ApiResponse,
 } from "@/types";
 
 export const notificationService = {

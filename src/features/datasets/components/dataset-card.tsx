@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -11,29 +12,88 @@ import {
   CheckCircle2,
   Eye,
   ArrowRight,
+  Heart,
+  Loader2,
 } from "lucide-react";
 import { Dataset } from "./types";
+import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
+import { toast } from "sonner";
+import { cn } from "@/shared/utils/cn";
 
 interface DatasetCardProps {
   dataset: Dataset;
   onPreview: (dataset: Dataset) => void;
   onViewDetails?: (dataset: Dataset) => void;
+  isLoggedIn?: boolean;
+  onLogin?: () => void;
 }
 
-export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardProps) {
+export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onLogin }: DatasetCardProps) {
+  const router = useRouter();
+
+  // Wishlist hooks
+  const { data: wishlistData } = useWishlist();
+  const addToWishlistMutation = useAddToWishlist();
+  const removeFromWishlistMutation = useRemoveFromWishlist();
+
+  // Check if dataset is in wishlist
+  const wishlistItems = wishlistData?.items || [];
+  const isInWishlist = wishlistItems.some((item) => item.datasetId === dataset.id);
+
   const handleViewDetails = () => {
     if (onViewDetails) {
       onViewDetails(dataset);
     } else {
-      // Fallback to global navigate
-      if (typeof window !== "undefined" && (window as any).navigate) {
-        (window as any).navigate(`/datasets/${dataset.id}`, { dataset });
+      // Use Next.js router to navigate to detailed view
+      router.push(`/datasets/${dataset.id}`);
+    }
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    
+    if (!isLoggedIn) {
+      onLogin?.();
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        await removeFromWishlistMutation.mutateAsync(dataset.id);
+        toast.success("Removed from wishlist");
+      } else {
+        await addToWishlistMutation.mutateAsync(dataset.id);
+        toast.success("Added to wishlist");
       }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update wishlist");
     }
   };
 
   return (
-    <div className="group bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/50 dark:border-white/10 rounded-xl p-4 md:p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-2xl dark:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+    <div className="group relative bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/50 dark:border-white/10 rounded-xl p-4 md:p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-2xl dark:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+      {/* Wishlist Button */}
+      <button
+        onClick={handleWishlistToggle}
+        disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
+        className="absolute top-3 md:top-4 right-3 md:right-4 z-10 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/90 dark:bg-[#1e2847]/90 backdrop-blur-sm border border-border/40 dark:border-white/10 hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+      >
+        {addToWishlistMutation.isPending || removeFromWishlistMutation.isPending ? (
+          <Loader2 className="w-4 h-4 md:w-4.5 md:h-4.5 animate-spin text-[#1a2240] dark:text-white" />
+        ) : (
+          <Heart
+            className={cn(
+              "w-4 h-4 md:w-4.5 md:h-4.5 transition-colors",
+              isInWishlist
+                ? "fill-red-500 text-red-500"
+                : "fill-none text-[#4e5a7e] dark:text-white/60 hover:text-red-500 dark:hover:text-red-400"
+            )}
+          />
+        )}
+      </button>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 md:gap-4 mb-3 md:mb-4">
         <div className="flex-1 min-w-0 w-full sm:w-auto">

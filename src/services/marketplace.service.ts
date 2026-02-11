@@ -10,6 +10,7 @@ import type {
   Category,
   CategoryListQuery,
   PaginatedResponse,
+  ApiResponse,
 } from "@/types";
 
 export const marketplaceService = {

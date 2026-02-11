@@ -12,6 +12,7 @@ import type {
   EntitlementCheckResponse,
   PaginatedResponse,
   SuccessResponse,
+  ApiResponse,
 } from "@/types";
 
 export const libraryService = {

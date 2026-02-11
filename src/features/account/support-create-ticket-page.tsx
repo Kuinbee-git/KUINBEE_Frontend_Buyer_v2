@@ -16,22 +16,39 @@ import {
 import { ArrowLeft, Send } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCreateTicket } from "@/hooks/api/useSupport";
+import { toast } from "sonner";
+import type { TicketCategory } from "@/types";
 
 export function SupportCreateTicketPage() {
   const router = useRouter();
+  const createTicketMutation = useCreateTicket();
   const [formData, setFormData] = useState({
     subject: "",
-    category: "",
-    priority: "normal",
-    description: "",
+    category: "" as TicketCategory | "",
+    message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle ticket creation
-    console.log("Creating ticket:", formData);
-    // Redirect to tickets page after creation
-    router.push("/support");
+    
+    if (!formData.category) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    try {
+      await createTicketMutation.mutateAsync({
+        subject: formData.subject,
+        message: formData.message,
+        category: formData.category as TicketCategory,
+      });
+      
+      toast.success("Support ticket created successfully");
+      router.push("/support");
+    } catch (err) {
+      toast.error("Failed to create ticket");
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -110,35 +127,10 @@ export function SupportCreateTicketPage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="technical">Technical Support</SelectItem>
-                    <SelectItem value="billing">Billing & Payments</SelectItem>
-                    <SelectItem value="data-quality">Data Quality Issues</SelectItem>
-                    <SelectItem value="license">License & Legal</SelectItem>
-                    <SelectItem value="account">Account Management</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Priority */}
-              <div className="space-y-2">
-                <Label
-                  htmlFor="priority"
-                  className="text-[#1a2240] dark:text-white font-medium"
-                >
-                  Priority
-                </Label>
-                <Select
-                  value={formData.priority}
-                  onValueChange={(value) => handleChange("priority", value)}
-                >
-                  <SelectTrigger className="bg-white dark:bg-[#0f1729] border-[#1a2240]/20 dark:border-white/20 text-[#1a2240] dark:text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low - General inquiry</SelectItem>
-                    <SelectItem value="normal">Normal - Standard issue</SelectItem>
-                    <SelectItem value="high">High - Urgent issue</SelectItem>
+                    <SelectItem value="DATASET">Dataset Issues</SelectItem>
+                    <SelectItem value="BILLING">Billing & Payments</SelectItem>
+                    <SelectItem value="ACCOUNT">Account Management</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -146,16 +138,16 @@ export function SupportCreateTicketPage() {
               {/* Description */}
               <div className="space-y-2">
                 <Label
-                  htmlFor="description"
+                  htmlFor="message"
                   className="text-[#1a2240] dark:text-white font-medium"
                 >
                   Description *
                 </Label>
                 <Textarea
-                  id="description"
+                  id="message"
                   placeholder="Please provide detailed information about your issue, including any error messages, steps to reproduce, and what you've already tried..."
-                  value={formData.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
+                  value={formData.message}
+                  onChange={(e) => handleChange("message", e.target.value)}
                   required
                   rows={8}
                   className="bg-white dark:bg-[#0f1729] border-[#1a2240]/20 dark:border-white/20 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e] dark:placeholder:text-white/50"
@@ -182,10 +174,17 @@ export function SupportCreateTicketPage() {
               <div className="flex items-center gap-3 pt-4">
                 <Button
                   type="submit"
+                  disabled={createTicketMutation.isPending}
                   className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] hover:from-[#2d3a5f] hover:to-[#1a2240] dark:hover:from-white/95 dark:hover:to-white/90 font-semibold"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  Submit Ticket
+                  {createTicketMutation.isPending ? (
+                    <>Creating...</>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit Ticket
+                    </>
+                  )}
                 </Button>
                 <Link href="/support">
                   <Button

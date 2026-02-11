@@ -4,6 +4,7 @@
 
 export * from "./auth.service";
 export * from "./profile.service";
+export * from "./security.service";
 export * from "./preferences.service";
 export * from "./marketplace.service";
 export * from "./library.service";

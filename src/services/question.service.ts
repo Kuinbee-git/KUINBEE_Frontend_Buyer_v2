@@ -9,6 +9,7 @@ import type {
   CreateQuestionRequest,
   QuestionListQuery,
   PaginatedResponse,
+  ApiResponse,
 } from "@/types";
 
 export const questionService = {
