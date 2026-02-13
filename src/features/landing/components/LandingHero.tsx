@@ -421,7 +421,7 @@ export function LandingHero() {
                           <div className="flex items-center justify-between border-t-2 border-primary/15 dark:border-white/20 pt-4">
                             <div>
                               <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-1">Starting at</div>
-                              <div className="text-lg font-bold bg-gradient-to-r from-[#1a2240] via-[#2d3a5f] to-[#1a2240] dark:from-white dark:to-white bg-clip-text text-transparent">{dataset.price}</div>
+                              <div className="text-lg font-bold bg-gradient-to-r from-[#1a2240] via-[#2d3a5f] to-[#1a2240] dark:from-primary dark:via-primary/80 dark:to-primary bg-clip-text text-transparent">{dataset.price}</div>
                             </div>
                             <div className="flex items-center gap-1 text-sm font-semibold text-primary dark:text-white">
                               View Details
