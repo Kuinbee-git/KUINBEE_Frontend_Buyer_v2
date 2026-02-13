@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/shared/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/shared/components/ui/select";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
@@ -221,13 +222,10 @@ export function DatasetDiscoveryV2() {
   });
 
   // Build API query from filter state
+  // Only send parameters supported by the backend route:
+  // currency, sort, page, pageSize
   const apiQuery: DatasetListQuery = {
-    q: filters.search || undefined,
-    categoryId: filters.category || undefined,
-    isPaid: filters.pricingType === "all" ? undefined : filters.pricingType === "paid",
-    minPrice: filters.priceRange.min || undefined,
-    maxPrice: filters.priceRange.max || undefined,
-    currency: filters.currency,
+  
     sort: mapSortToAPI(filters.sortOrder),
     page: filters.page,
     pageSize: filters.pageSize,
@@ -572,19 +570,18 @@ export function DatasetDiscoveryV2() {
                             <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
                               Currency
                             </label>
-                            <select
-                              value={filters.currency}
-                              onChange={(e) =>
-                                updateFilter({ currency: e.target.value as FilterState["currency"] })
-                              }
-                              className="w-full h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
-                            >
-                              {CURRENCIES.map((cur: string) => (
-                                <option key={cur} value={cur}>
-                                  {cur}
-                                </option>
-                              ))}
-                            </select>
+                            <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
+                              <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
+                                {CURRENCIES.map((cur: string) => (
+                                  <SelectItem key={cur} value={cur} className="text-[#1a2240] dark:text-white">
+                                    {cur}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       )}
@@ -800,19 +797,18 @@ export function DatasetDiscoveryV2() {
                           <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
                             Currency
                           </label>
-                          <select
-                            value={filters.currency}
-                            onChange={(e) =>
-                              updateFilter({ currency: e.target.value as FilterState["currency"] })
-                            }
-                            className="w-full h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
-                          >
-                            {CURRENCIES.map((cur: string) => (
-                              <option key={cur} value={cur}>
-                                {cur}
-                              </option>
-                            ))}
-                          </select>
+                          <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
+                            <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
+                              {CURRENCIES.map((cur: string) => (
+                                <SelectItem key={cur} value={cur} className="text-[#1a2240] dark:text-white">
+                                  {cur}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
                     )}

@@ -72,27 +72,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
   };
 
   return (
-    <div className="group relative bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/50 dark:border-white/10 rounded-xl p-4 md:p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-2xl dark:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-      {/* Wishlist Button */}
-      <button
-        onClick={handleWishlistToggle}
-        disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
-        className="absolute top-3 md:top-4 right-3 md:right-4 z-10 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/90 dark:bg-[#1e2847]/90 backdrop-blur-sm border border-border/40 dark:border-white/10 hover:scale-110 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-      >
-        {addToWishlistMutation.isPending || removeFromWishlistMutation.isPending ? (
-          <Loader2 className="w-4 h-4 md:w-4.5 md:h-4.5 animate-spin text-[#1a2240] dark:text-white" />
-        ) : (
-          <Heart
-            className={cn(
-              "w-4 h-4 md:w-4.5 md:h-4.5 transition-colors",
-              isInWishlist
-                ? "fill-red-500 text-red-500"
-                : "fill-none text-[#4e5a7e] dark:text-white/60 hover:text-red-500 dark:hover:text-red-400"
-            )}
-          />
-        )}
-      </button>
+    <div className="group bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/50 dark:border-white/10 rounded-xl p-4 md:p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-2xl dark:hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 md:gap-4 mb-3 md:mb-4">
@@ -141,7 +121,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
         </div>
 
         {/* Price badge */}
-        <div className="text-left sm:text-right w-full sm:w-auto">
+        <div className="text-left sm:text-right w-full sm:w-auto flex flex-col items-start sm:items-end gap-3">
           {dataset.pricing.type === "free" ? (
             <Badge className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 font-semibold px-2.5 md:px-3 py-0.5 md:py-1 text-xs md:text-sm">
               Free
@@ -158,6 +138,32 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
               <div className="text-[10px] md:text-xs text-[#4e5a7e] dark:text-white/50 font-medium">per month</div>
             </div>
           )}
+          
+          {/* Wishlist Button - Below Price Badge */}
+          <button
+            onClick={handleWishlistToggle}
+            disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
+            className="flex items-center gap-2 px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg bg-white/70 dark:bg-white/10 border border-[#1a2240]/20 dark:border-white/20 hover:bg-white/80 dark:hover:bg-white/15 backdrop-blur-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            {addToWishlistMutation.isPending || removeFromWishlistMutation.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin text-[#1a2240] dark:text-white" />
+            ) : (
+              <>
+                <Heart
+                  className={cn(
+                    "w-3.5 h-3.5 md:w-4 md:h-4 transition-colors",
+                    isInWishlist
+                      ? "fill-red-500 text-red-500"
+                      : "fill-none text-[#4e5a7e] dark:text-white/60 hover:text-red-500 dark:hover:text-red-400"
+                  )}
+                />
+                <span className="text-xs md:text-sm font-medium text-[#4e5a7e] dark:text-white/70 hidden sm:inline">
+                  {isInWishlist ? "Saved" : "Save"}
+                </span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -187,7 +193,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
         <Button
           variant="outline"
           size="sm"
-          className="h-9 md:h-10 text-xs md:text-sm border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white hover:border-[#1a2240]/50 dark:hover:border-white/30 font-medium"
+          className="h-9 md:h-10 text-xs md:text-sm border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-white/80 dark:hover:bg-white/15 backdrop-blur-sm font-medium transition-all"
           onClick={() => onPreview(dataset)}
         >
           <Eye className="w-3.5 md:w-4 h-3.5 md:h-4 mr-1.5 md:mr-2" />
@@ -195,7 +201,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
         </Button>
         <Button
           size="sm"
-          className="h-9 md:h-10 text-xs md:text-sm bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] hover:from-[#2d3a5f] hover:to-[#1a2240] dark:hover:from-white/95 dark:hover:to-white/90 font-semibold shadow-md hover:shadow-lg transition-all"
+          className="h-9 md:h-10 text-xs md:text-sm bg-white dark:bg-white text-[#1a2240] dark:text-[#1a2240] hover:bg-white/90 dark:hover:bg-white/90 font-semibold shadow-md hover:shadow-lg transition-all"
           onClick={handleViewDetails}
         >
           View Details
