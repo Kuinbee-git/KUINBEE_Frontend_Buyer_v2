@@ -15,9 +15,43 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  const toggleTheme = () => {
-    // Toggle between light and dark only
-    setTheme(theme === "dark" ? "light" : "dark");
+  const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+
+    // Graceful fallback for browsers without View Transitions API
+    if (!document.startViewTransition) {
+      setTheme(newTheme);
+      return;
+    }
+
+    const x = e.clientX;
+    const y = e.clientY;
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    const transition = document.startViewTransition(() => {
+      setTheme(newTheme);
+    });
+
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`,
+      ];
+      document.documentElement.animate(
+        { clipPath: newTheme === "dark" ? [...clipPath].reverse() : clipPath },
+        {
+          duration: 300,
+          easing: "ease-out",
+          pseudoElement:
+            newTheme === "dark"
+              ? "::view-transition-old(root)"
+              : "::view-transition-new(root)",
+        }
+      );
+    });
   };
 
   if (!mounted) {

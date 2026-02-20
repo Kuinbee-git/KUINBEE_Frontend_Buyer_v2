@@ -3,6 +3,34 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Theme transition (View Transitions API) ─────────────────────────── */
+/* Optimized circular mask animation for smooth theme transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  /* GPU acceleration hints */
+  will-change: clip-path;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
 /* KUINBEE Brand Colors - Light Theme */
 :root {
   /* Neutral surfaces */
