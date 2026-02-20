@@ -1,5 +1,6 @@
 import { OrderDetailPage } from "@/features/account";
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <OrderDetailPage orderId={params.id} />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <OrderDetailPage orderId={id} />;
 }

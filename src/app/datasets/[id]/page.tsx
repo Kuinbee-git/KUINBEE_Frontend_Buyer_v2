@@ -11,7 +11,8 @@ import { toast } from "sonner";
 
 // Map API DatasetDetails to UI Dataset format
 const mapToUIDataset = (apiDataset: any): UIDataset => ({
-  id: apiDataset.datasetUniqueId,
+  id: apiDataset.id, // Internal ID (backup for compatibility)
+  datasetUniqueId: apiDataset.datasetUniqueId, // Unique ID for API calls
   title: apiDataset.title,
   provider: "Unknown", // API doesn't provide supplier name
   category: "Unknown", // Would need category lookup by primaryCategoryId
@@ -154,6 +155,7 @@ export default function DatasetDetailPageRoute() {
       onAddToWishlist={() => toast.info("Wishlist feature coming soon")}
       isInCart={false}
       isInWishlist={false}
+      currentUserId={user?.id}
     />
   );
 }
