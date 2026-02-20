@@ -3,8 +3,9 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Bell, Loader2, AlertCircle } from "lucide-react";
+import { Bell, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/api/useNotifications";
+import { useNotificationStore } from "@/core/store/notification.store";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -12,10 +13,12 @@ export function ActivityTab() {
   const { data: notificationsData, isLoading, error } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
+  const { decrementUnread, clearUnread } = useNotificationStore();
 
   const handleMarkAsRead = async (id: string) => {
     try {
       await markReadMutation.mutateAsync(id);
+      decrementUnread();
     } catch (err) {
       toast.error("Failed to mark as read");
     }
@@ -24,6 +27,7 @@ export function ActivityTab() {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllReadMutation.mutateAsync();
+      clearUnread();
       toast.success("All notifications marked as read");
     } catch (err) {
       toast.error("Failed to mark all as read");
@@ -31,6 +35,7 @@ export function ActivityTab() {
   };
 
   const notifications = notificationsData?.items || [];
+  const unreadCount = notifications.filter((n) => !n.readAt).length;
 
   // Loading state
   if (isLoading) {
@@ -75,13 +80,34 @@ export function ActivityTab() {
       {/* Notifications Card */}
       <Card className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border-border/50 dark:border-white/10">
         <CardHeader>
-          <CardTitle className="text-[#1a2240] dark:text-white flex items-center gap-2">
-            <Bell className="w-5 h-5" />
-            Notifications
-          </CardTitle>
-          <CardDescription className="text-[#4e5a7e] dark:text-white/60">
-            Recent activity and updates on your datasets.
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-[#1a2240] dark:text-white flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Notifications
+                {unreadCount > 0 && (
+                  <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
+                    {unreadCount} Unread
+                  </Badge>
+                )}
+              </CardTitle>
+              <CardDescription className="text-[#4e5a7e] dark:text-white/60">
+                Recent activity and updates on your datasets.
+              </CardDescription>
+            </div>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllAsRead}
+                disabled={markAllReadMutation.isPending}
+                className="text-[#4e5a7e] dark:text-white/70 hover:text-[#1a2240] dark:hover:text-white"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Mark All as Read
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {notifications.length > 0 ? (
@@ -119,9 +145,10 @@ export function ActivityTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleMarkAsRead(notification.id)}
-                        className="text-xs text-[#4e5a7e] dark:text-white/60 hover:text-[#1a2240] dark:hover:text-white"
+                        disabled={markReadMutation.isPending}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       >
-                        Mark as read
+                        <CheckCircle2 className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
@@ -132,18 +159,6 @@ export function ActivityTab() {
             <p className="text-sm text-[#4e5a7e] dark:text-white/60 text-center py-8">
               No notifications yet.
             </p>
-          )}
-          {notifications.some((n) => !n.readAt) && (
-            <div className="mt-4 pt-4 border-t border-border/40 dark:border-white/10">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleMarkAllAsRead}
-                className="w-full border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10"
-              >
-                Mark All as Read
-              </Button>
-            </div>
           )}
         </CardContent>
       </Card>

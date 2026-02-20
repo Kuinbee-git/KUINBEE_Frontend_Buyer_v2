@@ -156,7 +156,6 @@ export const ACCOUNT_SIDEBAR_SECTIONS = {
     {
       title: "ACTIVITY",
       items: [
-        { label: "Notifications", href: "/account/activity/notifications" },
         { label: "Wishlist", href: "/account/activity/wishlist" },
       ],
     },

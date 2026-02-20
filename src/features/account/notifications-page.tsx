@@ -7,20 +7,34 @@ import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Bell, CheckCircle2, Trash2, Settings, Loader2, AlertCircle } from "lucide-react";
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/api/useNotifications";
+import { useNotificationStore } from "@/core/store/notification.store";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
 export function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<"all" | "unread">("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  
   const { data: notificationsData, isLoading, error } = useNotifications(
-    activeTab === "unread" ? { unreadOnly: true } : undefined
+    activeTab === "unread" 
+      ? { unreadOnly: true, page, pageSize } 
+      : { page, pageSize }
   );
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
+  const { decrementUnread, clearUnread } = useNotificationStore();
+
+  // Reset to page 1 when changing tabs
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as "all" | "unread");
+    setPage(1);
+  };
 
   const handleMarkAsRead = async (id: string) => {
     try {
       await markReadMutation.mutateAsync(id);
+      decrementUnread();
     } catch (err) {
       toast.error("Failed to mark as read");
     }
@@ -29,6 +43,7 @@ export function NotificationsPage() {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllReadMutation.mutateAsync();
+      clearUnread();
       toast.success("All notifications marked as read");
     } catch (err) {
       toast.error("Failed to mark all as read");
@@ -48,6 +63,10 @@ export function NotificationsPage() {
 
   const notifications = notificationsData?.items || [];
   const unreadCount = notifications.filter((n) => !n.readAt).length;
+  const totalPages = notificationsData ? Math.ceil(notificationsData.total / pageSize) : 1;
+
+  const canGoPrevious = page > 1;
+  const canGoNext = page < totalPages;
 
   // Loading state
   if (isLoading) {
@@ -150,7 +169,7 @@ export function NotificationsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | "unread")}>
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList className="grid grid-cols-2 mb-6 bg-muted/30 dark:bg-white/5">
                 <TabsTrigger value="all" className="text-sm">
                   All Notifications
@@ -224,6 +243,35 @@ export function NotificationsPage() {
                 )}
               </TabsContent>
             </Tabs>
+
+            {/* Pagination Controls */}
+            {notifications.length > 0 && totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between border-t border-border/40 dark:border-white/10 pt-4">
+                <div className="text-sm text-[#4e5a7e] dark:text-white/60">
+                  Page {page} of {totalPages}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={!canGoPrevious}
+                    className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={!canGoNext}
+                    className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -2,9 +2,9 @@
  * Notification React Query hooks
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
 import { notificationService } from "@/services";
-import type { NotificationListQuery } from "@/types";
+import type { NotificationListQuery, PaginatedResponse, Notification } from "@/types";
 
 // Query keys
 export const notificationKeys = {
@@ -13,10 +13,14 @@ export const notificationKeys = {
 };
 
 // List notifications
-export const useNotifications = (query?: NotificationListQuery) => {
+export const useNotifications = (
+  query?: NotificationListQuery,
+  options?: Omit<UseQueryOptions<PaginatedResponse<Notification>>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery({
     queryKey: notificationKeys.notifications(query),
     queryFn: () => notificationService.listNotifications(query),
+    ...options,
   });
 };
 
