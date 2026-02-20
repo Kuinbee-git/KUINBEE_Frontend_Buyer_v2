@@ -33,7 +33,7 @@ export interface NavigationConfig {
   dropdowns?: Array<"categories" | "resources" | "sort">;
   showSearch?: boolean;
   searchPlaceholder?: string;
-  actions?: Array<"filters-badge" | "wishlist" | "cart" | "view-toggle" | "export">;
+  actions?: Array<"filters-badge" | "wishlist" | "view-toggle" | "export">;
   pageTitle?: string;
 }
 
@@ -138,7 +138,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     directLinks: [],
     dropdowns: [],
     showSearch: false,
-    actions: ["wishlist", "cart"],
+    actions: ["wishlist"],
   },
 
   // Account pages

@@ -1,10 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
-import { useClaimDataset, useCheckEntitlement } from "@/hooks/api/useLibrary";
+import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -64,6 +65,35 @@ export default function DatasetDetailPageRoute() {
   // Claim dataset mutation
   const claimMutation = useClaimDataset();
 
+  // Download URL
+  const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
+  const {
+    data: downloadUrlResponse,
+    isLoading: isGeneratingDownload,
+    error: downloadError,
+  } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
+
+  // Trigger download as soon as URL arrives
+  useEffect(() => {
+    if (downloadUrlResponse?.url) {
+      const a = document.createElement("a");
+      a.href = downloadUrlResponse.url;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setShouldFetchDownload(false);
+    }
+  }, [downloadUrlResponse]);
+
+  // Surface download errors
+  useEffect(() => {
+    if (downloadError && shouldFetchDownload) {
+      toast.error("Failed to generate download link. Please try again.");
+      setShouldFetchDownload(false);
+    }
+  }, [downloadError, shouldFetchDownload]);
+
   // Determine access state
   const getAccessState = (): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
     if (!isAuthenticated) return "not-logged-in";
@@ -100,7 +130,12 @@ export default function DatasetDetailPageRoute() {
 
   // Handle download
   const handleDownload = () => {
-    router.push(`/library/${id}`);
+    if (!isAuthenticated) {
+      router.push(`/login?redirectTo=/datasets/${id}`);
+      return;
+    }
+    if (isGeneratingDownload) return;
+    setShouldFetchDownload(true);
   };
 
   // Loading state
@@ -151,9 +186,7 @@ export default function DatasetDetailPageRoute() {
       onClaimDataset={handleClaimDataset}
       onPurchaseDataset={() => toast.info("Purchase flow coming soon")}
       onDownloadDataset={handleDownload}
-      onAddToCart={() => toast.info("Cart feature coming soon")}
       onAddToWishlist={() => toast.info("Wishlist feature coming soon")}
-      isInCart={false}
       isInWishlist={false}
       currentUserId={user?.id}
     />

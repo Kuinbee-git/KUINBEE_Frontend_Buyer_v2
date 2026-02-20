@@ -26,7 +26,6 @@ import {
   Scale,
   Clock,
   HardDrive,
-  ShoppingCart,
   Heart,
   Star,
   User,
@@ -73,7 +72,7 @@ import { toast } from "sonner";
  *     - Price (if paid, one-time only)
  *     - License summary
  *     - Primary action button (claim/purchase/download)
- *     - Add to Cart / Add to Wishlist CTAs
+ *     - Add to Wishlist CTA
  *     - Explicit access explanation
  *     - Procurement confirmation feel, NOT sales box
  * 
@@ -116,10 +115,8 @@ interface DatasetDetailPageProps {
   onPurchaseDataset?: () => void;
   onDownloadDataset?: () => void;
   onLogin?: () => void;
-  onAddToCart?: () => void;
   onAddToWishlist?: () => void;
   onBack?: () => void;
-  isInCart?: boolean;
   isInWishlist?: boolean; // This prop will be overridden by real API data
   currentUserId?: string; // Add current user ID to check if user can edit/delete reviews
 }
@@ -139,10 +136,8 @@ export function DatasetDetailPage({
   onPurchaseDataset,
   onDownloadDataset,
   onLogin,
-  onAddToCart,
   onAddToWishlist, // Keep for backward compatibility
   onBack,
-  isInCart,
   isInWishlist: isInWishlistProp, // Rename to avoid conflict
   currentUserId,
 }: DatasetDetailPageProps) {
@@ -706,26 +701,12 @@ export function DatasetDetailPage({
                   </Button>
                 </div>
 
-                {/* Add to Cart / Add to Wishlist CTAs */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                {/* Add to Wishlist CTA */}
+                <div className="mb-4">
                   <Button
                     size="sm"
                     className={cn(
-                      "h-10 text-xs font-semibold",
-                      isInCart
-                        ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800"
-                        : "bg-white dark:bg-[#1e2847] text-primary dark:text-white border border-primary/20 dark:border-white/20 hover:bg-primary/10 dark:hover:bg-white/10"
-                    )}
-                    onClick={onAddToCart}
-                  >
-                    <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
-                    {isInCart ? "In Cart" : "Add to Cart"}
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    className={cn(
-                      "h-10 text-xs font-semibold",
+                      "w-full h-10 text-xs font-semibold",
                       isInWishlist
                         ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800"
                         : "bg-white dark:bg-[#1e2847] text-primary dark:text-white border border-primary/20 dark:border-white/20 hover:bg-primary/10 dark:hover:bg-white/10"

@@ -21,7 +21,6 @@ import {
   Settings,
   FolderOpen,
   Heart,
-  ShoppingCart,
   Search,
   Bell,
 } from "lucide-react";
@@ -657,15 +656,6 @@ export function NotchNavigation() {
                   </Link>
                 )}
 
-                {/* Cart Action */}
-                {navConfig.actions?.includes("cart") && (
-                  <button
-                    className="relative p-2 text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors focus:outline-none"
-                    aria-label="Cart"
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                  </button>
-                )}
                 
                 {/* Purchase Staging Utility (Conditional) */}
                 {stagedDataset && (

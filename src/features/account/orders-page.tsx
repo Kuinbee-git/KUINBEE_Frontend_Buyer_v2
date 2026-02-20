@@ -9,7 +9,7 @@ import { InstitutionalBackground } from "@/shared/components/ui/institutional-ba
 import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section-sidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ShoppingCart, RefreshCw, ArrowRight } from "lucide-react";
+import { Package, RefreshCw, ArrowRight } from "lucide-react";
 
 /**
  * ORDERS PAGE (BUYER · FINANCIAL RECORDS)
@@ -265,7 +265,7 @@ export function OrdersPage() {
               {viewState === "empty" && (
                 <div className="flex flex-col items-center justify-center py-20 px-6">
                   <div className="w-20 h-20 rounded-2xl bg-[#1a2240]/5 dark:bg-white/5 border border-[#1a2240]/10 dark:border-white/10 flex items-center justify-center mb-6">
-                    <ShoppingCart className="w-10 h-10 text-[#4e5a7e] dark:text-white/40" />
+                    <Package className="w-10 h-10 text-[#4e5a7e] dark:text-white/40" />
                   </div>
                   <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-3 text-center">
                     No orders yet
@@ -286,7 +286,7 @@ export function OrdersPage() {
               {viewState === "error" && (
                 <div className="flex flex-col items-center justify-center py-20 px-6">
                   <div className="w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-center mb-6">
-                    <ShoppingCart className="w-10 h-10 text-red-600 dark:text-red-400" />
+                    <Package className="w-10 h-10 text-red-600 dark:text-red-400" />
                   </div>
                   <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-3 text-center">
                     Unable to load orders

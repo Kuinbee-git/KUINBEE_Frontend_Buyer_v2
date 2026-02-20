@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Heart, Trash2, ShoppingCart, Eye, Loader2, AlertCircle } from "lucide-react";
+import { Heart, Trash2, Eye, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
@@ -90,15 +90,7 @@ function WishlistItemCard({ datasetId, createdAt, onRemove }: { datasetId: strin
                   View
                 </Button>
               </Link>
-              {dataset.isPaid ? (
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] hover:from-[#2d3a5f] hover:to-[#1a2240] dark:hover:from-white/95 dark:hover:to-white/90 font-semibold"
-                >
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Buy Now
-                </Button>
-              ) : (
+              {!dataset.isPaid && (
                 <Link href={`/datasets/${datasetId}`}>
                   <Button
                     size="sm"
