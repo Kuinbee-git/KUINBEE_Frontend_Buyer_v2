@@ -10,6 +10,8 @@ export interface Review {
   comment: string | null;
   createdAt: string;
   updatedAt?: string;
+  authorId: string;
+  authorName: string;
 }
 
 export interface ReviewResponse {

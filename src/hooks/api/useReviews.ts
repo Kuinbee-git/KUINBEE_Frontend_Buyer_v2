@@ -37,6 +37,7 @@ export const useCreateReview = () => {
       data: CreateReviewRequest;
     }) => reviewService.createReview(datasetId, data),
     onSuccess: (_, variables) => {
+      // Invalidate only reviews for this specific dataset
       queryClient.invalidateQueries({
         queryKey: ["reviews", variables.datasetId],
       });
@@ -50,17 +51,18 @@ export const useUpdateReview = () => {
 
   return useMutation({
     mutationFn: ({
+      datasetId,
       reviewId,
       data,
     }: {
+      datasetId: string;
       reviewId: string;
       data: UpdateReviewRequest;
     }) => reviewService.updateReview(reviewId, data),
-    onSuccess: () => {
-      // Note: datasetId would be needed here to invalidate specific dataset reviews
-      // For now, invalidate all reviews
+    onSuccess: (_, variables) => {
+      // Invalidate only reviews for this specific dataset
       queryClient.invalidateQueries({
-        queryKey: ["reviews"],
+        queryKey: ["reviews", variables.datasetId],
       });
     },
   });
@@ -71,13 +73,17 @@ export const useDeleteReview = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ reviewId }: { reviewId: string }) =>
-      reviewService.deleteReview(reviewId),
-    onSuccess: () => {
-      // Note: datasetId would be needed here to invalidate specific dataset reviews
-      // For now, invalidate all reviews
+    mutationFn: ({
+      datasetId,
+      reviewId,
+    }: {
+      datasetId: string;
+      reviewId: string;
+    }) => reviewService.deleteReview(reviewId),
+    onSuccess: (_, variables) => {
+      // Invalidate only reviews for this specific dataset
       queryClient.invalidateQueries({
-        queryKey: ["reviews"],
+        queryKey: ["reviews", variables.datasetId],
       });
     },
   });

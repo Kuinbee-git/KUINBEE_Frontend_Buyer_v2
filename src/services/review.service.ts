@@ -15,12 +15,14 @@ import type {
 } from "@/types";
 
 export const reviewService = {
-  // List reviews for a dataset
-  listReviews: (datasetId: string, query?: ReviewListQuery) =>
-    apiClient.get<PaginatedResponse<Review>>(
+  // List reviews for a dataset with pagination support
+  listReviews: (datasetId: string, query?: ReviewListQuery) => {
+    const params = query ? (query as Record<string, unknown>) : {};
+    return apiClient.get<PaginatedResponse<Review>>(
       API_ENDPOINTS.MARKETPLACE.REVIEWS(datasetId),
-      query as Record<string, unknown>
-    ),
+      params
+    );
+  },
 
   // Create review
   createReview: (datasetId: string, data: CreateReviewRequest) =>

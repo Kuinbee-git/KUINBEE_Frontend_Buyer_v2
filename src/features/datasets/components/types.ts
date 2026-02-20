@@ -1,7 +1,8 @@
 // Component-level types for V2 dataset discovery
 // This is the enriched Dataset type for the discovery UI (not the API type)
 export interface Dataset {
-  id: string;
+  id: string; // Internal ID (may not be used for API calls)
+  datasetUniqueId?: string; // The actual unique ID used for API calls (e.g., D0000000015)
   title: string;
   provider: string;
   category: string;

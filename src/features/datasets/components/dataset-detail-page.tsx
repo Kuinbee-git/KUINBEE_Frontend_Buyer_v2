@@ -217,6 +217,7 @@ export function DatasetDetailPage({
       if (editingReviewId) {
         // Update existing review
         await updateReviewMutation.mutateAsync({
+          datasetId: dataset.id,
           reviewId: editingReviewId,
           data: {
             rating: reviewRating,
@@ -241,7 +242,16 @@ export function DatasetDetailPage({
       setReviewRating(5);
       setReviewComment("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to submit review");
+      // Handle specific error cases
+      if (error instanceof Error) {
+        if (error.message.includes("409") || error.message.includes("ALREADY_REVIEWED")) {
+          toast.error("You have already reviewed this dataset. Edit your existing review instead.");
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.error("Failed to submit review");
+      }
     }
   };
 
@@ -252,7 +262,10 @@ export function DatasetDetailPage({
     }
 
     try {
-      await deleteReviewMutation.mutateAsync({ reviewId });
+      await deleteReviewMutation.mutateAsync({
+        datasetId: dataset.id,
+        reviewId,
+      });
       toast.success("Review deleted successfully");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to delete review");
@@ -1087,7 +1100,7 @@ export function DatasetDetailPage({
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                                Anonymous User
+                                {review.authorName}
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
@@ -1108,32 +1121,32 @@ export function DatasetDetailPage({
                                 </span>
                               </div>
                             </div>
-                            {/* Edit/Delete buttons if user owns this review */}
-                            {currentUserId && review.id && (
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleEditReview(review)}
-                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white"
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => handleDeleteReview(review.id)}
-                                  disabled={deleteReviewMutation.isPending}
-                                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
-                                >
-                                  {deleteReviewMutation.isPending ? (
-                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  )}
-                                </Button>
-                              </div>
-                            )}
+                            {/* Edit/Delete buttons - always visible, backend handles authorization */}
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleEditReview(review)}
+                                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white"
+                                title="Edit this review"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDeleteReview(review.id)}
+                                disabled={deleteReviewMutation.isPending}
+                                className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
+                                title="Delete this review"
+                              >
+                                {deleteReviewMutation.isPending ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </div>
                           </div>
                           {review.comment && (
                             <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
