@@ -1,5 +1,5 @@
-import { WishlistPage } from "@/features/account";
+import { LibraryPage } from "@/features/library";
 
 export default function Page() {
-  return <WishlistPage />;
+  return <LibraryPage />;
 }

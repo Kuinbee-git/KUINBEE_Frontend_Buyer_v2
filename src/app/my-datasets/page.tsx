@@ -1,5 +1,5 @@
-import { MyDatasetsPage } from "@/features/library/components";
+import { LibraryPage } from "@/features/library";
 
 export default function Page() {
-  return <MyDatasetsPage />;
+  return <LibraryPage />;
 }
