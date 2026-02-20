@@ -16,6 +16,9 @@ function OAuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Get the mode parameter to distinguish between login and linking flows
+      const mode = searchParams.get("mode") || "login";
+      
       // Check for OAuth provider errors from Google/GitHub
       const oauthError = searchParams.get("error");
       const oauthErrorDescription = searchParams.get("error_description");
@@ -33,7 +36,7 @@ function OAuthCallbackContent() {
         setStatus("error");
         setErrorCode(oauthError);
         if (oauthError === "access_denied") {
-          setMessage("You cancelled the OAuth login. Please try again.");
+          setMessage(mode === "link" ? "You cancelled the account linking. Please try again." : "You cancelled the OAuth login. Please try again.");
         } else if (oauthError === "invalid_scope") {
           setMessage("Invalid permission scope requested.");
         } else {
@@ -55,6 +58,7 @@ function OAuthCallbackContent() {
           USER_CREATION_FAILED: "Failed to create user account. Please try again.",
           EMAIL_ALREADY_IN_USE: "This email is already registered. Please log in instead.",
           ACCOUNT_SUSPENDED: "Your account has been suspended. Please contact support.",
+          PROVIDER_ALREADY_LINKED: "This provider account is already linked to another user account.",
         };
         
         const message = errorMessages[backendError] || backendErrorMessage || "Authentication failed. Please try again.";
@@ -79,9 +83,15 @@ function OAuthCallbackContent() {
             const data = await response.json();
             console.log("Auth verified:", data);
             setStatus("success");
-            setMessage("Successfully authenticated! Redirecting...");
+            
+            // Determine redirect based on mode
+            const redirectMessage = mode === "link" ? "Account linked successfully! Redirecting..." : "Successfully authenticated! Redirecting...";
+            setMessage(redirectMessage);
+            
+            const redirectUrl = mode === "link" ? "/account/linked-accounts" : "/";
+            
             setTimeout(() => {
-              router.push("/");
+              router.push(redirectUrl);
             }, 1500);
             return;
           } else {
@@ -105,10 +115,14 @@ function OAuthCallbackContent() {
         // If we have code and state, backend still needs to process them
         // (shouldn't happen with current flow, but keep as fallback)
         setStatus("success");
-        setMessage("Successfully authenticated! Redirecting...");
+        
+        const redirectMessage = mode === "link" ? "Account linked successfully! Redirecting..." : "Successfully authenticated! Redirecting...";
+        setMessage(redirectMessage);
+        
+        const redirectUrl = mode === "link" ? "/account/linked-accounts" : "/";
         
         setTimeout(() => {
-          router.push("/");
+          router.push(redirectUrl);
         }, 1500);
       } catch (err) {
         setStatus("error");
