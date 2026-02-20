@@ -108,7 +108,7 @@ export function ActivityTab() {
                         )}
                       </div>
                       <p className="text-sm text-[#4e5a7e] dark:text-white/60">
-                        {notification.message}
+                        {notification.body}
                       </p>
                       <p className="text-xs text-[#4e5a7e] dark:text-white/50 mt-2">
                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
