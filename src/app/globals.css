@@ -9,10 +9,12 @@
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
-  /* GPU acceleration hints */
+  /* GPU acceleration and containment for optimal performance */
   will-change: clip-path;
   transform: translateZ(0);
   backface-visibility: hidden;
+  contain: layout style paint;
+  content-visibility: auto;
 }
 
 ::view-transition-old(root) {

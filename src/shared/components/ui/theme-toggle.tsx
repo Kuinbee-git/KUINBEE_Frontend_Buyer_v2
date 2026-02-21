@@ -43,8 +43,8 @@ export function ThemeToggle() {
       document.documentElement.animate(
         { clipPath: newTheme === "dark" ? [...clipPath].reverse() : clipPath },
         {
-          duration: 300,
-          easing: "ease-out",
+          duration: 500,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
           pseudoElement:
             newTheme === "dark"
               ? "::view-transition-old(root)"
