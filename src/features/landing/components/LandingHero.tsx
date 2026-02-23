@@ -166,10 +166,6 @@ export function LandingHero() {
           <div className="mb-4 md:mb-6 flex justify-center">
             <div className="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-primary/30 dark:border-white/30 bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10 px-3 py-1.5 md:px-4 md:py-2 backdrop-blur-xl shadow-lg">
                 <span className="text-xs md:text-sm font-medium text-white flex items-center gap-2">
-                  Kuinbee
-                  <span className="mx-1">·</span>
-                  Governed Data Marketplace
-                  <span className="mx-1">•</span>
                   <span className="flex items-center gap-1">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                     Live Registry
