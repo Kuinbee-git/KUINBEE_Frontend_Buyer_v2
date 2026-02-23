@@ -10,6 +10,10 @@ import {
 } from "@/shared/components/ui/accordion";
 
 const faqs = [
+    { question: "What is KDTS and how does it work?", answer: "KDTS is Kuinbee's dataset and supplier credibility scoring system used within the marketplace. It aggregates results from automated validations, analyst reviews, provenance checks, and legal clearance into clear trust signals. KDTS helps buyers understand dataset reliability before purchase, instead of discovering issues post-delivery." },
+    { question: "How are data suppliers onboarded?", answer: "Suppliers onboard through Kuinbee's supplier panel by submitting dataset details, source declarations, usage rights, and update capabilities. Kuinbee then runs a structured intake process that includes automated checks, analyst review, and legal validation. Only datasets that pass these stages are approved for listing on the marketplace." },
+    { question: "Are all datasets treated the same during verification?", answer: "No. Datasets may be approved with different trust statuses based on evaluation results. Some datasets are fully approved, while others may be tagged with conditions, limitations, or freshness tiers. Kuinbee makes these signals visible so buyers understand strengths and constraints upfront." },
+    { question: "How is data delivered after purchase?", answer: "After purchase or access, datasets are delivered in structured, standardized formats along with supporting metadata. This includes information about schema, update frequency, intended use cases, and known limitations, enabling users to integrate the data directly into analytics workflows or data pipelines without additional cleanup." },
     { question: "Does Kuinbee take exclusivity rights to my data?", answer: "Absolutely not. You're granting Kuinbee the right to distribute your data under the terms you define, but you retain full intellectual property ownership. You can sell your data on other platforms simultaneously." },
     { question: "How long does the manual review process take?", answer: "We aim to review all new dataset proposals within 2-3 business days. If change requests are made, revisions are prioritized and usually reviewed within 24 hours of resubmission." },
     { question: "Can I update the actual dataset file after it is published?", answer: "Currently, Kuinbee supports static dataset deliveries. If your data changes, submit a new dataset proposal representing the new timeframe or version. You can use descriptive fields to indicate it's a point-in-time snapshot. Versioning support is on the roadmap." },
@@ -72,8 +76,10 @@ export function SuppliersFAQ() {
                             <AccordionTrigger className="text-left text-foreground hover:text-foreground hover:no-underline">
                                 {faq.question}
                             </AccordionTrigger>
-                            <AccordionContent className="text-muted-foreground">
-                                {faq.answer}
+                            <AccordionContent>
+                                <div className="border-l-2 border-primary/30 dark:border-white/20 bg-primary/[0.03] dark:bg-white/[0.03] rounded-r-lg px-4 py-3 ml-1">
+                                    <p className="text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
+                                </div>
                             </AccordionContent>
                         </AccordionItem>
                     ))}
