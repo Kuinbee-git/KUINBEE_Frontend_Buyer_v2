@@ -37,6 +37,7 @@ export interface NavigationConfig {
   searchPlaceholder?: string;
   actions?: Array<"filters-badge" | "wishlist" | "view-toggle" | "export">;
   pageTitle?: string;
+  isSupplierPage?: boolean;
 }
 
 // Dropdown configurations
@@ -99,6 +100,12 @@ export const resources: NavItem[] = [
     href: "/data-request",
     icon: Database,
     description: "Can't find it? Request a custom dataset",
+  },
+  {
+    name: "Supplier Resources",
+    href: "/supplier-resources",
+    icon: BookOpen,
+    description: "Guides and documentation for suppliers",
   },
 ];
 
@@ -198,6 +205,19 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     dropdowns: [],
     showSearch: false,
     actions: [],
+  },
+
+  // Supplier Resources
+  "/supplier-resources": {
+    showBack: true,
+    backUrl: "/",
+    backLabel: "Back",
+    pageTitle: "For Suppliers",
+    directLinks: [],
+    dropdowns: [],
+    showSearch: false,
+    actions: [],
+    isSupplierPage: true,
   },
 };
 

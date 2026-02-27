@@ -204,6 +204,13 @@ export function LandingHero() {
             >
               <Link href="/datasets">Browse All</Link>
             </Button>
+            <Button
+              size="lg"
+              className="h-12 md:h-14 w-full sm:w-auto bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90 px-6 md:px-8 text-sm md:text-base font-medium whitespace-nowrap"
+              asChild
+            >
+              <Link href="/supplier-resources">Be a Supplier</Link>
+            </Button>
           </div>
 
           {/* Trust badges section */}
