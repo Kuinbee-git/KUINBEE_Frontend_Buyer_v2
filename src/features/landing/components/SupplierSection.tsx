@@ -197,14 +197,14 @@ export function SupplierSection() {
         {/* CTA - Using CTABox component */}
         <CTABox
           title="Ready to Publish Datasets?"
-          description="Apply to become a verified supplier on the Kuinbee platform."
+          description="Learn more about becoming a verified supplier on the Kuinbee platform."
           primaryCTA={{
-            label: "Supplier Application",
-            href: "/supplier/apply",
+            label: "Explore Supplier Resources",
+            href: "/supplier-resources",
           }}
           secondaryCTA={{
             label: "Supplier Documentation",
-            href: "/supplier/docs",
+            href: "/supplier-resources",
           }}
           centered={true}
         />

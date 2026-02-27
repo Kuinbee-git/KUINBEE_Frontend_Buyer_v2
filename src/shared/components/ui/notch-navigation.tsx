@@ -321,8 +321,9 @@ function MobileNav() {
           <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:w-80">
-        <SheetHeader className="border-b pb-4">
+      <SheetContent side="right" className="w-full sm:w-80 p-0 flex flex-col">
+        <div className="flex-1 overflow-y-auto">
+          <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Database className="h-4 w-4 text-primary-foreground" />
@@ -418,24 +419,38 @@ function MobileNav() {
             </>
           )}
         </nav>
+        </div>
 
         {/* Mobile Auth Buttons */}
         {!user && (
           <div className="absolute inset-x-0 bottom-0 border-t bg-background p-4">
             <div className="flex flex-col gap-2">
-              <Button
-                className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
-                onClick={handleSignup}
-              >
-                Sign Up
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full bg-transparent"
-                onClick={handleSignin}
-              >
-                Sign In
-              </Button>
+              {navConfig.isSupplierPage ? (
+                <Button
+                  className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                  asChild
+                >
+                  <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">
+                    Sign in
+                  </a>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                    onClick={handleSignup}
+                  >
+                    Sign Up
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full bg-transparent"
+                    onClick={handleSignin}
+                  >
+                    Sign In
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -734,21 +749,35 @@ export function NotchNavigation() {
                   </DropdownMenu>
                 ) : (
                   <div className="hidden items-center gap-2 md:flex">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white"
-                      onClick={() => openModal("login")}
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
-                      onClick={() => openModal("signup")}
-                    >
-                      Sign Up
-                    </Button>
+                    {navConfig.isSupplierPage ? (
+                      <Button
+                        size="sm"
+                        className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                        asChild
+                      >
+                        <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">
+                          Sign In
+                        </a>
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white"
+                          onClick={() => openModal("login")}
+                        >
+                          Sign In
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                          onClick={() => openModal("signup")}
+                        >
+                          Sign Up
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
 
