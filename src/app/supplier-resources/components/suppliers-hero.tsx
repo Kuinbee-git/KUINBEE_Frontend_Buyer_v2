@@ -20,11 +20,7 @@ export function SuppliersHero() {
         return () => observer.disconnect();
     }, []);
 
-    const stats = [
-        { value: "$2.4M", label: "In Annual Supplier Revenue" },
-        { value: "500+", label: "Active Datasets Listed" },
-        { value: "180+", label: "Countries with Buyers" },
-    ];
+
 
     return (
         <section className="relative pt-16 pb-16">
@@ -86,16 +82,6 @@ export function SuppliersHero() {
                             Publish verified datasets to a governed marketplace. No negotiations, no samples, no friction. Just transparent pricing and institutional buyers ready to purchase.
                         </p>
 
-                        {/* Key metrics */}
-                        <div className="flex flex-col sm:flex-row gap-6 py-4">
-                            {stats.map((stat, i) => (
-                                <div key={i} className="flex items-baseline gap-2">
-                                    <span className="text-2xl lg:text-3xl font-semibold text-primary dark:text-white">{stat.value}</span>
-                                    <span className="text-xs text-muted-foreground dark:text-white/60">{stat.label}</span>
-                                </div>
-                            ))}
-                        </div>
-
                         {/* CTAs */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
                             <Button
@@ -103,10 +89,10 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <Link href="/supplier/apply">
-                                    Apply Now
+                                <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">
+                                    Create Supplier Account
                                     <ArrowRight className="ml-2 h-5 w-5" />
-                                </Link>
+                                </a>
                             </Button>
                             <Button
                                 variant="outline"
@@ -114,7 +100,7 @@ export function SuppliersHero() {
                                 className="border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10 backdrop-blur-sm"
                                 asChild
                             >
-                                <Link href="#guide">View Guide</Link>
+                                <Link href="#guide">Why Kuinbee?</Link>
                             </Button>
                         </div>
                     </div>
@@ -123,13 +109,9 @@ export function SuppliersHero() {
                     <div className="relative hidden lg:block">
                         <div className="relative rounded-2xl overflow-hidden border-2 border-primary/15 dark:border-white/20 shadow-2xl dark:shadow-xl">
                             {/* Browser chrome dots */}
-                            <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-2 px-4 py-3 bg-gradient-to-b from-black/20 to-transparent">
-                                <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                                <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                                <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                            </div>
+                            <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-2 px-4 py-3 bg-gradient-to-b from-black/20 to-transparent">                            </div>
                             <Image
-                                src="/supplier-panel-dashboard.png"
+                                src={isDark ? "/supplier-panel-dashboard-light.png" : "/supplier-panel-dashboard-dark.png"}
                                 alt="Kuinbee Supplier Panel — Dashboard Overview showing proposals, datasets, and onboarding status"
                                 width={1200}
                                 height={800}

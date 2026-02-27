@@ -28,11 +28,8 @@ export function SuppliersCTA() {
     return (
         <section
             ref={sectionRef}
-            className={`relative overflow-hidden py-16 md:py-24 transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
+            className={`relative py-16 md:py-24 transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
         >
-            {/* Background — matches CTASection exactly */}
-            <InstitutionalBackground />
-
             <div className="relative mx-auto max-w-4xl px-6 text-center">
                 <h2 className="text-3xl font-semibold tracking-tight text-primary dark:text-white md:text-4xl">
                     Ready to Start Supplying?
@@ -57,22 +54,22 @@ export function SuppliersCTA() {
                 {/* CTAs — exact match to landing CTASection */}
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button size="lg" className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90" asChild>
-                        <Link href="/supplier/apply">
-                            Apply to Supply
+                        <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">
+                            Get Started as Supplier
                             <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
+                        </a>
                     </Button>
                     <Button size="lg" variant="outline" className="border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10 backdrop-blur-sm" asChild>
-                        <Link href="/supplier/dashboard">View Dashboard</Link>
+                        <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">View Dashboard</a>
                     </Button>
                 </div>
 
                 {/* Trust stats */}
                 <div className="mt-12 inline-flex flex-col md:flex-row gap-6 text-sm text-muted-foreground dark:text-white/60">
                     {[
-                        { value: "250+", label: "Active Suppliers" },
-                        { value: "500+", label: "Published Datasets" },
-                        { value: "2.4K", label: "Unique Sources" },
+                        { value: "50+", label: "Active Suppliers" },
+                        { value: "1000+", label: "Published Datasets" },
+                        { value: "20+", label: "Unique Sources" },
                     ].map((stat) => (
                         <div key={stat.label} className="flex items-center gap-2 justify-center">
                             <span className="text-lg font-semibold text-primary dark:text-white">{stat.value}</span>
