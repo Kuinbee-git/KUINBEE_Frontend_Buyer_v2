@@ -9,6 +9,8 @@ import {
   Users,
   GraduationCap,
   FileText,
+  Info,
+  Briefcase,
 } from "lucide-react";
 
 export interface NavItem {
@@ -73,6 +75,18 @@ export const categories: NavItem[] = [
 
 export const resources: NavItem[] = [
   {
+    name: "About",
+    href: "/about",
+    icon: Info,
+    description: "Learn about Kuinbee",
+  },
+  {
+    name: "Careers",
+    href: "/careers",
+    icon: Briefcase,
+    description: "Join our team",
+  },
+  {
     name: "Documentation",
     href: "/docs",
     icon: BookOpen,
@@ -113,6 +127,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     directLinks: [
       { label: "Marketplace", href: "/datasets", prominent: true },
       { label: "Analytics", href: "/analytics" },
+      { label: "Support", href: "/support" },
     ],
     dropdowns: ["categories", "resources"],
     showSearch: false,
@@ -209,6 +224,7 @@ export const DEFAULT_CONFIG: NavigationConfig = {
   directLinks: [
     { label: "Marketplace", href: "/datasets", prominent: true },
     { label: "Analytics", href: "/analytics" },
+    { label: "Support", href: "/support" },
   ],
   dropdowns: ["categories", "resources"],
   showSearch: false,
