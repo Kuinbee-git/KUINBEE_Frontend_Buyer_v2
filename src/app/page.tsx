@@ -6,6 +6,7 @@ import {
   DataCategories,
   HowItWorksSection,
   GovernanceValue,
+  DataRequestSection,
   SecuritySection,
   SupplierSection,
   FAQSection,
@@ -22,6 +23,7 @@ export default function LandingPage() {
       <DataCategories />
       <HowItWorksSection />
       <GovernanceValue />
+      <DataRequestSection />
       <SupplierSection />
       <SecuritySection />
       <FAQSection />
