@@ -86,12 +86,7 @@ export const resources: NavItem[] = [
     icon: Briefcase,
     description: "Join our team",
   },
-  {
-    name: "Documentation",
-    href: "/docs",
-    icon: BookOpen,
-    description: "Technical guides & API references",
-  },
+  
   {
     name: "FAQs",
     href: "#faq",
@@ -100,22 +95,10 @@ export const resources: NavItem[] = [
     scroll: true,
   },
   {
-    name: "Community Hub",
-    href: "/community",
-    icon: Users,
-    description: "Connect with other data professionals",
-  },
-  {
-    name: "For Researchers",
-    href: "/community?tab=researchers",
-    icon: GraduationCap,
-    description: "Research tools & collaboration",
-  },
-  {
-    name: "For Students & Professionals",
-    href: "/community?tab=students",
-    icon: GraduationCap,
-    description: "Learning resources & career development",
+    name: "Request Data",
+    href: "/data-request",
+    icon: Database,
+    description: "Can't find it? Request a custom dataset",
   },
 ];
 

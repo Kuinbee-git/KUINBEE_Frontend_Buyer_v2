@@ -8,6 +8,7 @@ export { SecuritySection } from './components/SecuritySection';
 export { SupplierSection } from './components/SupplierSection';
 export { GovernanceValue } from './components/GovernanceValue';
 export { FAQSection } from './components/FAQSection';
+export { DataRequestSection } from './components/DataRequestSection';
 // export { CTASection } from './components/CTASection'; // Commented out - not currently used
 
 // Domain components
