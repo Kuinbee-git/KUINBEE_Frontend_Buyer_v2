@@ -742,6 +742,7 @@ export function DatasetDetailPage({
                       } else if (onAddToWishlist) {
                         onAddToWishlist();
                       } else {
+                        toast.info("Sign in to add to wishlist");
                         handleSignIn();
                       }
                     }}

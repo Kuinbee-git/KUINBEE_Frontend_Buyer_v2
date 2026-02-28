@@ -54,6 +54,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
     e.stopPropagation(); // Prevent card click
     
     if (!isLoggedIn) {
+      toast.info("Sign in to add to wishlist");
       onLogin?.();
       return;
     }

@@ -187,7 +187,6 @@ export default function DatasetDetailPageRoute() {
       onClaimDataset={handleClaimDataset}
       onPurchaseDataset={() => toast.info("Purchase flow coming soon")}
       onDownloadDataset={handleDownload}
-      onAddToWishlist={() => toast.info("Wishlist feature coming soon")}
       isInWishlist={false}
       currentUserId={user?.id}
     />
