@@ -100,7 +100,7 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/legal-compliance" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link href="/#security" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   Security
                 </Link>
               </li>
@@ -161,7 +161,7 @@ export function LandingFooter() {
             <h4 className="text-sm font-semibold text-foreground dark:text-white">Resources</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/support" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link href="/#faq" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   FAQs
                 </Link>
               </li>

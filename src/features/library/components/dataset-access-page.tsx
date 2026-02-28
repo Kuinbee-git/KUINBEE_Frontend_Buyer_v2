@@ -52,14 +52,14 @@ interface DatasetAccessPageProps {
 
 export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   // Fetch dataset access details
-  const { 
-    data: libraryItemResponse, 
-    isLoading: isLoadingItem, 
-    error: itemError 
+  const {
+    data: libraryItemResponse,
+    isLoading: isLoadingItem,
+    error: itemError
   } = useLibraryItem(datasetId || "");
-  
+
   const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
-  
+
   // Fetch download URL conditionally
   const {
     data: downloadUrlResponse,
@@ -69,7 +69,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   } = useDownloadUrl(datasetId || "", shouldFetchDownload);
 
   const libraryItem = libraryItemResponse?.item;
-  
+
   // Map API response to component format
   const datasetAccess: DatasetAccess | null = libraryItem ? {
     id: libraryItem.datasetId,
@@ -139,12 +139,12 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
       </div>
     );
   }
-  
+
   // Derive download state
-  const downloadState: DownloadState = 
-    downloadError ? "error" : 
-    downloadUrlResponse ? "link-generated" : 
-    "no-link";
+  const downloadState: DownloadState =
+    downloadError ? "error" :
+      downloadUrlResponse ? "link-generated" :
+        "no-link";
 
   const handleGenerateLink = () => {
     setShouldFetchDownload(true);
@@ -488,8 +488,13 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
 
             {/* Main Content Column */}
             <div>
-              {/* Section Title & Description */}
               <div className="mb-6">
+                <Link href="/library">
+                  <Button variant="ghost" className="text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 -ml-4 mb-2">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to My Datasets
+                  </Button>
+                </Link>
                 <h1 className="text-3xl font-semibold text-[#1a2240] dark:text-white mb-2">
                   Dataset Access
                 </h1>
@@ -580,7 +585,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                               Secure Download System
                             </h4>
                             <p className="text-xs text-blue-800 dark:text-blue-400 leading-relaxed">
-                              Download links are time-limited and expire after 24 hours for security. 
+                              Download links are time-limited and expire after 24 hours for security.
                               Generate a new link when you're ready to download.
                             </p>
                           </div>
@@ -611,14 +616,6 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div className="bg-white dark:bg-[#1e2847] rounded-md p-3 border border-emerald-200 dark:border-emerald-800">
-                            <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-1">
-                              Download URL
-                            </div>
-                            <div className="font-mono text-xs text-[#1a2240] dark:text-white break-all">
-                              {downloadUrlResponse?.url}
-                            </div>
-                          </div>
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             <div>
                               <span className="text-[#4e5a7e]/70 dark:text-white/60">Generated:</span>{" "}
@@ -635,23 +632,13 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <Button
-                          onClick={handleDownload}
-                          className="sm:col-span-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 font-semibold h-11"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Dataset
-                        </Button>
-                        <Button
-                          onClick={handleCopyLink}
-                          variant="outline"
-                          className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 h-11"
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy Link
-                        </Button>
-                      </div>
+                      <Button
+                        onClick={handleDownload}
+                        className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 font-semibold h-11"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Dataset
+                      </Button>
                       <Button
                         onClick={handleRegenerateLink}
                         variant="ghost"
@@ -708,15 +695,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                   </details>
                 </div>
 
-                {/* Back Link */}
-                <div className="pt-4">
-                  <Link href="/library">
-                    <Button variant="ghost" className="text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10">
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to My Datasets
-                    </Button>
-                  </Link>
-                </div>
+                {/* Remove Back Link from Bottom */}
               </div>
             </div>
           </div>
