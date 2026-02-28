@@ -11,11 +11,17 @@ import { ProfileTab } from "./tabs/profile-tab";
 import { PreferencesTab } from "./tabs/preferences-tab";
 import { ActivityTab } from "./tabs/activity-tab";
 import { SupportTab } from "./tabs/support-tab";
+import { useAuth } from "@/core/providers";
+import { useModal } from "@/core/providers";
+import { Button } from "@/shared/components/ui/button";
+import { AlertCircle } from "lucide-react";
 
 type AccountTab = "profile" | "preferences" | "activity" | "support" | "orders";
 
 export function AccountPage() {
   const pathname = usePathname();
+  const { isAuthenticated, isLoading } = useAuth();
+  const { openModal } = useModal();
 
   // Determine active tab from pathname
   const getActiveTab = (): AccountTab => {
@@ -71,6 +77,78 @@ export function AccountPage() {
         return "Manage your account settings and preferences.";
     }
   };
+
+  // If loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative">
+        <div className="relative z-50">
+          <NotchNavigation />
+        </div>
+        <div className="fixed inset-0 -z-10">
+          <InstitutionalBackground />
+        </div>
+        <div className="relative pt-32 pb-12">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="inline-flex h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-r-primary dark:border-white/20 dark:border-r-white" />
+                <p className="mt-4 text-muted-foreground dark:text-white/70">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show sign-in prompt
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen relative">
+        <div className="relative z-50">
+          <NotchNavigation />
+        </div>
+        <div className="fixed inset-0 -z-10">
+          <InstitutionalBackground />
+        </div>
+        <div className="relative pt-32 pb-12">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center max-w-md">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 dark:bg-white/10 mb-4">
+                  <AlertCircle className="h-6 w-6 text-primary dark:text-white" />
+                </div>
+                <h1 className="text-2xl font-semibold text-foreground dark:text-white mb-2">
+                  Sign In Required
+                </h1>
+                <p className="text-muted-foreground dark:text-white/70 mb-6">
+                  You need to sign in to access your account and profile. Sign in now to manage your settings, view your activity, and more.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <Button
+                    size="lg"
+                    className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                    onClick={() => openModal("login")}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => openModal("signup")}
+                  >
+                    Create Account
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative">

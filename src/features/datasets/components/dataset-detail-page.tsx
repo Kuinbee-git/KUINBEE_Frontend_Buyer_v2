@@ -42,6 +42,7 @@ import { useQuestions, useAskQuestion } from "@/hooks/api/useQuestions";
 import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { useModal } from "@/core/providers";
 
 /**
  * DATASET DETAIL PAGE — KUINBEE BUYER SIDE
@@ -144,6 +145,12 @@ export function DatasetDetailPage({
   const isPaid = dataset.pricing.type === "paid";
   const isOwned = accessState === "owned";
   const isLoggedIn = accessState !== "not-logged-in";
+  const { openModal } = useModal();
+
+  // Handle opening sign-in modal when not logged in
+  const handleSignIn = () => {
+    openModal("login");
+  };
 
   // Wishlist hooks
   const { data: wishlistData } = useWishlist();
@@ -159,7 +166,7 @@ export function DatasetDetailPage({
   // Handle wishlist toggle
   const handleWishlistToggle = async () => {
     if (!isLoggedIn) {
-      onLogin?.();
+      handleSignIn();
       return;
     }
 
@@ -199,7 +206,7 @@ export function DatasetDetailPage({
   // Handle review submission
   const handleReviewSubmit = async () => {
     if (!isLoggedIn) {
-      onLogin?.();
+      handleSignIn();
       return;
     }
 
@@ -289,7 +296,7 @@ export function DatasetDetailPage({
   // Handle question submission
   const handleQuestionSubmit = async () => {
     if (!isLoggedIn) {
-      onLogin?.();
+      handleSignIn();
       return;
     }
 
@@ -329,7 +336,7 @@ export function DatasetDetailPage({
     if (accessState === "not-logged-in") {
       return {
         label: "Sign In to Access",
-        onClick: onLogin,
+        onClick: handleSignIn,
         variant: "default" as const,
       };
     }
@@ -735,7 +742,7 @@ export function DatasetDetailPage({
                       } else if (onAddToWishlist) {
                         onAddToWishlist();
                       } else {
-                        onLogin?.();
+                        handleSignIn();
                       }
                     }}
                     disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
@@ -958,7 +965,7 @@ export function DatasetDetailPage({
                         variant="outline"
                         onClick={() => {
                           if (!isLoggedIn) {
-                            onLogin?.();
+                            handleSignIn();
                           } else {
                             setEditingReviewId(null);
                             setReviewRating(5);
@@ -1069,7 +1076,7 @@ export function DatasetDetailPage({
                     size="sm"
                     onClick={() => {
                       if (!isLoggedIn) {
-                        onLogin?.();
+                        handleSignIn();
                       } else {
                         setIsReviewDialogOpen(true);
                       }
@@ -1172,7 +1179,7 @@ export function DatasetDetailPage({
                       variant="outline"
                       onClick={() => {
                         if (!isLoggedIn) {
-                          onLogin?.();
+                          handleSignIn();
                         } else {
                           setQuestionText("");
                           setIsQuestionDialogOpen(true);
@@ -1254,7 +1261,7 @@ export function DatasetDetailPage({
                     size="sm"
                     onClick={() => {
                       if (!isLoggedIn) {
-                        onLogin?.();
+                        handleSignIn();
                       } else {
                         setIsQuestionDialogOpen(true);
                       }

@@ -4,15 +4,7 @@ export const LIBRARY_SIDEBAR_SECTIONS = [
     items: [
       { label: "My Datasets", href: "/my-datasets" },
       { label: "Wishlist", href: "/wishlist" },
-      { label: "Recently Accessed", href: "/library/recent" },
-      { label: "Favorites", href: "/library/favorites" },
-    ],
-  },
-  {
-    title: "ACTIVITY",
-    items: [
-      { label: "Download History", href: "/library/downloads" },
-      { label: "Access Logs", href: "/library/logs" },
+      { label: "Orders", href: "/orders" },
     ],
   },
 ];

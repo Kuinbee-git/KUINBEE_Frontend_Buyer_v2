@@ -10,7 +10,7 @@ import Link from "next/link";
 import { MyDatasetsPage } from "./components/my-datasets-page";
 import { WishlistTab } from "./tabs/wishlist-tab";
 
-type LibraryTab = "datasets" | "wishlist" | "recent" | "favorites";
+type LibraryTab = "datasets" | "wishlist";
 
 export function LibraryPage() {
   const pathname = usePathname();
@@ -18,8 +18,6 @@ export function LibraryPage() {
   // Determine active tab from pathname
   const getActiveTab = (): LibraryTab => {
     if (pathname === "/wishlist") return "wishlist";
-    if (pathname === "/library/recent") return "recent";
-    if (pathname === "/library/favorites") return "favorites";
     return "datasets";
   };
 
@@ -35,10 +33,6 @@ export function LibraryPage() {
         return "My Datasets";
       case "wishlist":
         return "My Wishlist";
-      case "recent":
-        return "Recently Accessed";
-      case "favorites":
-        return "Favorites";
       default:
         return "Library";
     }
@@ -86,9 +80,7 @@ export function LibraryPage() {
                         href={item.href}
                         className={`block w-full text-left px-3 py-2 min-h-[44px] flex items-center rounded-lg text-sm transition-all duration-200 ${
                           (activeTab === "datasets" && item.href === "/my-datasets") ||
-                          (activeTab === "wishlist" && item.href === "/wishlist") ||
-                          (activeTab === "recent" && item.href === "/library/recent") ||
-                          (activeTab === "favorites" && item.href === "/library/favorites")
+                          (activeTab === "wishlist" && item.href === "/wishlist")
                             ? "bg-[#1a2240]/10 dark:bg-white/10 text-[#1a2240] dark:text-white font-medium"
                             : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
                         }`}
@@ -106,16 +98,6 @@ export function LibraryPage() {
               {/* Render active tab component */}
               {activeTab === "datasets" && <MyDatasetsPage />}
               {activeTab === "wishlist" && <WishlistTab />}
-              {activeTab === "recent" && (
-                <div className="text-center py-12">
-                  <p className="text-[#4e5a7e] dark:text-white/60">Recently Accessed - Coming soon</p>
-                </div>
-              )}
-              {activeTab === "favorites" && (
-                <div className="text-center py-12">
-                  <p className="text-[#4e5a7e] dark:text-white/60">Favorites - Coming soon</p>
-                </div>
-              )}
             </div>
           </div>
         </div>

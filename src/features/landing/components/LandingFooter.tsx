@@ -43,13 +43,6 @@ const GithubIcon = () => (
 );
 
 export function LandingFooter() {
-  const handleScroll = (elementId: string) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <footer className="relative bg-gradient-to-b from-background via-background to-background dark:from-background/0 dark:via-background/0 dark:to-background/0 text-foreground dark:text-white border-t border-border dark:border-white/5">
       {/* Fade separator line at top */}
@@ -107,12 +100,9 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <button
-                  onClick={() => handleScroll("security")}
-                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-left w-full bg-transparent border-0 p-0 cursor-pointer text-sm"
-                >
+                <Link href="/legal-compliance" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   Security
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -171,12 +161,9 @@ export function LandingFooter() {
             <h4 className="text-sm font-semibold text-foreground dark:text-white">Resources</h4>
             <ul className="space-y-2">
               <li>
-                <button
-                  onClick={() => handleScroll("faq")}
-                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-left w-full bg-transparent border-0 p-0 cursor-pointer text-sm"
-                >
+                <Link href="/support" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   FAQs
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
