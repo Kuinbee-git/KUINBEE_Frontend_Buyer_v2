@@ -152,7 +152,7 @@ export function DatasetDetailPage({
 
   // Check if dataset is in wishlist (use API data if logged in, fallback to prop)
   const wishlistItems = wishlistData?.items || [];
-  const isInWishlist = isLoggedIn 
+  const isInWishlist = isLoggedIn
     ? wishlistItems.some((item) => item.datasetId === dataset.id)
     : isInWishlistProp;
 
@@ -185,7 +185,7 @@ export function DatasetDetailPage({
   // Fetch reviews
   const { data: reviewsData, isLoading: reviewsLoading } = useReviews(dataset.id);
   const reviews = reviewsData?.items || [];
-  
+
   // Calculate average rating
   const averageRating = reviews.length > 0
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
@@ -231,7 +231,7 @@ export function DatasetDetailPage({
         });
         toast.success("Review submitted successfully");
       }
-      
+
       setIsReviewDialogOpen(false);
       setEditingReviewId(null);
       setReviewRating(5);
@@ -333,7 +333,7 @@ export function DatasetDetailPage({
         variant: "default" as const,
       };
     }
-    
+
     if (isOwned) {
       return {
         label: "Download Dataset",
@@ -374,7 +374,7 @@ export function DatasetDetailPage({
       {/* Main Content */}
       <div className="relative pt-32 pb-12">
         <div className="mx-auto max-w-7xl px-6">
-          
+
           {/* ZONE 1: DATASET IDENTITY — Top, High Authority */}
           <div className="mb-10">
             {/* Dataset ID */}
@@ -428,10 +428,10 @@ export function DatasetDetailPage({
 
           {/* ZONE 2: CORE FACTS & ACCESS — Middle, Decision Surface */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 mb-12">
-            
+
             {/* LEFT: Dataset Substance (Creative, Not Tabular) */}
             <div className="space-y-6">
-              
+
               {/* Dataset Metrics - Grouped fact cluster */}
               <div>
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
@@ -522,7 +522,7 @@ export function DatasetDetailPage({
                           {dataset.license}
                         </div>
                         <div className="text-xs text-muted-foreground dark:text-white/60">
-                          {dataset.license === "Open Data" 
+                          {dataset.license === "Open Data"
                             ? "Publicly accessible under open data license. Usage subject to attribution requirements."
                             : "Commercial license required. Usage restricted to licensed entities. Redistribution prohibited."
                           }
@@ -537,7 +537,7 @@ export function DatasetDetailPage({
                           Data Format
                         </div>
                         <div className="text-xs text-muted-foreground dark:text-white/60">
-                          CSV, JSON, Parquet — Delivered via secure download link
+                          CSV, JSON, Parquet, Delivered via secure download link
                         </div>
                       </div>
                     </div>
@@ -545,26 +545,26 @@ export function DatasetDetailPage({
                 </div>
               </div>
 
-              {/* Quality Metrics */}
+              {/* KDTS Scoring */}
               <div>
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
-                  Quality Metrics
+                  KDTS Scoring
                 </h2>
                 <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Completeness
+                          Quality
                         </span>
                         <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.completeness}%
+                          {dataset.quality.quality}%
                         </span>
                       </div>
                       <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
-                          style={{ width: `${dataset.quality.completeness}%` }}
+                          style={{ width: `${dataset.quality.quality}%` }}
                         />
                       </div>
                     </div>
@@ -572,16 +572,16 @@ export function DatasetDetailPage({
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Accuracy
+                          Legal
                         </span>
                         <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.accuracy}%
+                          {dataset.quality.legal}%
                         </span>
                       </div>
                       <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                          style={{ width: `${dataset.quality.accuracy}%` }}
+                          style={{ width: `${dataset.quality.legal}%` }}
                         />
                       </div>
                     </div>
@@ -589,16 +589,16 @@ export function DatasetDetailPage({
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Consistency
+                          Provenance
                         </span>
                         <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.consistency}%
+                          {dataset.quality.provenance}%
                         </span>
                       </div>
                       <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
-                          style={{ width: `${dataset.quality.consistency}%` }}
+                          style={{ width: `${dataset.quality.provenance}%` }}
                         />
                       </div>
                     </div>
@@ -606,16 +606,33 @@ export function DatasetDetailPage({
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Timeliness
+                          Usability
                         </span>
                         <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.timeliness}%
+                          {dataset.quality.usability}%
                         </span>
                       </div>
                       <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"
-                          style={{ width: `${dataset.quality.timeliness}%` }}
+                          style={{ width: `${dataset.quality.usability}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
+                          Freshness
+                        </span>
+                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
+                          {dataset.quality.freshness}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-rose-500 to-rose-600 rounded-full"
+                          style={{ width: `${dataset.quality.freshness}%` }}
                         />
                       </div>
                     </div>
@@ -627,7 +644,7 @@ export function DatasetDetailPage({
             {/* RIGHT: Access & Pricing Panel (Sticky) */}
             <div className="lg:sticky lg:top-24 lg:self-start">
               <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6 shadow-sm">
-                
+
                 {/* Access State Indicator */}
                 <div className="mb-6">
                   {isOwned ? (
@@ -681,7 +698,7 @@ export function DatasetDetailPage({
                     size="lg"
                     className={cn(
                       "w-full h-12 text-sm font-semibold",
-                      isOwned 
+                      isOwned
                         ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800"
                         : "bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                     )}
@@ -755,7 +772,7 @@ export function DatasetDetailPage({
 
           {/* ZONE 3: DEEP DETAIL & ASSURANCE — Bottom, Trust Reinforcement */}
           <div className="space-y-10">
-            
+
             {/* Dataset Description */}
             <div>
               <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
@@ -766,7 +783,7 @@ export function DatasetDetailPage({
                   {dataset.description}
                 </p>
                 <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mt-4">
-                  This dataset provides comprehensive coverage of {dataset.coverage.toLowerCase()} with {dataset.updateFrequency.toLowerCase()} updates. 
+                  This dataset provides comprehensive coverage of {dataset.coverage.toLowerCase()} with {dataset.updateFrequency.toLowerCase()} updates.
                   Data is collected, validated, and published by {dataset.provider} under strict quality control protocols.
                 </p>
               </div>
@@ -792,7 +809,7 @@ export function DatasetDetailPage({
                       Collection Methodology
                     </h4>
                     <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      Data is collected through automated systems with manual validation checkpoints. 
+                      Data is collected through automated systems with manual validation checkpoints.
                       All sources are verified and cross-referenced against regulatory standards.
                     </p>
                   </div>
@@ -801,7 +818,7 @@ export function DatasetDetailPage({
                       Update Process
                     </h4>
                     <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      {dataset.updateFrequency} updates ensure data currency. 
+                      {dataset.updateFrequency} updates ensure data currency.
                       All updates are version-controlled and auditable.
                     </p>
                   </div>
@@ -857,7 +874,7 @@ export function DatasetDetailPage({
                       </div>
                     </div>
                   )}
-                  
+
                   {dataset.verification.published && (
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
@@ -896,7 +913,7 @@ export function DatasetDetailPage({
                 <div className="space-y-3 text-sm text-muted-foreground dark:text-white/70">
                   <p className="leading-relaxed">
                     <strong className="text-foreground dark:text-white">Permitted Use:</strong>{" "}
-                    {dataset.license === "Open Data" 
+                    {dataset.license === "Open Data"
                       ? "This dataset may be used for research, analysis, and commercial applications with proper attribution."
                       : "This dataset is licensed for use by the purchasing entity only. Internal analysis and derivative works are permitted."
                     }

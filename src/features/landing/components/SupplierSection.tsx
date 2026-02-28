@@ -105,9 +105,8 @@ export function SupplierSection() {
     <section
       ref={sectionRef}
       id="suppliers"
-      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
+        }`}
     >
       {/* Background - Consistent with other sections */}
       <div className="absolute inset-0">
@@ -139,7 +138,7 @@ export function SupplierSection() {
           </h2>
           <div className="mt-6 max-w-3xl space-y-4">
             <p className="text-lg text-muted-foreground dark:text-white/70">
-              Kuinbee is designed for suppliers who want control, credibility, and compliance — not a free-for-all.
+              Kuinbee is designed for suppliers who want control, credibility, and compliance, not a free-for-all.
             </p>
             <p className="text-muted-foreground dark:text-white/60">
               If you&apos;re looking for a governed distribution channel with verified buyers and clear rules, this is the platform for you.

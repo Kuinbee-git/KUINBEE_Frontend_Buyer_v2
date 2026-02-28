@@ -43,18 +43,18 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative pt-32 md:pt-40 lg:pt-48 pb-16 md:pb-20 lg:pb-32 overflow-hidden">
         <InstitutionalBackground />
-        
+
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div 
+          <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[900px] blur-3xl opacity-75 dark:opacity-85"
             style={{
-              background: isDark 
+              background: isDark
                 ? 'radial-gradient(circle, rgba(26, 34, 64, 0.5) 0%, rgba(45, 58, 95, 0.35) 35%, rgba(26, 34, 64, 0.2) 55%, transparent 75%)'
                 : 'radial-gradient(circle, rgba(100, 116, 139, 0.08) 0%, rgba(71, 85, 105, 0.05) 35%, rgba(51, 65, 85, 0.02) 55%, transparent 75%)'
             }}
           />
-          
-          <div 
+
+          <div
             className="absolute top-1/3 -left-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
             style={{
               background: isDark
@@ -62,8 +62,8 @@ export default function AboutPage() {
                 : 'radial-gradient(circle, rgba(71, 85, 105, 0.06) 0%, rgba(51, 65, 85, 0.04) 40%, rgba(30, 41, 59, 0.02) 60%, transparent 80%)'
             }}
           />
-          
-          <div 
+
+          <div
             className="absolute top-1/3 -right-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
             style={{
               background: isDark
@@ -72,7 +72,7 @@ export default function AboutPage() {
             }}
           />
         </div>
-        
+
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background dark:from-[#0a0f1e] to-transparent z-10" />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-20">
@@ -156,7 +156,7 @@ export default function AboutPage() {
       {/* Stats Section */}
       <section className="relative py-12 md:py-16 bg-background dark:bg-[#0a0f1e]">
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-px h-8 bg-gradient-to-b from-transparent to-border"></div>
-        
+
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -216,7 +216,7 @@ export default function AboutPage() {
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-foreground leading-tight">The bottlenecks we saw</h2>
 
               <div className="space-y-4 md:space-y-6 text-muted-foreground leading-relaxed text-base md:text-lg">
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.1 }}
@@ -227,7 +227,7 @@ export default function AboutPage() {
                   Public data was scattered across thousands of sources. Custom data collection was slow, expensive,
                   and inconsistent.
                 </motion.p>
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
@@ -238,7 +238,7 @@ export default function AboutPage() {
                   Businesses, researchers, and governments had to choose between buying outdated datasets or building
                   their own from scratch - a process that often took weeks or months.
                 </motion.p>
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
@@ -262,7 +262,7 @@ export default function AboutPage() {
               <div className="bg-card rounded-2xl md:rounded-3xl p-8 md:p-12 shadow-xl border border-border relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-primary/10 rounded-full blur-2xl"></div>
                 <div className="relative z-10 text-center space-y-6 md:space-y-8">
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
@@ -276,7 +276,7 @@ export default function AboutPage() {
                   <div className="relative">
                     <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-card px-4">
-                      <motion.div 
+                      <motion.div
                         whileInView={{ rotate: 360 }}
                         transition={{ duration: 1, delay: 0.6 }}
                         viewport={{ once: true }}
@@ -287,7 +287,7 @@ export default function AboutPage() {
                     </div>
                   </div>
 
-                  <motion.div 
+                  <motion.div
                     initial={{ scale: 0.8 }}
                     whileInView={{ scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.8 }}
@@ -309,7 +309,7 @@ export default function AboutPage() {
       {/* What We Do Section */}
       <section className="py-16 md:py-20 bg-background relative">
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -422,7 +422,7 @@ export default function AboutPage() {
                   Environmental specialists are monitoring climate data to plan sustainable interventions. Financial
                   institutions are leveraging market indicators to forecast trends and guide strategic decisions.
                 </motion.p>
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
@@ -477,7 +477,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-            
+
 
       <LandingFooter />
     </div>

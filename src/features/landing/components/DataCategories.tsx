@@ -91,9 +91,8 @@ export function DataCategories() {
     <section
       ref={sectionRef}
       id="categories"
-      className={`relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
+        }`}
     >
       {/* Subtle pattern for light mode depth */}
       <div
@@ -103,7 +102,7 @@ export function DataCategories() {
           backgroundSize: "32px 32px",
         }}
       />
-      
+
       <div className="mx-auto max-w-6xl px-6 relative z-20">
         {/* Section header */}
         <div className="mb-16 text-center">

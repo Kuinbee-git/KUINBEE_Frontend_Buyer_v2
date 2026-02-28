@@ -116,7 +116,7 @@ export function OrdersPage() {
 
   const formatAmount = (amount: number | null, currency: string) => {
     if (amount === null) {
-      return "—";
+      return "-";
     }
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -207,11 +207,10 @@ export function OrdersPage() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`block w-full text-left px-3 py-2 min-h-[44px] flex items-center rounded-lg text-sm transition-all duration-200 ${
-                            isActive
+                          className={`block w-full text-left px-3 py-2 min-h-[44px] flex items-center rounded-lg text-sm transition-all duration-200 ${isActive
                               ? "bg-[#1a2240]/5 dark:bg-white/10 text-[#1a2240] dark:text-white font-medium"
                               : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          }`}
+                            }`}
                         >
                           {item.label}
                         </Link>

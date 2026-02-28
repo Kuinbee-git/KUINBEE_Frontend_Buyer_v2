@@ -36,10 +36,11 @@ const mapToUIDataset = (apiDataset: any): UIDataset => ({
     currency: apiDataset.currency || "USD",
   },
   quality: {
-    completeness: 0,
-    accuracy: 0,
-    consistency: 0,
-    timeliness: 0,
+    quality: 0,
+    legal: 0,
+    provenance: 0,
+    usability: 0,
+    freshness: 0,
   },
   verification: {
     supplierVerified: true,
@@ -55,13 +56,13 @@ export default function DatasetDetailPageRoute() {
 
   // Fetch dataset details from API
   const { data: response, isLoading, error } = useDatasetDetails(id, !!id);
-  
+
   // Check authentication status
   const { user, isAuthenticated } = useAuth();
-  
+
   // Check if user has access (only when authenticated)
   const { data: entitlementCheck } = useCheckEntitlement(id, isAuthenticated && !!id);
-  
+
   // Claim dataset mutation
   const claimMutation = useClaimDataset();
 
@@ -98,7 +99,7 @@ export default function DatasetDetailPageRoute() {
   const getAccessState = (): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
     if (!isAuthenticated) return "not-logged-in";
     if (entitlementCheck?.entitled) return "owned";
-    
+
     // Check if dataset is free or paid
     const isPaid = response?.dataset.isPaid;
     return isPaid ? "not-entitled-paid" : "not-entitled-free";

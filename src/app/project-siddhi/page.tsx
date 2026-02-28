@@ -346,7 +346,7 @@ export default function ProjectSiddhiPage() {
                                 </p>
                                 <p>
                                     Our remote-friendly design ensures that support, awareness, and
-                                    community are accessible to all—regardless of location.
+                                    community are accessible to all, regardless of location.
                                 </p>
                             </div>
 
@@ -425,7 +425,7 @@ export default function ProjectSiddhiPage() {
                         </h2>
                         <p className="mx-auto mt-4 max-w-2xl text-muted-foreground dark:text-white/60">
                             If you or someone you know is struggling, help is always available.
-                            You are not alone—and reaching out is a sign of strength.
+                            You are not alone, and reaching out is a sign of strength.
                         </p>
                     </div>
 

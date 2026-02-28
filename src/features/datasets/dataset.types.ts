@@ -35,10 +35,11 @@ export interface LegacyDataset {
     currency?: "INR" | "USD" | "EUR" | "GBP";
   };
   quality: {
-    completeness: number;
-    accuracy: number;
-    consistency: number;
-    timeliness: number;
+    quality: number;
+    legal: number;
+    provenance: number;
+    usability: number;
+    freshness: number;
   };
   verification: {
     supplierVerified: boolean;

@@ -140,37 +140,44 @@ export function DatasetPreviewModal({
           </div>
         </div>
 
-        {/* Data Quality Indicators */}
+        {/* KDTS Scoring Indicators */}
         <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-4 mb-6">
-          <h3 className="font-semibold text-foreground mb-4 text-sm sm:text-base">Data Quality</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+          <h3 className="font-semibold text-foreground mb-4 text-sm sm:text-base">KDTS Scoring</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
             <div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Completeness</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Quality</p>
               <div className="bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
-                <div className="bg-success h-full" style={{ width: `${dataset.quality.completeness}%` }} />
+                <div className="bg-success h-full" style={{ width: `${dataset.quality.quality}%` }} />
               </div>
-              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.completeness}%</p>
+              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.quality}%</p>
             </div>
             <div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Accuracy</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Legal</p>
               <div className="bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
-                <div className="bg-success h-full" style={{ width: `${dataset.quality.accuracy}%` }} />
+                <div className="bg-success h-full" style={{ width: `${dataset.quality.legal}%` }} />
               </div>
-              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.accuracy}%</p>
+              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.legal}%</p>
             </div>
             <div className="hidden sm:block">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Consistency</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Provenance</p>
               <div className="bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
-                <div className="bg-success h-full" style={{ width: `${dataset.quality.consistency}%` }} />
+                <div className="bg-success h-full" style={{ width: `${dataset.quality.provenance}%` }} />
               </div>
-              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.consistency}%</p>
+              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.provenance}%</p>
             </div>
             <div className="hidden lg:block">
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Timeliness</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Usability</p>
               <div className="bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
-                <div className="bg-primary h-full" style={{ width: `${dataset.quality.timeliness}%` }} />
+                <div className="bg-primary h-full" style={{ width: `${dataset.quality.usability}%` }} />
               </div>
-              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.timeliness}%</p>
+              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.usability}%</p>
+            </div>
+            <div className="hidden lg:block">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-1 truncate">Freshness</p>
+              <div className="bg-muted rounded-full h-1.5 sm:h-2 overflow-hidden">
+                <div className="bg-primary h-full" style={{ width: `${dataset.quality.freshness}%` }} />
+              </div>
+              <p className="text-[10px] sm:text-xs font-medium text-foreground mt-1">{dataset.quality.freshness}%</p>
             </div>
           </div>
         </div>

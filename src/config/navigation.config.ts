@@ -87,7 +87,7 @@ export const resources: NavItem[] = [
     icon: Briefcase,
     description: "Join our team",
   },
-  
+
   {
     name: "FAQs",
     href: "#faq",
@@ -116,7 +116,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Marketplace", href: "/datasets", prominent: true },
-      { label: "Analytics", href: "/analytics" },
+      { label: "Strotas", href: "/analytics" },
       { label: "Support", href: "/support" },
     ],
     dropdowns: ["categories", "resources"],
@@ -226,7 +226,7 @@ export const DEFAULT_CONFIG: NavigationConfig = {
   showBack: false,
   directLinks: [
     { label: "Marketplace", href: "/datasets", prominent: true },
-    { label: "Analytics", href: "/analytics" },
+    { label: "Strotas", href: "/analytics" },
     { label: "Support", href: "/support" },
   ],
   dropdowns: ["categories", "resources"],

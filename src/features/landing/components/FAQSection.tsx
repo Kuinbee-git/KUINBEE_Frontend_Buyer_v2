@@ -70,9 +70,8 @@ export function FAQSection() {
     <section
       ref={sectionRef}
       id="faq"
-      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
+        }`}
     >
       {/* Background - Consistent with other sections */}
       <div className="absolute inset-0">

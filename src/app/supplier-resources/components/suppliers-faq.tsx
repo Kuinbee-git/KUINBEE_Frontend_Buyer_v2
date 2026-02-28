@@ -19,7 +19,7 @@ const faqs = [
     { question: "Can I update the actual dataset file after it is published?", answer: "Currently, Kuinbee supports static dataset deliveries. If your data changes, submit a new dataset proposal representing the new timeframe or version. You can use descriptive fields to indicate it's a point-in-time snapshot. Versioning support is on the roadmap." },
     { question: "Who handles buyer disputes or refunds?", answer: "Because buyers agree to your explicit licensing terms and receive structural schema and samples upfront, refunds are strictly limited. Kuinbee mediates disputes solely based on whether the final delivered data matches the approved proposal's schema and sample perfectly." },
     { question: "What currencies do you support?", answer: "We support Indian Rupee (INR), US Dollar (USD), Euro (EUR), and British Pound (GBP). You can set your pricing in any of these currencies, and we handle the conversion for international buyers." },
-    { question: "Is there a commission or fee?", answer: "Yes, Kuinbee takes a percentage of each transaction. The exact percentage depends on your supplier tier and agreement. We're transparent about all fees upfront—no hidden costs." },
+    { question: "Is there a commission or fee?", answer: "Yes, Kuinbee takes a percentage of each transaction. The exact percentage depends on your supplier tier and agreement. We're transparent about all fees upfront, no hidden costs." },
 ];
 
 export function SuppliersFAQ() {

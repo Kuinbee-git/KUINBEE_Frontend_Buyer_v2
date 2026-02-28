@@ -112,7 +112,7 @@ export function SuppliersHero() {
                             <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-2 px-4 py-3 bg-gradient-to-b from-black/20 to-transparent">                            </div>
                             <Image
                                 src={isDark ? "/supplier-panel-dashboard-light.png" : "/supplier-panel-dashboard-dark.png"}
-                                alt="Kuinbee Supplier Panel — Dashboard Overview showing proposals, datasets, and onboarding status"
+                                alt="Kuinbee Supplier Panel, Dashboard Overview showing proposals, datasets, and onboarding status"
                                 width={1200}
                                 height={800}
                                 className="w-full h-auto"

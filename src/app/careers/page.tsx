@@ -151,7 +151,7 @@ export default function CareersPage() {
                                 className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0"
                             >
                                 Join a team building the governed marketplace where verified data meets responsible commerce.
-                                We&apos;re growing fast — and we&apos;re looking for people who care about getting it right.
+                                We&apos;re growing fast, and we&apos;re looking for people who care about getting it right.
                             </motion.p>
                         </motion.div>
                     </div>

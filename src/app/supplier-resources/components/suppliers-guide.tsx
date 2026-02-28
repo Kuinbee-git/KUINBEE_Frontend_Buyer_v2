@@ -399,7 +399,7 @@ export function SuppliersGuide() {
                     <div className="rounded-lg border border-border/50 bg-card/80 dark:bg-card/50 backdrop-blur-sm p-6 shadow-lg">
                         <p className="text-sm text-foreground dark:text-white">
                             <span className="font-semibold text-primary dark:text-white">Important:</span>{" "}
-                            <span className="text-muted-foreground dark:text-white/70">Published datasets cannot be deleted—only archived. This preserves transaction history for any buyer who previously purchased access.</span>
+                            <span className="text-muted-foreground dark:text-white/70">Published datasets cannot be deleted, only archived. This preserves transaction history for any buyer who previously purchased access.</span>
                         </p>
                     </div>
                 </div>

@@ -32,7 +32,7 @@ const securityFeatures = [
   {
     icon: Code,
     title: "DevSecOps at the Core",
-    description: "Security is part of every build, deployment, and update — not an afterthought.",
+    description: "Security is part of every build, deployment, and update, not an afterthought.",
     angle: 150, // Fixed angle for bottom-left position
   },
   {
@@ -51,7 +51,7 @@ export function SecuritySection() {
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(26,34,64,0.05),transparent_60%)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.03),transparent_60%)]" />
         {/* Subtle grid pattern */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.015] dark:opacity-[0.02]"
           style={{
             backgroundImage: `linear-gradient(rgba(26,34,64,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(26,34,64,0.1) 1px, transparent 1px)`,
@@ -80,8 +80,8 @@ export function SecuritySection() {
         {/* Orbit layout for md+ screens */}
         <div className="hidden md:block relative max-w-5xl mx-auto">
           {/* Central Security Hub */}
-          <ScaleOnView 
-            delay={0.2} 
+          <ScaleOnView
+            delay={0.2}
             duration={0.8}
             initialScale={0.8}
             className="relative w-[600px] h-[600px] mx-auto"

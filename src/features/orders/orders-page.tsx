@@ -116,7 +116,7 @@ export function OrdersPage() {
 
   const formatAmount = (amount: number | null, currency: string) => {
     if (amount === null) {
-      return "—";
+      return "-";
     }
     return new Intl.NumberFormat("en-US", {
       style: "currency",
