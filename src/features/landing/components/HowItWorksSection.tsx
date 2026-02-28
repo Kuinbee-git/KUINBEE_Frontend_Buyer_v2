@@ -102,16 +102,15 @@ export function HowItWorksSection() {
   return (
     <section
       ref={sectionRef}
-      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
+        }`}
     >
       {/* Background - Enhanced for light mode */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.03] dark:via-[#1a2240]/20 to-background" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(26,34,64,0.04),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.03),transparent_50%)]" />
         {/* Subtle grid pattern for light mode */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.015] dark:opacity-0"
           style={{
             backgroundImage: `linear-gradient(rgba(26,34,64,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(26,34,64,0.1) 1px, transparent 1px)`,
@@ -154,11 +153,11 @@ export function HowItWorksSection() {
                 {/* Content - Enhanced typography for light mode */}
                 <div className={cn(!isEven && "lg:col-start-2")}>
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="text-6xl font-bold text-primary/[0.08] dark:text-white/10 select-none">
+                    <div className="text-6xl font-bold text-primary/30 dark:text-white/30 select-none">
                       {step.number}
                     </div>
                     <div className={cn(
-                      "flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent shadow-sm", 
+                      "flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent shadow-sm",
                       step.bgColor
                     )}>
                       <Icon className={cn("h-7 w-7", step.color)} />
