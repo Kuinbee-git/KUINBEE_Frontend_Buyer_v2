@@ -42,6 +42,7 @@ import { useQuestions, useAskQuestion } from "@/hooks/api/useQuestions";
 import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { DatasetKdtsCard } from "./DatasetKdtsCard";
 import { useModal } from "@/core/providers";
 
 /**
@@ -553,99 +554,7 @@ export function DatasetDetailPage({
               </div>
 
               {/* KDTS Scoring */}
-              <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
-                  KDTS Scoring
-                </h2>
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Quality
-                        </span>
-                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.quality}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
-                          style={{ width: `${dataset.quality.quality}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Legal
-                        </span>
-                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.legal}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                          style={{ width: `${dataset.quality.legal}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Provenance
-                        </span>
-                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.provenance}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full"
-                          style={{ width: `${dataset.quality.provenance}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Usability
-                        </span>
-                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.usability}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full"
-                          style={{ width: `${dataset.quality.usability}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-span-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
-                          Freshness
-                        </span>
-                        <span className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {dataset.quality.freshness}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-muted dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-rose-500 to-rose-600 rounded-full"
-                          style={{ width: `${dataset.quality.freshness}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <DatasetKdtsCard datasetId={dataset.id} />
             </div>
 
             {/* RIGHT: Access & Pricing Panel (Sticky) */}
