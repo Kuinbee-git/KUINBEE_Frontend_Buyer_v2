@@ -11,12 +11,21 @@ interface OAuthSectionProps {
  * Matches category card styling
  */
 export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps) {
+  const saveReturnUrl = () => {
+    // Save the current page so the OAuth callback can redirect back here
+    const returnTo = window.location.pathname + window.location.search;
+    if (returnTo && returnTo !== "/oauth/callback") {
+      sessionStorage.setItem("oauth_return_to", returnTo);
+    }
+  };
+
   const handleGoogleClick = () => {
     if (onGoogleClick) {
       onGoogleClick();
       return;
     }
-    
+
+    saveReturnUrl();
     window.location.href =
       `${API_BASE_URL}/api/v1/user/auth/oauth/google/start` +
       `?redirectTo=${encodeURIComponent("/oauth/callback")}`;
@@ -27,7 +36,8 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
       onGitHubClick();
       return;
     }
-    
+
+    saveReturnUrl();
     window.location.href =
       `${API_BASE_URL}/api/v1/user/auth/oauth/github/start` +
       `?redirectTo=${encodeURIComponent("/oauth/callback")}`;

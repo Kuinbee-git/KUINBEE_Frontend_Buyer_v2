@@ -18,15 +18,15 @@ function OAuthCallbackContent() {
     const handleCallback = async () => {
       // Get the mode parameter to distinguish between login and linking flows
       const mode = searchParams.get("mode") || "login";
-      
+
       // Check for OAuth provider errors from Google/GitHub
       const oauthError = searchParams.get("error");
       const oauthErrorDescription = searchParams.get("error_description");
-      
+
       // Check for backend errors (passed as URL parameters)
       const backendError = searchParams.get("error_code");
       const backendErrorMessage = searchParams.get("error_message");
-      
+
       // Check for authorization code
       const code = searchParams.get("code");
       const state = searchParams.get("state");
@@ -60,7 +60,7 @@ function OAuthCallbackContent() {
           ACCOUNT_SUSPENDED: "Your account has been suspended. Please contact support.",
           PROVIDER_ALREADY_LINKED: "This provider account is already linked to another user account.",
         };
-        
+
         const message = errorMessages[backendError] || backendErrorMessage || "Authentication failed. Please try again.";
         setMessage(message);
         return;
@@ -83,13 +83,16 @@ function OAuthCallbackContent() {
             const data = await response.json();
             console.log("Auth verified:", data);
             setStatus("success");
-            
+
             // Determine redirect based on mode
             const redirectMessage = mode === "link" ? "Account linked successfully! Redirecting..." : "Successfully authenticated! Redirecting...";
             setMessage(redirectMessage);
-            
-            const redirectUrl = mode === "link" ? "/account/linked-accounts" : "/";
-            
+
+            // Use saved return URL or fall back to home
+            const savedReturnTo = sessionStorage.getItem("oauth_return_to");
+            sessionStorage.removeItem("oauth_return_to");
+            const redirectUrl = mode === "link" ? "/account/linked-accounts" : (savedReturnTo || "/");
+
             setTimeout(() => {
               router.push(redirectUrl);
             }, 1500);
@@ -115,12 +118,15 @@ function OAuthCallbackContent() {
         // If we have code and state, backend still needs to process them
         // (shouldn't happen with current flow, but keep as fallback)
         setStatus("success");
-        
+
         const redirectMessage = mode === "link" ? "Account linked successfully! Redirecting..." : "Successfully authenticated! Redirecting...";
         setMessage(redirectMessage);
-        
-        const redirectUrl = mode === "link" ? "/account/linked-accounts" : "/";
-        
+
+        // Use saved return URL or fall back to home
+        const savedReturnTo = sessionStorage.getItem("oauth_return_to");
+        sessionStorage.removeItem("oauth_return_to");
+        const redirectUrl = mode === "link" ? "/account/linked-accounts" : (savedReturnTo || "/");
+
         setTimeout(() => {
           router.push(redirectUrl);
         }, 1500);
@@ -179,7 +185,7 @@ function OAuthCallbackContent() {
             )}
             {status === "success" && (
               <p className="text-center text-sm text-white/60">
-                Redirecting to home page...
+                Redirecting...
               </p>
             )}
             {status === "error" && (
