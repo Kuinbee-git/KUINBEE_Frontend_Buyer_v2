@@ -41,7 +41,7 @@ const stages = [
         tag: "Ingest",
         title: "Connect Any Source",
         description:
-            "Pull data from anywhere — on schedule or in real time. Nothing gets lost, nothing gets changed prematurely.",
+            "Pull data from anywhere,  on schedule or in real time. Nothing gets lost, nothing gets changed prematurely.",
         icon: Database,
         highlights: [
             "APIs, databases, files, webhooks",
@@ -102,7 +102,7 @@ const stages = [
         tag: "Validate",
         title: "Enforce Quality Rules",
         description:
-            "Set the rules your data must pass before reaching production. Failures are caught, logged, and surfaced — never silently passed through.",
+            "Set the rules your data must pass before reaching production. Failures are caught, logged, and surfaced, never silently passed through.",
         icon: Shield,
         highlights: [
             "Custom quality contracts",
@@ -148,7 +148,7 @@ const aiPrinciples = [
     {
         title: "Propose, Don\u2019t Decide",
         description:
-            "Every AI action is a suggestion surfaced for your review. Mappings, transforms, quality rules — nothing runs until you say so.",
+            "Every AI action is a suggestion surfaced for your review. Mappings, transforms, quality rules, nothing runs until you say so.",
         icon: Sparkles,
         stat: "100%",
         statLabel: "Human approval",
@@ -185,12 +185,12 @@ const pipelineNodes = [
 
 function PipelineFlowAnimation() {
     return (
-        <div className="relative flex flex-col items-start py-2 select-none w-full">
+        <div className="relative flex flex-col items-start py-3 select-none w-full">
             {/* Flowing line */}
-            <div className="absolute top-5 bottom-5 left-[22px] w-px">
+            <div className="absolute top-6 bottom-6 left-[28px] w-px">
                 <div className="h-full w-full bg-gradient-to-b from-primary/20 via-primary/40 to-primary/20 dark:from-white/15 dark:via-white/30 dark:to-white/15" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary dark:bg-white animate-[flowDown_3s_ease-in-out_infinite]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary/50 dark:bg-white/50 animate-[flowDown_3s_ease-in-out_1.2s_infinite]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary dark:bg-white animate-[flowDown_3s_ease-in-out_infinite]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary/50 dark:bg-white/50 animate-[flowDown_3s_ease-in-out_1.2s_infinite]" />
             </div>
 
             {pipelineNodes.map((node, i) => {
@@ -201,18 +201,18 @@ function PipelineFlowAnimation() {
                         initial={{ opacity: 0, x: 12 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
-                        className="relative flex items-center gap-3.5 mb-4 last:mb-0 w-full"
+                        className="relative flex items-center gap-5 mb-5 last:mb-0 w-full"
                     >
                         {/* Node dot */}
-                        <div className="relative z-10 w-11 h-11 rounded-xl bg-card border border-primary/20 dark:border-white/15 flex items-center justify-center shadow-md">
-                            <Icon className="w-[18px] h-[18px] text-primary dark:text-white" />
+                        <div className="relative z-10 w-14 h-14 rounded-2xl bg-card border-2 border-primary/20 dark:border-white/15 flex items-center justify-center shadow-lg">
+                            <Icon className="w-6 h-6 text-primary dark:text-white" />
                         </div>
                         {/* Text */}
                         <div className="flex-1">
-                            <div className="text-[13px] font-medium text-foreground dark:text-white/90 leading-none mb-0.5">
+                            <div className="text-base font-semibold text-foreground dark:text-white/90 leading-none mb-1.5">
                                 {node.label}
                             </div>
-                            <div className="text-[11px] text-muted-foreground dark:text-white/45 leading-none">
+                            <div className="text-[13px] text-muted-foreground dark:text-white/50 leading-none">
                                 {node.desc}
                             </div>
                         </div>
@@ -265,7 +265,7 @@ export default function StrotasPage() {
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-background dark:from-[#0a0f1e] to-transparent z-10" />
 
                 <div className="relative mx-auto max-w-7xl px-6 py-16 md:py-20 lg:py-28 z-20">
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 lg:gap-20 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-12 lg:gap-20 items-center">
                         {/* Left */}
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
@@ -289,10 +289,7 @@ export default function StrotasPage() {
                             </h1>
 
                             <p className="max-w-lg text-[15px] md:text-base leading-relaxed text-muted-foreground dark:text-white/65">
-                                Strotas is an AI-native data pipeline platform. Connect
-                                scattered sources and transform them into trusted, queryable
-                                datasets. AI agents propose. Humans approve. The pipeline never
-                                stalls.
+                                Strotas is an AI-native pipeline engine. Unify scattered sources into validated, query-ready data assets. AI agents design and optimize the flow. Humans retain authority. Data moves without friction.
                             </p>
 
                             {/* Pills */}
@@ -377,7 +374,7 @@ export default function StrotasPage() {
                             transition={{ duration: 0.8, delay: 0.3 }}
                             className="hidden lg:flex justify-center"
                         >
-                            <div className="bg-card/60 backdrop-blur-md border border-border/60 rounded-2xl p-5 shadow-2xl shadow-primary/5 dark:shadow-black/30 w-full max-w-[260px]">
+                            <div className="bg-card/60 backdrop-blur-md border border-border/60 rounded-3xl p-7 shadow-2xl shadow-primary/5 dark:shadow-black/30 w-full max-w-[320px]">
                                 <PipelineFlowAnimation />
                             </div>
                         </motion.div>
@@ -440,7 +437,7 @@ export default function StrotasPage() {
                                         </p>
                                     </div>
 
-                                    {/* Canonical — highlighted */}
+                                    {/* Canonical - highlighted */}
                                     <div className="rounded-xl border-2 border-emerald-400/30 bg-emerald-500/[0.08] p-5 text-center relative shadow-[0_0_30px_rgba(52,211,153,0.08)]">
                                         <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                                             <span className="text-[9px] font-bold uppercase tracking-[0.2em] bg-emerald-500/25 text-emerald-200 px-3 py-0.5 rounded-full border border-emerald-400/25">
@@ -468,7 +465,7 @@ export default function StrotasPage() {
                                             Downstream
                                         </div>
                                         <p className="text-[11px] text-white/40 leading-relaxed">
-                                            Transforms, validations, dashboards — completely
+                                            Transforms, validations, dashboards, completely
                                             unaffected by changes
                                         </p>
                                     </div>
@@ -533,7 +530,7 @@ export default function StrotasPage() {
             </section>
 
             {/* ══════════════════════════════════════════════════════════
-          SECTION 3 — Pipeline Stages
+          SECTION 3 - Pipeline Stages
           ══════════════════════════════════════════════════════════ */}
             <section
                 id="pipeline"
@@ -563,7 +560,7 @@ export default function StrotasPage() {
                             Seven Stages. One Outcome.
                         </h2>
                         <p className="mx-auto max-w-lg text-[15px] text-muted-foreground dark:text-white/55 leading-relaxed">
-                            From scattered sources to trusted datasets — every stage is
+                            From scattered sources to trusted datasets, every stage is
                             observable, auditable, and AI-accelerated.
                         </p>
                     </div>
@@ -668,7 +665,7 @@ export default function StrotasPage() {
             </section>
 
             {/* ══════════════════════════════════════════════════════════
-          SECTION 4 — AI Agents
+          SECTION 4 - AI Agents
           ══════════════════════════════════════════════════════════ */}
             <section className="relative py-16 md:py-24 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/[0.02] dark:via-[#1a2240]/15 to-background" />
@@ -685,7 +682,7 @@ export default function StrotasPage() {
                             AI That Accelerates. Never Gates.
                         </h2>
                         <p className="mx-auto max-w-lg text-[15px] text-muted-foreground dark:text-white/55 leading-relaxed">
-                            AI agents are embedded in every stage — but they are assistants,
+                            AI agents are embedded in every stage, but they are assistants,
                             not gatekeepers.
                         </p>
                     </div>
@@ -799,7 +796,7 @@ export default function StrotasPage() {
             </section>
 
             {/* ══════════════════════════════════════════════════════════
-          SECTION 5 — Waitlist CTA
+          SECTION 5 - Waitlist CTA
           ══════════════════════════════════════════════════════════ */}
             <section
                 id="waitlist"
