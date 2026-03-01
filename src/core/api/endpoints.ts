@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
     REVIEW: (reviewId: string) => `/api/v1/marketplace/reviews/${reviewId}`,
     QUESTIONS: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}/questions`,
+    KDTS: (datasetId: string) => `/api/v1/datasets/${datasetId}/kdts`,
   },
 
   // Library
