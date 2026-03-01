@@ -9,6 +9,7 @@ import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useLogin } from "@/hooks/api/useAuth";
+import { authService } from "@/services/auth.service";
 import type { ApiError } from "@/types";
 
 export function LoginModalContent() {
@@ -27,10 +28,19 @@ export function LoginModalContent() {
     setError(null);
 
     try {
-      await loginMutation.mutateAsync({
+      const result = await loginMutation.mutateAsync({
         email: formData.email,
         password: formData.password,
       });
+
+      // Verify this is a regular user account
+      if (result?.user?.userType && result.user.userType !== 'USER') {
+        setError("Access denied. Please use the appropriate portal for your account type.");
+        // Log them out since the session was created
+        try { await authService.logout(); } catch { }
+        return;
+      }
+
       await refetch();
       closeModal();
     } catch (err) {
