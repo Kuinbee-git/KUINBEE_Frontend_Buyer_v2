@@ -198,8 +198,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Support
   "/support": {
     showBack: true,
-    backUrl: "/account",
-    backLabel: "Back to Account",
+    backUrl: "/",
+    backLabel: "Back to Landing",
     pageTitle: "Support",
     directLinks: [],
     dropdowns: [],
