@@ -87,14 +87,7 @@ export const resources: NavItem[] = [
     icon: Briefcase,
     description: "Join our team",
   },
-
-  {
-    name: "FAQs",
-    href: "#faq",
-    icon: FileText,
-    description: "Frequently asked questions",
-    scroll: true,
-  },
+  // FAQs removed
   {
     name: "Request Data",
     href: "/data-request",

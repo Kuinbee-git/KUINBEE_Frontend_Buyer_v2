@@ -9,8 +9,8 @@ import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Package, RefreshCw, ArrowRight } from "lucide-react";
-import { usePaymentOrders } from "@/hooks/api/usePayments";
-import type { PaymentOrderListItem, OrderStatus } from "@/types";
+import { useOrderHistory } from "@/hooks/api/usePayments";
+import type { PaymentOrder, OrderStatus } from "@/types";
 
 /**
  * ORDERS PAGE (BUYER · FINANCIAL RECORDS)
@@ -24,12 +24,9 @@ import type { PaymentOrderListItem, OrderStatus } from "@/types";
 export function OrdersPage() {
   const pathname = usePathname();
   const router = useRouter();
-  const { data, isLoading, error, refetch } = usePaymentOrders();
+  const { orders, isLoading, error, refetch, isEmpty } = useOrderHistory();
 
-  const orders = data?.items ?? [];
-  const isEmpty = !isLoading && !error && orders.length === 0;
-
-  const handleViewDetails = (order: PaymentOrderListItem) => {
+  const handleViewDetails = (order: PaymentOrder) => {
     router.push(`/order/${order.id}`);
   };
 
@@ -310,9 +307,6 @@ export function OrdersPage() {
                           </div>
                           <div className="text-sm text-[#1a2240] dark:text-white">
                             {formatDate(order.createdAt)}
-                          </div>
-                          <div className="text-xs text-[#4e5a7e] dark:text-white/60 mt-0.5">
-                            {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
                           </div>
                         </div>
 

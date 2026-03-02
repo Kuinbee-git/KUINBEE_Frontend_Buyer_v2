@@ -12,21 +12,9 @@ import type {
   RazorpayConfirmBody,
   RazorpayConfirmResponse,
   PaymentOrderGetResponse,
-  PaymentOrderListItem,
-  PaymentOrderListQuery,
-  PaginatedResponse,
 } from "@/types";
 
 export const paymentService = {
-  /**
-   * List user's orders (paginated).
-   */
-  listOrders: (query?: PaymentOrderListQuery) =>
-    apiClient.get<PaginatedResponse<PaymentOrderListItem>>(
-      API_ENDPOINTS.PAYMENTS.ORDERS.LIST,
-      query as Record<string, unknown>,
-    ),
-
   /**
    * Create a checkout session — generates a backend Order + PaymentAttempt
    * and a Razorpay provider order.

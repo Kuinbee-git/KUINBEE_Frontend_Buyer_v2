@@ -51,6 +51,7 @@ import {
   usePaymentOrder,
 } from "@/hooks/api/usePayments";
 import { useQueryClient } from "@tanstack/react-query";
+import { addOrderId } from "@/lib/orderHistory";
 import type {
   RazorpayCheckoutInfo,
   RazorpaySuccessResponse,
@@ -191,6 +192,8 @@ export function RazorpayCheckoutFlow({
       if (!completedRef.current) {
         completedRef.current = true;
         toast.success("Payment successful! Dataset access granted.");
+        // Persist this order ID so the Orders page can display it
+        addOrderId(orderData.order.id);
         // Refresh entitlements & library so the dataset shows as owned
         queryClient.invalidateQueries({ queryKey: ["entitlements"] });
         queryClient.invalidateQueries({ queryKey: ["library"] });

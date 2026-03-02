@@ -7,31 +7,56 @@
  * - useRazorpayCheckout — orchestrates the full Razorpay flow
  */
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentService } from "@/services";
+import { getStoredOrderIds } from "@/lib/orderHistory";
 import type {
   RazorpayCheckoutCreateBody,
   RazorpayConfirmBody,
-  PaymentOrderListQuery,
   OrderStatus,
 } from "@/types";
 
 // ─── Query keys ──────────────────────────────────────────────────────
 
 export const paymentKeys = {
-  orders: (query?: PaymentOrderListQuery) => ["payment", "orders", query] as const,
   order: (orderId: string) => ["payment", "order", orderId] as const,
 };
 
-// ─── Mutations ───────────────────────────────────────────────────────
+// ─── Order history (localStorage-backed) ────────────────────────────
 
-/** List user's payment orders. */
-export const usePaymentOrders = (query?: PaymentOrderListQuery) => {
-  return useQuery({
-    queryKey: paymentKeys.orders(query),
-    queryFn: () => paymentService.listOrders(query),
+/**
+ * Reads order IDs persisted in localStorage after purchase and fetches
+ * each one in parallel via GET /api/v1/user/payments/orders/:orderId.
+ * Sorted newest-first by createdAt.
+ */
+export function useOrderHistory() {
+  const ids = getStoredOrderIds();
+
+  const queries = useQueries({
+    queries: ids.map((id) => ({
+      queryKey: paymentKeys.order(id),
+      queryFn: () => paymentService.getOrder(id),
+      staleTime: 30_000,
+    })),
   });
-};
+
+  const isLoading = queries.some((q) => q.isLoading && !q.data);
+  const error = queries.find((q) => q.isError)?.error ?? null;
+
+  const orders = queries
+    .filter((q) => !!q.data)
+    .map((q) => q.data!.order)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const refetch = () => Promise.all(queries.map((q) => q.refetch()));
+
+  return { orders, isLoading, error, refetch, isEmpty: !isLoading && orders.length === 0 };
+}
+
+// ─── Mutations ───────────────────────────────────────────────────────
 
 /** Create a Razorpay checkout (order + payment attempt on the backend). */
 export const useCreateCheckout = () => {
