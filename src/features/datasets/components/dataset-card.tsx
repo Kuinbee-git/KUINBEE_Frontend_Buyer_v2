@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Dataset } from "./types";
 import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
+import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 
@@ -24,12 +25,11 @@ interface DatasetCardProps {
   dataset: Dataset;
   onPreview: (dataset: Dataset) => void;
   onViewDetails?: (dataset: Dataset) => void;
-  isLoggedIn?: boolean;
-  onLogin?: () => void;
 }
 
-export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onLogin }: DatasetCardProps) {
+export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   // Wishlist hooks
   const { data: wishlistData } = useWishlist();
@@ -53,9 +53,8 @@ export function DatasetCard({ dataset, onPreview, onViewDetails, isLoggedIn, onL
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
     
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       toast.info("Sign in to add to wishlist");
-      onLogin?.();
       return;
     }
 

@@ -44,6 +44,7 @@ import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { DatasetKdtsCard } from "./DatasetKdtsCard";
 import { useModal } from "@/core/providers";
+import { useAuth } from "@/core/providers/AuthProvider";
 
 /**
  * DATASET DETAIL PAGE — KUINBEE BUYER SIDE
@@ -147,6 +148,7 @@ export function DatasetDetailPage({
   const isOwned = accessState === "owned";
   const isLoggedIn = accessState !== "not-logged-in";
   const { openModal } = useModal();
+  const { isAuthenticated } = useAuth();
 
   // Handle opening sign-in modal when not logged in
   const handleSignIn = () => {
@@ -166,7 +168,7 @@ export function DatasetDetailPage({
 
   // Handle wishlist toggle
   const handleWishlistToggle = async () => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       handleSignIn();
       return;
     }
@@ -645,8 +647,8 @@ export function DatasetDetailPage({
                         : "bg-white dark:bg-[#1e2847] text-primary dark:text-white border border-primary/20 dark:border-white/20 hover:bg-primary/10 dark:hover:bg-white/10"
                     )}
                     onClick={() => {
-                      // Try API hook first, fallback to prop callback
-                      if (isLoggedIn) {
+                      // Use direct auth check for wishlist to avoid prop relay issues
+                      if (isAuthenticated) {
                         handleWishlistToggle();
                       } else if (onAddToWishlist) {
                         onAddToWishlist();
