@@ -224,6 +224,61 @@ export function LandingHero() {
           </div>
         </div>
 
+        {/* Supplier logo ticker band */}
+        <div className="mt-16 w-full">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
+            Trusted Data Sources &amp; Partners
+          </p>
+
+          {/* Mask edges */}
+          <div
+            className="relative overflow-hidden py-2"
+            style={{
+              maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+            }}
+          >
+            <style>{`
+              @keyframes marquee-ltr {
+                0%   { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .animate-marquee {
+                display: flex;
+                width: max-content;
+                animation: marquee-ltr 35s linear infinite;
+              }
+              .animate-marquee:hover { animation-play-state: paused; }
+            `}</style>
+
+            <div className="animate-marquee items-center">
+              {/* Two identical sets for seamless loop */}
+              {[...Array(2)].map((_, setIdx) => (
+                <div key={setIdx} className="flex items-center gap-12 pr-12">
+                  {[
+                    { src: "/fao-logo.svg",               alt: "FAO",               w: 110, h: 30 },
+                    { src: "/world-bank-logo.png",         alt: "World Bank",        w: 36,  h: 36 },
+                    { src: "/our-world-in-data-logo.png",  alt: "Our World in Data", w: 34,  h: 34 },
+                    { src: "/data-gov_logo.webp",          alt: "Data.gov",          w: 110, h: 28 },
+                    { src: "/Eia-logomark.svg.png",        alt: "EIA",               w: 48,  h: 34 },
+                    { src: "/icrisat-logo.jpeg",           alt: "ICRISAT",           w: 68,  h: 36 },
+                    { src: "/opencity-logo.png",           alt: "OpenCity",          w: 100, h: 28 },
+                    { src: "/logo.f9fcba1.svg",            alt: "Partner",           w: 110, h: 30 },
+                  ].map((logo) => (
+                    <img
+                      key={`${setIdx}-${logo.alt}`}
+                      src={logo.src}
+                      alt={logo.alt}
+                      style={{ width: logo.w, height: logo.h }}
+                      className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Mockup browser interface - Full width container - NON-INTERACTIVE */}
         <div className="mt-20 relative w-full max-w-[1600px] mx-auto px-4 hidden md:block">
           {/* Main browser mockup */}
