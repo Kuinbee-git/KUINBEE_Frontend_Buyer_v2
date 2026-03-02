@@ -259,12 +259,12 @@ export function LandingFooter() {
           </div>
 
           {/* Bottom Section */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground dark:text-white/60">
-            <p>
-              © 2025 Kuinbee information services pvt ltd. All rights reserved. Built with
+          <div className="flex flex-col lg:flex-row justify-between items-center lg:items-end gap-6 text-xs text-muted-foreground dark:text-white/60">
+            <p className="text-center lg:text-left max-w-lg">
+              © 2026 Kuinbee information services pvt ltd. All rights reserved. Built with
               security, clarity, and community at the core.
             </p>
-            <div className="flex gap-6 text-xs">
+            <div className="flex gap-4 md:gap-6 text-xs flex-wrap justify-center lg:justify-end">
               <Link
                 href="/terms-and-conditions"
                 className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
@@ -276,6 +276,12 @@ export function LandingFooter() {
                 className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
               >
                 Legal & Compliance
+              </Link>
+              <Link
+                href="/data-processing-addendum"
+                className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              >
+                Data Processing Addendum
               </Link>
             </div>
           </div>
