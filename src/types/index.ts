@@ -14,3 +14,4 @@ export * from "./review.types";
 export * from "./question.types";
 export * from "./notification.types";
 export * from "./support.types";
+export * from "./payment.types";

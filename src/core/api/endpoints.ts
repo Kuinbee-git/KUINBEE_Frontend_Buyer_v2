@@ -96,6 +96,18 @@ export const API_ENDPOINTS = {
     TICKETS: "/api/v1/user/support/tickets",
     TICKET: (ticketId: string) => `/api/v1/user/support/tickets/${ticketId}`,
   },
+
+  // Payments
+  PAYMENTS: {
+    RAZORPAY: {
+      CHECKOUT: "/api/v1/user/payments/razorpay/checkout",
+      CONFIRM: "/api/v1/user/payments/razorpay/confirm",
+    },
+    ORDERS: {
+      LIST: "/api/v1/user/payments/orders",
+      GET: (orderId: string) => `/api/v1/user/payments/orders/${orderId}`,
+    },
+  },
 } as const;
 
 export { API_BASE_URL };

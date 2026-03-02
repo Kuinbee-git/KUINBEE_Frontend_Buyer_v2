@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components";
+import { RazorpayCheckoutFlow } from "@/features/datasets/components/razorpay-checkout-flow";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
@@ -73,6 +74,23 @@ export default function DatasetDetailPageRoute() {
     isLoading: isGeneratingDownload,
     error: downloadError,
   } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
+
+  // ── Checkout flow state (declared before early returns to keep hook order stable) ──
+  const [showCheckout, setShowCheckout] = useState(false);
+
+  // Listen for "proceedToCheckout" events from the NotchNavigation staging panel
+  useEffect(() => {
+    const handleProceedEvent = (e: CustomEvent) => {
+      // Only open if the staged dataset matches this page
+      const staged = e.detail;
+      if (staged && (staged.id === id || staged.datasetUniqueId === id)) {
+        setShowCheckout(true);
+      }
+    };
+
+    window.addEventListener("proceedToCheckout" as any, handleProceedEvent);
+    return () => window.removeEventListener("proceedToCheckout" as any, handleProceedEvent);
+  }, [id]);
 
   // Trigger download as soon as URL arrives
   useEffect(() => {
@@ -179,16 +197,56 @@ export default function DatasetDetailPageRoute() {
   const dataset = mapToUIDataset(response.dataset);
   const accessState = getAccessState();
 
+  const handlePurchaseDataset = () => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirectTo=/datasets/${id}`);
+      return;
+    }
+    // Also stage the dataset in the notch navigation
+    window.dispatchEvent(
+      new CustomEvent("stagedDatasetUpdate", {
+        detail: {
+          id: dataset.id,
+          datasetUniqueId: dataset.datasetUniqueId || dataset.id,
+          title: dataset.title,
+          category: dataset.category,
+          license: dataset.license,
+          pricing: dataset.pricing,
+          verification: dataset.verification,
+        },
+      })
+    );
+    setShowCheckout(true);
+  };
+
+  const handleCheckoutComplete = (_orderId: string) => {
+    // Checkout dialog handles its own success UI;
+    // user can navigate to order from there or we can refresh entitlement
+  };
+
   return (
-    <DatasetDetailPage
-      dataset={dataset}
-      accessState={accessState}
-      onLogin={handleLogin}
-      onClaimDataset={handleClaimDataset}
-      onPurchaseDataset={() => toast.info("Purchase flow coming soon")}
-      onDownloadDataset={handleDownload}
-      isInWishlist={false}
-      currentUserId={user?.id}
-    />
+    <>
+      <DatasetDetailPage
+        dataset={dataset}
+        accessState={accessState}
+        onLogin={handleLogin}
+        onClaimDataset={handleClaimDataset}
+        onPurchaseDataset={handlePurchaseDataset}
+        onDownloadDataset={handleDownload}
+        isInWishlist={false}
+        currentUserId={user?.id}
+      />
+
+      {/* Razorpay Checkout Flow */}
+      <RazorpayCheckoutFlow
+        datasetId={id}
+        datasetTitle={dataset.title}
+        amount={dataset.pricing.amount}
+        currency={dataset.pricing.currency}
+        open={showCheckout}
+        onOpenChange={setShowCheckout}
+        onComplete={handleCheckoutComplete}
+      />
+    </>
   );
 }

@@ -12,3 +12,4 @@ export * from "./useReviews";
 export * from "./useQuestions";
 export * from "./useNotifications";
 export * from "./useSupport";
+export * from "./usePayments";

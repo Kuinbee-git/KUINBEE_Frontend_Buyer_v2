@@ -13,3 +13,4 @@ export * from "./review.service";
 export * from "./question.service";
 export * from "./notification.service";
 export * from "./support.service";
+export * from "./payment.service";

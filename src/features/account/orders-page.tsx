@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
@@ -10,6 +9,8 @@ import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Package, RefreshCw, ArrowRight } from "lucide-react";
+import { usePaymentOrders } from "@/hooks/api/usePayments";
+import type { PaymentOrderListItem, OrderStatus } from "@/types";
 
 /**
  * ORDERS PAGE (BUYER · FINANCIAL RECORDS)
@@ -20,89 +21,15 @@ import { Package, RefreshCw, ArrowRight } from "lucide-react";
  * Compliance: Follows KUINBEE ACCOUNT & OWNERSHIP DESIGN LANGUAGE AUDIT
  */
 
-// Order type definition
-export interface Order {
-  id: string;
-  orderId: string;
-  datasetTitle: string;
-  datasetId: string;
-  orderType: "purchase" | "free-claim";
-  amount: number | null;
-  currency: string;
-  status: "completed" | "failed" | "refunded";
-  date: string;
-}
-
-type ViewState = "loading" | "empty" | "error" | "data";
-
 export function OrdersPage() {
   const pathname = usePathname();
   const router = useRouter();
-  const [viewState, setViewState] = useState<ViewState>("loading");
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { data, isLoading, error, refetch } = usePaymentOrders();
 
-  // Simulate data loading
-  useEffect(() => {
-    setTimeout(() => {
-      // Mock orders - replace with real API call
-      const mockOrders: Order[] = [
-        {
-          id: "1",
-          orderId: "ORD-2026-00041",
-          datasetTitle: "US Treasury Bond Yields 2024",
-          datasetId: "FIN-2024-USD-001",
-          orderType: "purchase",
-          amount: 299,
-          currency: "USD",
-          status: "completed",
-          date: "2024-12-15T10:30:00Z",
-        },
-        {
-          id: "2",
-          orderId: "ORD-2026-00038",
-          datasetTitle: "India Crop Production Statistics",
-          datasetId: "AGR-2024-CROP-118",
-          orderType: "purchase",
-          amount: 199,
-          currency: "USD",
-          status: "completed",
-          date: "2024-11-10T14:22:00Z",
-        },
-        {
-          id: "3",
-          orderId: "ORD-2026-00029",
-          datasetTitle: "Global Carbon Emissions - Q4 2024",
-          datasetId: "ENV-2024-CO2-042",
-          orderType: "free-claim",
-          amount: null,
-          currency: "USD",
-          status: "completed",
-          date: "2024-11-28T09:15:00Z",
-        },
-      ];
+  const orders = data?.items ?? [];
+  const isEmpty = !isLoading && !error && orders.length === 0;
 
-      // For demonstration, show different states:
-      // Empty state (no orders)
-      // setOrders([]);
-      // setViewState("empty");
-
-      // Error state
-      // setViewState("error");
-
-      // Data state (with orders)
-      setOrders(mockOrders);
-      setViewState("data");
-    }, 800);
-  }, []);
-
-  const handleRetry = () => {
-    setViewState("loading");
-    setTimeout(() => {
-      setViewState("data");
-    }, 800);
-  };
-
-  const handleViewDetails = (order: Order) => {
+  const handleViewDetails = (order: PaymentOrderListItem) => {
     router.push(`/order/${order.id}`);
   };
 
@@ -114,52 +41,55 @@ export function OrdersPage() {
     });
   };
 
-  const formatAmount = (amount: number | null, currency: string) => {
-    if (amount === null) {
-      return "-";
+  const getCurrencySymbol = (c: string) => {
+    switch (c) {
+      case "INR": return "₹";
+      case "USD": return "$";
+      case "EUR": return "€";
+      case "GBP": return "£";
+      default: return c;
     }
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-    }).format(amount);
   };
 
-  const getOrderTypeBadge = (type: "purchase" | "free-claim") => {
-    if (type === "purchase") {
-      return (
-        <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-2.5 py-1 text-xs font-semibold">
-          PURCHASE
-        </Badge>
-      );
-    }
-    return (
-      <Badge className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 px-2.5 py-1 text-xs font-semibold">
-        FREE CLAIM
-      </Badge>
-    );
+  const formatAmount = (amount: string, currency: string) => {
+    return `${getCurrencySymbol(currency)}${parseFloat(amount).toLocaleString()}`;
   };
 
-  const getStatusBadge = (status: "completed" | "failed" | "refunded") => {
+  const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case "completed":
+      case "COMPLETED":
         return (
           <Badge className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
             COMPLETED
           </Badge>
         );
-      case "failed":
+      case "PENDING":
+        return (
+          <Badge className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+            PENDING
+          </Badge>
+        );
+      case "FAILED":
         return (
           <Badge className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800">
             FAILED
           </Badge>
         );
-      case "refunded":
+      case "REFUNDED":
         return (
-          <Badge className="bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+          <Badge className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800">
             REFUNDED
           </Badge>
         );
     }
+  };
+
+  const getPaymentMethodBadge = (method: string) => {
+    return (
+      <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-2.5 py-1 text-xs font-semibold">
+        {method}
+      </Badge>
+    );
   };
 
   // Sidebar sections for Account area
@@ -234,7 +164,7 @@ export function OrdersPage() {
               </div>
 
               {/* Loading State */}
-              {viewState === "loading" && (
+              {isLoading && (
                 <div className="space-y-4">
                   {[...Array(3)].map((_, i) => (
                     <div
@@ -261,7 +191,7 @@ export function OrdersPage() {
               )}
 
               {/* Empty State */}
-              {viewState === "empty" && (
+              {isEmpty && (
                 <div className="flex flex-col items-center justify-center py-20 px-6">
                   <div className="w-20 h-20 rounded-2xl bg-[#1a2240]/5 dark:bg-white/5 border border-[#1a2240]/10 dark:border-white/10 flex items-center justify-center mb-6">
                     <Package className="w-10 h-10 text-[#4e5a7e] dark:text-white/40" />
@@ -282,7 +212,7 @@ export function OrdersPage() {
               )}
 
               {/* Error State */}
-              {viewState === "error" && (
+              {error && (
                 <div className="flex flex-col items-center justify-center py-20 px-6">
                   <div className="w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-center mb-6">
                     <Package className="w-10 h-10 text-red-600 dark:text-red-400" />
@@ -294,7 +224,7 @@ export function OrdersPage() {
                     There was an issue retrieving your order history. Please try again.
                   </p>
                   <Button
-                    onClick={handleRetry}
+                    onClick={() => refetch()}
                     variant="outline"
                     className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white hover:border-[#1a2240]/50 dark:hover:border-white/30 font-medium"
                   >
@@ -305,7 +235,7 @@ export function OrdersPage() {
               )}
 
               {/* Data State - Orders List */}
-              {viewState === "data" && (
+              {!isLoading && !error && orders.length > 0 && (
                 <div className="space-y-4">
                   {orders.map((order) => (
                     <div
@@ -318,42 +248,29 @@ export function OrdersPage() {
                         <div className="flex items-start justify-between gap-4 pb-4 border-b border-border/50 dark:border-white/10">
                           <div className="flex-1">
                             <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1">
-                              Order ID
+                              Order
                             </div>
                             <div className="font-mono text-sm text-[#4e5a7e] dark:text-white/60">
-                              {order.orderId}
+                              {order.orderNumber}
                             </div>
                           </div>
                           <div>{getStatusBadge(order.status)}</div>
-                        </div>
-
-                        {/* Dataset Info */}
-                        <div>
-                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1">
-                            Dataset
-                          </div>
-                          <div className="text-sm font-medium text-[#1a2240] dark:text-white mb-0.5">
-                            {order.datasetTitle}
-                          </div>
-                          <div className="font-mono text-xs text-[#4e5a7e] dark:text-white/60">
-                            {order.datasetId}
-                          </div>
                         </div>
 
                         {/* Details Grid */}
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1">
-                              Order Type
+                              Payment
                             </div>
-                            <div>{getOrderTypeBadge(order.orderType)}</div>
+                            <div>{getPaymentMethodBadge(order.paymentMethod)}</div>
                           </div>
                           <div>
                             <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1">
                               Amount
                             </div>
                             <div className="text-sm font-medium text-[#1a2240] dark:text-white">
-                              {formatAmount(order.amount, order.currency)}
+                              {formatAmount(order.totalAmount, order.currency)}
                             </div>
                           </div>
                         </div>
@@ -361,7 +278,7 @@ export function OrdersPage() {
                         {/* Footer Row */}
                         <div className="flex items-center justify-between pt-4 border-t border-border/50 dark:border-white/10">
                           <div className="text-xs text-[#4e5a7e] dark:text-white/60">
-                            {formatDate(order.date)}
+                            {formatDate(order.createdAt)}
                           </div>
                           <Button
                             variant="ghost"
@@ -375,54 +292,15 @@ export function OrdersPage() {
                       </div>
 
                       {/* Desktop Layout */}
-                      <div className="hidden lg:grid lg:grid-cols-[140px_1fr_130px_110px_120px_110px_auto] gap-6 items-start">
-                        {/* Order ID */}
+                      <div className="hidden lg:grid lg:grid-cols-[140px_1fr_120px_120px_110px_auto] gap-6 items-start">
+                        {/* Order Number */}
                         <div>
                           <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
-                            Order ID
+                            Order
                           </div>
                           <div className="font-mono text-sm text-[#4e5a7e] dark:text-white/60">
-                            {order.orderId}
+                            {order.orderNumber}
                           </div>
-                        </div>
-
-                        {/* Dataset */}
-                        <div>
-                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
-                            Dataset
-                          </div>
-                          <div className="text-sm font-medium text-[#1a2240] dark:text-white mb-1">
-                            {order.datasetTitle}
-                          </div>
-                          <div className="font-mono text-xs text-[#4e5a7e] dark:text-white/60">
-                            {order.datasetId}
-                          </div>
-                        </div>
-
-                        {/* Order Type */}
-                        <div>
-                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
-                            Order Type
-                          </div>
-                          <div>{getOrderTypeBadge(order.orderType)}</div>
-                        </div>
-
-                        {/* Amount */}
-                        <div>
-                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
-                            Amount
-                          </div>
-                          <div className="text-sm font-medium text-[#1a2240] dark:text-white">
-                            {formatAmount(order.amount, order.currency)}
-                          </div>
-                        </div>
-
-                        {/* Status */}
-                        <div>
-                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
-                            Status
-                          </div>
-                          <div>{getStatusBadge(order.status)}</div>
                         </div>
 
                         {/* Date */}
@@ -431,8 +309,37 @@ export function OrdersPage() {
                             Date
                           </div>
                           <div className="text-sm text-[#1a2240] dark:text-white">
-                            {formatDate(order.date)}
+                            {formatDate(order.createdAt)}
                           </div>
+                          <div className="text-xs text-[#4e5a7e] dark:text-white/60 mt-0.5">
+                            {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
+                          </div>
+                        </div>
+
+                        {/* Amount */}
+                        <div>
+                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
+                            Amount
+                          </div>
+                          <div className="text-sm font-medium text-[#1a2240] dark:text-white">
+                            {formatAmount(order.totalAmount, order.currency)}
+                          </div>
+                        </div>
+
+                        {/* Payment */}
+                        <div>
+                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
+                            Payment
+                          </div>
+                          <div>{getPaymentMethodBadge(order.paymentMethod)}</div>
+                        </div>
+
+                        {/* Status */}
+                        <div>
+                          <div className="text-xs text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider mb-1.5">
+                            Status
+                          </div>
+                          <div>{getStatusBadge(order.status)}</div>
                         </div>
 
                         {/* Action */}

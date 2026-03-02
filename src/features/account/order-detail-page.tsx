@@ -1,43 +1,156 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
-import { FileText, Download, Printer, ArrowLeft, CheckCircle2 } from "lucide-react";
+import {
+  FileText,
+  Download,
+  Printer,
+  ArrowLeft,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  Clock,
+} from "lucide-react";
 import Link from "next/link";
+import { usePaymentOrder } from "@/hooks/api/usePayments";
+import type { OrderStatus, PaymentAttemptStatus } from "@/types";
 
 interface OrderDetailPageProps {
   orderId: string;
 }
 
+// ── Status badge helpers ────────────────────────────────────────────
+
+function getOrderStatusConfig(status: OrderStatus) {
+  switch (status) {
+    case "COMPLETED":
+      return {
+        label: "Completed",
+        className: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+        icon: CheckCircle2,
+        bannerBg: "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800",
+        bannerText: "text-emerald-900 dark:text-emerald-100",
+        bannerSub: "text-emerald-700 dark:text-emerald-300",
+        bannerIcon: "text-emerald-600 dark:text-emerald-400",
+        bannerTitle: "Order Completed",
+        bannerDesc: "Your dataset is ready for download",
+      };
+    case "PENDING":
+      return {
+        label: "Pending",
+        className: "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+        icon: Clock,
+        bannerBg: "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800",
+        bannerText: "text-amber-900 dark:text-amber-100",
+        bannerSub: "text-amber-700 dark:text-amber-300",
+        bannerIcon: "text-amber-600 dark:text-amber-400",
+        bannerTitle: "Payment Processing",
+        bannerDesc: "Your payment is being confirmed — this may take a few moments",
+      };
+    case "FAILED":
+      return {
+        label: "Failed",
+        className: "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+        icon: XCircle,
+        bannerBg: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",
+        bannerText: "text-red-900 dark:text-red-100",
+        bannerSub: "text-red-700 dark:text-red-300",
+        bannerIcon: "text-red-600 dark:text-red-400",
+        bannerTitle: "Payment Failed",
+        bannerDesc: "This payment was not successful. If money was deducted, it will be refunded.",
+      };
+    case "REFUNDED":
+      return {
+        label: "Refunded",
+        className: "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+        icon: RefreshCw,
+        bannerBg: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800",
+        bannerText: "text-blue-900 dark:text-blue-100",
+        bannerSub: "text-blue-700 dark:text-blue-300",
+        bannerIcon: "text-blue-600 dark:text-blue-400",
+        bannerTitle: "Order Refunded",
+        bannerDesc: "This order has been refunded. Access has been revoked.",
+      };
+  }
+}
+
+function getAttemptStatusLabel(status: PaymentAttemptStatus) {
+  switch (status) {
+    case "INITIATED":  return "Initiated";
+    case "CLIENT_CONFIRMED": return "Confirmed";
+    case "CAPTURED":   return "Captured";
+    case "FAILED":     return "Failed";
+    case "REFUNDED":   return "Refunded";
+  }
+}
+
+function getCurrencySymbol(currency: string) {
+  switch (currency) {
+    case "INR": return "₹";
+    case "USD": return "$";
+    case "EUR": return "€";
+    case "GBP": return "£";
+    default: return currency;
+  }
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
-  // Mock data - replace with actual API call
-  const order = {
-    id: `ORD-2024-${orderId}`,
-    datasetTitle: "US Treasury Bond Yields 2024",
-    datasetId: "123",
-    purchaseDate: "2024-12-15T10:30:00Z",
-    status: "completed",
-    paymentMethod: "Credit Card (•••• 4242)",
-    billingAddress: {
-      name: "John Doe",
-      organization: "Acme Corporation",
-      email: "john.doe@acme.com",
-      address: "123 Main Street",
-      city: "San Francisco",
-      state: "CA",
-      zipCode: "94102",
-      country: "United States",
-    },
-    pricing: {
-      subtotal: 299.0,
-      tax: 26.91,
-      total: 325.91,
-    },
-    licenseType: "Commercial Use",
-    downloadAvailable: true,
-  };
+  // Poll the order — will stop once status is terminal
+  const { data, isLoading, error, refetch } = usePaymentOrder(orderId, true);
+
+  // ── Loading state ──
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f9fa] via-white to-[#e8eaf6] dark:from-[#0f172a] dark:via-[#1e293b] dark:to-[#0f172a]">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-[#1a2240] dark:text-white animate-spin mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Loading order details…</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error state ──
+  if (error || !data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f8f9fa] via-white to-[#e8eaf6] dark:from-[#0f172a] dark:via-[#1e293b] dark:to-[#0f172a]">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h1 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+            Order Not Found
+          </h1>
+          <p className="text-sm text-muted-foreground dark:text-white/70 mb-6">
+            {error instanceof Error ? error.message : "Could not load this order."}
+          </p>
+          <Link href="/orders">
+            <Button variant="outline">Back to Orders</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const { order, items, paymentAttempts } = data;
+  const statusConfig = getOrderStatusConfig(order.status);
+  const StatusIcon = statusConfig.icon;
+  const sym = getCurrencySymbol(order.currency);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] via-white to-[#e8eaf6] dark:from-[#0f172a] dark:via-[#1e293b] dark:to-[#0f172a]">
@@ -63,14 +176,15 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 Order Details
               </h1>
             </div>
-            <p className="text-sm sm:text-base text-[#4e5a7e] dark:text-white/60">
-              {order.id}
+            <p className="text-sm sm:text-base text-[#4e5a7e] dark:text-white/60 font-mono">
+              {order.orderNumber}
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
             className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+            onClick={() => window.print()}
           >
             <Printer className="w-4 h-4 mr-2" />
             Print
@@ -78,121 +192,136 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
         </div>
 
         {/* Status Banner */}
-        {order.status === "completed" && (
-          <Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 mb-6">
-            <CardContent className="py-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                <div>
-                  <h3 className="font-semibold text-emerald-900 dark:text-emerald-100">
-                    Order Completed
-                  </h3>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
-                    Your dataset is ready for download
-                  </p>
-                </div>
+        <Card className={`${statusConfig.bannerBg} mb-6`}>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <StatusIcon className={`w-6 h-6 ${statusConfig.bannerIcon}`} />
+              <div>
+                <h3 className={`font-semibold ${statusConfig.bannerText}`}>
+                  {statusConfig.bannerTitle}
+                </h3>
+                <p className={`text-sm ${statusConfig.bannerSub}`}>
+                  {statusConfig.bannerDesc}
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Dataset Info */}
+            {/* Items */}
             <Card className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border-border/50 dark:border-white/10">
               <CardHeader>
                 <CardTitle className="text-[#1a2240] dark:text-white">
-                  Dataset Information
+                  Items ({items.length})
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#1a2240] dark:text-white mb-2">
-                      {order.datasetTitle}
-                    </h3>
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-                    >
-                      {order.licenseType}
-                    </Badge>
-                  </div>
-                  <Separator className="bg-border/50 dark:bg-white/10" />
-                  <div className="flex items-center gap-4">
-                    <Link href={`/datasets/${order.datasetId}`}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+                <div className="space-y-3">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <Link
+                        href={`/datasets/${item.datasetId}`}
+                        className="text-sm font-medium text-[#1a2240] dark:text-white hover:underline"
                       >
-                        View Dataset Details
-                      </Button>
-                    </Link>
-                    {order.downloadAvailable && (
-                      <Link href={`/library/access/${order.datasetId}`}>
+                        {item.datasetId}
+                      </Link>
+                      <span className="text-sm font-semibold text-[#1a2240] dark:text-white">
+                        {getCurrencySymbol(item.currency)}{item.price}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {items.length > 1 && (
+                  <>
+                    <Separator className="bg-border/50 dark:bg-white/10 my-3" />
+                    <div className="flex justify-between font-bold">
+                      <span className="text-[#1a2240] dark:text-white">Total</span>
+                      <span className="text-[#1a2240] dark:text-white">
+                        {sym}{order.totalAmount}
+                      </span>
+                    </div>
+                  </>
+                )}
+                {order.status === "COMPLETED" && (
+                  <>
+                    <Separator className="bg-border/50 dark:bg-white/10 my-4" />
+                    <div className="flex items-center gap-4">
+                      {items.map((item, idx) => (
+                        <Link key={idx} href={`/datasets/${item.datasetId}`}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+                          >
+                            View Dataset
+                          </Button>
+                        </Link>
+                      ))}
+                      <Link href="/library">
                         <Button
                           size="sm"
                           className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
                         >
                           <Download className="w-4 h-4 mr-2" />
-                          Download
+                          Go to Library
                         </Button>
                       </Link>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
-            {/* Billing Information */}
+            {/* Payment Attempts */}
             <Card className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border-border/50 dark:border-white/10">
               <CardHeader>
                 <CardTitle className="text-[#1a2240] dark:text-white">
-                  Billing Information
+                  Payment Attempts
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
-                      Name
-                    </p>
-                    <p className="text-[#1a2240] dark:text-white">
-                      {order.billingAddress.name}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
-                      Organization
-                    </p>
-                    <p className="text-[#1a2240] dark:text-white">
-                      {order.billingAddress.organization}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
-                      Email
-                    </p>
-                    <p className="text-[#1a2240] dark:text-white">
-                      {order.billingAddress.email}
-                    </p>
-                  </div>
-                  <Separator className="bg-border/50 dark:bg-white/10" />
-                  <div>
-                    <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
-                      Billing Address
-                    </p>
-                    <p className="text-[#1a2240] dark:text-white leading-relaxed">
-                      {order.billingAddress.address}
-                      <br />
-                      {order.billingAddress.city}, {order.billingAddress.state}{" "}
-                      {order.billingAddress.zipCode}
-                      <br />
-                      {order.billingAddress.country}
-                    </p>
-                  </div>
+                <div className="space-y-4">
+                  {paymentAttempts.map((attempt) => (
+                    <div
+                      key={attempt.id}
+                      className="bg-muted/50 dark:bg-white/5 rounded-lg p-3 space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-muted-foreground dark:text-white/60">
+                          {attempt.provider}
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          {getAttemptStatusLabel(attempt.status)}
+                        </Badge>
+                      </div>
+                      {attempt.providerPaymentId && (
+                        <div className="text-xs text-muted-foreground dark:text-white/60 font-mono">
+                          Payment: {attempt.providerPaymentId}
+                        </div>
+                      )}
+                      <div className="text-xs text-muted-foreground dark:text-white/60">
+                        Created: {formatDate(attempt.createdAt)}
+                      </div>
+                      {attempt.capturedAt && (
+                        <div className="text-xs text-emerald-600 dark:text-emerald-400">
+                          Captured: {formatDate(attempt.capturedAt)}
+                        </div>
+                      )}
+                      {attempt.failedAt && (
+                        <div className="text-xs text-red-600 dark:text-red-400">
+                          Failed: {formatDate(attempt.failedAt)}
+                        </div>
+                      )}
+                      {attempt.refundedAt && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400">
+                          Refunded: {formatDate(attempt.refundedAt)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -211,47 +340,36 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
-                      Purchase Date
+                      Date
                     </p>
-                    <p className="text-[#1a2240] dark:text-white">
-                      {new Date(order.purchaseDate).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                    <p className="text-[#1a2240] dark:text-white text-sm">
+                      {formatDate(order.createdAt)}
                     </p>
                   </div>
+                  {order.completedAt && (
+                    <div>
+                      <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
+                        Completed
+                      </p>
+                      <p className="text-[#1a2240] dark:text-white text-sm">
+                        {formatDate(order.completedAt)}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm font-medium text-[#4e5a7e] dark:text-white/60 mb-1">
                       Payment Method
                     </p>
-                    <p className="text-[#1a2240] dark:text-white">
+                    <p className="text-[#1a2240] dark:text-white text-sm">
                       {order.paymentMethod}
                     </p>
                   </div>
                   <Separator className="bg-border/50 dark:bg-white/10" />
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-[#4e5a7e] dark:text-white/60">
-                        Subtotal
-                      </span>
-                      <span className="text-[#1a2240] dark:text-white">
-                        ${order.pricing.subtotal.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#4e5a7e] dark:text-white/60">Tax</span>
-                      <span className="text-[#1a2240] dark:text-white">
-                        ${order.pricing.tax.toFixed(2)}
-                      </span>
-                    </div>
-                    <Separator className="bg-border/50 dark:bg-white/10" />
-                    <div className="flex justify-between font-bold text-lg">
-                      <span className="text-[#1a2240] dark:text-white">Total</span>
-                      <span className="text-[#1a2240] dark:text-white">
-                        ${order.pricing.total.toFixed(2)}
-                      </span>
-                    </div>
+                  <div className="flex justify-between font-bold text-lg">
+                    <span className="text-[#1a2240] dark:text-white">Total</span>
+                    <span className="text-[#1a2240] dark:text-white">
+                      {sym}{order.totalAmount}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -263,11 +381,8 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                 <CardTitle className="text-[#1a2240] dark:text-white">Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <Badge
-                  variant="outline"
-                  className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                >
-                  {order.status.toUpperCase()}
+                <Badge variant="outline" className={statusConfig.className}>
+                  {statusConfig.label}
                 </Badge>
               </CardContent>
             </Card>
