@@ -433,19 +433,7 @@ export default function AboutPage() {
                 </motion.p>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                viewport={{ once: true }}
-              >
-                <Button asChild size="lg" variant="secondary" className="group">
-                  <Link href="/pricing">
-                    Start Your Journey
-                    <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </motion.div>
+              {/* CTA removed: Start Your Journey */}
             </motion.div>
 
             <motion.div
