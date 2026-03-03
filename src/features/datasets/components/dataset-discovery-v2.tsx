@@ -16,12 +16,11 @@ import {
   FilterState, 
   SortOption, 
   CATEGORIES, 
-  LICENSES, 
   CURRENCIES,
   SORT_LABELS 
 } from "./types";
 import { useDatasets, useCategories } from "@/hooks/api/useMarketplace";
-import type { DatasetSortOption, DatasetListQuery } from "@/types";
+import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
 
 // Map UI sort options to API sort format
 const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
@@ -215,17 +214,26 @@ export function DatasetDiscoveryV2() {
     pricingType: "all",
     priceRange: { min: "", max: "" },
     currency: "USD",
-    licenses: [],
     sortOrder: "relevance",
     page: 1,
     pageSize: 10,
   });
 
-  // Build API query from filter state
-  // Only send parameters supported by the backend route:
-  // currency, sort, page, pageSize
+  // Debounce search to avoid hammering the API on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(filters.search), 400);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
+  // Build API query from filter state - all supported backend parameters
   const apiQuery: DatasetListQuery = {
-  
+    q: debouncedSearch || undefined,
+    categoryId: filters.category || undefined,
+    ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
+    minPrice: filters.pricingType === "paid" && filters.priceRange.min ? filters.priceRange.min : undefined,
+    maxPrice: filters.pricingType === "paid" && filters.priceRange.max ? filters.priceRange.max : undefined,
+    currency: filters.pricingType === "paid" && (filters.priceRange.min || filters.priceRange.max) ? filters.currency as Currency : undefined,
     sort: mapSortToAPI(filters.sortOrder),
     page: filters.page,
     pageSize: filters.pageSize,
@@ -263,23 +271,14 @@ export function DatasetDiscoveryV2() {
     return apiResponse.items.map(mapDatasetToUI);
   }, [apiResponse]);
 
-  // Apply client-side license filter (API doesn't support license filter)
-  const filteredDatasets = useMemo(() => {
-    return allDatasets.filter((dataset) => {
-      const matchesLicense =
-        filters.licenses.length === 0 || filters.licenses.includes(dataset.license as any);
-      return matchesLicense;
-    });
-  }, [allDatasets, filters.licenses]);
-
   // Pagination from API response
-  const totalPages = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : Math.ceil(filteredDatasets.length / filters.pageSize);
-  const totalCount = apiResponse?.total || filteredDatasets.length;
+  const totalPages = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : Math.ceil(allDatasets.length / filters.pageSize);
+  const totalCount = apiResponse?.total || allDatasets.length;
   
   // Use API response directly (already paginated), or paginate mock data
   const paginatedDatasets = apiResponse?.items 
-    ? filteredDatasets // API response is already paginated
-    : filteredDatasets.slice(
+    ? allDatasets // API response is already paginated
+    : allDatasets.slice(
         (filters.page - 1) * filters.pageSize,
         filters.page * filters.pageSize
       );
@@ -291,7 +290,6 @@ export function DatasetDiscoveryV2() {
     category: true,
     pricing: true,
     priceRange: true,
-    license: true,
   });
 
   // Preview modal state
@@ -304,21 +302,11 @@ export function DatasetDiscoveryV2() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setFilters((prev: FilterState) => ({ ...prev, page: 1 }));
-  }, [filters.search, filters.category, filters.pricingType, filters.priceRange, filters.licenses, filters.sortOrder]);
+  }, [filters.search, filters.category, filters.pricingType, filters.priceRange, filters.sortOrder]);
 
   // Filter update helper
   const updateFilter = (updates: Partial<FilterState>) => {
     setFilters((prev: FilterState) => ({ ...prev, ...updates }));
-  };
-
-  // License toggle helper
-  const toggleLicense = (license: "Open Data" | "Commercial") => {
-    setFilters((prev: FilterState) => ({
-      ...prev,
-      licenses: prev.licenses.includes(license)
-        ? prev.licenses.filter((l: typeof license) => l !== license)
-        : [...prev.licenses, license],
-    }));
   };
 
   // Accordion toggle helper
@@ -328,11 +316,11 @@ export function DatasetDiscoveryV2() {
 
   // Check if filters are active
   const hasActiveFilters =
+    filters.search !== "" ||
     filters.category !== null ||
     filters.pricingType !== "all" ||
     filters.priceRange.min !== "" ||
-    filters.priceRange.max !== "" ||
-    filters.licenses.length > 0;
+    filters.priceRange.max !== "";
 
   // Clear all filters
   const clearFilters = () => {
@@ -342,7 +330,6 @@ export function DatasetDiscoveryV2() {
       pricingType: "all",
       priceRange: { min: "", max: "" },
       currency: "USD",
-      licenses: [],
       sortOrder: "relevance",
       page: 1,
       pageSize: 10,
@@ -384,10 +371,10 @@ export function DatasetDiscoveryV2() {
               <details className="lg:hidden bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                 <summary className="flex items-center justify-between p-4 cursor-pointer text-sm font-semibold text-[#1a2240] dark:text-white">
                   <span>Filters {hasActiveFilters && `(${
+                    (filters.search ? 1 : 0) +
                     (filters.category ? 1 : 0) +
                     (filters.pricingType !== "all" ? 1 : 0) +
-                    (filters.priceRange.min || filters.priceRange.max ? 1 : 0) +
-                    filters.licenses.length
+                    (filters.priceRange.min || filters.priceRange.max ? 1 : 0)
                   } active)`}</span>
                   <ChevronDown className="h-4 w-4 text-[#4e5a7e] dark:text-white/60" />
                 </summary>
@@ -588,46 +575,21 @@ export function DatasetDiscoveryV2() {
                     </div>
                   )}
 
-                  {/* 6. License Type */}
-                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("license")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        License Type
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.license && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.license && (
-                      <div className="px-4 pb-4 space-y-1">
-                        {LICENSES.map((license: typeof LICENSES[number]) => (
-                          <button
-                            key={license}
-                            onClick={() => toggleLicense(license)}
-                            className={cn(
-                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                              filters.licenses.includes(license)
-                                ? "bg-gradient-to-r from-[#4e5a7e] to-[#5d6a8f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                                : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                            )}
-                          >
-                            {license}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </div>
               </details>
 
               {/* Desktop: Always Visible Filters */}
               <div className="hidden lg:block space-y-6">
+                {/* Clear All */}
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="w-full text-xs font-medium text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800/40 rounded-xl py-2.5 px-4 transition-colors text-center"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
+
                 {/* 7. Sort Order - Positioned First */}
                 <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                   <button
@@ -815,41 +777,6 @@ export function DatasetDiscoveryV2() {
                   </div>
                 )}
 
-                {/* 6. License Type */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("license")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      License Type
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.license && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.license && (
-                    <div className="px-5 pb-5 space-y-1">
-                      {LICENSES.map((license: typeof LICENSES[number]) => (
-                        <button
-                          key={license}
-                          onClick={() => toggleLicense(license)}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                            filters.licenses.includes(license)
-                              ? "bg-gradient-to-r from-[#4e5a7e] to-[#5d6a8f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                              : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          )}
-                        >
-                          {license}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </div>
             </aside>
 

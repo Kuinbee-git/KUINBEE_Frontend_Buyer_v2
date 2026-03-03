@@ -39,8 +39,7 @@ export interface FilterState {
   category: string | null;
   pricingType: "all" | "free" | "paid";
   priceRange: { min: string; max: string };
-  currency: "USD" | "EUR" | "GBP";
-  licenses: Array<"Open Data" | "Commercial">;
+  currency: "USD" | "EUR" | "GBP" | "INR";
   sortOrder: SortOption;
   page: number;
   pageSize: number;

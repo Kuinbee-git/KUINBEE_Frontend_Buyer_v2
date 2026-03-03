@@ -119,7 +119,7 @@ export function LandingHero() {
   }, []);
 
   return (
-    <section className="relative pt-16 pb-16">
+    <section className="relative pt-6 pb-16">
       {/* Gradient background with dot pattern */}
       <InstitutionalBackground />
       
