@@ -19,6 +19,9 @@ function VerifyEmailContent() {
 
   useEffect(() => {
     const verifyEmail = async () => {
+      // Prevent multiple calls if we're no longer in the loading state
+      if (status !== "loading") return;
+
       const emailParam = searchParams.get("email");
       const tokenParam = searchParams.get("token");
 
@@ -55,7 +58,9 @@ function VerifyEmailContent() {
     };
 
     verifyEmail();
-  }, [searchParams, confirmMutation, router]);
+    // Intentionally removing confirmMutation from dependencies to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
