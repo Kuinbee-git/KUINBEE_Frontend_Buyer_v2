@@ -36,25 +36,58 @@ const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
 // Map API dataset to UI format
 const mapDatasetToUI = (apiDataset: any): Dataset => ({
   id: apiDataset.id,
+  datasetUniqueId: apiDataset.datasetUniqueId,
   title: apiDataset.title,
-  provider: "Unknown", // API doesn't provide supplier name
-  category: "Unknown", // API uses categoryId, would need category lookup
+  provider: apiDataset.owner?.name || "Unknown",
+  category: apiDataset.category?.name || "Uncategorized",
+  secondaryCategories: [],
   license: apiDataset.license || "Unknown",
   pricing: {
     type: apiDataset.isPaid ? "paid" : "free",
     amount: apiDataset.price ? parseFloat(apiDataset.price) : undefined,
-    currency: apiDataset.currency || "USD",
+    currency: apiDataset.currency || "INR",
   },
-  lastUpdated: apiDataset.updatedAt || apiDataset.createdAt,
-  status: "published",
+  lastUpdated: new Date(apiDataset.updatedAt || apiDataset.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }),
+  status: apiDataset.status?.toLowerCase() || "published",
   description: apiDataset.title,
-  coverage: "N/A",
-  updateFrequency: "N/A",
-  records: 0,
-  quality: { quality: 0, legal: 0, provenance: 0, usability: 0, freshness: 90 },
-  verification: { supplierVerified: true, datasetReviewed: true, published: true },
-  rating: 0,
-  reviewCount: 0,
+  coverage: apiDataset.location?.country || "N/A",
+  records: apiDataset.dataFormatInfo?.rows || 0,
+  aboutDataset: null,
+  dataFormat: apiDataset.dataFormatInfo ? {
+    fileFormat: apiDataset.dataFormatInfo.fileFormat,
+    rows: apiDataset.dataFormatInfo.rows,
+    cols: apiDataset.dataFormatInfo.cols,
+    fileSize: apiDataset.dataFormatInfo.fileSize,
+    compressionType: "NONE",
+    encoding: "UTF-8",
+    updatedAt: apiDataset.updatedAt,
+  } : null,
+  features: [],
+  source: null,
+  location: apiDataset.location ? {
+    region: null,
+    country: apiDataset.location.country,
+    state: apiDataset.location.state,
+    city: apiDataset.location.city,
+    coordinates: null,
+    coverage: null,
+  } : null,
+  tags: apiDataset.tags || [],
+  downloadCount: apiDataset.downloadCount || 0,
+  viewCount: apiDataset.viewCount || 0,
+  rating: apiDataset.rating ?? null,
+  quality: { quality: 0, legal: 0, provenance: 0, usability: 0, freshness: 0 },
+  verification: {
+    supplierVerified: true,
+    datasetReviewed: true,
+    published: apiDataset.status === "PUBLISHED",
+  },
+  reviewCount: apiDataset.reviewCount || 0,
+  kdtsScore: apiDataset.kdtsScore || null,
 });
 
 // Mock datasets for demonstration (fallback)
@@ -64,17 +97,18 @@ const mockDatasets: Dataset[] = [
     title: "Global Carbon Emissions by Sector",
     provider: "EcoMetrics",
     category: "Environment & Climate",
+    secondaryCategories: [],
     license: "Commercial",
     pricing: { type: "paid", amount: 12500, currency: "USD" },
     lastUpdated: "2026-01-15",
     status: "published",
     description: "Comprehensive CO₂ emissions data across industrial sectors with monthly granularity.",
     coverage: "195 countries, 12 sectors",
-    updateFrequency: "Monthly",
     records: 450000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.9, kdtsScore: null,
     quality: { quality: 98, legal: 96, provenance: 99, usability: 85, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.9,
     reviewCount: 247,
   },
   {
@@ -82,17 +116,18 @@ const mockDatasets: Dataset[] = [
     title: "Global Energy Consumption Database",
     provider: "PowerMetrics",
     category: "Energy & Utilities",
+    secondaryCategories: [],
     license: "Commercial",
     pricing: { type: "paid", amount: 8500, currency: "USD" },
     lastUpdated: "2026-01-10",
     status: "published",
     description: "Real-time energy consumption data across 85 countries with hourly granularity.",
     coverage: "85 countries, 15 energy types",
-    updateFrequency: "Real-time",
     records: 2500000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.8, kdtsScore: null,
     quality: { quality: 97, legal: 98, provenance: 96, usability: 99, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.8,
     reviewCount: 193,
   },
   {
@@ -100,17 +135,18 @@ const mockDatasets: Dataset[] = [
     title: "Agricultural Yield Forecasting Data",
     provider: "AgriTech Solutions",
     category: "Agriculture & Food",
+    secondaryCategories: [],
     license: "Open Data",
     pricing: { type: "free", currency: "USD" },
     lastUpdated: "2026-01-12",
     status: "published",
     description: "Historical crop yield data with weather correlations across major agricultural regions.",
     coverage: "Global - 120 countries",
-    updateFrequency: "Weekly",
     records: 2000000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.7, kdtsScore: null,
     quality: { quality: 95, legal: 97, provenance: 98, usability: 92, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.7,
     reviewCount: 156,
   },
   {
@@ -118,17 +154,18 @@ const mockDatasets: Dataset[] = [
     title: "Global Trade Flow Analytics",
     provider: "TradeIQ",
     category: "Economics & Trade",
+    secondaryCategories: [],
     license: "Commercial",
     pricing: { type: "paid", amount: 15200, currency: "EUR" },
     lastUpdated: "2026-01-18",
     status: "published",
     description: "Bilateral trade flows with tariff data covering 180+ countries and 5000+ product categories.",
     coverage: "Global - 180+ countries",
-    updateFrequency: "Quarterly",
     records: 1500000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.95, kdtsScore: null,
     quality: { quality: 100, legal: 99, provenance: 99, usability: 88, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.95,
     reviewCount: 512,
   },
   {
@@ -136,17 +173,18 @@ const mockDatasets: Dataset[] = [
     title: "Financial Markets Time Series Data",
     provider: "FinData Corp",
     category: "Finance & Markets",
+    secondaryCategories: [],
     license: "Commercial",
     pricing: { type: "paid", amount: 18500, currency: "USD" },
     lastUpdated: "2026-01-14",
     status: "published",
     description: "Historical and real-time financial market data covering stocks, bonds, commodities.",
     coverage: "Global - 65 exchanges",
-    updateFrequency: "Real-time",
     records: 8500000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.9, kdtsScore: null,
     quality: { quality: 99, legal: 99, provenance: 98, usability: 99, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.9,
     reviewCount: 428,
   },
   {
@@ -154,17 +192,18 @@ const mockDatasets: Dataset[] = [
     title: "Renewable Energy Infrastructure Registry",
     provider: "GreenGrid Analytics",
     category: "Energy & Utilities",
+    secondaryCategories: [],
     license: "Open Data",
     pricing: { type: "free", currency: "EUR" },
     lastUpdated: "2026-01-20",
     status: "published",
     description: "Comprehensive database of renewable energy installations including solar, wind, hydro facilities.",
     coverage: "Europe, North America, Asia",
-    updateFrequency: "Monthly",
     records: 450000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.6, kdtsScore: null,
     quality: { quality: 96, legal: 95, provenance: 97, usability: 90, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.6,
     reviewCount: 189,
   },
   {
@@ -172,17 +211,18 @@ const mockDatasets: Dataset[] = [
     title: "Commodity Price Index Historical Data",
     provider: "MarketWatch Analytics",
     category: "Economics & Trade",
+    secondaryCategories: [],
     license: "Commercial",
     pricing: { type: "paid", amount: 5500, currency: "GBP" },
     lastUpdated: "2026-01-22",
     status: "published",
     description: "50 years of commodity price data across metals, agriculture, and energy sectors.",
     coverage: "Global - 200+ commodities",
-    updateFrequency: "Daily",
     records: 3200000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.85, kdtsScore: null,
     quality: { quality: 98, legal: 97, provenance: 99, usability: 95, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.85,
     reviewCount: 312,
   },
   {
@@ -190,17 +230,18 @@ const mockDatasets: Dataset[] = [
     title: "Climate Risk Assessment Database",
     provider: "EcoMetrics",
     category: "Environment & Climate",
+    secondaryCategories: [],
     license: "Open Data",
     pricing: { type: "free", currency: "USD" },
     lastUpdated: "2026-01-25",
     status: "published",
     description: "Climate risk indicators including flood zones, drought susceptibility, and temperature anomalies.",
     coverage: "Global - 1km resolution",
-    updateFrequency: "Quarterly",
     records: 5600000,
+    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
+    downloadCount: 0, viewCount: 0, rating: 4.75, kdtsScore: null,
     quality: { quality: 94, legal: 96, provenance: 95, usability: 88, freshness: 90 },
     verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    rating: 4.75,
     reviewCount: 267,
   },
 ];
@@ -292,7 +333,7 @@ export function DatasetDiscoveryV2() {
   });
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<"datasets" | "suppliers">("datasets");
+  const [activeTab, setActiveTab] = useState<"datasets">("datasets");
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -363,7 +404,7 @@ export function DatasetDiscoveryV2() {
             {/* Left Sidebar - Canonical Filters */}
             <aside className="space-y-4 lg:space-y-6">
               {/* Mobile: Collapsible Filters */}
-              <details className="lg:hidden bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
+              <details className="lg:hidden bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                 <summary className="flex items-center justify-between p-4 cursor-pointer text-sm font-semibold text-[#1a2240] dark:text-white">
                   <span>Filters {hasActiveFilters && `(${(filters.search ? 1 : 0) +
                     (filters.category ? 1 : 0) +
@@ -383,7 +424,7 @@ export function DatasetDiscoveryV2() {
                   )}
 
                   {/* 7. Sort Order - Positioned First */}
-                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                     <button
                       onClick={() => toggleAccordion("sort")}
                       className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -419,7 +460,7 @@ export function DatasetDiscoveryV2() {
                   </div>
 
                   {/* 2. Category */}
-                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                     <button
                       onClick={() => toggleAccordion("category")}
                       className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -467,7 +508,7 @@ export function DatasetDiscoveryV2() {
                   </div>
 
                   {/* 3. Pricing Type */}
-                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                     <button
                       onClick={() => toggleAccordion("pricing")}
                       className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -504,7 +545,7 @@ export function DatasetDiscoveryV2() {
 
                   {/* 4. Price Range - Conditional on pricingType="paid" */}
                   {filters.pricingType === "paid" && (
-                    <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                       <button
                         onClick={() => toggleAccordion("priceRange")}
                         className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -531,7 +572,7 @@ export function DatasetDiscoveryV2() {
                                   priceRange: { ...filters.priceRange, min: e.target.value },
                                 })
                               }
-                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
+                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
                             />
                             <Input
                               type="number"
@@ -542,7 +583,7 @@ export function DatasetDiscoveryV2() {
                                   priceRange: { ...filters.priceRange, max: e.target.value },
                                 })
                               }
-                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
+                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
                             />
                           </div>
 
@@ -552,7 +593,7 @@ export function DatasetDiscoveryV2() {
                               Currency
                             </label>
                             <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
-                              <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm">
+                              <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
@@ -585,7 +626,7 @@ export function DatasetDiscoveryV2() {
                 )}
 
                 {/* 7. Sort Order - Positioned First */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                   <button
                     onClick={() => toggleAccordion("sort")}
                     className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -621,7 +662,7 @@ export function DatasetDiscoveryV2() {
                 </div>
 
                 {/* 2. Category */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                   <button
                     onClick={() => toggleAccordion("category")}
                     className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -669,7 +710,7 @@ export function DatasetDiscoveryV2() {
                 </div>
 
                 {/* 3. Pricing Type */}
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                   <button
                     onClick={() => toggleAccordion("pricing")}
                     className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -706,7 +747,7 @@ export function DatasetDiscoveryV2() {
 
                 {/* 4. Price Range - Conditional on pricingType="paid" */}
                 {filters.pricingType === "paid" && (
-                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
                     <button
                       onClick={() => toggleAccordion("priceRange")}
                       className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
@@ -733,7 +774,7 @@ export function DatasetDiscoveryV2() {
                                 priceRange: { ...filters.priceRange, min: e.target.value },
                               })
                             }
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
+                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
                           />
                           <Input
                             type="number"
@@ -744,7 +785,7 @@ export function DatasetDiscoveryV2() {
                                 priceRange: { ...filters.priceRange, max: e.target.value },
                               })
                             }
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
+                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
                           />
                         </div>
 
@@ -754,7 +795,7 @@ export function DatasetDiscoveryV2() {
                             Currency
                           </label>
                           <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
-                            <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm">
+                            <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
@@ -777,7 +818,7 @@ export function DatasetDiscoveryV2() {
             {/* Main Content Column */}
             <div>
               {/* Tabs and Search Container - Unified glassmorphic container */}
-              <div className="mb-6 md:mb-8 bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-3 md:p-4 shadow-sm">
+              <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl p-3 md:p-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 md:gap-6">
                   {/* Datasets/Suppliers Tabs */}
                   <DatasetSupplierTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -789,7 +830,7 @@ export function DatasetDiscoveryV2() {
                       placeholder="Search datasets..."
                       value={filters.search}
                       onChange={(e) => updateFilter({ search: e.target.value })}
-                      className="h-10 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-9 md:pl-10 pr-3 md:pr-4 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm rounded-lg"
+                      className="h-10 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-9 md:pl-10 pr-3 md:pr-4 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 rounded-lg"
                     />
                   </div>
                 </div>
@@ -836,7 +877,7 @@ export function DatasetDiscoveryV2() {
 
               {/* 8. Pagination - Explicit controls */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 md:mt-8 p-3 md:p-4 bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mt-6 md:mt-8 p-3 md:p-4 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                   <button
                     onClick={() => updateFilter({ page: Math.max(filters.page - 1, 1) })}
                     disabled={filters.page === 1}

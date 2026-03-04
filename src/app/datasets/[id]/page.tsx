@@ -5,50 +5,66 @@ import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components";
 import { RazorpayCheckoutFlow } from "@/features/datasets/components/razorpay-checkout-flow";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
+import { DatasetDetailsResponse } from "@/types/dataset.types";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-// Map API DatasetDetails to UI Dataset format
-const mapToUIDataset = (apiDataset: any): UIDataset => ({
-  id: apiDataset.id, // Internal ID (backup for compatibility)
-  datasetUniqueId: apiDataset.datasetUniqueId, // Unique ID for API calls
-  title: apiDataset.title,
-  provider: "Unknown", // API doesn't provide supplier name
-  category: "Unknown", // Would need category lookup by primaryCategoryId
-  description: apiDataset.description || "No description available",
-  coverage: "N/A", // Not provided by API
-  updateFrequency: "N/A", // Not provided by API
-  records: 0, // Not provided by API
-  lastUpdated: new Date(apiDataset.updatedAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }),
-  status: "published",
-  license: apiDataset.license || "Unknown",
-  rating: 0, // Not provided by API
-  reviewCount: 0, // Not provided by API
-  pricing: {
-    type: apiDataset.isPaid ? "paid" : "free",
-    amount: apiDataset.price ? parseFloat(apiDataset.price) : undefined,
-    currency: apiDataset.currency || "USD",
-  },
-  quality: {
-    quality: 0,
-    legal: 0,
-    provenance: 0,
-    usability: 0,
-    freshness: 0,
-  },
-  verification: {
-    supplierVerified: true,
-    datasetReviewed: true,
-    published: true,
-  },
-});
+// Map the full API response to UI Dataset format
+const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
+  const { dataset, primaryCategory, secondaryCategories, aboutDatasetInfo, dataFormatInfo, features, source, locationInfo, tags } = response;
+
+  return {
+    id: dataset.id,
+    datasetUniqueId: dataset.datasetUniqueId,
+    title: dataset.title,
+    provider: source?.name || "Unknown",
+    category: primaryCategory?.name || "Uncategorized",
+    secondaryCategories: secondaryCategories?.map((c) => c.name) || [],
+    description: dataset.description || aboutDatasetInfo?.overview || "No description available",
+    coverage: locationInfo?.coverage || locationInfo?.country || "N/A",
+    records: dataFormatInfo?.rows || 0,
+    lastUpdated: new Date(dataset.updatedAt).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+    status: dataset.status?.toLowerCase() || "published",
+    license: dataset.license || "Unknown",
+    rating: dataset.rating,
+    reviewCount: 0,
+    downloadCount: dataset.downloadCount || 0,
+    viewCount: dataset.viewCount || 0,
+    pricing: {
+      type: dataset.isPaid ? "paid" : "free",
+      amount: dataset.price ? parseFloat(dataset.price) : undefined,
+      currency: dataset.currency || "INR",
+    },
+    // Rich content
+    aboutDataset: aboutDatasetInfo || null,
+    dataFormat: dataFormatInfo || null,
+    features: features || [],
+    source: source || null,
+    location: locationInfo || null,
+    tags: tags || [],
+    kdtsScore: dataset.kdtsScore || null,
+    // Legacy
+    quality: {
+      quality: 0,
+      legal: 0,
+      provenance: 0,
+      usability: 0,
+      freshness: 0,
+    },
+    verification: {
+      supplierVerified: source?.isVerified || false,
+      datasetReviewed: true,
+      published: dataset.status === "PUBLISHED",
+    },
+  };
+};
 
 export default function DatasetDetailPageRoute() {
   const params = useParams();
@@ -194,7 +210,7 @@ export default function DatasetDetailPageRoute() {
     );
   }
 
-  const dataset = mapToUIDataset(response.dataset);
+  const dataset = mapToUIDataset(response);
   const accessState = getAccessState();
 
   const handlePurchaseDataset = () => {
