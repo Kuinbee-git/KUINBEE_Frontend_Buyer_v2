@@ -170,7 +170,7 @@ export function SignupModalContent() {
           >
             I agree to the{" "}
             <a
-              href="/terms"
+              href="/terms-and-conditions"
               target="_blank"
               className="text-white underline hover:text-white/90"
             >
@@ -178,7 +178,7 @@ export function SignupModalContent() {
             </a>{" "}
             and{" "}
             <a
-              href="/privacy"
+              href="/legal-compliance"
               target="_blank"
               className="text-white underline hover:text-white/90"
             >
