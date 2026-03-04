@@ -1,6 +1,23 @@
 // Re-export existing types from central types directory
 import type { DatasetSortOption } from "@/types/dataset.types";
-export type { Dataset, DatasetDetails, DatasetDetailsResponse, DatasetListQuery, DatasetSortOption } from "@/types/dataset.types";
+export type {
+  Dataset,
+  DatasetDetails,
+  DatasetDetailsResponse,
+  DatasetListQuery,
+  DatasetSortOption,
+  DatasetPrimaryCategory,
+  DatasetSecondaryCategory,
+  AboutDatasetInfo,
+  DataFormatInfo,
+  DatasetFeature,
+  DatasetSource,
+  DatasetLocationInfo,
+  DatasetOwner,
+  DatasetCategory,
+  DatasetListLocation,
+  DatasetListFormatInfo,
+} from "@/types/dataset.types";
 export type { Category } from "@/types/category.types";
 
 // UI-specific types for dataset feature

@@ -1,22 +1,81 @@
 // Component-level types for V2 dataset discovery
 // This is the enriched Dataset type for the discovery UI (not the API type)
+
+export interface DatasetFeatureUI {
+  id: string;
+  name: string;
+  dataType: string;
+  description: string;
+  isNullable: boolean;
+}
+
+export interface DatasetSourceUI {
+  id: string;
+  name: string;
+  description: string | null;
+  websiteUrl: string | null;
+  isVerified: boolean;
+}
+
+export interface DatasetLocationUI {
+  region: string | null;
+  country: string | null;
+  state: string | null;
+  city: string | null;
+  coordinates: string | null;
+  coverage: string | null;
+}
+
+export interface AboutDatasetUI {
+  overview: string;
+  description: string;
+  dataQuality: string;
+  useCases: string;
+  limitations: string;
+  methodology: string;
+  updatedAt: string;
+}
+
+export interface DataFormatUI {
+  fileFormat: string;
+  rows: number;
+  cols: number;
+  fileSize: string;
+  compressionType: string;
+  encoding: string;
+  updatedAt: string;
+}
+
 export interface Dataset {
   id: string; // Internal ID (may not be used for API calls)
-  datasetUniqueId?: string; // The actual unique ID used for API calls (e.g., D0000000015)
+  datasetUniqueId?: string; // The actual unique ID used for API calls
   title: string;
-  provider: string;
-  category: string;
-  license: "Open Data" | "Commercial";
+  provider: string; // Source name
+  category: string; // Primary category name
+  secondaryCategories: string[];
+  license: string;
   pricing: {
     type: "free" | "paid";
     amount?: number;
     currency: string;
   };
   lastUpdated: string;
-  status: "published" | "draft";
+  status: string;
   description: string;
+  // Rich content from API
+  aboutDataset: AboutDatasetUI | null;
+  dataFormat: DataFormatUI | null;
+  features: DatasetFeatureUI[];
+  source: DatasetSourceUI | null;
+  location: DatasetLocationUI | null;
+  tags: string[];
+  // Stats
+  downloadCount: number;
+  viewCount: number;
+  rating: number | null;
+  kdtsScore?: string | null;
+  // Legacy fields (kept for compatibility, derived from new data)
   coverage: string;
-  updateFrequency: string;
   records: number;
   quality: {
     quality: number;
@@ -30,7 +89,6 @@ export interface Dataset {
     datasetReviewed: boolean;
     published: boolean;
   };
-  rating: number;
   reviewCount: number;
 }
 
