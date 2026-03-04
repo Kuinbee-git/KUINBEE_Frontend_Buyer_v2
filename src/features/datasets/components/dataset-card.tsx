@@ -109,7 +109,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
 
   return (
     <div
-      className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-5 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform"
+      className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform"
       onClick={handleViewDetails}
     >
       {/* ── Row 1: Verification Badges + Price Badge ── */}
@@ -144,7 +144,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
       </div>
 
       {/* ── Row 2: Title + Save Button ── */}
-      <div className="flex items-start justify-between gap-3 mb-1.5">
+      <div className="flex items-start justify-between gap-3 mb-2.5">
         <h3 className="font-bold text-[#1a2240] dark:text-white text-[17px] leading-tight line-clamp-2 group-hover:text-[#2d3a5f] dark:group-hover:text-white/90 transition-colors">
           {dataset.title}
           <ArrowRight className="w-3.5 h-3.5 inline-block ml-1.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-[#4e5a7e] dark:text-white/50" />
@@ -177,7 +177,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
       </div>
 
       {/* ── Row 3: Provider ── */}
-      <p className="text-[14px] text-[#4e5a7e] dark:text-white/60 mb-2">
+      <p className="text-[14px] text-[#4e5a7e] dark:text-white/60 mb-3">
         by <span className="font-medium text-[#1a2240]/80 dark:text-white/80">{dataset.provider}</span>
       </p>
 
@@ -206,12 +206,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
         </span>
       </div>
 
-      {/* ── Row 5: Description ── */}
-      <p className="text-[14px] text-[#4e5a7e] dark:text-white/60 leading-relaxed line-clamp-2 mb-3">
-        {dataset.description}
-      </p>
-
-      {/* ── Row 6: KDTS Score (if available) ── */}
+      {/* ── Row 5: KDTS Score (if available) ── */}
       {kdtsValue != null && (
         <div className="flex items-center gap-2 mb-3 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#1a2240]/5 to-[#2d3a5f]/5 dark:from-white/5 dark:to-white/[0.02] border border-[#1a2240]/10 dark:border-white/10">
           <Gauge className={cn(
@@ -237,7 +232,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
         </div>
       )}
 
-      {/* ── Row 7: Metadata Chips ── */}
+      {/* ── Row 6: Metadata Chips ── */}
       <div className="flex flex-wrap gap-1.5 mb-3">
         {/* Location */}
         <div className="inline-flex items-center gap-1 text-[14px] bg-[#1a2240]/5 dark:bg-white/5 text-[#1a2240] dark:text-white/70 px-2.5 py-1 rounded-md border border-[#1a2240]/10 dark:border-white/10">
@@ -268,7 +263,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
         )}
       </div>
 
-      {/* ── Row 8: Stats + Tags ── */}
+      {/* ── Row 7: Stats + Tags ── */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-3 text-[14px] text-[#4e5a7e] dark:text-white/50">
           <div className="flex items-center gap-1">
