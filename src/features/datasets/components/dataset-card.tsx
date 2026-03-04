@@ -10,7 +10,6 @@ import {
   Database,
   Shield,
   CheckCircle2,
-  Eye,
   ArrowRight,
   Heart,
   Loader2,
@@ -23,11 +22,10 @@ import { cn } from "@/shared/utils/cn";
 
 interface DatasetCardProps {
   dataset: Dataset;
-  onPreview: (dataset: Dataset) => void;
   onViewDetails?: (dataset: Dataset) => void;
 }
 
-export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardProps) {
+export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
@@ -52,7 +50,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardPr
   // Handle wishlist toggle
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    
+
     if (!isAuthenticated) {
       toast.info("Sign in to add to wishlist");
       return;
@@ -91,11 +89,11 @@ export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardPr
               </div>
             )}
           </div>
-          
+
           <h3 className="font-semibold text-[#1a2240] dark:text-white text-base md:text-lg mb-1.5 md:mb-2 group-hover:text-[#4e5a7e] dark:group-hover:text-white transition-colors leading-tight">
             {dataset.title}
           </h3>
-          
+
           <p className="text-xs md:text-sm text-[#4e5a7e] dark:text-white/60 mb-2">
             by <span className="font-semibold text-[#1a2240] dark:text-white/80">{dataset.provider}</span>
           </p>
@@ -106,11 +104,10 @@ export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardPr
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-3.5 md:w-4 h-3.5 md:h-4 ${
-                    i < Math.floor(dataset.rating)
+                  className={`w-3.5 md:w-4 h-3.5 md:h-4 ${i < Math.floor(dataset.rating)
                       ? "fill-amber-500 text-amber-500"
                       : "fill-none text-[#4e5a7e]/20 dark:text-white/20"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -138,7 +135,7 @@ export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardPr
               <div className="text-[10px] md:text-xs text-[#4e5a7e] dark:text-white/50 font-medium">per month</div>
             </div>
           )}
-          
+
           {/* Wishlist Button - Below Price Badge */}
           <button
             onClick={handleWishlistToggle}
@@ -190,15 +187,6 @@ export function DatasetCard({ dataset, onPreview, onViewDetails }: DatasetCardPr
 
       {/* Footer Actions */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-9 md:h-10 text-xs md:text-sm border border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-white/80 dark:hover:bg-white/15 backdrop-blur-sm font-medium transition-all"
-          onClick={() => onPreview(dataset)}
-        >
-          <Eye className="w-3.5 md:w-4 h-3.5 md:h-4 mr-1.5 md:mr-2" />
-          Preview
-        </Button>
         <Button
           size="sm"
           className="h-9 md:h-10 text-xs md:text-sm bg-white dark:bg-white text-[#1a2240] dark:text-[#1a2240] hover:bg-white/90 dark:hover:bg-white/90 font-semibold shadow-md hover:shadow-lg transition-all"

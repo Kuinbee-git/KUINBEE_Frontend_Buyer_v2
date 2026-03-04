@@ -9,15 +9,14 @@ import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { DatasetCard } from "./dataset-card";
-import { DatasetPreviewModal } from "./dataset-preview-modal";
 import { DatasetSupplierTabs } from "./dataset-supplier-tabs";
-import { 
-  Dataset, 
-  FilterState, 
-  SortOption, 
-  CATEGORIES, 
+import {
+  Dataset,
+  FilterState,
+  SortOption,
+  CATEGORIES,
   CURRENCIES,
-  SORT_LABELS 
+  SORT_LABELS
 } from "./types";
 import { useDatasets, useCategories } from "@/hooks/api/useMarketplace";
 import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
@@ -240,15 +239,15 @@ export function DatasetDiscoveryV2() {
   };
 
   // Fetch datasets from API
-  const { 
-    data: apiResponse, 
-    isLoading, 
-    error 
+  const {
+    data: apiResponse,
+    isLoading,
+    error
   } = useDatasets(apiQuery);
 
   // Fetch categories from API
   const { data: categoriesResponse } = useCategories({ pageSize: 100 });
-  
+
   // Create category mapping (id -> name) and list
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -274,14 +273,14 @@ export function DatasetDiscoveryV2() {
   // Pagination from API response
   const totalPages = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : Math.ceil(allDatasets.length / filters.pageSize);
   const totalCount = apiResponse?.total || allDatasets.length;
-  
+
   // Use API response directly (already paginated), or paginate mock data
-  const paginatedDatasets = apiResponse?.items 
+  const paginatedDatasets = apiResponse?.items
     ? allDatasets // API response is already paginated
     : allDatasets.slice(
-        (filters.page - 1) * filters.pageSize,
-        filters.page * filters.pageSize
-      );
+      (filters.page - 1) * filters.pageSize,
+      filters.page * filters.pageSize
+    );
 
 
   // Accordion states for filter sections
@@ -291,10 +290,6 @@ export function DatasetDiscoveryV2() {
     pricing: true,
     priceRange: true,
   });
-
-  // Preview modal state
-  const [previewDataset, setPreviewDataset] = useState<Dataset | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Tab state
   const [activeTab, setActiveTab] = useState<"datasets" | "suppliers">("datasets");
@@ -370,12 +365,11 @@ export function DatasetDiscoveryV2() {
               {/* Mobile: Collapsible Filters */}
               <details className="lg:hidden bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                 <summary className="flex items-center justify-between p-4 cursor-pointer text-sm font-semibold text-[#1a2240] dark:text-white">
-                  <span>Filters {hasActiveFilters && `(${
-                    (filters.search ? 1 : 0) +
+                  <span>Filters {hasActiveFilters && `(${(filters.search ? 1 : 0) +
                     (filters.category ? 1 : 0) +
                     (filters.pricingType !== "all" ? 1 : 0) +
                     (filters.priceRange.min || filters.priceRange.max ? 1 : 0)
-                  } active)`}</span>
+                    } active)`}</span>
                   <ChevronDown className="h-4 w-4 text-[#4e5a7e] dark:text-white/60" />
                 </summary>
                 <div className="px-4 pb-4 space-y-4">
@@ -551,7 +545,7 @@ export function DatasetDiscoveryV2() {
                               className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
                             />
                           </div>
-                          
+
                           {/* 5. Currency */}
                           <div className="space-y-2">
                             <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
@@ -753,7 +747,7 @@ export function DatasetDiscoveryV2() {
                             className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/70 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 backdrop-blur-sm"
                           />
                         </div>
-                        
+
                         {/* 5. Currency */}
                         <div className="space-y-2">
                           <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
@@ -787,7 +781,7 @@ export function DatasetDiscoveryV2() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 md:gap-6">
                   {/* Datasets/Suppliers Tabs */}
                   <DatasetSupplierTabs activeTab={activeTab} onTabChange={setActiveTab} />
-                  
+
                   {/* Search Bar */}
                   <div className="flex-1 sm:max-w-md relative">
                     <Search className="absolute left-3 md:left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4e5a7e]/50 dark:text-white/40" />
@@ -825,10 +819,6 @@ export function DatasetDiscoveryV2() {
                     <DatasetCard
                       key={dataset.id}
                       dataset={dataset}
-                      onPreview={(ds: Dataset) => {
-                        setPreviewDataset(ds);
-                        setIsPreviewOpen(true);
-                      }}
                     />
                   ))}
                 </div>
@@ -861,7 +851,7 @@ export function DatasetDiscoveryV2() {
                     <span className="hidden sm:inline">Previous</span>
                     <span className="sm:hidden">Prev</span>
                   </button>
-                  
+
                   <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2">
                     <span className="text-xs md:text-sm text-[#4e5a7e] dark:text-white/60 whitespace-nowrap">
                       Page {filters.page} of {totalPages}
@@ -870,7 +860,7 @@ export function DatasetDiscoveryV2() {
                       ({totalCount} total)
                     </span>
                   </div>
-                  
+
                   <button
                     onClick={() => updateFilter({ page: Math.min(filters.page + 1, totalPages) })}
                     disabled={filters.page === totalPages}
@@ -893,13 +883,6 @@ export function DatasetDiscoveryV2() {
 
       {/* Footer */}
       <LandingFooter />
-
-      {/* Preview Modal */}
-      <DatasetPreviewModal
-        dataset={previewDataset}
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-      />
     </div>
   );
 }
