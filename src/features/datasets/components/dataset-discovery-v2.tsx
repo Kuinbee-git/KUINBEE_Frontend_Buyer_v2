@@ -836,7 +836,7 @@ export function DatasetDiscoveryV2() {
 
               {/* 8. Pagination - Explicit controls */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 md:mt-8 p-3 md:p-4 bg-gradient-to-br from-white via-slate-50/50 to-white dark:bg-white/[0.08] dark:backdrop-blur-xl border border-border/40 dark:border-white/10 rounded-xl">
+                <div className="flex items-center justify-between mt-6 md:mt-8 p-3 md:p-4 bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                   <button
                     onClick={() => updateFilter({ page: Math.max(filters.page - 1, 1) })}
                     disabled={filters.page === 1}
