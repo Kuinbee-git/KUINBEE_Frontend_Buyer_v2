@@ -34,6 +34,16 @@ import {
   Pencil,
   Trash2,
   MessageSquare,
+  Eye,
+  Tag,
+  Globe,
+  Columns,
+  Rows3,
+  FileType,
+  ExternalLink,
+  Lightbulb,
+  TriangleAlert,
+  Beaker,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
@@ -387,10 +397,10 @@ export function DatasetDetailPage({
 
           {/* ZONE 1: DATASET IDENTITY — Top, High Authority */}
           <div className="mb-10">
-            {/* Dataset ID */}
+            {/* Dataset Unique ID */}
             <div className="mb-3">
               <span className="font-mono text-sm text-muted-foreground dark:text-white/60">
-                {dataset.id}
+                {dataset.datasetUniqueId || dataset.id}
               </span>
             </div>
 
@@ -401,39 +411,84 @@ export function DatasetDetailPage({
 
             {/* Status Badges */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
-              {/* Category */}
+              {/* Primary Category */}
               <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-3 py-1">
                 {dataset.category}
               </Badge>
 
-              {/* Verification badges */}
-              {dataset.verification.supplierVerified && (
+              {/* Secondary Categories */}
+              {dataset.secondaryCategories.map((cat) => (
+                <Badge key={cat} variant="outline" className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1">
+                  {cat}
+                </Badge>
+              ))}
+
+              {/* Source verification badge */}
+              {dataset.source?.isVerified && (
                 <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-md text-xs font-medium border border-blue-200 dark:border-blue-800">
                   <Shield className="w-3.5 h-3.5" />
-                  Verified Supplier
+                  Verified Source
                 </div>
               )}
 
-              {dataset.verification.datasetReviewed && (
+              {/* Published badge */}
+              {dataset.verification.published && (
                 <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md text-xs font-medium border border-emerald-200 dark:border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Dataset Reviewed
+                  Published
                 </div>
               )}
+
+              {/* Pricing badge */}
+              <div className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border",
+                isPaid
+                  ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                  : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+              )}>
+                {isPaid ? <Lock className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                {isPaid ? "Paid" : "Free"}
+              </div>
             </div>
 
-            {/* Rating and Review Count */}
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm text-muted-foreground dark:text-white/60">
-                {averageRating > 0 ? averageRating.toFixed(1) : "No ratings"} ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
-              </span>
+            {/* Stats Row: Rating, Views, Downloads */}
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm text-muted-foreground dark:text-white/60">
+                  {dataset.rating != null && dataset.rating > 0 ? dataset.rating.toFixed(1) : averageRating > 0 ? averageRating.toFixed(1) : "No ratings"} ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Eye className="h-4 w-4 text-muted-foreground dark:text-white/50" />
+                <span className="text-sm text-muted-foreground dark:text-white/60">
+                  {dataset.viewCount.toLocaleString()} views
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Download className="h-4 w-4 text-muted-foreground dark:text-white/50" />
+                <span className="text-sm text-muted-foreground dark:text-white/60">
+                  {dataset.downloadCount.toLocaleString()} downloads
+                </span>
+              </div>
             </div>
 
-            {/* Short Description */}
+            {/* Short Description (overview or general description) */}
             <p className="text-base text-muted-foreground dark:text-white/70 max-w-4xl leading-relaxed">
-              {dataset.description}
+              {dataset.aboutDataset?.overview || dataset.description}
             </p>
+
+            {/* Tags */}
+            {dataset.tags.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                <Tag className="h-3.5 w-3.5 text-muted-foreground dark:text-white/50" />
+                {dataset.tags.map((tag, idx) => (
+                  <span key={idx} className="text-xs bg-muted/60 dark:bg-white/10 text-muted-foreground dark:text-white/70 px-2.5 py-1 rounded-md">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* ZONE 2: CORE FACTS & ACCESS — Middle, Decision Surface */}
@@ -448,52 +503,52 @@ export function DatasetDetailPage({
                   Dataset Metrics
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* Coverage */}
+                  {/* Coverage / Location */}
                   <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-4">
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-white/10">
-                        <MapPin className="h-4 w-4 text-primary dark:text-white" />
+                        <Globe className="h-4 w-4 text-primary dark:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-1">
                           Coverage
                         </div>
                         <div className="text-sm font-semibold text-foreground dark:text-white">
-                          {dataset.coverage}
+                          {dataset.location?.coverage || dataset.location?.country || dataset.coverage || "N/A"}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Record Count */}
+                  {/* Rows */}
                   <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-4">
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/10 dark:bg-white/10">
-                        <Database className="h-4 w-4 text-secondary dark:text-white" />
+                        <Rows3 className="h-4 w-4 text-secondary dark:text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-1">
-                          Records
+                          Rows
                         </div>
                         <div className="text-sm font-semibold text-foreground dark:text-white font-mono">
-                          {(dataset.records / 1000000).toFixed(1)}M
+                          {dataset.dataFormat?.rows != null ? dataset.dataFormat.rows.toLocaleString() : "N/A"}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Update Frequency */}
+                  {/* Columns */}
                   <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-4">
                     <div className="flex items-start gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 dark:bg-purple-400/10">
-                        <RefreshCw className="h-4 w-4 text-purple-700 dark:text-purple-400" />
+                        <Columns className="h-4 w-4 text-purple-700 dark:text-purple-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-1">
-                          Update Frequency
+                          Columns
                         </div>
-                        <div className="text-sm font-semibold text-foreground dark:text-white">
-                          {dataset.updateFrequency}
+                        <div className="text-sm font-semibold text-foreground dark:text-white font-mono">
+                          {dataset.dataFormat?.cols != null ? dataset.dataFormat.cols.toLocaleString() : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -518,37 +573,103 @@ export function DatasetDetailPage({
                 </div>
               </div>
 
-              {/* License & Format Information */}
+              {/* Data Format Information */}
+              {dataset.dataFormat && (
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
+                    Data Format
+                  </h2>
+                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2">
+                        <FileType className="h-4 w-4 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Format</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileFormat}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <HardDrive className="h-4 w-4 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">File Size</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileSize} KB</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Encoding</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.encoding}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Compression</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.compressionType}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Features / Schema */}
+              {dataset.features.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
+                    Dataset Schema ({dataset.features.length} features)
+                  </h2>
+                  <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border/40 dark:border-white/10">
+                            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">Name</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">Type</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">Nullable</th>
+                            <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dataset.features.map((feature) => (
+                            <tr key={feature.id} className="border-b border-border/20 dark:border-white/5 last:border-0">
+                              <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground dark:text-white">{feature.name}</td>
+                              <td className="px-4 py-3">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 dark:bg-white/10 text-primary dark:text-white">
+                                  {feature.dataType}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground dark:text-white/60">{feature.isNullable ? "Yes" : "No"}</td>
+                              <td className="px-4 py-3 text-xs text-muted-foreground dark:text-white/70 max-w-xs">{feature.description}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* License & Compliance */}
               <div>
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
                   License & Compliance
                 </h2>
                 <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <Scale className="h-5 w-5 text-primary dark:text-white mt-0.5" />
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                          {dataset.license}
-                        </div>
-                        <div className="text-xs text-muted-foreground dark:text-white/60">
-                          {dataset.license === "Open Data"
-                            ? "Publicly accessible under open data license. Usage subject to attribution requirements."
-                            : "Commercial license required. Usage restricted to licensed entities. Redistribution prohibited."
-                          }
-                        </div>
+                  <div className="flex items-start gap-3">
+                    <Scale className="h-5 w-5 text-primary dark:text-white mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
+                        {dataset.license}
                       </div>
-                    </div>
-
-                    <div className="flex items-start gap-3 pt-4 border-t border-border/40 dark:border-white/10">
-                      <HardDrive className="h-5 w-5 text-primary dark:text-white mt-0.5" />
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                          Data Format
-                        </div>
-                        <div className="text-xs text-muted-foreground dark:text-white/60">
-                          CSV, JSON, Parquet, Delivered via secure download link
-                        </div>
+                      <div className="text-xs text-muted-foreground dark:text-white/60">
+                        {dataset.license === "CC"
+                          ? "Creative Commons license. Usage subject to attribution requirements."
+                          : dataset.license === "Open Data" || dataset.license === "ODbL"
+                            ? "Publicly accessible under open data license. Usage subject to attribution requirements."
+                            : "Commercial license required. Usage restricted to licensed entities."
+                        }
                       </div>
                     </div>
                   </div>
@@ -692,63 +813,153 @@ export function DatasetDetailPage({
           {/* ZONE 3: DEEP DETAIL & ASSURANCE — Bottom, Trust Reinforcement */}
           <div className="space-y-10">
 
-            {/* Dataset Description */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Dataset Description
-              </h3>
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                  {dataset.description}
-                </p>
-                <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mt-4">
-                  This dataset provides comprehensive coverage of {dataset.coverage.toLowerCase()} with {dataset.updateFrequency.toLowerCase()} updates.
-                  Data is collected, validated, and published by {dataset.provider} under strict quality control protocols.
-                </p>
-              </div>
-            </div>
+            {/* About This Dataset */}
+            {dataset.aboutDataset && (
+              <div>
+                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
+                  About This Dataset
+                </h3>
+                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
+                  <div className="space-y-5">
+                    {/* Description */}
+                    <div>
+                      <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                        {dataset.aboutDataset.description}
+                      </p>
+                    </div>
 
-            {/* Data Coverage & Methodology */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Data Coverage & Methodology
-              </h3>
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2">
-                      Geographic Coverage
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      {dataset.coverage}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2">
-                      Collection Methodology
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      Data is collected through automated systems with manual validation checkpoints.
-                      All sources are verified and cross-referenced against regulatory standards.
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2">
-                      Update Process
-                    </h4>
-                    <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      {dataset.updateFrequency} updates ensure data currency.
-                      All updates are version-controlled and auditable.
-                    </p>
+                    {/* Data Quality */}
+                    {dataset.aboutDataset.dataQuality && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          Data Quality
+                        </h4>
+                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                          {dataset.aboutDataset.dataQuality}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Use Cases */}
+                    {dataset.aboutDataset.useCases && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
+                          <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                          Use Cases
+                        </h4>
+                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                          {dataset.aboutDataset.useCases}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Limitations */}
+                    {dataset.aboutDataset.limitations && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
+                          <TriangleAlert className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                          Limitations
+                        </h4>
+                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                          {dataset.aboutDataset.limitations}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Methodology */}
+                    {dataset.aboutDataset.methodology && (
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
+                          <Beaker className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          Methodology
+                        </h4>
+                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                          {dataset.aboutDataset.methodology}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Supplier Information */}
+            {/* Fallback: Plain description if no aboutDataset */}
+            {!dataset.aboutDataset && dataset.description && (
+              <div>
+                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
+                  Dataset Description
+                </h3>
+                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
+                  <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                    {dataset.description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Location & Coverage */}
+            {dataset.location && (dataset.location.country || dataset.location.coverage || dataset.location.region) && (
+              <div>
+                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
+                  Geographic Coverage
+                </h3>
+                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    {dataset.location.country && (
+                      <div className="flex items-center gap-3">
+                        <Globe className="h-5 w-5 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Country</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.country}</div>
+                        </div>
+                      </div>
+                    )}
+                    {dataset.location.region && (
+                      <div className="flex items-center gap-3">
+                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Region</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.region}</div>
+                        </div>
+                      </div>
+                    )}
+                    {dataset.location.state && (
+                      <div className="flex items-center gap-3">
+                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">State</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.state}</div>
+                        </div>
+                      </div>
+                    )}
+                    {dataset.location.city && (
+                      <div className="flex items-center gap-3">
+                        <Building2 className="h-5 w-5 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">City</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.city}</div>
+                        </div>
+                      </div>
+                    )}
+                    {dataset.location.coverage && (
+                      <div className="col-span-2 flex items-center gap-3">
+                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
+                        <div>
+                          <div className="text-xs text-muted-foreground dark:text-white/60">Coverage Detail</div>
+                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.coverage}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Source Information */}
             <div>
               <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Supplier Information
+                Source Information
               </h3>
               <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
                 <div className="flex items-start gap-4">
@@ -756,16 +967,36 @@ export function DatasetDetailPage({
                     <Building2 className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                      {dataset.provider}
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-foreground dark:text-white">
+                        {dataset.source?.name || dataset.provider}
+                      </span>
+                      {dataset.source?.isVerified && (
+                        <div className="flex items-center gap-1 text-xs text-blue-700 dark:text-blue-400">
+                          <Shield className="w-3.5 h-3.5" />
+                          Verified
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-muted-foreground dark:text-white/60 mb-3">
-                      Verified Marketplace Supplier
-                    </div>
-                    {dataset.verification.supplierVerified && (
-                      <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
-                        <Shield className="w-3.5 h-3.5" />
-                        Identity verified, compliance reviewed, credentials on file
+                    {dataset.source?.description && (
+                      <p className="text-xs text-muted-foreground dark:text-white/60 mb-2">
+                        {dataset.source.description}
+                      </p>
+                    )}
+                    {dataset.source?.websiteUrl && (
+                      <a
+                        href={dataset.source.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-primary dark:text-blue-400 hover:underline"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Visit Website
+                      </a>
+                    )}
+                    {!dataset.source?.description && !dataset.source?.websiteUrl && (
+                      <div className="text-xs text-muted-foreground dark:text-white/60">
+                        Marketplace Data Source
                       </div>
                     )}
                   </div>
@@ -773,27 +1004,13 @@ export function DatasetDetailPage({
               </div>
             </div>
 
-            {/* Governance & Review Notes */}
+            {/* Governance & Review */}
             <div>
               <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
                 Governance & Review
               </h3>
               <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
                 <div className="space-y-4">
-                  {dataset.verification.datasetReviewed && (
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                          Dataset Reviewed
-                        </div>
-                        <div className="text-xs text-muted-foreground dark:text-white/60">
-                          This dataset has been reviewed for quality, accuracy, and compliance with marketplace standards.
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   {dataset.verification.published && (
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
@@ -808,6 +1025,20 @@ export function DatasetDetailPage({
                     </div>
                   )}
 
+                  {dataset.source?.isVerified && (
+                    <div className="flex items-start gap-3">
+                      <Shield className="h-5 w-5 text-blue-700 dark:text-blue-400 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
+                          Verified Source
+                        </div>
+                        <div className="text-xs text-muted-foreground dark:text-white/60">
+                          The data source has been verified for authenticity and reliability.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3">
                     <Scale className="h-5 w-5 text-primary dark:text-white mt-0.5 shrink-0" />
                     <div>
@@ -815,7 +1046,7 @@ export function DatasetDetailPage({
                         Regulatory Compliance
                       </div>
                       <div className="text-xs text-muted-foreground dark:text-white/60">
-                        All transactions are governed, logged, and auditable. Access is subject to license terms and jurisdiction restrictions.
+                        All transactions are governed, logged, and auditable. Access is subject to license terms.
                       </div>
                     </div>
                   </div>
@@ -831,17 +1062,12 @@ export function DatasetDetailPage({
               <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
                 <div className="space-y-3 text-sm text-muted-foreground dark:text-white/70">
                   <p className="leading-relaxed">
-                    <strong className="text-foreground dark:text-white">Permitted Use:</strong>{" "}
-                    {dataset.license === "Open Data"
-                      ? "This dataset may be used for research, analysis, and commercial applications with proper attribution."
-                      : "This dataset is licensed for use by the purchasing entity only. Internal analysis and derivative works are permitted."
-                    }
-                  </p>
-                  <p className="leading-relaxed">
-                    <strong className="text-foreground dark:text-white">Restrictions:</strong>{" "}
-                    {dataset.license === "Open Data"
-                      ? "Attribution is required. Redistribution must preserve original license terms."
-                      : "Redistribution, resale, or transfer to third parties is prohibited without explicit written consent."
+                    <strong className="text-foreground dark:text-white">License:</strong>{" "}
+                    {dataset.license === "CC"
+                      ? "Creative Commons — This dataset may be used for research, analysis, and commercial applications with proper attribution."
+                      : dataset.license === "Open Data" || dataset.license === "ODbL"
+                        ? "Open Data — This dataset may be used for research, analysis, and commercial applications with proper attribution."
+                        : `${dataset.license} — This dataset is licensed for use by the purchasing entity. Refer to the specific license terms for permitted use.`
                     }
                   </p>
                   <p className="leading-relaxed">

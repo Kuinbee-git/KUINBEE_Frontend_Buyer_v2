@@ -1,9 +1,9 @@
 "use client";
 
-import { Database, Users } from "lucide-react";
+import { Database } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
-type TabType = "datasets" | "suppliers";
+type TabType = "datasets";
 
 interface DatasetSupplierTabsProps {
   activeTab: TabType;
@@ -16,11 +16,6 @@ export function DatasetSupplierTabs({ activeTab, onTabChange }: DatasetSupplierT
       id: "datasets" as TabType,
       label: "Datasets",
       icon: Database,
-    },
-    {
-      id: "suppliers" as TabType,
-      label: "Suppliers",
-      icon: Users,
     },
   ];
 
