@@ -31,12 +31,14 @@ export function generateMetadata({
   image,
   noIndex = false,
   keywords,
+  path,
 }: {
   title?: string;
   description?: string;
   image?: string;
   noIndex?: boolean;
   keywords?: string[];
+  path?: string;
 }): Metadata {
   const metaTitle = title
     ? `${title} | ${siteConfig.name}`
@@ -46,6 +48,9 @@ export function generateMetadata({
   const metaKeywords = keywords
     ? [...siteConfig.keywords, ...keywords]
     : siteConfig.keywords;
+  const canonicalUrl = path
+    ? `${siteConfig.url}${path.startsWith("/") ? path : `/${path}`}`
+    : siteConfig.url;
 
   return {
     title: metaTitle,
@@ -63,7 +68,7 @@ export function generateMetadata({
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: siteConfig.url,
+      url: canonicalUrl,
       title: metaTitle,
       description: metaDescription,
       siteName: siteConfig.name,
@@ -84,7 +89,7 @@ export function generateMetadata({
       creator: "@kuinbee",
     },
     alternates: {
-      canonical: siteConfig.url,
+      canonical: canonicalUrl,
     },
   };
 }
