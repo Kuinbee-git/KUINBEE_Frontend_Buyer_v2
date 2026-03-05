@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider } from "@/core/providers";
-import { generateMetadata } from "@/core/config";
+import { generateMetadata, generateOrganizationSchema } from "@/core/config";
 import { AuthModals } from "@/features/auth";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
 });
 
 export const metadata: Metadata = generateMetadata({});
+
+const organizationJsonLd = generateOrganizationSchema();
 
 export default function RootLayout({
   children,
@@ -33,7 +35,13 @@ export default function RootLayout({
             `,
           }}
         />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml"  />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/logo-dark.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#1a2240" />

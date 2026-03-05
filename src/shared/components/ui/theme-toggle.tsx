@@ -8,12 +8,6 @@ import { Button } from "./button";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  // Avoid hydration mismatch
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
     const newTheme = theme === "dark" ? "light" : "dark";
@@ -53,20 +47,6 @@ export function ThemeToggle() {
       );
     });
   };
-
-  if (!mounted) {
-    return (
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        className="relative transition-colors hover:bg-primary/10 dark:hover:bg-white/10"
-        disabled
-      >
-        <Sun className="h-[1.2rem] w-[1.2rem]" />
-        <span className="sr-only">Toggle theme</span>
-      </Button>
-    );
-  }
 
   return (
     <Button 
