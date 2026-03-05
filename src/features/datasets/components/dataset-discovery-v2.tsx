@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/shared/components/ui/select";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { DatasetCard } from "./dataset-card";
 import { DatasetSupplierTabs } from "./dataset-supplier-tabs";
+
+// Lazy load footer for better performance
+const LandingFooter = lazy(() => import("@/features/landing/components/LandingFooter").then(mod => ({ default: mod.LandingFooter })));
 import {
   Dataset,
   FilterState,
@@ -27,6 +29,11 @@ const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
     relevance: "relevance",
     newest: "createdAt:desc",
     oldest: "createdAt:asc",
+    updated: "updatedAt:desc",
+    popular: "viewCount:desc",
+    "most-downloaded": "downloadCount:desc",
+    "top-rated": "rating:desc",
+    "top-kdts": "kdtsScore:desc",
     "price-low": "price:asc",
     "price-high": "price:desc",
   };
@@ -253,7 +260,12 @@ export function DatasetDiscoveryV2() {
     category: null,
     pricingType: "all",
     priceRange: { min: "", max: "" },
-    currency: "USD",
+    currency: "INR",
+    country: "",
+    state: "",
+    city: "",
+    tags: [],
+    minKdtsScore: "",
     sortOrder: "relevance",
     page: 1,
     pageSize: 10,
@@ -271,9 +283,14 @@ export function DatasetDiscoveryV2() {
     q: debouncedSearch || undefined,
     categoryId: filters.category || undefined,
     ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
+    currency: filters.pricingType === "paid" ? filters.currency as Currency : undefined,
     minPrice: filters.pricingType === "paid" && filters.priceRange.min ? filters.priceRange.min : undefined,
     maxPrice: filters.pricingType === "paid" && filters.priceRange.max ? filters.priceRange.max : undefined,
-    currency: filters.pricingType === "paid" && (filters.priceRange.min || filters.priceRange.max) ? filters.currency as Currency : undefined,
+    country: filters.country || undefined,
+    state: filters.state || undefined,
+    city: filters.city || undefined,
+    tags: filters.tags.length > 0 ? filters.tags : undefined,
+    minKdtsScore: filters.minKdtsScore || undefined,
     sort: mapSortToAPI(filters.sortOrder),
     page: filters.page,
     pageSize: filters.pageSize,
@@ -300,9 +317,11 @@ export function DatasetDiscoveryV2() {
     return map;
   }, [categoriesResponse]);
 
-  // Get category items for display
+  // Get category items for display (exclude test categories)
   const categoryItems = useMemo(() => {
-    return Array.from(categoryMap.entries()).map(([id, name]) => ({ id, name }));
+    return Array.from(categoryMap.entries())
+      .map(([id, name]) => ({ id, name }))
+      .filter(({ name }) => !name.toLowerCase().includes("test"));
   }, [categoryMap]);
 
   // Map API response to UI format
@@ -330,6 +349,9 @@ export function DatasetDiscoveryV2() {
     category: true,
     pricing: true,
     priceRange: true,
+    location: false,
+    tags: false,
+    kdtsScore: false,
   });
 
   // Tab state
@@ -338,7 +360,18 @@ export function DatasetDiscoveryV2() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setFilters((prev: FilterState) => ({ ...prev, page: 1 }));
-  }, [filters.search, filters.category, filters.pricingType, filters.priceRange, filters.sortOrder]);
+  }, [
+    filters.search,
+    filters.category,
+    filters.pricingType,
+    filters.priceRange,
+    filters.country,
+    filters.state,
+    filters.city,
+    filters.tags,
+    filters.minKdtsScore,
+    filters.sortOrder,
+  ]);
 
   // Filter update helper
   const updateFilter = (updates: Partial<FilterState>) => {
@@ -356,7 +389,12 @@ export function DatasetDiscoveryV2() {
     filters.category !== null ||
     filters.pricingType !== "all" ||
     filters.priceRange.min !== "" ||
-    filters.priceRange.max !== "";
+    filters.priceRange.max !== "" ||
+    filters.country !== "" ||
+    filters.state !== "" ||
+    filters.city !== "" ||
+    filters.tags.length > 0 ||
+    filters.minKdtsScore !== "";
 
   // Clear all filters
   const clearFilters = () => {
@@ -365,7 +403,12 @@ export function DatasetDiscoveryV2() {
       category: null,
       pricingType: "all",
       priceRange: { min: "", max: "" },
-      currency: "USD",
+      currency: "INR",
+      country: "",
+      state: "",
+      city: "",
+      tags: [],
+      minKdtsScore: "",
       sortOrder: "relevance",
       page: 1,
       pageSize: 10,
@@ -373,7 +416,7 @@ export function DatasetDiscoveryV2() {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <main className="min-h-screen relative">
       {/* Navigation */}
       <div className="relative z-50">
         <NotchNavigation />
@@ -385,7 +428,7 @@ export function DatasetDiscoveryV2() {
       </div>
 
       {/* Main Content */}
-      <div className="relative pt-20 md:pt-32 pb-12">
+      <section className="relative pt-20 md:pt-32 pb-12">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           {/* Page Header */}
           <div className="mb-6 md:mb-8">
@@ -409,7 +452,12 @@ export function DatasetDiscoveryV2() {
                   <span>Filters {hasActiveFilters && `(${(filters.search ? 1 : 0) +
                     (filters.category ? 1 : 0) +
                     (filters.pricingType !== "all" ? 1 : 0) +
-                    (filters.priceRange.min || filters.priceRange.max ? 1 : 0)
+                    (filters.priceRange.min || filters.priceRange.max ? 1 : 0) +
+                    (filters.country ? 1 : 0) +
+                    (filters.state ? 1 : 0) +
+                    (filters.city ? 1 : 0) +
+                    (filters.tags.length > 0 ? 1 : 0) +
+                    (filters.minKdtsScore ? 1 : 0)
                     } active)`}</span>
                   <ChevronDown className="h-4 w-4 text-[#4e5a7e] dark:text-white/60" />
                 </summary>
@@ -441,7 +489,11 @@ export function DatasetDiscoveryV2() {
                     </button>
                     {accordionState.sort && (
                       <div className="px-4 pb-4 space-y-1">
-                        {(["relevance", "newest", "oldest", "price-low", "price-high"] as SortOption[]).map((option) => (
+                        {([
+                          "relevance", "newest", "oldest", "updated",
+                          "popular", "most-downloaded", "top-rated", "top-kdts",
+                          "price-low", "price-high",
+                        ] as SortOption[]).map((option) => (
                           <button
                             key={option}
                             onClick={() => updateFilter({ sortOrder: option })}
@@ -493,7 +545,7 @@ export function DatasetDiscoveryV2() {
                             key={cat.id}
                             onClick={() => updateFilter({ category: cat.id })}
                             className={cn(
-                              "w-full text-left px-3 py-2 rounded-lg text-xs transition-all duration-200 truncate",
+                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 truncate",
                               filters.category === cat.id
                                 ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
                                 : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
@@ -610,6 +662,142 @@ export function DatasetDiscoveryV2() {
                     </div>
                   )}
 
+                  {/* 6. Location Filters */}
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => toggleAccordion("location")}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                    >
+                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                        Location
+                      </h3>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                          accordionState.location && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    {accordionState.location && (
+                      <div className="px-4 pb-4 space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">Country</label>
+                          <Input
+                            placeholder="e.g. India"
+                            value={filters.country}
+                            onChange={(e) => updateFilter({ country: e.target.value })}
+                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">State</label>
+                          <Input
+                            placeholder="e.g. Maharashtra"
+                            value={filters.state}
+                            onChange={(e) => updateFilter({ state: e.target.value })}
+                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">City</label>
+                          <Input
+                            placeholder="e.g. Mumbai"
+                            value={filters.city}
+                            onChange={(e) => updateFilter({ city: e.target.value })}
+                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 7. Tags Filter */}
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => toggleAccordion("tags")}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                    >
+                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                        Tags
+                      </h3>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                          accordionState.tags && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    {accordionState.tags && (
+                      <div className="px-4 pb-4 space-y-3">
+                        <p className="text-xs text-[#4e5a7e] dark:text-white/50">Enter tags separated by commas</p>
+                        <Input
+                          placeholder="e.g. climate, finance"
+                          value={filters.tags.join(", ")}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            const parsed = raw
+                              .split(",")
+                              .map((t) => t.trim())
+                              .filter(Boolean);
+                            updateFilter({ tags: parsed });
+                          }}
+                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                        />
+                        {filters.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {filters.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1a2240]/10 dark:bg-white/10 text-[#1a2240] dark:text-white"
+                              >
+                                {tag}
+                                <button
+                                  onClick={() => updateFilter({ tags: filters.tags.filter((t) => t !== tag) })}
+                                  className="hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 8. Min KDTS Score */}
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => toggleAccordion("kdtsScore")}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                    >
+                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                        Min KDTS Score
+                      </h3>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                          accordionState.kdtsScore && "rotate-180"
+                        )}
+                      />
+                    </button>
+                    {accordionState.kdtsScore && (
+                      <div className="px-4 pb-4">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          placeholder="e.g. 70.5"
+                          value={filters.minKdtsScore}
+                          onChange={(e) => updateFilter({ minKdtsScore: e.target.value })}
+                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                        />
+                        <p className="mt-1.5 text-xs text-[#4e5a7e] dark:text-white/50">Score range: 0 – 100</p>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </details>
 
@@ -643,7 +831,11 @@ export function DatasetDiscoveryV2() {
                   </button>
                   {accordionState.sort && (
                     <div className="px-5 pb-5 space-y-1">
-                      {(["relevance", "newest", "oldest", "price-low", "price-high"] as SortOption[]).map((option) => (
+                      {([
+                        "relevance", "newest", "oldest", "updated",
+                        "popular", "most-downloaded", "top-rated", "top-kdts",
+                        "price-low", "price-high",
+                      ] as SortOption[]).map((option) => (
                         <button
                           key={option}
                           onClick={() => updateFilter({ sortOrder: option })}
@@ -695,7 +887,7 @@ export function DatasetDiscoveryV2() {
                           key={cat.id}
                           onClick={() => updateFilter({ category: cat.id })}
                           className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-xs transition-all duration-200 truncate",
+                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 truncate",
                             filters.category === cat.id
                               ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
                               : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
@@ -812,6 +1004,142 @@ export function DatasetDiscoveryV2() {
                   </div>
                 )}
 
+                {/* 6. Location Filters */}
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => toggleAccordion("location")}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                      Location
+                    </h3>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                        accordionState.location && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {accordionState.location && (
+                    <div className="px-5 pb-5 space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">Country</label>
+                        <Input
+                          placeholder="e.g. India"
+                          value={filters.country}
+                          onChange={(e) => updateFilter({ country: e.target.value })}
+                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">State</label>
+                        <Input
+                          placeholder="e.g. Maharashtra"
+                          value={filters.state}
+                          onChange={(e) => updateFilter({ state: e.target.value })}
+                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">City</label>
+                        <Input
+                          placeholder="e.g. Mumbai"
+                          value={filters.city}
+                          onChange={(e) => updateFilter({ city: e.target.value })}
+                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 7. Tags Filter */}
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => toggleAccordion("tags")}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                      Tags
+                    </h3>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                        accordionState.tags && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {accordionState.tags && (
+                    <div className="px-5 pb-5 space-y-3">
+                      <p className="text-xs text-[#4e5a7e] dark:text-white/50">Enter tags separated by commas</p>
+                      <Input
+                        placeholder="e.g. climate, finance"
+                        value={filters.tags.join(", ")}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          const parsed = raw
+                            .split(",")
+                            .map((t) => t.trim())
+                            .filter(Boolean);
+                          updateFilter({ tags: parsed });
+                        }}
+                        className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                      />
+                      {filters.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {filters.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1a2240]/10 dark:bg-white/10 text-[#1a2240] dark:text-white"
+                            >
+                              {tag}
+                              <button
+                                onClick={() => updateFilter({ tags: filters.tags.filter((t) => t !== tag) })}
+                                className="hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 8. Min KDTS Score */}
+                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => toggleAccordion("kdtsScore")}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
+                      Min KDTS Score
+                    </h3>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
+                        accordionState.kdtsScore && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {accordionState.kdtsScore && (
+                    <div className="px-5 pb-5">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        placeholder="e.g. 70.5"
+                        value={filters.minKdtsScore}
+                        onChange={(e) => updateFilter({ minKdtsScore: e.target.value })}
+                        className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                      />
+                      <p className="mt-1.5 text-xs text-[#4e5a7e] dark:text-white/50">Score range: 0 – 100</p>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </aside>
 
@@ -920,10 +1248,12 @@ export function DatasetDiscoveryV2() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Footer */}
-      <LandingFooter />
-    </div>
+      <Suspense fallback={<div className="bg-[#0f1729] h-32" />}>
+        <LandingFooter />
+      </Suspense>
+    </main>
   );
 }

@@ -108,7 +108,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
   const totalStars = 5;
 
   return (
-    <div
+    <article
       className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform"
       onClick={handleViewDetails}
     >
@@ -212,18 +212,18 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
           <Gauge className={cn(
             "w-4 h-4 shrink-0",
             kdtsValue >= 85 ? "text-emerald-500" :
-            kdtsValue >= 70 ? "text-blue-500" :
-            kdtsValue >= 50 ? "text-amber-500" :
-            "text-red-500"
+              kdtsValue >= 70 ? "text-blue-500" :
+                kdtsValue >= 50 ? "text-amber-500" :
+                  "text-red-500"
           )} />
           <div className="flex items-baseline gap-1.5">
             <span className="text-[13px] font-semibold text-[#1a2240] dark:text-white/80">KDTS Score</span>
             <span className={cn(
               "text-[15px] font-bold",
               kdtsValue >= 85 ? "text-emerald-600 dark:text-emerald-400" :
-              kdtsValue >= 70 ? "text-blue-600 dark:text-blue-400" :
-              kdtsValue >= 50 ? "text-amber-600 dark:text-amber-400" :
-              "text-red-600 dark:text-red-400"
+                kdtsValue >= 70 ? "text-blue-600 dark:text-blue-400" :
+                  kdtsValue >= 50 ? "text-amber-600 dark:text-amber-400" :
+                    "text-red-600 dark:text-red-400"
             )}>
               {kdtsValue.toFixed(1)}
             </span>
@@ -296,6 +296,6 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
           </div>
         )}
       </div>
-    </div>
+    </article>
   );
 }
