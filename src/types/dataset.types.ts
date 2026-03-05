@@ -11,8 +11,13 @@ export type DatasetSortOption =
   | "relevance"
   | "createdAt:desc"
   | "createdAt:asc"
+  | "updatedAt:desc"
   | "price:asc"
-  | "price:desc";
+  | "price:desc"
+  | "viewCount:desc"
+  | "downloadCount:desc"
+  | "rating:desc"
+  | "kdtsScore:desc";
 
 export interface DatasetOwner {
   id: string;
@@ -146,10 +151,16 @@ export interface DatasetDetailsResponse {
 
 export interface DatasetListQuery extends PaginationQuery {
   q?: string;
+  search?: string;
   categoryId?: string;
   isPaid?: boolean;
+  currency?: Currency;
   minPrice?: string;
   maxPrice?: string;
-  currency?: Currency;
+  country?: string;
+  state?: string;
+  city?: string;
+  tags?: string[];
+  minKdtsScore?: string;
   sort?: DatasetSortOption;
 }

@@ -97,18 +97,38 @@ export interface FilterState {
   category: string | null;
   pricingType: "all" | "free" | "paid";
   priceRange: { min: string; max: string };
-  currency: "USD" | "EUR" | "GBP" | "INR";
+  currency: "INR" | "USD" | "EUR" | "GBP";
+  country: string;
+  state: string;
+  city: string;
+  tags: string[];
+  minKdtsScore: string;
   sortOrder: SortOption;
   page: number;
   pageSize: number;
 }
 
-export type SortOption = "relevance" | "newest" | "oldest" | "price-low" | "price-high";
+export type SortOption =
+  | "relevance"
+  | "newest"
+  | "oldest"
+  | "price-low"
+  | "price-high"
+  | "updated"
+  | "popular"
+  | "most-downloaded"
+  | "top-rated"
+  | "top-kdts";
 
 export const SORT_LABELS: Record<SortOption, string> = {
   relevance: "Most Relevant",
   newest: "Newest First",
   oldest: "Oldest First",
+  updated: "Recently Updated",
+  popular: "Most Viewed",
+  "most-downloaded": "Most Downloaded",
+  "top-rated": "Top Rated",
+  "top-kdts": "Top KDTS Score",
   "price-low": "Price: Low to High",
   "price-high": "Price: High to Low",
 };
@@ -128,4 +148,4 @@ export const CATEGORIES = [
 
 export const LICENSES = ["Open Data", "Commercial"] as const;
 
-export const CURRENCIES = ["USD", "EUR", "GBP"] as const;
+export const CURRENCIES = ["INR", "USD", "EUR", "GBP"] as const;

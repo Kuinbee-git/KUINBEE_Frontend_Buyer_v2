@@ -97,6 +97,11 @@ export const SORT_LABELS: Record<DatasetSortOption, string> = {
   relevance: "Relevance",
   "createdAt:desc": "Newest First",
   "createdAt:asc": "Oldest First",
+  "updatedAt:desc": "Recently Updated",
   "price:asc": "Price: Low → High",
   "price:desc": "Price: High → Low",
+  "viewCount:desc": "Most Viewed",
+  "downloadCount:desc": "Most Downloaded",
+  "rating:desc": "Top Rated",
+  "kdtsScore:desc": "Top KDTS Score",
 };
