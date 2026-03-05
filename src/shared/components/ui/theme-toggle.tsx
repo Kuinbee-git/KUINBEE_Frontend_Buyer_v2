@@ -10,7 +10,14 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const newTheme = theme === "dark" ? "light" : "dark";
+    // Resolve actual current theme, accounting for "system" preference
+    const effectiveTheme =
+      theme === "system"
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+        : theme;
+    const newTheme = effectiveTheme === "dark" ? "light" : "dark";
 
     // Graceful fallback for browsers without View Transitions API
     if (!document.startViewTransition) {
@@ -49,9 +56,9 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={toggleTheme}
       className="relative transition-colors hover:bg-primary/10 dark:hover:bg-white/10"
       aria-label="Toggle theme"
