@@ -8,7 +8,10 @@ export const siteConfig = {
   name: "Kuinbee Marketplace",
   description:
     "Discover and purchase premium datasets for AI, ML, and data science projects. Browse curated, high-quality datasets across multiple categories.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com",
+  url: (() => {
+    const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
+    return defaultUrl.includes("vercel.app") ? "https://marketplace.kuinbee.com" : defaultUrl;
+  })(),
   ogImage: "/og-image.png",
   links: {
     twitter: "https://twitter.com/kuinbee",

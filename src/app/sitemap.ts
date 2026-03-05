@@ -1,8 +1,12 @@
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
+  // Force the production domain for the sitemap to prevent GSC errors
+  // If NEXT_PUBLIC_SITE_URL is a vercel.app domain, we still want the canonical domain
+  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
+  if (baseUrl.includes("vercel.app")) {
+    baseUrl = "https://marketplace.kuinbee.com";
+  }
 
   const staticPages: MetadataRoute.Sitemap = [
     {
