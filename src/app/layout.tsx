@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider } from "@/core/providers";
+import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider, NavigationProgress } from "@/core/providers";
 import { generateMetadata, generateOrganizationSchema } from "@/core/config";
 import { AuthModals } from "@/features/auth";
 
@@ -52,6 +52,7 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <ModalProvider>
+                <NavigationProgress />
                 {children}
                 <AuthModals />
                 <ToastProvider />
