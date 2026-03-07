@@ -4,10 +4,47 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface NavigationProgressBarProps {
+  isNavigating: boolean;
+  progress: number;
+}
+
 /**
- * A thin, animated progress bar shown at the top of the viewport
- * during client-side navigations. Provides visual feedback while
- * the page transition is in progress.
+ * Pure UI component for the progress bar — no hooks.
+ * Controlled by the parent logic component.
+ */
+export function NavigationProgressBar({
+  isNavigating,
+  progress,
+}: NavigationProgressBarProps) {
+  return (
+    <AnimatePresence>
+      {isNavigating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed top-0 left-0 right-0 z-[9999] h-[2.5px]"
+        >
+          <motion.div
+            className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary"
+            initial={{ width: "0%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            style={{
+              boxShadow: "0 0 8px var(--primary, #3b82f6), 0 0 2px var(--primary, #3b82f6)",
+            }}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/**
+ * Logic component — handles useSearchParams and state.
+ * Wrapped in Suspense by the layout.
  */
 export function NavigationProgress() {
   const pathname = usePathname();
@@ -101,26 +138,6 @@ export function NavigationProgress() {
   }, []);
 
   return (
-    <AnimatePresence>
-      {isNavigating && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed top-0 left-0 right-0 z-[9999] h-[2.5px]"
-        >
-          <motion.div
-            className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary"
-            initial={{ width: "0%" }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            style={{
-              boxShadow: "0 0 8px var(--primary, #3b82f6), 0 0 2px var(--primary, #3b82f6)",
-            }}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <NavigationProgressBar isNavigating={isNavigating} progress={progress} />
   );
 }

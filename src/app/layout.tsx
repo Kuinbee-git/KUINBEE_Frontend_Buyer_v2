@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider, NavigationProgress } from "@/core/providers";
 import { generateMetadata, generateOrganizationSchema } from "@/core/config";
@@ -52,7 +53,9 @@ export default function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <ModalProvider>
-                <NavigationProgress />
+                <Suspense fallback={null}>
+                  <NavigationProgress />
+                </Suspense>
                 {children}
                 <AuthModals />
                 <ToastProvider />
