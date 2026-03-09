@@ -143,15 +143,27 @@ export function DatasetDetailPageContent() {
   const handleClaimDataset = async () => {
     try {
       await claimMutation.mutateAsync(id);
-      toast.success("Dataset claimed successfully!");
-      router.push("/library");
+      toast.success("Dataset claimed successfully!", {
+        description: "You can now access this dataset from your library.",
+        action: {
+          label: "Go to Library",
+          onClick: () => router.push("/library"),
+        },
+        duration: 8000,
+      });
     } catch (err: any) {
       const errorMessage = err?.message || "Failed to claim dataset";
       if (errorMessage.includes("NOT_FREE")) {
         toast.error("This dataset is not free");
       } else if (errorMessage.includes("ALREADY_OWNED")) {
-        toast.info("You already own this dataset");
-        router.push("/library");
+        toast.info("You already own this dataset", {
+          description: "This dataset is already in your library.",
+          action: {
+            label: "Go to Library",
+            onClick: () => router.push("/library"),
+          },
+          duration: 8000,
+        });
       } else {
         toast.error(errorMessage);
       }
