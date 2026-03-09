@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { generateMetadata as genMeta } from "@/core/config";
 import { DatasetDiscoveryV2 } from "@/features/datasets/components";
+import DatasetsLoading from "./loading";
 
 export const metadata: Metadata = genMeta({
   title: "Browse Datasets",
@@ -17,5 +19,9 @@ export const metadata: Metadata = genMeta({
 });
 
 export default function DatasetsPage() {
-  return <DatasetDiscoveryV2 />;
+  return (
+    <Suspense fallback={<DatasetsLoading />}>
+      <DatasetDiscoveryV2 />
+    </Suspense>
+  );
 }

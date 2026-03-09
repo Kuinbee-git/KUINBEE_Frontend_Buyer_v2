@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/shared/components/ui/select";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -254,22 +255,50 @@ const mockDatasets: Dataset[] = [
 ];
 
 export function DatasetDiscoveryV2() {
-  // Canonical filter state - backend aligned
-  const [filters, setFilters] = useState<FilterState>({
-    search: "",
-    category: null,
-    pricingType: "all",
-    priceRange: { min: "", max: "" },
-    currency: "INR",
-    country: "",
-    state: "",
-    city: "",
-    tags: [],
-    minKdtsScore: "",
-    sortOrder: "relevance",
-    page: 1,
-    pageSize: 10,
-  });
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Canonical filter state - backend aligned, initialized from URL params
+  const [filters, setFilters] = useState<FilterState>(() => ({
+    search: searchParams.get("q") || "",
+    category: searchParams.get("category") || null,
+    pricingType: (searchParams.get("pricingType") as FilterState["pricingType"]) || "all",
+    priceRange: {
+      min: searchParams.get("minPrice") || "",
+      max: searchParams.get("maxPrice") || "",
+    },
+    currency: (searchParams.get("currency") as FilterState["currency"]) || "INR",
+    country: searchParams.get("country") || "",
+    state: searchParams.get("state") || "",
+    city: searchParams.get("city") || "",
+    tags: searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [],
+    minKdtsScore: searchParams.get("minKdtsScore") || "",
+    sortOrder: (searchParams.get("sort") as SortOption) || "relevance",
+    page: parseInt(searchParams.get("page") || "1", 10),
+    pageSize: parseInt(searchParams.get("pageSize") || "10", 10),
+  }));
+
+  // Sync filter state to URL so browser back/forward restores the view
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.search) params.set("q", filters.search);
+    if (filters.category) params.set("category", filters.category);
+    if (filters.pricingType !== "all") params.set("pricingType", filters.pricingType);
+    if (filters.priceRange.min) params.set("minPrice", filters.priceRange.min);
+    if (filters.priceRange.max) params.set("maxPrice", filters.priceRange.max);
+    if (filters.currency !== "INR") params.set("currency", filters.currency);
+    if (filters.country) params.set("country", filters.country);
+    if (filters.state) params.set("state", filters.state);
+    if (filters.city) params.set("city", filters.city);
+    if (filters.tags.length > 0) params.set("tags", filters.tags.join(","));
+    if (filters.minKdtsScore) params.set("minKdtsScore", filters.minKdtsScore);
+    if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
+    if (filters.page > 1) params.set("page", String(filters.page));
+    if (filters.pageSize !== 10) params.set("pageSize", String(filters.pageSize));
+    const query = params.toString();
+    router.replace(`/datasets${query ? `?${query}` : ""}`, { scroll: false });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   // Debounce search to avoid hammering the API on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
