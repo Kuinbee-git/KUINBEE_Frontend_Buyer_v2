@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
@@ -297,6 +298,7 @@ function NavDropdown({ label, items, align = "start" }: NavDropdownProps) {
 function MobileNav() {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { openModal } = useModal();
   const { user } = useAuth();
   const navConfig = useNavigationConfig();
@@ -338,14 +340,24 @@ function MobileNav() {
         <nav className="flex flex-col gap-1 py-4">
           {/* Back button if configured */}
           {navConfig.showBack && (
-            <Link
-              href={navConfig.backUrl || "/"}
-              onClick={closeNav}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {navConfig.backLabel || "Back"}
-            </Link>
+            navConfig.useBack ? (
+              <button
+                onClick={() => { closeNav(); router.back(); }}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground w-full text-left"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {navConfig.backLabel || "Back"}
+              </button>
+            ) : (
+              <Link
+                href={navConfig.backUrl || "/"}
+                onClick={closeNav}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {navConfig.backLabel || "Back"}
+              </Link>
+            )
           )}
 
           {/* Direct Links */}
@@ -461,6 +473,7 @@ function MobileNav() {
 
 export function NotchNavigation() {
   const [scrolled, setScrolled] = React.useState(false);
+  const router = useRouter();
   const { openModal } = useModal();
   const { user, logout } = useAuth();
   const navConfig = useNavigationConfig();
@@ -590,13 +603,23 @@ export function NotchNavigation() {
               )}>
                 {/* Back Button (if configured) */}
                 {navConfig.showBack && (
-                  <Link
-                    href={navConfig.backUrl || "/"}
-                    className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
-                  </Link>
+                  navConfig.useBack ? (
+                    <button
+                      onClick={() => router.back()}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={navConfig.backUrl || "/"}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
+                    </Link>
+                  )
                 )}
 
                 {/* Page Title (if configured) */}

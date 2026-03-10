@@ -25,6 +25,7 @@ export interface NavigationConfig {
   showBack?: boolean;
   backUrl?: string;
   backLabel?: string;
+  useBack?: boolean; // When true, uses router.back() instead of navigating to backUrl
   showBreadcrumb?: boolean;
   breadcrumbItems?: string[];
   directLinks?: Array<{
@@ -130,6 +131,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Dataset detail
   "/datasets/[id]": {
     showBack: true,
+    useBack: true,
     backUrl: "/datasets",
     backLabel: "Back to Marketplace",
     showBreadcrumb: true,

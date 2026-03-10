@@ -98,161 +98,7 @@ const mapDatasetToUI = (apiDataset: any): Dataset => ({
   kdtsScore: apiDataset.kdtsScore || null,
 });
 
-// Mock datasets for demonstration (fallback)
-const mockDatasets: Dataset[] = [
-  {
-    id: "DS-2026-001",
-    title: "Global Carbon Emissions by Sector",
-    provider: "EcoMetrics",
-    category: "Environment & Climate",
-    secondaryCategories: [],
-    license: "Commercial",
-    pricing: { type: "paid", amount: 12500, currency: "USD" },
-    lastUpdated: "2026-01-15",
-    status: "published",
-    description: "Comprehensive CO₂ emissions data across industrial sectors with monthly granularity.",
-    coverage: "195 countries, 12 sectors",
-    records: 450000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.9, kdtsScore: null,
-    quality: { quality: 98, legal: 96, provenance: 99, usability: 85, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 247,
-  },
-  {
-    id: "DS-2026-002",
-    title: "Global Energy Consumption Database",
-    provider: "PowerMetrics",
-    category: "Energy & Utilities",
-    secondaryCategories: [],
-    license: "Commercial",
-    pricing: { type: "paid", amount: 8500, currency: "USD" },
-    lastUpdated: "2026-01-10",
-    status: "published",
-    description: "Real-time energy consumption data across 85 countries with hourly granularity.",
-    coverage: "85 countries, 15 energy types",
-    records: 2500000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.8, kdtsScore: null,
-    quality: { quality: 97, legal: 98, provenance: 96, usability: 99, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 193,
-  },
-  {
-    id: "DS-2026-003",
-    title: "Agricultural Yield Forecasting Data",
-    provider: "AgriTech Solutions",
-    category: "Agriculture & Food",
-    secondaryCategories: [],
-    license: "Open Data",
-    pricing: { type: "free", currency: "USD" },
-    lastUpdated: "2026-01-12",
-    status: "published",
-    description: "Historical crop yield data with weather correlations across major agricultural regions.",
-    coverage: "Global - 120 countries",
-    records: 2000000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.7, kdtsScore: null,
-    quality: { quality: 95, legal: 97, provenance: 98, usability: 92, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 156,
-  },
-  {
-    id: "DS-2026-004",
-    title: "Global Trade Flow Analytics",
-    provider: "TradeIQ",
-    category: "Economics & Trade",
-    secondaryCategories: [],
-    license: "Commercial",
-    pricing: { type: "paid", amount: 15200, currency: "EUR" },
-    lastUpdated: "2026-01-18",
-    status: "published",
-    description: "Bilateral trade flows with tariff data covering 180+ countries and 5000+ product categories.",
-    coverage: "Global - 180+ countries",
-    records: 1500000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.95, kdtsScore: null,
-    quality: { quality: 100, legal: 99, provenance: 99, usability: 88, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 512,
-  },
-  {
-    id: "DS-2026-005",
-    title: "Financial Markets Time Series Data",
-    provider: "FinData Corp",
-    category: "Finance & Markets",
-    secondaryCategories: [],
-    license: "Commercial",
-    pricing: { type: "paid", amount: 18500, currency: "USD" },
-    lastUpdated: "2026-01-14",
-    status: "published",
-    description: "Historical and real-time financial market data covering stocks, bonds, commodities.",
-    coverage: "Global - 65 exchanges",
-    records: 8500000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.9, kdtsScore: null,
-    quality: { quality: 99, legal: 99, provenance: 98, usability: 99, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 428,
-  },
-  {
-    id: "DS-2026-006",
-    title: "Renewable Energy Infrastructure Registry",
-    provider: "GreenGrid Analytics",
-    category: "Energy & Utilities",
-    secondaryCategories: [],
-    license: "Open Data",
-    pricing: { type: "free", currency: "EUR" },
-    lastUpdated: "2026-01-20",
-    status: "published",
-    description: "Comprehensive database of renewable energy installations including solar, wind, hydro facilities.",
-    coverage: "Europe, North America, Asia",
-    records: 450000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.6, kdtsScore: null,
-    quality: { quality: 96, legal: 95, provenance: 97, usability: 90, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 189,
-  },
-  {
-    id: "DS-2026-007",
-    title: "Commodity Price Index Historical Data",
-    provider: "MarketWatch Analytics",
-    category: "Economics & Trade",
-    secondaryCategories: [],
-    license: "Commercial",
-    pricing: { type: "paid", amount: 5500, currency: "GBP" },
-    lastUpdated: "2026-01-22",
-    status: "published",
-    description: "50 years of commodity price data across metals, agriculture, and energy sectors.",
-    coverage: "Global - 200+ commodities",
-    records: 3200000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.85, kdtsScore: null,
-    quality: { quality: 98, legal: 97, provenance: 99, usability: 95, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 312,
-  },
-  {
-    id: "DS-2026-008",
-    title: "Climate Risk Assessment Database",
-    provider: "EcoMetrics",
-    category: "Environment & Climate",
-    secondaryCategories: [],
-    license: "Open Data",
-    pricing: { type: "free", currency: "USD" },
-    lastUpdated: "2026-01-25",
-    status: "published",
-    description: "Climate risk indicators including flood zones, drought susceptibility, and temperature anomalies.",
-    coverage: "Global - 1km resolution",
-    records: 5600000,
-    aboutDataset: null, dataFormat: null, features: [], source: null, location: null, tags: [],
-    downloadCount: 0, viewCount: 0, rating: 4.75, kdtsScore: null,
-    quality: { quality: 94, legal: 96, provenance: 95, usability: 88, freshness: 90 },
-    verification: { supplierVerified: true, datasetReviewed: true, published: true },
-    reviewCount: 267,
-  },
-];
+
 
 export function DatasetDiscoveryV2() {
   const router = useRouter();
@@ -297,7 +143,7 @@ export function DatasetDiscoveryV2() {
     if (filters.pageSize !== 10) params.set("pageSize", String(filters.pageSize));
     const query = params.toString();
     router.replace(`/datasets${query ? `?${query}` : ""}`, { scroll: false });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   // Debounce search to avoid hammering the API on every keystroke
@@ -386,25 +232,15 @@ export function DatasetDiscoveryV2() {
   // Tab state
   const [activeTab, setActiveTab] = useState<"datasets">("datasets");
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setFilters((prev: FilterState) => ({ ...prev, page: 1 }));
-  }, [
-    filters.search,
-    filters.category,
-    filters.pricingType,
-    filters.priceRange,
-    filters.country,
-    filters.state,
-    filters.city,
-    filters.tags,
-    filters.minKdtsScore,
-    filters.sortOrder,
-  ]);
-
-  // Filter update helper
+  // Filter update helper — auto-resets page to 1 when non-page filters change
+  // (keeps page intact when explicitly changing page, e.g. pagination controls)
   const updateFilter = (updates: Partial<FilterState>) => {
-    setFilters((prev: FilterState) => ({ ...prev, ...updates }));
+    setFilters((prev: FilterState) => ({
+      ...prev,
+      ...updates,
+      // Reset to page 1 unless the update is explicitly changing the page
+      page: 'page' in updates ? updates.page! : 1,
+    }));
   };
 
   // Accordion toggle helper
