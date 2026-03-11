@@ -283,7 +283,7 @@ export function DatasetDiscoveryV2() {
   return (
     <main className="min-h-screen relative">
       {/* Navigation */}
-      <div className="relative z-50">
+      <div className="sticky top-0 z-50">
         <NotchNavigation />
       </div>
 
