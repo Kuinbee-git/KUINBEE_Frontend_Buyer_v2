@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
@@ -471,7 +472,7 @@ function MobileNav() {
   );
 }
 
-export function NotchNavigation() {
+function NotchNavigationInner() {
   const [scrolled, setScrolled] = React.useState(false);
   const router = useRouter();
   const searchParamsObj = useSearchParams();
@@ -866,5 +867,13 @@ export function NotchNavigation() {
         </div>
       </div>
     </header>
+  );
+}
+
+export function NotchNavigation() {
+  return (
+    <Suspense>
+      <NotchNavigationInner />
+    </Suspense>
   );
 }

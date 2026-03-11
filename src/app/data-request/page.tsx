@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { generateMetadata as genMeta } from "@/core/config";
 import { DataRequestPageContent } from "./_components/DataRequestPageContent";
 
@@ -17,5 +18,9 @@ export const metadata: Metadata = genMeta({
 });
 
 export default function DataRequestPage() {
-    return <DataRequestPageContent />;
+    return (
+        <Suspense>
+            <DataRequestPageContent />
+        </Suspense>
+    );
 }
