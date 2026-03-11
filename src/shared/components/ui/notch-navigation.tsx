@@ -578,6 +578,12 @@ export function NotchNavigation() {
                 <Link
                   href="/"
                   className="group flex items-center gap-2 transition-opacity hover:opacity-80"
+                  onClick={(e) => {
+                    if (pathname === "/") {
+                      e.preventDefault();
+                      document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
                 >
                   {/* Show favicon black logo in light mode, dark logo in dark mode */}
                   <img

@@ -119,24 +119,24 @@ export function LandingHero() {
   }, []);
 
   return (
-    <section className="relative pt-6 pb-16">
+    <section id="hero" className="relative pt-6 pb-16">
       {/* Gradient background with dot pattern */}
       <InstitutionalBackground />
-      
+
       {/* Radial glow effects - visible brand-colored glows */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* Top center glow - cool gray slate for light theme, navy for dark */}
-        <div 
+        <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[900px] blur-3xl opacity-75 dark:opacity-85"
           style={{
-            background: isDark 
+            background: isDark
               ? 'radial-gradient(circle, rgba(26, 34, 64, 0.5) 0%, rgba(45, 58, 95, 0.35) 35%, rgba(26, 34, 64, 0.2) 55%, transparent 75%)'
               : 'radial-gradient(circle, rgba(100, 116, 139, 0.08) 0%, rgba(71, 85, 105, 0.05) 35%, rgba(51, 65, 85, 0.02) 55%, transparent 75%)'
           }}
         />
-        
+
         {/* Left side glow - cool gray accent for light theme, secondary brand for dark */}
-        <div 
+        <div
           className="absolute top-1/3 -left-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
           style={{
             background: isDark
@@ -144,9 +144,9 @@ export function LandingHero() {
               : 'radial-gradient(circle, rgba(71, 85, 105, 0.06) 0%, rgba(51, 65, 85, 0.04) 40%, rgba(30, 41, 59, 0.02) 60%, transparent 80%)'
           }}
         />
-        
+
         {/* Right side glow - cool gray slate for light theme, gradient mix for dark */}
-        <div 
+        <div
           className="absolute top-1/3 -right-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
           style={{
             background: isDark
@@ -155,7 +155,7 @@ export function LandingHero() {
           }}
         />
       </div>
-      
+
       {/* Bottom gradient blend for seamless transition */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-background dark:from-[#0a0f1e] to-transparent z-10" />
 
@@ -165,12 +165,12 @@ export function LandingHero() {
           {/* Registry badge */}
           <div className="mb-4 md:mb-6 flex justify-center">
             <div className="inline-flex items-center gap-1.5 md:gap-2 rounded-lg border border-primary/30 dark:border-white/30 bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10 px-3 py-1.5 md:px-4 md:py-2 backdrop-blur-xl shadow-lg">
-                <span className="text-xs md:text-sm font-medium text-white flex items-center gap-2">
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                    Live Registry
-                  </span>
+              <span className="text-xs md:text-sm font-medium text-white flex items-center gap-2">
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                  Live Registry
                 </span>
+              </span>
             </div>
           </div>
 
@@ -256,14 +256,14 @@ export function LandingHero() {
               {[...Array(2)].map((_, setIdx) => (
                 <div key={setIdx} className="flex items-center gap-12 pr-12">
                   {[
-                    { src: "/fao-logo.svg",               alt: "FAO",               w: 110, h: 30 },
-                    { src: "/world-bank-logo.png",         alt: "World Bank",        w: 36,  h: 36 },
-                    { src: "/our-world-in-data-logo.png",  alt: "Our World in Data", w: 34,  h: 34 },
-                    { src: "/data-gov_logo.webp",          alt: "Data.gov",          w: 110, h: 28 },
-                    { src: "/Eia-logomark.svg.png",        alt: "EIA",               w: 48,  h: 34 },
-                    { src: "/icrisat-logo.jpeg",           alt: "ICRISAT",           w: 68,  h: 36 },
-                    { src: "/opencity-logo.png",           alt: "OpenCity",          w: 100, h: 28 },
-                    { src: "/logo.f9fcba1.svg",            alt: "Partner",           w: 110, h: 30 },
+                    { src: "/fao-logo.svg", alt: "FAO", w: 110, h: 30 },
+                    { src: "/world-bank-logo.png", alt: "World Bank", w: 36, h: 36 },
+                    { src: "/our-world-in-data-logo.png", alt: "Our World in Data", w: 34, h: 34 },
+                    { src: "/data-gov_logo.webp", alt: "Data.gov", w: 110, h: 28 },
+                    { src: "/Eia-logomark.svg.png", alt: "EIA", w: 48, h: 34 },
+                    { src: "/icrisat-logo.jpeg", alt: "ICRISAT", w: 68, h: 36 },
+                    { src: "/opencity-logo.png", alt: "OpenCity", w: 100, h: 28 },
+                    { src: "/logo.f9fcba1.svg", alt: "Partner", w: 110, h: 30 },
                   ].map((logo) => (
                     <img
                       key={`${setIdx}-${logo.alt}`}
