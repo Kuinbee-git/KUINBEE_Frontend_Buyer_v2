@@ -146,6 +146,15 @@ export function DatasetDiscoveryV2() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
+  // Sync filters.search when URL ?q= changes externally (e.g. from nav bar search)
+  useEffect(() => {
+    const urlSearch = searchParams.get("q") || "";
+    if (urlSearch !== filters.search) {
+      setFilters((prev) => ({ ...prev, search: urlSearch, page: 1 }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("q")]);
+
   // Debounce search to avoid hammering the API on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   useEffect(() => {
