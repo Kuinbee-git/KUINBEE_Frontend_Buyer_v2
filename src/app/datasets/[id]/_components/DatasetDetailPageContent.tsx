@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components";
 import { RazorpayCheckoutFlow } from "@/features/datasets/components/razorpay-checkout-flow";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import { DatasetDetailsResponse } from "@/types/dataset.types";
+import { useQuery } from "@tanstack/react-query";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
+import { getDatasetKdts } from "@/services/kdts.service";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -91,6 +93,17 @@ export function DatasetDetailPageContent() {
     error: downloadError,
   } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
 
+  // Fetch KDTS score via React Query — cached, deduped, no manual cancel needed
+  const { data: kdtsData } = useQuery({
+    queryKey: ["dataset-kdts", id],
+    queryFn: () => getDatasetKdts(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000, // 5 minutes — score rarely changes
+    retry: false,             // KDTS is supplementary; don't hammer on failure
+    gcTime: 10 * 60 * 1000,
+  });
+  const kdtsScore = kdtsData?.currentScore ?? null;
+
   // ── Checkout flow state (declared before early returns to keep hook order stable) ──
   const [showCheckout, setShowCheckout] = useState(false);
 
@@ -129,18 +142,16 @@ export function DatasetDetailPageContent() {
     }
   }, [downloadError, shouldFetchDownload]);
 
-  // Determine access state
-  const getAccessState = (): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
+  // Memoize access state so stable reference is passed to DatasetDetailPage
+  const accessState = useMemo((): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
     if (!isAuthenticated) return "not-logged-in";
     if (entitlementCheck?.entitled) return "owned";
-
-    // Check if dataset is free or paid
     const isPaid = response?.dataset.isPaid;
     return isPaid ? "not-entitled-paid" : "not-entitled-free";
-  };
+  }, [isAuthenticated, entitlementCheck, response]);
 
-  // Handle claim dataset
-  const handleClaimDataset = async () => {
+  // Handle claim dataset — useCallback so DatasetDetailPage's React.memo is not bypassed
+  const handleClaimDataset = useCallback(async () => {
     try {
       await claimMutation.mutateAsync(id);
       toast.success("Dataset claimed successfully!", {
@@ -168,22 +179,59 @@ export function DatasetDetailPageContent() {
         toast.error(errorMessage);
       }
     }
-  };
+  }, [claimMutation, id, router]);
 
-  // Handle login
-  const handleLogin = () => {
+  // Handle login — stable callback keeps DatasetDetailPage memo intact
+  const handleLogin = useCallback(() => {
     router.push(`/login?redirectTo=/datasets/${id}`);
-  };
+  }, [router, id]);
 
-  // Handle download
-  const handleDownload = () => {
+  // Handle download — stable callback keeps DatasetDetailPage memo intact
+  const handleDownload = useCallback(() => {
     if (!isAuthenticated) {
       router.push(`/login?redirectTo=/datasets/${id}`);
       return;
     }
     if (isGeneratingDownload) return;
     setShouldFetchDownload(true);
-  };
+  }, [isAuthenticated, router, id, isGeneratingDownload]);
+
+  // Memoize dataset mapping — must be called unconditionally, before early returns
+  const dataset = useMemo(() => {
+    if (!response?.dataset) return null;
+    const mapped = mapToUIDataset(response);
+    return { ...mapped, kdtsScore };
+  }, [response, kdtsScore]);
+
+  // Stable purchase / checkout handlers — declared before early returns because
+  // useCallback is a hook and must not appear after conditional returns.
+  // dataset may be null here; the functions are no-ops in that case (unreachable in practice).
+  const handlePurchaseDataset = useCallback(() => {
+    if (!isAuthenticated) {
+      router.push(`/login?redirectTo=/datasets/${id}`);
+      return;
+    }
+    if (!dataset) return;
+    window.dispatchEvent(
+      new CustomEvent("stagedDatasetUpdate", {
+        detail: {
+          id: dataset.id,
+          datasetUniqueId: dataset.datasetUniqueId || dataset.id,
+          title: dataset.title,
+          category: dataset.category,
+          license: dataset.license,
+          pricing: dataset.pricing,
+          verification: dataset.verification,
+        },
+      })
+    );
+    setShowCheckout(true);
+  }, [isAuthenticated, router, id, dataset]);
+
+  const handleCheckoutComplete = useCallback((_orderId: string) => {
+    // Checkout dialog handles its own success UI;
+    // user can navigate to order from there or we can refresh entitlement
+  }, []);
 
   // Loading state
   if (isLoading) {
@@ -198,7 +246,7 @@ export function DatasetDetailPageContent() {
   }
 
   // Error state
-  if (error || !response?.dataset) {
+  if (error || !dataset) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-md mx-auto px-6">
@@ -221,36 +269,6 @@ export function DatasetDetailPageContent() {
       </div>
     );
   }
-
-  const dataset = mapToUIDataset(response);
-  const accessState = getAccessState();
-
-  const handlePurchaseDataset = () => {
-    if (!isAuthenticated) {
-      router.push(`/login?redirectTo=/datasets/${id}`);
-      return;
-    }
-    // Also stage the dataset in the notch navigation
-    window.dispatchEvent(
-      new CustomEvent("stagedDatasetUpdate", {
-        detail: {
-          id: dataset.id,
-          datasetUniqueId: dataset.datasetUniqueId || dataset.id,
-          title: dataset.title,
-          category: dataset.category,
-          license: dataset.license,
-          pricing: dataset.pricing,
-          verification: dataset.verification,
-        },
-      })
-    );
-    setShowCheckout(true);
-  };
-
-  const handleCheckoutComplete = (_orderId: string) => {
-    // Checkout dialog handles its own success UI;
-    // user can navigate to order from there or we can refresh entitlement
-  };
 
   return (
     <>
