@@ -141,7 +141,7 @@ interface DatasetDetailPageProps {
  * 
  * Reuses existing Kuinbee design system patterns exclusively
  */
-export function DatasetDetailPage({
+export const DatasetDetailPage = React.memo(function DatasetDetailPage({
   dataset,
   accessState = "not-logged-in",
   onClaimDataset,
@@ -991,4 +991,6 @@ export function DatasetDetailPage({
       </Suspense>
     </div>
   );
-}
+});
+
+DatasetDetailPage.displayName = "DatasetDetailPage";
