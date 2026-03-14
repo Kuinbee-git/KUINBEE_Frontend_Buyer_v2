@@ -10,11 +10,13 @@ export const wishlistKeys = {
   wishlist: ["wishlist"] as const,
 };
 
-// List wishlist
-export const useWishlist = () => {
+// List wishlist — only fetch when authenticated (avoids 401s for guests)
+export const useWishlist = (enabled = true) => {
   return useQuery({
     queryKey: wishlistKeys.wishlist,
     queryFn: wishlistService.listWishlist,
+    enabled,
+    staleTime:  60_000, // 2 min — wishlist rarely changes mid-session
   });
 };
 

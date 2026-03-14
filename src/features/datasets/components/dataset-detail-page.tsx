@@ -162,8 +162,8 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
     openModal("login");
   };
 
-  // Wishlist hooks
-  const { data: wishlistData } = useWishlist();
+  // Wishlist hooks — only fetch when authenticated to avoid wasted 401 requests
+  const { data: wishlistData } = useWishlist(isAuthenticated);
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
 

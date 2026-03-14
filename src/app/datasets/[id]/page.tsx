@@ -4,45 +4,21 @@ import {
   generateBreadcrumbSchema,
 } from "@/core/config";
 import { DatasetDetailPageContent } from "./_components/DatasetDetailPageContent";
-import {
-  QueryClient,
-  dehydrate,
-  HydrationBoundary,
-} from "@tanstack/react-query";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-
-/**
- * Server-side fetch helper that mirrors apiClient's unwrap behaviour.
- * Returns `data.data` when the response uses `{ success, data }` envelope.
- */
-async function serverFetch<T>(
-  path: string,
-  revalidate = 60
-): Promise<T | null> {
-  try {
-    const res = await fetch(`${API_URL}${path}`, {
-      next: { revalidate },
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    // Unwrap envelope used by the backend
-    if (json && typeof json === "object" && "success" in json && "data" in json) {
-      return json.data as T;
-    }
-    return json as T;
-  } catch {
-    return null;
-  }
-}
+// ISR: cache the server-rendered page for 1 hour at the CDN edge.
+// The page itself renders only breadcrumb JSON-LD + a client component reference,
+// so it's effectively static per dataset ID. This eliminates Vercel serverless
+// cold-start latency on repeat visits (the 1.5s RSC payload bottleneck).
+export const revalidate = 3600;
 
 // Dynamically generate static pages for top datasets at build time
 export async function generateStaticParams() {
   try {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
     // Fetch top 20 most viewed datasets
     const res = await fetch(
-      `${API_URL}/api/v1/marketplace/datasets?limit=20&sort=viewCount:desc`
+      `${apiUrl}/api/v1/marketplace/datasets?limit=20&sort=viewCount:desc`
     );
     if (res.ok) {
       const data = await res.json();
@@ -76,24 +52,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
 
-  // ── Server-side prefetch: dataset details + KDTS in parallel ──
-  const queryClient = new QueryClient();
-
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: ["datasets", id, "details"],
-      queryFn: () =>
-        serverFetch(`/api/v1/marketplace/datasets/${id}`, 60),
-      staleTime: 60_000,
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ["dataset-kdts", id],
-      queryFn: () =>
-        serverFetch(`/api/v1/datasets/${id}/kdts`, 300),
-      staleTime: 5 * 60_000,
-    }),
-  ]);
-
   const breadcrumbJsonLd = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
@@ -108,9 +66,7 @@ export default async function DatasetDetailPage({ params }: Props) {
           __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <DatasetDetailPageContent />
-      </HydrationBoundary>
+      <DatasetDetailPageContent />
     </>
   );
 }
