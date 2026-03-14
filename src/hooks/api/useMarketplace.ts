@@ -29,6 +29,7 @@ export const useDatasetDetails = (datasetId: string, enabled = true) => {
     queryKey: marketplaceKeys.datasetDetails(datasetId),
     queryFn: () => marketplaceService.getDatasetDetails(datasetId),
     enabled,
+    staleTime: 60_000, // 1 min — matches server-side prefetch; avoids immediate refetch after hydration
   });
 };
 

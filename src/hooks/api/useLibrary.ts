@@ -72,5 +72,6 @@ export const useCheckEntitlement = (datasetId: string, enabled = true) => {
     queryKey: libraryKeys.entitlementCheck(datasetId),
     queryFn: () => libraryService.checkEntitlement(datasetId),
     enabled,
+    staleTime: 60_000, // 1 min — entitlement status rarely changes mid-session
   });
 };
