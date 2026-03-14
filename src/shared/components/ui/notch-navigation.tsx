@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
@@ -872,8 +871,8 @@ function NotchNavigationInner() {
 
 export function NotchNavigation() {
   return (
-    <Suspense>
+    <React.Suspense fallback={null}>
       <NotchNavigationInner />
-    </Suspense>
+    </React.Suspense>
   );
 }
