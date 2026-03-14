@@ -1,25 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import React, { lazy, Suspense } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { LandingFooter } from "@/features/landing/components/LandingFooter";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";
+import { LazySection } from "@/shared/components/ui/lazy-section";
+import { ReviewsSection } from "./ReviewsSection";
+import { QuestionsSection } from "./QuestionsSection";
 import {
   Shield,
   CheckCircle2,
   Database,
   MapPin,
-  Calendar,
-  RefreshCw,
   FileText,
   Download,
   Lock,
   CheckCircle,
-  AlertCircle,
   Info,
   ArrowRight,
   Building2,
@@ -28,12 +25,7 @@ import {
   HardDrive,
   Heart,
   Star,
-  User,
-  ThumbsUp,
   Loader2,
-  Pencil,
-  Trash2,
-  MessageSquare,
   Eye,
   Tag,
   Globe,
@@ -44,17 +36,22 @@ import {
   Lightbulb,
   TriangleAlert,
   Beaker,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
-import { useReviews, useCreateReview, useUpdateReview, useDeleteReview } from "@/hooks/api/useReviews";
-import { useQuestions, useAskQuestion } from "@/hooks/api/useQuestions";
 import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
-import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { DatasetKdtsCard } from "./DatasetKdtsCard";
 import { useModal } from "@/core/providers";
 import { useAuth } from "@/core/providers/AuthProvider";
+
+// Lazy-loaded heavy components that are never above-the-fold
+const LandingFooter = lazy(() =>
+  import("@/features/landing/components/LandingFooter").then((m) => ({ default: m.LandingFooter }))
+);
+const DatasetKdtsCard = lazy(() =>
+  import("./DatasetKdtsCard").then((m) => ({ default: m.DatasetKdtsCard }))
+);
 
 /**
  * DATASET DETAIL PAGE — KUINBEE BUYER SIDE
@@ -196,143 +193,6 @@ export function DatasetDetailPage({
     }
   };
 
-  // Review state
-  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
-  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState("");
-
-  // Fetch reviews
-  const { data: reviewsData, isLoading: reviewsLoading } = useReviews(dataset.id);
-  const reviews = reviewsData?.items || [];
-
-  // Calculate average rating
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-    : 0;
-
-  // Mutations
-  const createReviewMutation = useCreateReview();
-  const updateReviewMutation = useUpdateReview();
-  const deleteReviewMutation = useDeleteReview();
-
-  // Handle review submission
-  const handleReviewSubmit = async () => {
-    if (!isLoggedIn) {
-      handleSignIn();
-      return;
-    }
-
-    if (reviewRating < 1 || reviewRating > 5) {
-      toast.error("Please select a rating between 1 and 5");
-      return;
-    }
-
-    try {
-      if (editingReviewId) {
-        // Update existing review
-        await updateReviewMutation.mutateAsync({
-          datasetId: dataset.id,
-          reviewId: editingReviewId,
-          data: {
-            rating: reviewRating,
-            comment: reviewComment || null,
-          },
-        });
-        toast.success("Review updated successfully");
-      } else {
-        // Create new review
-        await createReviewMutation.mutateAsync({
-          datasetId: dataset.id,
-          data: {
-            rating: reviewRating,
-            comment: reviewComment || null,
-          },
-        });
-        toast.success("Review submitted successfully");
-      }
-
-      setIsReviewDialogOpen(false);
-      setEditingReviewId(null);
-      setReviewRating(5);
-      setReviewComment("");
-    } catch (error) {
-      // Handle specific error cases
-      if (error instanceof Error) {
-        if (error.message.includes("409") || error.message.includes("ALREADY_REVIEWED")) {
-          toast.error("You have already reviewed this dataset. Edit your existing review instead.");
-        } else {
-          toast.error(error.message);
-        }
-      } else {
-        toast.error("Failed to submit review");
-      }
-    }
-  };
-
-  // Handle review delete
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm("Are you sure you want to delete this review?")) {
-      return;
-    }
-
-    try {
-      await deleteReviewMutation.mutateAsync({
-        datasetId: dataset.id,
-        reviewId,
-      });
-      toast.success("Review deleted successfully");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to delete review");
-    }
-  };
-
-  // Open edit dialog
-  const handleEditReview = (review: any) => {
-    setEditingReviewId(review.id);
-    setReviewRating(review.rating);
-    setReviewComment(review.comment || "");
-    setIsReviewDialogOpen(true);
-  };
-
-  // Q&A state
-  const [isQuestionDialogOpen, setIsQuestionDialogOpen] = useState(false);
-  const [questionText, setQuestionText] = useState("");
-
-  // Fetch questions
-  const { data: questionsData, isLoading: questionsLoading } = useQuestions(dataset.id);
-  const questions = questionsData?.items || [];
-
-  // Mutation
-  const askQuestionMutation = useAskQuestion();
-
-  // Handle question submission
-  const handleQuestionSubmit = async () => {
-    if (!isLoggedIn) {
-      handleSignIn();
-      return;
-    }
-
-    if (!questionText.trim()) {
-      toast.error("Please enter a question");
-      return;
-    }
-
-    try {
-      await askQuestionMutation.mutateAsync({
-        datasetId: dataset.id,
-        data: {
-          question: questionText,
-        },
-      });
-      toast.success("Question submitted successfully");
-      setIsQuestionDialogOpen(false);
-      setQuestionText("");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to submit question");
-    }
-  };
-
   // Get currency symbol
   const getCurrencySymbol = (currency?: string) => {
     switch (currency) {
@@ -456,7 +316,7 @@ export function DatasetDetailPage({
               <div className="flex items-center gap-1.5">
                 <Star className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm text-muted-foreground dark:text-white/60">
-                  {dataset.rating != null && dataset.rating > 0 ? dataset.rating.toFixed(1) : averageRating > 0 ? averageRating.toFixed(1) : "No ratings"} ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+                  {dataset.rating != null && dataset.rating > 0 ? dataset.rating.toFixed(1) : "No ratings"} ({dataset.reviewCount ?? 0} {dataset.reviewCount === 1 ? "review" : "reviews"})
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -471,6 +331,14 @@ export function DatasetDetailPage({
                   {dataset.downloadCount.toLocaleString()} downloads
                 </span>
               </div>
+              {dataset.kdtsScore && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
+                  <Gauge className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wide">
+                    KDTS&nbsp;{parseFloat(dataset.kdtsScore).toFixed(1)}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Short Description (overview or general description) */}
@@ -676,8 +544,15 @@ export function DatasetDetailPage({
                 </div>
               </div>
 
-              {/* KDTS Scoring */}
-              <DatasetKdtsCard datasetId={dataset.id} />
+              {/* KDTS Scoring — lazy-loaded, not above-the-fold */}
+              <Suspense fallback={
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 bg-muted/60 dark:bg-white/10 rounded w-1/3" />
+                  <div className="h-32 bg-muted/40 dark:bg-white/5 rounded-xl" />
+                </div>
+              }>
+                <DatasetKdtsCard datasetId={dataset.id} />
+              </Suspense>
             </div>
 
             {/* RIGHT: Access & Pricing Panel (Sticky) */}
@@ -1078,392 +953,33 @@ export function DatasetDetailPage({
               </div>
             </div>
 
-            {/* Reviews & Ratings */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-foreground dark:text-white">
-                  Reviews & Ratings
-                </h3>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                      <span className="text-sm font-semibold text-foreground dark:text-white">
-                        {averageRating > 0 ? averageRating.toFixed(1) : "No ratings"}
-                      </span>
-                    </div>
-                    <span className="text-sm text-muted-foreground dark:text-white/60">
-                      ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
-                    </span>
-                  </div>
-                  <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          if (!isLoggedIn) {
-                            handleSignIn();
-                          } else {
-                            setEditingReviewId(null);
-                            setReviewRating(5);
-                            setReviewComment("");
-                            setIsReviewDialogOpen(true);
-                          }
-                        }}
-                        className="bg-white/90 dark:bg-[#1e2847]/80 border-border/40 dark:border-white/10"
-                      >
-                        <Star className="w-4 h-4 mr-2" />
-                        Write Review
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-white/95 dark:bg-[#1e2847]/95 backdrop-blur-xl border-border/40 dark:border-white/10">
-                      <DialogHeader>
-                        <DialogTitle className="text-foreground dark:text-white">
-                          {editingReviewId ? "Edit Review" : "Write a Review"}
-                        </DialogTitle>
-                        <DialogDescription className="text-muted-foreground dark:text-white/60">
-                          Share your experience with this dataset
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 pt-4">
-                        <div>
-                          <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
-                            Rating
-                          </label>
-                          <div className="flex items-center gap-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <button
-                                key={star}
-                                type="button"
-                                onClick={() => setReviewRating(star)}
-                                className="focus:outline-none transition-transform hover:scale-110"
-                              >
-                                <Star
-                                  className={cn(
-                                    "h-8 w-8",
-                                    star <= reviewRating
-                                      ? "fill-yellow-500 text-yellow-500"
-                                      : "text-muted-foreground dark:text-white/30"
-                                  )}
-                                />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
-                            Comment (optional)
-                          </label>
-                          <Textarea
-                            value={reviewComment}
-                            onChange={(e) => setReviewComment(e.target.value)}
-                            placeholder="Share your thoughts about this dataset..."
-                            rows={4}
-                            className="bg-white dark:bg-[#0f1729] border-border/40 dark:border-white/20 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/50"
-                          />
-                        </div>
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              setIsReviewDialogOpen(false);
-                              setEditingReviewId(null);
-                              setReviewRating(5);
-                              setReviewComment("");
-                            }}
-                            className="border-border/40 dark:border-white/20"
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            onClick={handleReviewSubmit}
-                            disabled={createReviewMutation.isPending || updateReviewMutation.isPending}
-                            className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
-                          >
-                            {(createReviewMutation.isPending || updateReviewMutation.isPending) && (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            )}
-                            {editingReviewId ? "Update Review" : "Submit Review"}
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
+            {/* Reviews & Ratings — lazy-rendered on scroll */}
+            <LazySection minHeight={300}>
+              <ReviewsSection
+                datasetId={dataset.id}
+                isLoggedIn={isLoggedIn}
+                onSignIn={handleSignIn}
+              />
+            </LazySection>
 
-              {/* Loading State */}
-              {reviewsLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-[#1a2240] dark:text-white animate-spin" />
-                </div>
-              )}
-
-              {/* No Reviews */}
-              {!reviewsLoading && reviews.length === 0 && (
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-12 text-center">
-                  <Star className="w-12 h-12 mx-auto mb-4 text-muted-foreground dark:text-white/30" />
-                  <h4 className="text-lg font-semibold text-foreground dark:text-white mb-2">
-                    No reviews yet
-                  </h4>
-                  <p className="text-sm text-muted-foreground dark:text-white/60 mb-4">
-                    Be the first to share your experience with this dataset
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      if (!isLoggedIn) {
-                        handleSignIn();
-                      } else {
-                        setIsReviewDialogOpen(true);
-                      }
-                    }}
-                    className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
-                  >
-                    <Star className="w-4 h-4 mr-2" />
-                    Write the First Review
-                  </Button>
-                </div>
-              )}
-
-              {/* Individual Reviews */}
-              {!reviewsLoading && reviews.length > 0 && (
-                <div className="space-y-4">
-                  {reviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                          <User className="h-5 w-5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                                {review.authorName}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      className={cn(
-                                        "h-3.5 w-3.5",
-                                        star <= review.rating
-                                          ? "fill-yellow-500 text-yellow-500"
-                                          : "text-muted-foreground dark:text-white/30"
-                                      )}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-xs text-muted-foreground dark:text-white/60">
-                                  {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
-                                </span>
-                              </div>
-                            </div>
-                            {/* Edit/Delete buttons - always visible, backend handles authorization */}
-                            <div className="flex items-center gap-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEditReview(review)}
-                                className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white"
-                                title="Edit this review"
-                              >
-                                <Pencil className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeleteReview(review.id)}
-                                disabled={deleteReviewMutation.isPending}
-                                className="h-8 w-8 p-0 text-muted-foreground hover:text-red-600 dark:text-white/60 dark:hover:text-red-400"
-                                title="Delete this review"
-                              >
-                                {deleteReviewMutation.isPending ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                          {review.comment && (
-                            <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                              {review.comment}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Questions & Answers */}
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-foreground dark:text-white">
-                  Questions & Answers
-                </h3>
-                <Dialog open={isQuestionDialogOpen} onOpenChange={setIsQuestionDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        if (!isLoggedIn) {
-                          handleSignIn();
-                        } else {
-                          setQuestionText("");
-                          setIsQuestionDialogOpen(true);
-                        }
-                      }}
-                      className="bg-white/90 dark:bg-[#1e2847]/80 border-border/40 dark:border-white/10"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Ask Question
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="bg-white/95 dark:bg-[#1e2847]/95 backdrop-blur-xl border-border/40 dark:border-white/10">
-                    <DialogHeader>
-                      <DialogTitle className="text-foreground dark:text-white">
-                        Ask a Question
-                      </DialogTitle>
-                      <DialogDescription className="text-muted-foreground dark:text-white/60">
-                        Ask about this dataset and the supplier or admin will respond
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 pt-4">
-                      <div>
-                        <label className="text-sm font-medium text-foreground dark:text-white mb-2 block">
-                          Your Question
-                        </label>
-                        <Textarea
-                          value={questionText}
-                          onChange={(e) => setQuestionText(e.target.value)}
-                          placeholder="Ask about dataset coverage, format, update frequency, licensing..."
-                          rows={4}
-                          className="bg-white dark:bg-[#0f1729] border-border/40 dark:border-white/20 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/50"
-                        />
-                      </div>
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setIsQuestionDialogOpen(false);
-                            setQuestionText("");
-                          }}
-                          className="border-border/40 dark:border-white/20"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={handleQuestionSubmit}
-                          disabled={askQuestionMutation.isPending || !questionText.trim()}
-                          className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
-                        >
-                          {askQuestionMutation.isPending && (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          )}
-                          Submit Question
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              {/* Loading State */}
-              {questionsLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 text-[#1a2240] dark:text-white animate-spin" />
-                </div>
-              )}
-
-              {/* No Questions */}
-              {!questionsLoading && questions.length === 0 && (
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-12 text-center">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground dark:text-white/30" />
-                  <h4 className="text-lg font-semibold text-foreground dark:text-white mb-2">
-                    No questions yet
-                  </h4>
-                  <p className="text-sm text-muted-foreground dark:text-white/60 mb-4">
-                    Be the first to ask about this dataset
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      if (!isLoggedIn) {
-                        handleSignIn();
-                      } else {
-                        setIsQuestionDialogOpen(true);
-                      }
-                    }}
-                    className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Ask the First Question
-                  </Button>
-                </div>
-              )}
-
-              {/* Individual Questions */}
-              {!questionsLoading && questions.length > 0 && (
-                <div className="space-y-4">
-                  {questions.map((q: any) => (
-                    <div
-                      key={q.id}
-                      className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                          <MessageSquare className="h-5 w-5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="mb-3">
-                            <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                              Question
-                            </div>
-                            <p className="text-sm text-foreground dark:text-white/90 leading-relaxed">
-                              {q.question}
-                            </p>
-                            <span className="text-xs text-muted-foreground dark:text-white/60 mt-1 inline-block">
-                              {formatDistanceToNow(new Date(q.createdAt), { addSuffix: true })}
-                            </span>
-                          </div>
-                          {/* Answer section - Note: The API returns Question type which doesn't include answer */}
-                          {/* In a real implementation, you'd need to check if answer exists on the object */}
-                          <div className="mt-4 pl-4 border-l-2 border-border/40 dark:border-white/10">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10 dark:bg-blue-500/20">
-                                <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                              </div>
-                              <span className="text-xs font-semibold text-muted-foreground dark:text-white/60">
-                                SUPPLIER
-                              </span>
-                            </div>
-                            <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                              {(q as any).answer || "Awaiting response from supplier..."}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Questions & Answers — lazy-rendered on scroll */}
+            <LazySection minHeight={300}>
+              <QuestionsSection
+                datasetId={dataset.id}
+                isLoggedIn={isLoggedIn}
+                onSignIn={handleSignIn}
+              />
+            </LazySection>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <LandingFooter />
+      {/* Footer — lazy-loaded, never above-the-fold */}
+      <Suspense fallback={
+        <div className="h-64 bg-muted/20 dark:bg-white/5 animate-pulse" />
+      }>
+        <LandingFooter />
+      </Suspense>
     </div>
   );
 }

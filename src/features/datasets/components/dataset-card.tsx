@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -19,28 +20,60 @@ import {
   Download,
 } from "lucide-react";
 import { Dataset } from "./types";
-import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
+import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 
+// ── Pure utility functions (module scope to avoid re-allocation inside memo) ──
+
+const getCurrencySymbol = (currency?: string) => {
+  switch (currency) {
+    case "USD": return "$";
+    case "EUR": return "€";
+    case "GBP": return "£";
+    case "INR": return "₹";
+    default: return "₹";
+  }
+};
+
+const formatRecords = (count: number) => {
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
+  return count.toLocaleString();
+};
+
+const formatFileSize = (sizeStr?: string) => {
+  if (!sizeStr) return null;
+  const bytes = parseInt(sizeStr);
+  if (isNaN(bytes)) return sizeStr;
+  if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(1)} GB`;
+  if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+};
+
+// ── Component ──
+
 interface DatasetCardProps {
   dataset: Dataset;
+  isInWishlist?: boolean;
+  onPrefetch?: (datasetId: string) => void;
   onViewDetails?: (dataset: Dataset) => void;
 }
 
-export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
+export const DatasetCard = memo(function DatasetCard({
+  dataset,
+  isInWishlist = false,
+  onPrefetch,
+  onViewDetails,
+}: DatasetCardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
 
-  // Wishlist hooks
-  const { data: wishlistData } = useWishlist();
+  // Wishlist mutations
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
-
-  // Check if dataset is in wishlist
-  const wishlistItems = wishlistData?.items || [];
-  const isInWishlist = wishlistItems.some((item) => item.datasetId === dataset.id);
 
   const handleViewDetails = () => {
     if (onViewDetails) {
@@ -72,35 +105,6 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
     }
   };
 
-  // Get currency symbol
-  const getCurrencySymbol = (currency?: string) => {
-    switch (currency) {
-      case "USD": return "$";
-      case "EUR": return "€";
-      case "GBP": return "£";
-      case "INR": return "₹";
-      default: return "₹";
-    }
-  };
-
-  // Format records count
-  const formatRecords = (count: number) => {
-    if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-    if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
-    return count.toLocaleString();
-  };
-
-  // Format file size
-  const formatFileSize = (sizeStr?: string) => {
-    if (!sizeStr) return null;
-    const bytes = parseInt(sizeStr);
-    if (isNaN(bytes)) return sizeStr;
-    if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(1)} GB`;
-    if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(1)} MB`;
-    if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${bytes} B`;
-  };
-
   const kdtsValue = dataset.kdtsScore ? parseFloat(dataset.kdtsScore) : null;
   const ratingVal = dataset.rating ?? 0;
   const fullStars = Math.floor(ratingVal);
@@ -111,6 +115,7 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
     <article
       className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform"
       onClick={handleViewDetails}
+      onMouseEnter={() => onPrefetch?.(dataset.id)}
     >
       {/* ── Row 1: Verification Badges + Price Badge ── */}
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -295,6 +300,67 @@ export function DatasetCard({ dataset, onViewDetails }: DatasetCardProps) {
             )}
           </div>
         )}
+      </div>
+    </article>
+  );
+});
+
+/** Skeleton placeholder matching DatasetCard dimensions to prevent layout shift. */
+export function DatasetCardSkeleton() {
+  return (
+    <article className="bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 flex flex-col animate-pulse">
+      {/* Row 1: Badges + Price */}
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-1.5">
+          <div className="h-5 w-16 rounded bg-gray-200 dark:bg-white/10" />
+          <div className="h-5 w-18 rounded bg-gray-200 dark:bg-white/10" />
+        </div>
+        <div className="h-7 w-14 rounded-md bg-gray-200 dark:bg-white/10" />
+      </div>
+
+      {/* Row 2: Title */}
+      <div className="flex items-start justify-between gap-3 mb-2.5">
+        <div className="flex-1 space-y-1.5">
+          <div className="h-5 w-3/4 rounded bg-gray-200 dark:bg-white/10" />
+          <div className="h-5 w-1/2 rounded bg-gray-200 dark:bg-white/10" />
+        </div>
+        <div className="h-7 w-16 rounded-md bg-gray-200 dark:bg-white/10" />
+      </div>
+
+      {/* Row 3: Provider */}
+      <div className="h-4 w-32 rounded bg-gray-200 dark:bg-white/10 mb-3" />
+
+      {/* Row 4: Rating */}
+      <div className="flex items-center gap-1.5 mb-3">
+        <div className="flex gap-0.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="w-4 h-4 rounded bg-gray-200 dark:bg-white/10" />
+          ))}
+        </div>
+        <div className="h-4 w-8 rounded bg-gray-200 dark:bg-white/10" />
+        <div className="h-4 w-16 rounded bg-gray-200 dark:bg-white/10" />
+      </div>
+
+      {/* Row 5: KDTS placeholder */}
+      <div className="h-8 w-full rounded-lg bg-gray-100 dark:bg-white/5 mb-3" />
+
+      {/* Row 6: Metadata chips */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="h-7 w-20 rounded-md bg-gray-200 dark:bg-white/10" />
+        <div className="h-7 w-28 rounded-md bg-gray-200 dark:bg-white/10" />
+        <div className="h-7 w-24 rounded-md bg-gray-200 dark:bg-white/10" />
+      </div>
+
+      {/* Row 7: Stats + Tags */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <div className="h-4 w-20 rounded bg-gray-200 dark:bg-white/10" />
+          <div className="h-4 w-24 rounded bg-gray-200 dark:bg-white/10" />
+        </div>
+        <div className="flex gap-1">
+          <div className="h-5 w-12 rounded bg-gray-200 dark:bg-white/10" />
+          <div className="h-5 w-14 rounded bg-gray-200 dark:bg-white/10" />
+        </div>
       </div>
     </article>
   );
