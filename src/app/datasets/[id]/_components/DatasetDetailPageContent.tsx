@@ -279,20 +279,21 @@ export function DatasetDetailPageContent() {
         onClaimDataset={handleClaimDataset}
         onPurchaseDataset={handlePurchaseDataset}
         onDownloadDataset={handleDownload}
-        isInWishlist={false}
         currentUserId={user?.id}
       />
 
-      {/* Razorpay Checkout Flow */}
-      <RazorpayCheckoutFlow
-        datasetId={id}
-        datasetTitle={dataset.title}
-        amount={dataset.pricing.amount}
-        currency={dataset.pricing.currency}
-        open={showCheckout}
-        onOpenChange={setShowCheckout}
-        onComplete={handleCheckoutComplete}
-      />
+      {/* Razorpay Checkout Flow — only mounted for paid datasets */}
+      {dataset.pricing.type === "paid" && (
+        <RazorpayCheckoutFlow
+          datasetId={id}
+          datasetTitle={dataset.title}
+          amount={dataset.pricing.amount}
+          currency={dataset.pricing.currency}
+          open={showCheckout}
+          onOpenChange={setShowCheckout}
+          onComplete={handleCheckoutComplete}
+        />
+      )}
     </>
   );
 }

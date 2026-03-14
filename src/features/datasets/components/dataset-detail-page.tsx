@@ -6,8 +6,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { LazySection } from "@/shared/components/ui/lazy-section";
-import { ReviewsSection } from "./ReviewsSection";
-import { QuestionsSection } from "./QuestionsSection";
 import {
   Shield,
   CheckCircle2,
@@ -51,6 +49,12 @@ const LandingFooter = lazy(() =>
 );
 const DatasetKdtsCard = lazy(() =>
   import("./DatasetKdtsCard").then((m) => ({ default: m.DatasetKdtsCard }))
+);
+const ReviewsSection = lazy(() =>
+  import("./ReviewsSection").then((m) => ({ default: m.ReviewsSection }))
+);
+const QuestionsSection = lazy(() =>
+  import("./QuestionsSection").then((m) => ({ default: m.QuestionsSection }))
 );
 
 /**
@@ -125,10 +129,8 @@ interface DatasetDetailPageProps {
   onPurchaseDataset?: () => void;
   onDownloadDataset?: () => void;
   onLogin?: () => void;
-  onAddToWishlist?: () => void;
   onBack?: () => void;
-  isInWishlist?: boolean; // This prop will be overridden by real API data
-  currentUserId?: string; // Add current user ID to check if user can edit/delete reviews
+  currentUserId?: string;
 }
 
 /**
@@ -146,9 +148,7 @@ export function DatasetDetailPage({
   onPurchaseDataset,
   onDownloadDataset,
   onLogin,
-  onAddToWishlist, // Keep for backward compatibility
   onBack,
-  isInWishlist: isInWishlistProp, // Rename to avoid conflict
   currentUserId,
 }: DatasetDetailPageProps) {
   const isPaid = dataset.pricing.type === "paid";
@@ -167,11 +167,9 @@ export function DatasetDetailPage({
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
 
-  // Check if dataset is in wishlist (use API data if logged in, fallback to prop)
+  // Check if dataset is in wishlist
   const wishlistItems = wishlistData?.items || [];
-  const isInWishlist = isLoggedIn
-    ? wishlistItems.some((item) => item.datasetId === dataset.id)
-    : isInWishlistProp;
+  const isInWishlist = wishlistItems.some((item) => item.datasetId === dataset.id);
 
   // Handle wishlist toggle
   const handleWishlistToggle = async () => {
@@ -643,11 +641,8 @@ export function DatasetDetailPage({
                         : "bg-white dark:bg-[#1e2847] text-primary dark:text-white border border-primary/20 dark:border-white/20 hover:bg-primary/10 dark:hover:bg-white/10"
                     )}
                     onClick={() => {
-                      // Use direct auth check for wishlist to avoid prop relay issues
                       if (isAuthenticated) {
                         handleWishlistToggle();
-                      } else if (onAddToWishlist) {
-                        onAddToWishlist();
                       } else {
                         toast.info("Sign in to add to wishlist");
                         handleSignIn();
@@ -953,22 +948,36 @@ export function DatasetDetailPage({
               </div>
             </div>
 
-            {/* Reviews & Ratings — lazy-rendered on scroll */}
+            {/* Reviews & Ratings — code-split + lazy-rendered on scroll */}
             <LazySection minHeight={300}>
-              <ReviewsSection
-                datasetId={dataset.id}
-                isLoggedIn={isLoggedIn}
-                onSignIn={handleSignIn}
-              />
+              <Suspense fallback={
+                <div className="animate-pulse space-y-3">
+                  <div className="h-6 bg-muted/60 dark:bg-white/10 rounded w-1/4" />
+                  <div className="h-32 bg-muted/40 dark:bg-white/5 rounded-xl" />
+                </div>
+              }>
+                <ReviewsSection
+                  datasetId={dataset.id}
+                  isLoggedIn={isLoggedIn}
+                  onSignIn={handleSignIn}
+                />
+              </Suspense>
             </LazySection>
 
-            {/* Questions & Answers — lazy-rendered on scroll */}
+            {/* Questions & Answers — code-split + lazy-rendered on scroll */}
             <LazySection minHeight={300}>
-              <QuestionsSection
-                datasetId={dataset.id}
-                isLoggedIn={isLoggedIn}
-                onSignIn={handleSignIn}
-              />
+              <Suspense fallback={
+                <div className="animate-pulse space-y-3">
+                  <div className="h-6 bg-muted/60 dark:bg-white/10 rounded w-1/4" />
+                  <div className="h-32 bg-muted/40 dark:bg-white/5 rounded-xl" />
+                </div>
+              }>
+                <QuestionsSection
+                  datasetId={dataset.id}
+                  isLoggedIn={isLoggedIn}
+                  onSignIn={handleSignIn}
+                />
+              </Suspense>
             </LazySection>
           </div>
         </div>

@@ -18,7 +18,7 @@ import {
   FilterState,
   SortOption,
 } from "./types";
-import { useDatasets, useCategories, prefetchDatasets, prefetchDatasetDetails } from "@/hooks/api/useMarketplace";
+import { useDatasets, useCategories, prefetchDatasets } from "@/hooks/api/useMarketplace";
 import { useWishlist } from "@/hooks/api/useWishlist";
 import { useQueryClient } from "@tanstack/react-query";
 import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
@@ -272,14 +272,6 @@ export function DatasetDiscoveryV2() {
       filters.page * filters.pageSize
     );
 
-  // Stable callback for card prefetch — prevents re-creating a closure every render
-  // which would break React.memo on DatasetCard.
-  const handlePrefetch = useCallback(
-    (id: string) => prefetchDatasetDetails(queryClient, id),
-    [queryClient]
-  );
-
-
   // Accordion states for filter sections
   const [accordionState, setAccordionState] = useState({
     sort: true,
@@ -448,7 +440,6 @@ export function DatasetDiscoveryV2() {
                           key={dataset.id}
                           dataset={dataset}
                           isInWishlist={wishlistDatasetIds.has(dataset.id)}
-                          onPrefetch={handlePrefetch}
                         />
                       ))}
                     </div>

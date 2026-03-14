@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   Star,
@@ -58,30 +58,19 @@ const formatFileSize = (sizeStr?: string) => {
 interface DatasetCardProps {
   dataset: Dataset;
   isInWishlist?: boolean;
-  onPrefetch?: (datasetId: string) => void;
   onViewDetails?: (dataset: Dataset) => void;
 }
 
 export const DatasetCard = memo(function DatasetCard({
   dataset,
   isInWishlist = false,
-  onPrefetch,
   onViewDetails,
 }: DatasetCardProps) {
-  const router = useRouter();
   const { isAuthenticated } = useAuth();
 
   // Wishlist mutations
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
-
-  const handleViewDetails = () => {
-    if (onViewDetails) {
-      onViewDetails(dataset);
-    } else {
-      router.push(`/datasets/${dataset.id}`);
-    }
-  };
 
   // Handle wishlist toggle
   const handleWishlistToggle = async (e: React.MouseEvent) => {
@@ -112,10 +101,11 @@ export const DatasetCard = memo(function DatasetCard({
   const totalStars = 5;
 
   return (
-    <article
-      className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform"
-      onClick={handleViewDetails}
-      onMouseEnter={() => onPrefetch?.(dataset.id)}
+    <Link
+      href={`/datasets/${dataset.id}`}
+      className="group bg-white dark:bg-[#1e2847] border border-border/50 dark:border-white/10 rounded-xl p-6 hover:border-[#1a2240]/50 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex flex-col will-change-transform no-underline"
+      prefetch={false}
+      onClick={onViewDetails ? (e) => { e.preventDefault(); onViewDetails(dataset); } : undefined}
     >
       {/* ── Row 1: Verification Badges + Price Badge ── */}
       <div className="flex items-start justify-between gap-2 mb-3">
@@ -301,7 +291,7 @@ export const DatasetCard = memo(function DatasetCard({
           </div>
         )}
       </div>
-    </article>
+    </Link>
   );
 });
 
