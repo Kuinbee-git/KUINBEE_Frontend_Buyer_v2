@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, useTransition, lazy, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/shared/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/shared/components/ui/select";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
-import { DatasetCard } from "./dataset-card";
+import { DatasetCard, DatasetCardSkeleton } from "./dataset-card";
 import { DatasetSupplierTabs } from "./dataset-supplier-tabs";
+import { FilterSidebar } from "./FilterSidebar";
 
 // Lazy load footer for better performance
 const LandingFooter = lazy(() => import("@/features/landing/components/LandingFooter").then(mod => ({ default: mod.LandingFooter })));
@@ -17,11 +17,10 @@ import {
   Dataset,
   FilterState,
   SortOption,
-  CATEGORIES,
-  CURRENCIES,
-  SORT_LABELS
 } from "./types";
-import { useDatasets, useCategories } from "@/hooks/api/useMarketplace";
+import { useDatasets, useCategories, prefetchDatasets, prefetchDatasetDetails } from "@/hooks/api/useMarketplace";
+import { useWishlist } from "@/hooks/api/useWishlist";
+import { useQueryClient } from "@tanstack/react-query";
 import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
 
 // Map UI sort options to API sort format
@@ -103,6 +102,13 @@ const mapDatasetToUI = (apiDataset: any): Dataset => ({
 export function DatasetDiscoveryV2() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+
+  // Lift wishlist up so cards don't individually re-fetch/subscribe
+  const { data: wishlistData } = useWishlist();
+  const wishlistDatasetIds = useMemo(() => {
+    return new Set(wishlistData?.items?.map(item => item.datasetId) || []);
+  }, [wishlistData]);
 
   // Canonical filter state - backend aligned, initialized from URL params
   const [filters, setFilters] = useState<FilterState>(() => ({
@@ -126,23 +132,26 @@ export function DatasetDiscoveryV2() {
 
   // Sync filter state to URL so browser back/forward restores the view
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (filters.search) params.set("q", filters.search);
-    if (filters.category) params.set("category", filters.category);
-    if (filters.pricingType !== "all") params.set("pricingType", filters.pricingType);
-    if (filters.priceRange.min) params.set("minPrice", filters.priceRange.min);
-    if (filters.priceRange.max) params.set("maxPrice", filters.priceRange.max);
-    if (filters.currency !== "INR") params.set("currency", filters.currency);
-    if (filters.country) params.set("country", filters.country);
-    if (filters.state) params.set("state", filters.state);
-    if (filters.city) params.set("city", filters.city);
-    if (filters.tags.length > 0) params.set("tags", filters.tags.join(","));
-    if (filters.minKdtsScore) params.set("minKdtsScore", filters.minKdtsScore);
-    if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
-    if (filters.page > 1) params.set("page", String(filters.page));
-    if (filters.pageSize !== 10) params.set("pageSize", String(filters.pageSize));
-    const query = params.toString();
-    router.replace(`/datasets${query ? `?${query}` : ""}`, { scroll: false });
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (filters.search) params.set("q", filters.search);
+      if (filters.category) params.set("category", filters.category);
+      if (filters.pricingType !== "all") params.set("pricingType", filters.pricingType);
+      if (filters.priceRange.min) params.set("minPrice", filters.priceRange.min);
+      if (filters.priceRange.max) params.set("maxPrice", filters.priceRange.max);
+      if (filters.currency !== "INR") params.set("currency", filters.currency);
+      if (filters.country) params.set("country", filters.country);
+      if (filters.state) params.set("state", filters.state);
+      if (filters.city) params.set("city", filters.city);
+      if (filters.tags.length > 0) params.set("tags", filters.tags.join(","));
+      if (filters.minKdtsScore) params.set("minKdtsScore", filters.minKdtsScore);
+      if (filters.sortOrder !== "relevance") params.set("sort", filters.sortOrder);
+      if (filters.page > 1) params.set("page", String(filters.page));
+      if (filters.pageSize !== 10) params.set("pageSize", String(filters.pageSize));
+      const query = params.toString();
+      router.replace(`/datasets${query ? `?${query}` : ""}`, { scroll: false });
+    }, 400); // 400ms debounce
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
@@ -162,8 +171,9 @@ export function DatasetDiscoveryV2() {
     return () => clearTimeout(timer);
   }, [filters.search]);
 
-  // Build API query from filter state - all supported backend parameters
-  const apiQuery: DatasetListQuery = {
+  // Build API query from filter state - memoized to stabilize object identity
+  // so downstream useEffects (prefetching) don't fire on every render.
+  const apiQuery = useMemo<DatasetListQuery>(() => ({
     q: debouncedSearch || undefined,
     categoryId: filters.category || undefined,
     ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
@@ -178,14 +188,50 @@ export function DatasetDiscoveryV2() {
     sort: mapSortToAPI(filters.sortOrder),
     page: filters.page,
     pageSize: filters.pageSize,
-  };
+  }), [
+    debouncedSearch, filters.category, filters.pricingType, filters.currency,
+    filters.priceRange.min, filters.priceRange.max, filters.country,
+    filters.state, filters.city, filters.tags, filters.minKdtsScore,
+    filters.sortOrder, filters.page, filters.pageSize,
+  ]);
 
   // Fetch datasets from API
   const {
     data: apiResponse,
     isLoading,
+    isFetching,
     error
   } = useDatasets(apiQuery);
+
+  // Pagination from API response (calculated early for prefetching)
+  const totalPagesRaw = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : 1;
+
+  // Prefetch adjacent pages
+  useEffect(() => {
+    if (apiResponse && filters.page < totalPagesRaw) {
+      prefetchDatasets(queryClient, { ...apiQuery, page: filters.page + 1 });
+    }
+    if (apiResponse && filters.page > 1) {
+      prefetchDatasets(queryClient, { ...apiQuery, page: filters.page - 1 });
+    }
+  }, [apiResponse, filters.page, totalPagesRaw, queryClient, apiQuery]);
+
+  // Ref for scrolling to top of dataset list on page change
+  const datasetListRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to top of dataset list when page changes
+  const scrollToDatasetList = useCallback(() => {
+    datasetListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // Trigger scroll when page changes (but not on initial load)
+  const prevPage = useRef(filters.page);
+  useEffect(() => {
+    if (prevPage.current !== filters.page) {
+      scrollToDatasetList();
+      prevPage.current = filters.page;
+    }
+  }, [filters.page, scrollToDatasetList]);
 
   // Fetch categories from API
   const { data: categoriesResponse } = useCategories({ pageSize: 100 });
@@ -226,6 +272,13 @@ export function DatasetDiscoveryV2() {
       filters.page * filters.pageSize
     );
 
+  // Stable callback for card prefetch — prevents re-creating a closure every render
+  // which would break React.memo on DatasetCard.
+  const handlePrefetch = useCallback(
+    (id: string) => prefetchDatasetDetails(queryClient, id),
+    [queryClient]
+  );
+
 
   // Accordion states for filter sections
   const [accordionState, setAccordionState] = useState({
@@ -241,21 +294,28 @@ export function DatasetDiscoveryV2() {
   // Tab state
   const [activeTab, setActiveTab] = useState<"datasets">("datasets");
 
+  // useTransition keeps the UI responsive while React processes filter state updates.
+  // Input fields remain interactive even while the dataset list re-renders.
+  const [isFilterPending, startFilterTransition] = useTransition();
+
   // Filter update helper — auto-resets page to 1 when non-page filters change
   // (keeps page intact when explicitly changing page, e.g. pagination controls)
-  const updateFilter = (updates: Partial<FilterState>) => {
-    setFilters((prev: FilterState) => ({
-      ...prev,
-      ...updates,
-      // Reset to page 1 unless the update is explicitly changing the page
-      page: 'page' in updates ? updates.page! : 1,
-    }));
-  };
+  const updateFilter = useCallback((updates: Partial<FilterState>) => {
+    startFilterTransition(() => {
+      setFilters((prev: FilterState) => ({
+        ...prev,
+        ...updates,
+        // Reset to page 1 unless the update is explicitly changing the page
+        page: 'page' in updates ? updates.page! : 1,
+      }));
+    });
+  }, []);
 
-  // Accordion toggle helper
-  const toggleAccordion = (section: keyof typeof accordionState) => {
+  // Accordion toggle — useCallback prevents FilterSidebar from re-rendering when
+  // unrelated state (dataset list, fetching) changes.
+  const toggleAccordion = useCallback((section: keyof typeof accordionState) => {
     setAccordionState((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
+  }, []);
 
   // Check if filters are active
   const hasActiveFilters =
@@ -270,8 +330,8 @@ export function DatasetDiscoveryV2() {
     filters.tags.length > 0 ||
     filters.minKdtsScore !== "";
 
-  // Clear all filters
-  const clearFilters = () => {
+  // Clear all filters — useCallback prevents FilterSidebar re-render on unrelated state changes
+  const clearFilters = useCallback(() => {
     setFilters({
       search: "",
       category: null,
@@ -287,7 +347,7 @@ export function DatasetDiscoveryV2() {
       page: 1,
       pageSize: 10,
     });
-  };
+  }, []);
 
   return (
     <main className="min-h-screen relative">
@@ -319,706 +379,18 @@ export function DatasetDiscoveryV2() {
 
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6 lg:gap-8">
             {/* Left Sidebar - Canonical Filters */}
-            <aside className="space-y-4 lg:space-y-6">
-              {/* Mobile: Collapsible Filters */}
-              <details className="lg:hidden bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
-                <summary className="flex items-center justify-between p-4 cursor-pointer text-sm font-semibold text-[#1a2240] dark:text-white">
-                  <span>Filters {hasActiveFilters && `(${(filters.search ? 1 : 0) +
-                    (filters.category ? 1 : 0) +
-                    (filters.pricingType !== "all" ? 1 : 0) +
-                    (filters.priceRange.min || filters.priceRange.max ? 1 : 0) +
-                    (filters.country ? 1 : 0) +
-                    (filters.state ? 1 : 0) +
-                    (filters.city ? 1 : 0) +
-                    (filters.tags.length > 0 ? 1 : 0) +
-                    (filters.minKdtsScore ? 1 : 0)
-                    } active)`}</span>
-                  <ChevronDown className="h-4 w-4 text-[#4e5a7e] dark:text-white/60" />
-                </summary>
-                <div className="px-4 pb-4 space-y-4">
-                  {hasActiveFilters && (
-                    <button
-                      onClick={clearFilters}
-                      className="w-full text-xs font-medium text-[#1a2240] dark:text-white/80 hover:text-[#4e5a7e] dark:hover:text-white underline text-center py-2"
-                    >
-                      Clear All Filters
-                    </button>
-                  )}
-
-                  {/* 7. Sort Order - Positioned First */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("sort")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Sort By
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.sort && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.sort && (
-                      <div className="px-4 pb-4 space-y-1">
-                        {([
-                          "relevance", "newest", "oldest", "updated",
-                          "popular", "most-downloaded", "top-rated", "top-kdts",
-                          "price-low", "price-high",
-                        ] as SortOption[]).map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => updateFilter({ sortOrder: option })}
-                            className={cn(
-                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                              filters.sortOrder === option
-                                ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                                : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                            )}
-                          >
-                            {SORT_LABELS[option]}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 2. Category */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("category")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Category
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.category && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.category && (
-                      <div className="px-4 pb-4 space-y-1">
-                        <button
-                          onClick={() => updateFilter({ category: null })}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                            filters.category === null
-                              ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                              : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          )}
-                        >
-                          All Categories
-                        </button>
-                        {categoryItems.map((cat) => (
-                          <button
-                            key={cat.id}
-                            onClick={() => updateFilter({ category: cat.id })}
-                            className={cn(
-                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 truncate",
-                              filters.category === cat.id
-                                ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                                : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                            )}
-                            title={cat.name}
-                          >
-                            {cat.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 3. Pricing Type */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("pricing")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Pricing Type
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.pricing && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.pricing && (
-                      <div className="px-4 pb-4 space-y-1">
-                        {(["all", "free", "paid"] as const).map((type) => (
-                          <button
-                            key={type}
-                            onClick={() => updateFilter({ pricingType: type })}
-                            className={cn(
-                              "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 capitalize",
-                              filters.pricingType === type
-                                ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                                : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                            )}
-                          >
-                            {type === "all" ? "All Pricing Types" : type}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 4. Price Range - Conditional on pricingType="paid" */}
-                  {filters.pricingType === "paid" && (
-                    <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                      <button
-                        onClick={() => toggleAccordion("priceRange")}
-                        className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                      >
-                        <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                          Price Range
-                        </h3>
-                        <ChevronDown
-                          className={cn(
-                            "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                            accordionState.priceRange && "rotate-180"
-                          )}
-                        />
-                      </button>
-                      {accordionState.priceRange && (
-                        <div className="px-4 pb-4 space-y-3">
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              placeholder="Min"
-                              value={filters.priceRange.min}
-                              onChange={(e) =>
-                                updateFilter({
-                                  priceRange: { ...filters.priceRange, min: e.target.value },
-                                })
-                              }
-                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                            />
-                            <Input
-                              type="number"
-                              placeholder="Max"
-                              value={filters.priceRange.max}
-                              onChange={(e) =>
-                                updateFilter({
-                                  priceRange: { ...filters.priceRange, max: e.target.value },
-                                })
-                              }
-                              className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                            />
-                          </div>
-
-                          {/* 5. Currency */}
-                          <div className="space-y-2">
-                            <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
-                              Currency
-                            </label>
-                            <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
-                              <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
-                                {CURRENCIES.map((cur: string) => (
-                                  <SelectItem key={cur} value={cur} className="text-[#1a2240] dark:text-white">
-                                    {cur}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 6. Location Filters */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("location")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Location
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.location && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.location && (
-                      <div className="px-4 pb-4 space-y-3">
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">Country</label>
-                          <Input
-                            placeholder="e.g. India"
-                            value={filters.country}
-                            onChange={(e) => updateFilter({ country: e.target.value })}
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">State</label>
-                          <Input
-                            placeholder="e.g. Maharashtra"
-                            value={filters.state}
-                            onChange={(e) => updateFilter({ state: e.target.value })}
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">City</label>
-                          <Input
-                            placeholder="e.g. Mumbai"
-                            value={filters.city}
-                            onChange={(e) => updateFilter({ city: e.target.value })}
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 7. Tags Filter */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("tags")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Tags
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.tags && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.tags && (
-                      <div className="px-4 pb-4 space-y-3">
-                        <p className="text-xs text-[#4e5a7e] dark:text-white/50">Enter tags separated by commas</p>
-                        <Input
-                          placeholder="e.g. climate, finance"
-                          value={filters.tags.join(", ")}
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            const parsed = raw
-                              .split(",")
-                              .map((t) => t.trim())
-                              .filter(Boolean);
-                            updateFilter({ tags: parsed });
-                          }}
-                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                        />
-                        {filters.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5">
-                            {filters.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1a2240]/10 dark:bg-white/10 text-[#1a2240] dark:text-white"
-                              >
-                                {tag}
-                                <button
-                                  onClick={() => updateFilter({ tags: filters.tags.filter((t) => t !== tag) })}
-                                  className="hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 8. Min KDTS Score */}
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("kdtsScore")}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Min KDTS Score
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.kdtsScore && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.kdtsScore && (
-                      <div className="px-4 pb-4">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          placeholder="e.g. 70.5"
-                          value={filters.minKdtsScore}
-                          onChange={(e) => updateFilter({ minKdtsScore: e.target.value })}
-                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                        />
-                        <p className="mt-1.5 text-xs text-[#4e5a7e] dark:text-white/50">Score range: 0 – 100</p>
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-              </details>
-
-              {/* Desktop: Always Visible Filters */}
-              <div className="hidden lg:block space-y-6">
-                {/* Clear All */}
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="w-full text-xs font-medium text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200 dark:border-red-800/40 rounded-xl py-2.5 px-4 transition-colors text-center"
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-
-                {/* 7. Sort Order - Positioned First */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("sort")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Sort By
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.sort && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.sort && (
-                    <div className="px-5 pb-5 space-y-1">
-                      {([
-                        "relevance", "newest", "oldest", "updated",
-                        "popular", "most-downloaded", "top-rated", "top-kdts",
-                        "price-low", "price-high",
-                      ] as SortOption[]).map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => updateFilter({ sortOrder: option })}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                            filters.sortOrder === option
-                              ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                              : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          )}
-                        >
-                          {SORT_LABELS[option]}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 2. Category */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("category")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Category
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.category && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.category && (
-                    <div className="px-5 pb-5 space-y-1">
-                      <button
-                        onClick={() => updateFilter({ category: null })}
-                        className={cn(
-                          "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
-                          filters.category === null
-                            ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                            : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                        )}
-                      >
-                        All Categories
-                      </button>
-                      {categoryItems.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => updateFilter({ category: cat.id })}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 truncate",
-                            filters.category === cat.id
-                              ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                              : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          )}
-                          title={cat.name}
-                        >
-                          {cat.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. Pricing Type */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("pricing")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Pricing Type
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.pricing && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.pricing && (
-                    <div className="px-5 pb-5 space-y-1">
-                      {(["all", "free", "paid"] as const).map((type) => (
-                        <button
-                          key={type}
-                          onClick={() => updateFilter({ pricingType: type })}
-                          className={cn(
-                            "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 capitalize",
-                            filters.pricingType === type
-                              ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
-                              : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
-                          )}
-                        >
-                          {type === "all" ? "All Pricing Types" : type}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 4. Price Range - Conditional on pricingType="paid" */}
-                {filters.pricingType === "paid" && (
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                    <button
-                      onClick={() => toggleAccordion("priceRange")}
-                      className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                    >
-                      <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                        Price Range
-                      </h3>
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                          accordionState.priceRange && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {accordionState.priceRange && (
-                      <div className="px-5 pb-5 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={filters.priceRange.min}
-                            onChange={(e) =>
-                              updateFilter({
-                                priceRange: { ...filters.priceRange, min: e.target.value },
-                              })
-                            }
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                          />
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={filters.priceRange.max}
-                            onChange={(e) =>
-                              updateFilter({
-                                priceRange: { ...filters.priceRange, max: e.target.value },
-                              })
-                            }
-                            className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-3 pr-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                          />
-                        </div>
-
-                        {/* 5. Currency */}
-                        <div className="space-y-2">
-                          <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">
-                            Currency
-                          </label>
-                          <Select value={filters.currency} onValueChange={(value) => updateFilter({ currency: value as FilterState["currency"] })}>
-                            <SelectTrigger className="h-9 rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-[#1e2847] border-[#1a2240]/20 dark:border-white/20">
-                              {CURRENCIES.map((cur: string) => (
-                                <SelectItem key={cur} value={cur} className="text-[#1a2240] dark:text-white">
-                                  {cur}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* 6. Location Filters */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("location")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Location
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.location && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.location && (
-                    <div className="px-5 pb-5 space-y-3">
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">Country</label>
-                        <Input
-                          placeholder="e.g. India"
-                          value={filters.country}
-                          onChange={(e) => updateFilter({ country: e.target.value })}
-                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">State</label>
-                        <Input
-                          placeholder="e.g. Maharashtra"
-                          value={filters.state}
-                          onChange={(e) => updateFilter({ state: e.target.value })}
-                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-xs font-medium text-[#4e5a7e] dark:text-white/60">City</label>
-                        <Input
-                          placeholder="e.g. Mumbai"
-                          value={filters.city}
-                          onChange={(e) => updateFilter({ city: e.target.value })}
-                          className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 7. Tags Filter */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("tags")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Tags
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.tags && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.tags && (
-                    <div className="px-5 pb-5 space-y-3">
-                      <p className="text-xs text-[#4e5a7e] dark:text-white/50">Enter tags separated by commas</p>
-                      <Input
-                        placeholder="e.g. climate, finance"
-                        value={filters.tags.join(", ")}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          const parsed = raw
-                            .split(",")
-                            .map((t) => t.trim())
-                            .filter(Boolean);
-                          updateFilter({ tags: parsed });
-                        }}
-                        className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                      />
-                      {filters.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {filters.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#1a2240]/10 dark:bg-white/10 text-[#1a2240] dark:text-white"
-                            >
-                              {tag}
-                              <button
-                                onClick={() => updateFilter({ tags: filters.tags.filter((t) => t !== tag) })}
-                                className="hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* 8. Min KDTS Score */}
-                <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => toggleAccordion("kdtsScore")}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
-                  >
-                    <h3 className="text-xs font-semibold text-[#1a2240] dark:text-white uppercase tracking-wider">
-                      Min KDTS Score
-                    </h3>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-[#4e5a7e] dark:text-white/60 transition-transform duration-200",
-                        accordionState.kdtsScore && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {accordionState.kdtsScore && (
-                    <div className="px-5 pb-5">
-                      <Input
-                        type="number"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        placeholder="e.g. 70.5"
-                        value={filters.minKdtsScore}
-                        onChange={(e) => updateFilter({ minKdtsScore: e.target.value })}
-                        className="h-9 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 px-3 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
-                      />
-                      <p className="mt-1.5 text-xs text-[#4e5a7e] dark:text-white/50">Score range: 0 – 100</p>
-                    </div>
-                  )}
-                </div>
-
-              </div>
-            </aside>
+            <FilterSidebar
+              filters={filters}
+              updateFilter={updateFilter}
+              clearFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+              categoryItems={categoryItems}
+              accordionState={accordionState}
+              toggleAccordion={toggleAccordion}
+            />
 
             {/* Main Content Column */}
-            <div>
+            <div ref={datasetListRef}>
               {/* Tabs and Search Container - Unified glassmorphic container */}
               <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl p-3 md:p-4 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 md:gap-6">
@@ -1038,44 +410,61 @@ export function DatasetDiscoveryV2() {
                 </div>
               </div>
 
-              {/* Dataset List */}
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mb-4"></div>
-                  <p className="text-muted-foreground dark:text-white/70">Loading datasets...</p>
-                </div>
-              ) : error ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6">
-                  <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
-                    <Search className="w-8 h-8 text-red-600 dark:text-red-400" />
+              {/* Dataset List — min-height prevents layout collapse during loading */}
+              <div className="min-h-[400px]" style={{ contentVisibility: "auto", containIntrinsicSize: "0 600px" }}>
+                {isLoading ? (
+                  /* Initial load: skeleton cards to hold space */
+                  <div className="space-y-4">
+                    {Array.from({ length: filters.pageSize }).map((_, i) => (
+                      <DatasetCardSkeleton key={i} />
+                    ))}
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
-                    Failed to load datasets
-                  </h3>
-                  <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
-                    {error instanceof Error ? error.message : "An error occurred"}
-                  </p>
-                </div>
-              ) : paginatedDatasets.length > 0 ? (
-                <div className="space-y-4">
-                  {paginatedDatasets.map((dataset) => (
-                    <DatasetCard
-                      key={dataset.id}
-                      dataset={dataset}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 px-6">
-                  <Search className="w-16 h-16 text-muted-foreground/30 dark:text-white/20 mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
-                    No datasets found
-                  </h3>
-                  <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
-                    Try adjusting your search terms or filters to discover more datasets
-                  </p>
-                </div>
-              )}
+                ) : error ? (
+                  <div className="flex flex-col items-center justify-center py-20 px-6">
+                    <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
+                      <Search className="w-8 h-8 text-red-600 dark:text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                      Failed to load datasets
+                    </h3>
+                    <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
+                      {error instanceof Error ? error.message : "An error occurred"}
+                    </p>
+                  </div>
+                ) : paginatedDatasets.length > 0 ? (
+                  <div className="relative">
+                    {/* Subtle loading overlay when fetching between pages/filters */}
+                    {(isFetching || isFilterPending) && (
+                      <div className="absolute inset-0 bg-white/40 dark:bg-[#0f1729]/40 backdrop-blur-[1px] z-10 flex items-start justify-center pt-32 rounded-xl">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2847] rounded-full shadow-lg border border-border/40 dark:border-white/10">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#1a2240] dark:border-white border-t-transparent" />
+                          <span className="text-sm text-[#1a2240] dark:text-white/80">Updating results…</span>
+                        </div>
+                      </div>
+                    )}
+                    <div className={cn("space-y-4 transition-opacity duration-200", (isFetching || isFilterPending) && "opacity-60")}>
+                      {paginatedDatasets.map((dataset) => (
+                        <DatasetCard
+                          key={dataset.id}
+                          dataset={dataset}
+                          isInWishlist={wishlistDatasetIds.has(dataset.id)}
+                          onPrefetch={handlePrefetch}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-20 px-6">
+                    <Search className="w-16 h-16 text-muted-foreground/30 dark:text-white/20 mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                      No datasets found
+                    </h3>
+                    <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
+                      Try adjusting your search terms or filters to discover more datasets
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* 8. Pagination - Explicit controls */}
               {totalPages > 1 && (
