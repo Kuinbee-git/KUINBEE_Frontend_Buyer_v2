@@ -164,6 +164,19 @@ export function DatasetDiscoveryV2() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get("q")]);
 
+  // Sync filters.category when URL ?category= changes externally (e.g. from nav bar links)
+  useEffect(() => {
+    const urlCategory = searchParams.get("category");
+    // Only apply if it changed externally (not identical to current state which might be a resolved UUID)
+    if (urlCategory && urlCategory !== filters.category) {
+      setFilters((prev) => ({ ...prev, category: urlCategory, page: 1 }));
+    } else if (!urlCategory && filters.category) {
+      // If the URL category was cleared externally
+      setFilters((prev) => ({ ...prev, category: null, page: 1 }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("category")]);
+
   // Debounce search to avoid hammering the API on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   useEffect(() => {
@@ -173,22 +186,27 @@ export function DatasetDiscoveryV2() {
 
   // Build API query from filter state - memoized to stabilize object identity
   // so downstream useEffects (prefetching) don't fire on every render.
-  const apiQuery = useMemo<DatasetListQuery>(() => ({
-    q: debouncedSearch || undefined,
-    categoryId: filters.category || undefined,
-    ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
-    currency: filters.pricingType === "paid" ? filters.currency as Currency : undefined,
-    minPrice: filters.pricingType === "paid" && filters.priceRange.min ? filters.priceRange.min : undefined,
-    maxPrice: filters.pricingType === "paid" && filters.priceRange.max ? filters.priceRange.max : undefined,
-    country: filters.country || undefined,
-    state: filters.state || undefined,
-    city: filters.city || undefined,
-    tags: filters.tags.length > 0 ? filters.tags : undefined,
-    minKdtsScore: filters.minKdtsScore || undefined,
-    sort: mapSortToAPI(filters.sortOrder),
-    page: filters.page,
-    pageSize: filters.pageSize,
-  }), [
+  const apiQuery = useMemo<DatasetListQuery>(() => {
+    // Only send categoryId if it's a valid ID (contains a hyphen to assume it's a UUID) or undefined.
+    const validCategoryId = (filters.category && filters.category.includes("-")) ? filters.category : undefined;
+
+    return {
+      q: debouncedSearch || undefined,
+      categoryId: validCategoryId,
+      ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
+      currency: filters.pricingType === "paid" ? filters.currency as Currency : undefined,
+      minPrice: filters.pricingType === "paid" && filters.priceRange.min ? filters.priceRange.min : undefined,
+      maxPrice: filters.pricingType === "paid" && filters.priceRange.max ? filters.priceRange.max : undefined,
+      country: filters.country || undefined,
+      state: filters.state || undefined,
+      city: filters.city || undefined,
+      tags: filters.tags.length > 0 ? filters.tags : undefined,
+      minKdtsScore: filters.minKdtsScore || undefined,
+      sort: mapSortToAPI(filters.sortOrder),
+      page: filters.page,
+      pageSize: filters.pageSize,
+    };
+  }, [
     debouncedSearch, filters.category, filters.pricingType, filters.currency,
     filters.priceRange.min, filters.priceRange.max, filters.country,
     filters.state, filters.city, filters.tags, filters.minKdtsScore,
@@ -246,6 +264,32 @@ export function DatasetDiscoveryV2() {
     }
     return map;
   }, [categoriesResponse]);
+
+  // Resolve category slug to UUID (for navbar / landing page links)
+  useEffect(() => {
+    if (filters.category && categoriesResponse?.items) {
+      if (categoryMap.has(filters.category)) return;
+
+      const slug = filters.category.toLowerCase();
+      const searchTerms: Record<string, string> = {
+        finance: "finance",
+        energy: "energy",
+        agriculture: "agriculture",
+        environment: "environment",
+        economics: "economic",
+        realestate: "real estate",
+      };
+      
+      const searchTerm = searchTerms[slug] || slug;
+      const matchedCategory = categoriesResponse.items.find(c => 
+        c.name.toLowerCase().includes(searchTerm)
+      );
+
+      if (matchedCategory) {
+        setFilters(prev => ({ ...prev, category: matchedCategory.id, page: 1 }));
+      }
+    }
+  }, [filters.category, categoriesResponse, categoryMap]);
 
   // Get category items for display (exclude test categories)
   const categoryItems = useMemo(() => {
