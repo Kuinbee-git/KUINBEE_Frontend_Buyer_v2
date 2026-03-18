@@ -95,7 +95,7 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/analytics" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link href="/strotas" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   Strotas
                 </Link>
               </li>
