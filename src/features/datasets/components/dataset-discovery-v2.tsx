@@ -187,8 +187,8 @@ export function DatasetDiscoveryV2() {
   // Build API query from filter state - memoized to stabilize object identity
   // so downstream useEffects (prefetching) don't fire on every render.
   const apiQuery = useMemo<DatasetListQuery>(() => {
-    // Only send categoryId if it's a valid ID (contains a hyphen to assume it's a UUID) or undefined.
-    const validCategoryId = (filters.category && filters.category.includes("-")) ? filters.category : undefined;
+    // Only send categoryId if it's a valid ID (CUIDs are typically 25 chars, ObjectIDs 24, UUIDs 36).
+    const validCategoryId = (filters.category && filters.category.length >= 20) ? filters.category : undefined;
 
     return {
       q: debouncedSearch || undefined,
