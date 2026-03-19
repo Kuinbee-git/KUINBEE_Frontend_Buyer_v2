@@ -161,6 +161,11 @@ export function LandingFooter() {
             <h4 className="text-sm font-semibold text-foreground dark:text-white">Resources</h4>
             <ul className="space-y-2">
               <li>
+                <Link href="/blog" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href="/#faq" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
                   FAQs
                 </Link>
