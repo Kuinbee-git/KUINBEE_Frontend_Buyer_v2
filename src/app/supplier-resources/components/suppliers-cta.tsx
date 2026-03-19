@@ -51,16 +51,13 @@ export function SuppliersCTA() {
                     })}
                 </div>
 
-                {/* CTAs — exact match to landing CTASection */}
+                {/* CTAs */}
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button size="lg" className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90" asChild>
-                        <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">
-                            Get Started as Supplier
+                        <a href="https://calendly.com/ceo-kuinbee/30min" target="_blank" rel="noopener noreferrer">
+                            Book a Demo
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
-                    </Button>
-                    <Button size="lg" variant="outline" className="border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10 backdrop-blur-sm" asChild>
-                        <a href="https://supplier.kuinbee.com" target="_blank" rel="noopener noreferrer">View Dashboard</a>
                     </Button>
                 </div>
 
