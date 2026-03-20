@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getDatasetKdts, type DatasetKdtsResponse } from "@/services/kdts.service";
+import { KdtsInfoModal } from "./KdtsInfoModal";
 
 interface DatasetKdtsCardProps {
   datasetId: string;
@@ -31,9 +32,12 @@ export function DatasetKdtsCard({ datasetId }: DatasetKdtsCardProps) {
 
   return (
     <div>
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
-        KDTS Scoring
-      </h2>
+      <div className="flex items-center gap-2 mb-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">
+          KDTS Scoring
+        </h2>
+        <KdtsInfoModal />
+      </div>
       <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
         {loading ? (
           /* Skeleton */
