@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
+  const marketplaceUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
 
   return {
@@ -26,6 +26,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: [
+      `${marketplaceUrl}/sitemap.xml`,
+      "https://www.kuinbee.com/sitemap.xml",
+    ],
   };
 }

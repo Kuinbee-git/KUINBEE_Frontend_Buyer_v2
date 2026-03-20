@@ -21,7 +21,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getBlogPost(slug);
   if (!post) return {};
-  return genMeta({ title: post.title, description: post.description, keywords: post.keywords, path: `/blog/${slug}` });
+
+  const canonicalUrl = `https://www.kuinbee.com/blog/${slug}`;
+  const base = genMeta({
+    title: post.title,
+    description: post.description,
+    keywords: post.keywords,
+    path: `/blog/${slug}`,
+  });
+
+  return {
+    ...base,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      url: canonicalUrl,
+      title: post.title,
+      description: post.description,
+      images: [
+        {
+          url: "https://www.kuinbee.com/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: `${post.title} | Kuinbee`,
+        },
+      ],
+    },
+    twitter: {
+      ...base.twitter,
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: ["https://www.kuinbee.com/og-image.png"],
+    },
+  };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -270,11 +306,18 @@ export default async function BlogPostPage({ params }: Props) {
     headline: post.title,
     description: post.description,
     datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
     author: { "@type": "Organization", name: "Kuinbee" },
-    publisher: { "@type": "Organization", name: "Kuinbee Marketplace", logo: { "@type": "ImageObject", url: "https://marketplace.kuinbee.com/logo-light.png" } },
+    publisher: { "@type": "Organization", name: "Kuinbee", logo: { "@type": "ImageObject", url: "https://www.kuinbee.com/logo.png" } },
     keywords: post.keywords.join(", "),
-    url: `https://marketplace.kuinbee.com/blog/${slug}`,
+    url: `https://www.kuinbee.com/blog/${slug}`,
   };
+
+  const internalLinks = [
+    { href: "/datasets", label: "Explore verified datasets" },
+    { href: "/pricing", label: "View enterprise pricing" },
+    { href: "/about", label: "Learn about Kuinbee governance" },
+  ];
 
   const relatedPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 3);
 
@@ -321,6 +364,22 @@ export default async function BlogPostPage({ params }: Props) {
             ))}
           </article>
 
+          <section className="mt-12 rounded-xl border border-[#1a2240]/10 dark:border-white/10 bg-white dark:bg-[#1e2847] p-6">
+            <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-4">Explore Marketplace Resources</h2>
+            <div className="flex flex-wrap gap-3">
+              {internalLinks.map((resource) => (
+                <Link
+                  key={resource.href}
+                  href={resource.href}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#1a2240]/15 dark:border-white/15 text-sm font-medium text-[#1a2240] dark:text-white/90 hover:bg-[#1a2240]/5 dark:hover:bg-white/5 transition-colors"
+                >
+                  {resource.label}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              ))}
+            </div>
+          </section>
+
           {/* Keyword tags */}
           <div className="mt-12 pt-8 border-t border-[#1a2240]/10 dark:border-white/10">
             <p className="text-xs font-semibold uppercase tracking-widest text-[#4e5a7e] dark:text-white/40 mb-3">Topics</p>
@@ -337,7 +396,7 @@ export default async function BlogPostPage({ params }: Props) {
         {/* Related posts */}
         {relatedPosts.length > 0 && (
           <div className="mx-auto max-w-6xl px-4 md:px-6 mt-20">
-            <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-6">Continue Reading</h2>
+            <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-6">Related Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedPosts.map((p) => (
                 <Link key={p.slug} href={`/blog/${p.slug}`} className="group block">
@@ -351,6 +410,19 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        <div className="mx-auto max-w-6xl px-4 md:px-6 mt-10">
+          <div className="rounded-2xl bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] p-8 text-center">
+            <h2 className="text-2xl font-semibold text-white mb-3">Need data for your next AI or research project?</h2>
+            <p className="text-white/70 text-sm md:text-base mb-6">Browse trusted, verified datasets and evaluate options quickly with transparent governance information.</p>
+            <Link
+              href="/datasets"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-white text-[#1a2240] text-sm font-semibold hover:bg-white/90 transition-colors"
+            >
+              Explore Datasets →
+            </Link>
+          </div>
+        </div>
       </div>
 
       <LandingFooter />

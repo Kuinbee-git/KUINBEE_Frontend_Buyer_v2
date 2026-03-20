@@ -5,12 +5,12 @@
 import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "Kuinbee Marketplace",
+  name: "Kuinbee",
   description:
     "Discover and purchase premium datasets for AI, ML, and data science projects. Browse curated, high-quality datasets across multiple categories.",
   url: (() => {
-    const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
-    return defaultUrl.includes("vercel.app") ? "https://marketplace.kuinbee.com" : defaultUrl;
+    const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
+    return defaultUrl.includes("vercel.app") ? "https://www.kuinbee.com" : defaultUrl;
   })(),
   ogImage: "/og-image.png",
   links: {
@@ -43,9 +43,7 @@ export function generateMetadata({
   keywords?: string[];
   path?: string;
 }): Metadata {
-  const metaTitle = title
-    ? `${title} | ${siteConfig.name}`
-    : siteConfig.name;
+  const metaTitle = title || siteConfig.name;
   const metaDescription = description || siteConfig.description;
   const metaImage = image || `${siteConfig.url}${siteConfig.ogImage}`;
   const metaKeywords = keywords

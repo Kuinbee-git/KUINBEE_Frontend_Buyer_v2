@@ -13,37 +13,42 @@ import {
 const faqs = [
   {
     question: "What is Kuinbee?",
-    answer: "Kuinbee is building the Data OS for the global data ecosystem. It addresses the two most critical challenges in data today: access and process. While data is widely available, it is often fragmented, unverified, and difficult to work with. Kuinbee's goal is to make data easy to access, trustworthy by default, and simple to process, creating a unified system where data can be discovered, transformed, and turned into intelligence at a global scale.",
+    answer: "Kuinbee is a governed data marketplace where businesses and researchers can discover, evaluate, and purchase verified datasets for AI, ML, and analytics use cases.",
   },
   {
-    question: "What does Kuinbee offer?",
-    answer: "Kuinbee offers two core capabilities: a verified data marketplace and an agentic, end-to-end data pipeline and processing software. Users can access ready-to-use datasets, request custom data, or run automated workflows for ingestion, cleaning, transformation, and analysis. Each capability can be used independently or combined, depending on how users want to work with data.",
+    question: "What types of datasets are available?",
+    answer: "Kuinbee offers datasets across Finance & Markets, Environment & Climate, Healthcare, Demographics, and more — all verified for quality and compliance.",
   },
   {
-    question: "Can Kuinbee provide custom datasets?",
-    answer: "Kuinbee does not directly collect data. Instead, users can place custom data requests on the platform. Kuinbee helps with data discovery, sourcing, and procurement by connecting users to relevant data suppliers and existing datasets, ensuring the data meets quality, structure, and usability expectations.",
+    question: "How is data quality ensured?",
+    answer: "Every dataset on Kuinbee goes through a governance and verification process to ensure accuracy, completeness, and regulatory compliance before listing.",
   },
   {
-    question: "How is Kuinbee different from other data platforms?",
-    answer: "Most data platforms focus on only one layer, such as data access or analytics. Kuinbee is built as a Data OS that connects access and process in a single system. Its data marketplace uses built-in credibility systems to verify data suppliers and datasets through a structured scoring mechanism called KDTS, helping users assess reliability before using or purchasing data. This removes trust gaps and reduces the need for external validation.",
+    question: "Is Kuinbee available globally?",
+    answer: "Yes. Kuinbee supports global data buyers and sellers, with compliance checks for GDPR, CCPA, and other regional data regulations.",
   },
   {
-    question: "Who is Kuinbee built for?",
-    answer: "Kuinbee is built for anyone who works with data at scale or relies on data for decision-making. This includes enterprises, startups, governments, researchers, analysts, data suppliers, and students. Whether the goal is sourcing reliable data, running data pipelines, or enabling data-driven decisions, Kuinbee adapts to different levels of complexity and use cases.",
+    question: "How do I buy a dataset?",
+    answer: "Browse the marketplace, preview dataset samples, and request access or purchase directly. Enterprise buyers can request custom pricing.",
   },
   {
-    question: "Can data suppliers sell data on Kuinbee?",
-    answer: "Yes. Kuinbee enables data suppliers to publish and distribute datasets through its marketplace. Each supplier and dataset is evaluated using Kuinbee's KDTS credibility scoring system, helping buyers understand data reliability and source quality before purchasing. This creates a trusted environment for data exchange while giving suppliers access to a global audience.",
-  },
-  {
-    question: "How does Kuinbee ensure data credibility?",
-    answer: "Kuinbee treats data credibility as data due diligence, not just data cleaning. Every dataset listed on the marketplace goes through a multi-layer credibility evaluation that checks technical soundness, logical consistency, provenance, legal compliance, and commercial usability. These checks ensure that data is not only valid, but also trustworthy and fit for real-world decision-making.",
-  },
-  {
-    question: "What checks are performed before a dataset is listed?",
-    answer: "Before listing, datasets are evaluated across five credibility layers: Parametric & structural checks to validate schema integrity, completeness, statistical sanity, and uniqueness; Consistency and temporal checks to ensure logical behavior across time, geography, and related fields; Provenance and methodology checks to understand where the data comes from and how it was created; Legal and compliance checks to verify ownership, licensing rights, and regulatory alignment; Market usability checks to assess whether the data is usable, joinable, and commercially viable. These checks form the backbone of Kuinbee's marketplace credibility framework.",
+    question: "Can I sell my data on Kuinbee?",
+    answer: "Yes. Data providers can list their datasets on Kuinbee after a compliance and quality review. Contact us to get started.",
   },
 ];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
 
 export function FAQSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -73,6 +78,10 @@ export function FAQSection() {
       className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
         }`}
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* Background - Consistent with other sections */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e]" />

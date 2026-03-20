@@ -8,9 +8,9 @@ import Link from "next/link";
 import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
 
 export const metadata: Metadata = genMeta({
-  title: "Blog — Data Insights & Market Trends",
+  title: "Kuinbee Blog | AI Datasets, Buyer Guides & Insights",
   description:
-    "Explore articles on data marketplaces, AI datasets, market analysis, and data-driven decision making. Insights from the Kuinbee team and the global data community.",
+    "Explore expert articles on the data economy, AI training datasets, and how to source verified data. Insights from the Kuinbee team.",
   keywords: ["data marketplace blog", "AI dataset insights", "data economy", "data access articles", "Kuinbee blog"],
   path: "/blog",
 });
@@ -52,7 +52,7 @@ export default function BlogPage() {
               Kuinbee Blog
             </span>
             <h1 className="text-4xl md:text-5xl font-bold text-[#1a2240] dark:text-white mb-4 tracking-tight leading-tight">
-              Data Insights &amp; Market Trends
+              Kuinbee Blog — Data Marketplace, AI Datasets &amp; Buyer Guides
             </h1>
             <p className="text-base md:text-lg text-[#4e5a7e] dark:text-white/60 max-w-xl mx-auto leading-relaxed">
               Articles on the data economy, AI datasets, industry analysis, and the future of data access — from the Kuinbee team.

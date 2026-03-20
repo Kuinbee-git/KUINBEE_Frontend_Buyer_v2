@@ -3,9 +3,9 @@ import { generateMetadata as genMeta } from "@/core/config";
 import { AboutPageContent } from "./_components/AboutPageContent";
 
 export const metadata: Metadata = genMeta({
-  title: "About Kuinbee",
+  title: "About Kuinbee | Building the Future of Data Access",
   description:
-    "Learn about Kuinbee's mission to democratize data access. We connect data providers with businesses and researchers through a trusted, quality-assured marketplace.",
+    "Learn how Kuinbee is reshaping how organizations discover and access trusted data through a governed, AI-ready marketplace.",
   keywords: [
     "about Kuinbee",
     "data marketplace company",

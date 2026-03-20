@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
@@ -256,14 +257,16 @@ function NavDropdown({ label, items, align = "start" }: NavDropdownProps) {
           {label}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {items.map((item) => (
+        {items.map((item) => {
+          const IconComponent = item.icon;
+          return (
           <DropdownMenuItem key={item.name} asChild>
             <Link
               href={item.href}
               className="group flex cursor-pointer items-start gap-3 rounded-lg p-2 transition-colors"
             >
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted transition-colors group-hover:bg-accent">
-                <item.icon className="h-4 w-4 text-primary" />
+                {IconComponent && <IconComponent className="h-4 w-4 text-primary" />}
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-foreground">
@@ -275,7 +278,8 @@ function NavDropdown({ label, items, align = "start" }: NavDropdownProps) {
               </div>
             </Link>
           </DropdownMenuItem>
-        ))}
+        );
+        })}
         {label === "Categories" && (
           <>
             <DropdownMenuSeparator />
@@ -526,12 +530,13 @@ function NotchNavigationInner() {
 
   // Listen for staged dataset updates
   React.useEffect(() => {
-    const handleStagedDatasetUpdate = (event: CustomEvent) => {
-      setStagedDataset(event.detail);
+    const handleStagedDatasetUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<StagedDataset>;
+      setStagedDataset(customEvent.detail);
     };
 
-    window.addEventListener("stagedDatasetUpdate" as any, handleStagedDatasetUpdate);
-    return () => window.removeEventListener("stagedDatasetUpdate" as any, handleStagedDatasetUpdate);
+    window.addEventListener("stagedDatasetUpdate", handleStagedDatasetUpdate as EventListener);
+    return () => window.removeEventListener("stagedDatasetUpdate", handleStagedDatasetUpdate as EventListener);
   }, []);
 
   const handleProceedToCheckout = () => {
@@ -586,17 +591,21 @@ function NotchNavigationInner() {
                   }}
                 >
                   {/* Show favicon black logo in light mode, dark logo in dark mode */}
-                  <img
+                  <Image
                     src="/favicon-black.png"
-                    alt="Kuinbee Logo"
+                    alt="Kuinbee marketplace favicon light theme | Kuinbee"
+                    width={32}
+                    height={32}
                     className={cn(
                       "transition-all duration-500 block dark:hidden",
                       scrolled ? "h-3 w-6" : "h-4 w-8"
                     )}
                   />
-                  <img
+                  <Image
                     src="/favicon.svg"
-                    alt="Kuinbee Logo Dark"
+                    alt="Kuinbee marketplace favicon dark theme | Kuinbee"
+                    width={32}
+                    height={32}
                     className={cn(
                       "transition-all duration-500 hidden dark:block dark:brightness-200",
                       scrolled ? "h-6 w-6" : "h-8 w-8"

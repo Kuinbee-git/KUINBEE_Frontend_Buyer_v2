@@ -6,17 +6,16 @@ import {
   Wheat,
   BarChart3,
   BookOpen,
-  Users,
-  GraduationCap,
   FileText,
   Info,
   Briefcase,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
   name: string;
   href: string;
-  icon?: any;
+  icon?: LucideIcon;
   description?: string;
   scroll?: boolean;
 }
@@ -76,6 +75,12 @@ export const categories: NavItem[] = [
 ];
 
 export const resources: NavItem[] = [
+  {
+    name: "Blog",
+    href: "/blog",
+    icon: FileText,
+    description: "Data marketplace insights and buyer guides",
+  },
   {
     name: "About",
     href: "/about",
@@ -213,6 +218,18 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showSearch: false,
     actions: [],
     isSupplierPage: true,
+  },
+
+  // Pricing
+  "/pricing": {
+    showBack: true,
+    backUrl: "/",
+    backLabel: "Back to Home",
+    pageTitle: "Pricing",
+    directLinks: [],
+    dropdowns: ["resources"],
+    showSearch: false,
+    actions: [],
   },
 };
 

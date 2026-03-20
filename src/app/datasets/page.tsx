@@ -5,9 +5,9 @@ import { DatasetDiscoveryV2 } from "@/features/datasets/components";
 import DatasetsLoading from "./loading";
 
 export const metadata: Metadata = genMeta({
-  title: "Browse Datasets",
+  title: "Buy Verified Datasets for AI, ML & Research | Kuinbee",
   description:
-    "Discover and explore premium datasets for AI, machine learning, and data science. Filter by category, format, and price to find the perfect dataset for your project.",
+    "Browse thousands of governed, verified datasets across finance, climate, health, and more. Trusted by data teams worldwide.",
   keywords: [
     "browse datasets",
     "search datasets",

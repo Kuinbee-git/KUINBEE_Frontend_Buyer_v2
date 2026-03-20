@@ -15,9 +15,9 @@ import {
 } from "@/features/landing";
 
 export const metadata: Metadata = genMeta({
-  title: "Premium Datasets for AI & Data Science",
+  title: "Kuinbee — Global Data Marketplace for AI & Research",
   description:
-    "Discover and purchase premium datasets for AI, ML, and data science projects. Browse curated, high-quality datasets across multiple categories on Kuinbee Marketplace.",
+    "Discover, evaluate, and buy verified datasets from a governed marketplace. Kuinbee connects data buyers with trusted data sources globally.",
   keywords: [
     "buy datasets",
     "AI training data",

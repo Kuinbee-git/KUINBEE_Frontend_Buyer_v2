@@ -1,11 +1,11 @@
 import { MetadataRoute } from "next";
+import { blogPosts } from "@/features/blog/blog-posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Force the production domain for the sitemap to prevent GSC errors
-  // If NEXT_PUBLIC_SITE_URL is a vercel.app domain, we still want the canonical domain
-  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
+  // Primary canonical domain for public marketing routes
+  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
   if (baseUrl.includes("vercel.app")) {
-    baseUrl = "https://marketplace.kuinbee.com";
+    baseUrl = "https://www.kuinbee.com";
   }
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -20,6 +20,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -89,6 +101,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.publishedAt),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   // Fetch dynamic dataset pages
   try {
     const apiUrl =
@@ -102,20 +121,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     if (res.ok) {
       const data = await res.json();
-      const datasets = data.data?.datasets || [];
+      const datasets: Array<{ datasetUniqueId?: string; id: string; updatedAt?: string }> =
+        data?.data?.datasets || [];
 
-      const datasetPages: MetadataRoute.Sitemap = datasets.map((d: any) => ({
+      const datasetPages: MetadataRoute.Sitemap = datasets.map((d) => ({
         url: `${baseUrl}/datasets/${d.datasetUniqueId || d.id}`,
         lastModified: d.updatedAt ? new Date(d.updatedAt) : new Date(),
         changeFrequency: "weekly" as const,
         priority: 0.7,
       }));
 
-      return [...staticPages, ...datasetPages];
+      return [...staticPages, ...blogPages, ...datasetPages];
     }
   } catch (error) {
     console.error("Failed to fetch datasets for sitemap:", error);
   }
 
-  return staticPages;
+  return [...staticPages, ...blogPages];
 }

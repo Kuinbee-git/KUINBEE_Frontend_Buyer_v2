@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -17,7 +18,6 @@ import {
   BarChart3,
   Star,
   Clock,
-  BadgeCheck,
   Users,
   FileText,
   Filter,
@@ -101,13 +101,12 @@ const filters = [
 
 export function LandingHero() {
   const [activeTab] = useState("browse");
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.classList.contains("dark");
+  });
 
   useEffect(() => {
-    // Check if dark mode is enabled
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    setIsDark(isDarkMode);
-
     // Listen for theme changes
     const observer = new MutationObserver(() => {
       const isDarkMode = document.documentElement.classList.contains('dark');
@@ -176,9 +175,9 @@ export function LandingHero() {
 
           {/* Hero title */}
           <h1 className="text-center text-4xl font-semibold leading-tight tracking-tight text-primary dark:text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Governed Marketplace
+            Buy Verified Datasets for AI, ML &amp; Research
             <br />
-            <span className="text-primary/70 dark:text-white/80">for Verified Datasets</span>
+            <span className="text-primary/70 dark:text-white/80">| Kuinbee Marketplace</span>
           </h1>
 
           {/* Description */}
@@ -256,20 +255,22 @@ export function LandingHero() {
               {[...Array(2)].map((_, setIdx) => (
                 <div key={setIdx} className="flex items-center gap-12 pr-12">
                   {[
-                    { src: "/fao-logo.svg", alt: "FAO", w: 110, h: 30 },
-                    { src: "/world-bank-logo.png", alt: "World Bank", w: 36, h: 36 },
-                    { src: "/our-world-in-data-logo.png", alt: "Our World in Data", w: 34, h: 34 },
-                    { src: "/data-gov_logo.webp", alt: "Data.gov", w: 110, h: 28 },
-                    { src: "/Eia-logomark.svg.png", alt: "EIA", w: 48, h: 34 },
-                    { src: "/icrisat-logo.jpeg", alt: "ICRISAT", w: 68, h: 36 },
-                    { src: "/opencity-logo.png", alt: "OpenCity", w: 100, h: 28 },
-                    { src: "/logo.f9fcba1.svg", alt: "Partner", w: 110, h: 30 },
+                    { src: "/fao-logo.svg", alt: "FAO trusted data source logo | Kuinbee", w: 110, h: 30 },
+                    { src: "/world-bank-logo.png", alt: "World Bank trusted data source logo | Kuinbee", w: 36, h: 36 },
+                    { src: "/our-world-in-data-logo.png", alt: "Our World in Data trusted data source logo | Kuinbee", w: 34, h: 34 },
+                    { src: "/data-gov_logo.webp", alt: "Data.gov trusted data source logo | Kuinbee", w: 110, h: 28 },
+                    { src: "/Eia-logomark.svg.png", alt: "EIA trusted data source logo | Kuinbee", w: 48, h: 34 },
+                    { src: "/icrisat-logo.jpeg", alt: "ICRISAT trusted data source logo | Kuinbee", w: 68, h: 36 },
+                    { src: "/opencity-logo.png", alt: "OpenCity trusted data source logo | Kuinbee", w: 100, h: 28 },
+                    { src: "/logo.f9fcba1.svg", alt: "Kuinbee marketplace partner logo | Kuinbee", w: 110, h: 30 },
                   ].map((logo) => (
-                    <img
+                    <Image
                       key={`${setIdx}-${logo.alt}`}
                       src={logo.src}
                       alt={logo.alt}
-                      style={{ width: logo.w, height: logo.h }}
+                      width={logo.w}
+                      height={logo.h}
+                      loading="lazy"
                       className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
                     />
                   ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
+import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -66,14 +67,18 @@ export function LandingFooter() {
           {/* Brand Section */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-1">
-              <img
+              <Image
                 src="/logo-light.png"
-                alt="Kuinbee"
+                alt="Kuinbee marketplace brand logo light theme | Kuinbee"
+                width={80}
+                height={80}
                 className="block hidden dark:hidden h-20"
               />
-              <img
+              <Image
                 src="/logo-dark.png"
-                alt="Kuinbee"
+                alt="Kuinbee marketplace brand logo dark theme | Kuinbee"
+                width={80}
+                height={80}
                 className="hidden dark:block h-20"
               />
               <h3 className="text-2xl font-semibold text-primary dark:text-white leading-tight">
@@ -81,7 +86,7 @@ export function LandingFooter() {
               </h3>
             </div>
             <p className="text-muted-foreground dark:text-white/70 leading-relaxed max-w-md text-sm">
-              The world's datasets, aggregated for you. Discover, understand, and act on data with speed and confidence.
+              The world&apos;s datasets, aggregated for you. Discover, understand, and act on data with speed and confidence.
             </p>
           </div>
 
