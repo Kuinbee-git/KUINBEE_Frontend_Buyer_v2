@@ -37,9 +37,6 @@ export function CategoryCard({
         >
           {datasets}
         </span>
-        {!comingSoon && (
-          <span className="ml-1 text-xs text-white/80">datasets</span>
-        )}
       </div>
 
       {/* Icon */}

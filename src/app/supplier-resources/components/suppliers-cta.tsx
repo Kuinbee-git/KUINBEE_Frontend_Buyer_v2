@@ -21,7 +21,7 @@ export function SuppliersCTA() {
 
     const benefits = [
         { icon: Lock, text: "Full IP Protection" },
-        { icon: TrendingUp, text: "Zero Negotiation" },
+        { icon: TrendingUp, text: "Transparent pricing " },
         { icon: Zap, text: "Complete Control" },
     ];
 

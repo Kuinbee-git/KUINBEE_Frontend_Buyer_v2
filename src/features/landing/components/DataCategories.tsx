@@ -66,7 +66,11 @@ const categories = [
   },
 ];
 
-export function DataCategories() {
+interface DataCategoriesProps {
+  categoryCounts?: Record<string, number>;
+}
+
+export function DataCategories({ categoryCounts }: DataCategoriesProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -125,17 +129,26 @@ export function DataCategories() {
 
         {/* Categories grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.name}
-              name={category.name}
-              description={category.description}
-              icon={category.icon}
-              datasets={category.datasets}
-              href={category.href}
-              comingSoon={category.comingSoon}
-            />
-          ))}
+          {categories.map((category) => {
+            // Check if we have a live count from the API based on the URL parameter (e.g. "?category=finance" -> "finance")
+            const slug = category.href.split("category=")[1];
+            const liveCount = categoryCounts?.[slug];
+            const datasetsText = liveCount && liveCount > 0 
+              ? `${liveCount.toLocaleString()} datasets` 
+              : category.datasets;
+
+            return (
+              <CategoryCard
+                key={category.name}
+                name={category.name}
+                description={category.description}
+                icon={category.icon}
+                datasets={datasetsText}
+                href={category.href}
+                comingSoon={category.comingSoon}
+              />
+            );
+          })}
         </div>
 
         {/* View all CTA */}

@@ -123,7 +123,7 @@ const caseStudies = [
         approach: [
             "100% Ownership Retained",
             "Non-exclusive listing",
-            "Zero Negotiation Pricing",
+            "Transparent Pricing",
             "Real-time Pricing Adjustment",
             "Transparent Revenue Dashboard & Access Logs",
         ],
