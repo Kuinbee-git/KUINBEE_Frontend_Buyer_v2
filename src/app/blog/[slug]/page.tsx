@@ -346,7 +346,7 @@ export default async function BlogPostPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
 
       <div className="sticky top-0 z-50">
-        <NotchNavigation />
+        <NotchNavigation lite />
       </div>
       <div className="fixed inset-0 -z-10">
         <InstitutionalBackground />

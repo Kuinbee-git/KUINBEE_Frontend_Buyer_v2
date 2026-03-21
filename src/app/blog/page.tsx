@@ -39,7 +39,7 @@ export default function BlogPage() {
   return (
     <main className="min-h-screen relative bg-white dark:bg-[#111827]">
       <div className="sticky top-0 z-50">
-        <NotchNavigation />
+        <NotchNavigation lite />
       </div>
       <div className="fixed inset-0 -z-10">
         <InstitutionalBackground />
