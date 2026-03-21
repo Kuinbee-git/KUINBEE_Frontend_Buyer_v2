@@ -13,6 +13,7 @@ import { useAuth } from "@/core/providers/AuthProvider";
 import { getDatasetKdts } from "@/services/kdts.service";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { WebsiteFeedbackModal, type FeedbackSentiment } from "./WebsiteFeedbackModal";
 
 // Map the full API response to UI Dataset format
 const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
@@ -106,6 +107,8 @@ export function DatasetDetailPageContent() {
 
   // ── Checkout flow state (declared before early returns to keep hook order stable) ──
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
   // Listen for "proceedToCheckout" events from the NotchNavigation staging panel
   useEffect(() => {
@@ -162,6 +165,7 @@ export function DatasetDetailPageContent() {
         },
         duration: 8000,
       });
+      setShowFeedbackModal(true);
     } catch (err: any) {
       const errorMessage = err?.message || "Failed to claim dataset";
       if (errorMessage.includes("NOT_FREE")) {
@@ -180,6 +184,51 @@ export function DatasetDetailPageContent() {
       }
     }
   }, [claimMutation, id, router]);
+
+  const handleSubmitWebsiteFeedback = useCallback(
+    async ({ rating, sentiment }: { rating: number; sentiment: FeedbackSentiment }) => {
+      if (!user?.email) {
+        toast.error("Unable to submit feedback. Missing user email.");
+        return;
+      }
+
+      setIsSubmittingFeedback(true);
+      try {
+        const derivedName = user.email.split("@")[0] || "Kuinbee User";
+
+        const waitlistResponse = await fetch(
+          "https://api.freewaitlists.com/waitlists/cmn093nng017s01pn152jaukj",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              meta: {
+                name: derivedName,
+                source: "post-dataset-claim-feedback",
+                sentiment,
+                rating,
+                datasetId: id,
+                datasetTitle: response?.dataset?.title,
+              },
+            }),
+          }
+        );
+
+        if (!waitlistResponse.ok) {
+          throw new Error("Failed to submit feedback");
+        }
+
+        toast.success("Thanks for your feedback!");
+        setShowFeedbackModal(false);
+      } catch {
+        toast.error("Could not submit feedback right now. Please try again.");
+      } finally {
+        setIsSubmittingFeedback(false);
+      }
+    },
+    [id, response?.dataset?.title, user?.email]
+  );
 
   // Handle login — stable callback keeps DatasetDetailPage memo intact
   const handleLogin = useCallback(() => {
@@ -294,6 +343,13 @@ export function DatasetDetailPageContent() {
           onComplete={handleCheckoutComplete}
         />
       )}
+
+      <WebsiteFeedbackModal
+        open={showFeedbackModal}
+        onOpenChange={setShowFeedbackModal}
+        loading={isSubmittingFeedback}
+        onSubmit={handleSubmitWebsiteFeedback}
+      />
     </>
   );
 }
