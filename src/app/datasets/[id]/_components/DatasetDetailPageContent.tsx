@@ -82,10 +82,7 @@ export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetai
   const { data: response, isLoading, error } = useDatasetDetails(
     id,
     !!id,
-    initialDatasetDetails,
     initialDatasetDetails
-      ? { staleTime: 0, refetchOnMount: "always" }
-      : undefined
   );
 
   // Check authentication status

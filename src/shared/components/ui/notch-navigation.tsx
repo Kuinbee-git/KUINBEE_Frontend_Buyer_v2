@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { categories, resources } from "@/config/navigation.config";
-import { useNotifications } from "@/hooks/api/useNotifications";
-import { useNotificationStore } from "@/core/store/notification.store";
 
 import {
   ChevronDown,
@@ -20,11 +19,9 @@ import {
   X,
   User,
   LogOut,
-  Settings,
   FolderOpen,
   Heart,
   Search,
-  Bell,
 } from "lucide-react";
 import { Button } from "./button";
 import { Badge } from "./badge";
@@ -69,6 +66,11 @@ interface StagedDataset {
     datasetReviewed: boolean;
   };
 }
+
+const NotchNotificationBell = dynamic(
+  () => import("./notch-notification-bell").then((module) => module.NotchNotificationBell),
+  { ssr: false }
+);
 
 interface PurchaseStagingPanelProps {
   dataset: StagedDataset;
@@ -478,27 +480,8 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
     setNavSearchQuery(searchParamsObj?.get("q") || "");
   }, [searchParamsObj]);
 
-  // Notifications
-  const { data: notificationsData } = useNotifications(
-    { unreadOnly: true },
-    {
-      refetchInterval: 120000, // Poll every 2 minutes
-      enabled: !!user && !lite, // Disable polling in lite mode
-    }
-  );
-  const { unreadCount, setUnreadCount } = useNotificationStore();
-
-  // Update unread count from API
-  React.useEffect(() => {
-    if (notificationsData?.items) {
-      setUnreadCount(notificationsData.items.length);
-    }
-  }, [notificationsData, setUnreadCount]);
-
   // Handle scroll state
   React.useEffect(() => {
-    if (lite) return;
-
     const handleScroll = () => {
       setScrolled(window.scrollY > 20); // Reduced threshold for earlier transition
     };
@@ -511,7 +494,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   }, [lite]);
 
   // Calculate actual width based on scroll state
-  const actualMaxWidth = lite ? 1400 : (scrolled ? 1152 : 1400); // 1152px = max-w-6xl, 1400px default
+  const actualMaxWidth = scrolled ? 1152 : 1400; // 1152px = max-w-6xl, 1400px default
 
   // Get staged dataset from global state (if exists)
   const [stagedDataset, setStagedDataset] = React.useState<StagedDataset | null>(null);
@@ -716,22 +699,8 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
               <div className="w-32 flex items-center justify-end gap-2">
                 <ThemeToggle />
 
-                {/* Notifications Bell (Only for logged-in users) */}
-                {user && (
-                  <Link href="/account/activity">
-                    <button
-                      className="relative p-2 text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors focus:outline-none"
-                      aria-label="Notifications"
-                    >
-                      <Bell className="h-4 w-4" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#1a2240] dark:bg-white text-white dark:text-[#1a2240] text-[10px] font-semibold">
-                          {unreadCount > 99 ? '99+' : unreadCount}
-                        </span>
-                      )}
-                    </button>
-                  </Link>
-                )}
+                {/* Notifications Bell (code-split and disabled for lite nav) */}
+                <NotchNotificationBell enabled={!!user && !lite} />
 
                 {/* Wishlist Action */}
                 {navConfig.actions?.includes("wishlist") && (
