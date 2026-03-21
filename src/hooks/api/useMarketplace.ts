@@ -4,7 +4,7 @@
 
 import { useQuery, keepPreviousData, QueryClient } from "@tanstack/react-query";
 import { marketplaceService } from "@/services";
-import type { DatasetListQuery, CategoryListQuery } from "@/types";
+import type { DatasetDetailsResponse, DatasetListQuery, CategoryListQuery } from "@/types";
 
 // Query keys
 export const marketplaceKeys = {
@@ -24,11 +24,16 @@ export const useDatasets = (query?: DatasetListQuery) => {
 };
 
 // Get dataset details
-export const useDatasetDetails = (datasetId: string, enabled = true) => {
+export const useDatasetDetails = (
+  datasetId: string,
+  enabled = true,
+  initialData?: DatasetDetailsResponse
+) => {
   return useQuery({
     queryKey: marketplaceKeys.datasetDetails(datasetId),
     queryFn: () => marketplaceService.getDatasetDetails(datasetId),
     enabled,
+    initialData,
     staleTime: 60_000, // 1 min — matches server-side prefetch; avoids immediate refetch after hydration
   });
 };

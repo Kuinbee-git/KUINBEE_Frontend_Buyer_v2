@@ -15,6 +15,10 @@ import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { WebsiteFeedbackModal } from "@/app/datasets/[id]/_components/website-feedback-modal";
 
+interface DatasetDetailPageContentProps {
+  initialDatasetDetails?: DatasetDetailsResponse;
+}
+
 // Map the full API response to UI Dataset format
 const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
   const { dataset, primaryCategory, secondaryCategories, aboutDatasetInfo, dataFormatInfo, features, source, locationInfo, tags } = response;
@@ -69,13 +73,13 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
   };
 };
 
-export function DatasetDetailPageContent() {
+export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetailPageContentProps) {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
 
   // Fetch dataset details from API
-  const { data: response, isLoading, error } = useDatasetDetails(id, !!id);
+  const { data: response, isLoading, error } = useDatasetDetails(id, !!id, initialDatasetDetails);
 
   // Check authentication status
   const { user, isAuthenticated } = useAuth();

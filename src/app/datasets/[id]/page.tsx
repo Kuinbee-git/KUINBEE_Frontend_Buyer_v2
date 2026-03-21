@@ -3,6 +3,7 @@ import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
 } from "@/core/config";
+import type { DatasetDetailsResponse } from "@/types";
 import { DatasetDetailPageContent } from "./_components/DatasetDetailPageContent";
 
 // ISR: cache the server-rendered page for 1 hour at the CDN edge.
@@ -33,8 +34,8 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-/** Fetch dataset detail from API server-side (no auth needed for published datasets) */
-async function fetchDatasetDetail(id: string) {
+/** Fetch full dataset details response server-side (no auth needed for published datasets) */
+async function fetchDatasetDetailsResponse(id: string): Promise<DatasetDetailsResponse | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
     const res = await fetch(`${apiUrl}/api/v1/marketplace/datasets/${id}`, {
@@ -42,13 +43,19 @@ async function fetchDatasetDetail(id: string) {
     });
     if (res.ok) {
       const json = await res.json();
-      // Handle both { data: { dataset: ... } } and { dataset: ... } envelope formats
-      return json?.data?.dataset ?? json?.dataset ?? null;
+      // Expected envelope: { success, data: { dataset, ... } }
+      const payload = json?.data ?? json;
+      return payload?.dataset ? (payload as DatasetDetailsResponse) : null;
     }
   } catch {
     // Silently fail — metadata/schema fall back to defaults
   }
   return null;
+}
+
+async function fetchDatasetDetail(id: string) {
+  const details = await fetchDatasetDetailsResponse(id);
+  return details?.dataset ?? null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -90,7 +97,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
-  const dataset = await fetchDatasetDetail(id);
+  const detailsResponse = await fetchDatasetDetailsResponse(id);
+  const dataset = detailsResponse?.dataset ?? null;
 
   const datasetTitle = dataset?.title ?? `Dataset ${id}`;
   const categoryName = dataset?.primaryCategory?.name ?? dataset?.category?.name ?? "";
@@ -160,7 +168,7 @@ export default async function DatasetDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
         />
       )}
-      <DatasetDetailPageContent />
+      <DatasetDetailPageContent initialDatasetDetails={detailsResponse ?? undefined} />
     </>
   );
 }
