@@ -27,14 +27,19 @@ export const useDatasets = (query?: DatasetListQuery) => {
 export const useDatasetDetails = (
   datasetId: string,
   enabled = true,
-  initialData?: DatasetDetailsResponse
+  initialData?: DatasetDetailsResponse,
+  options?: {
+    staleTime?: number;
+    refetchOnMount?: boolean | "always";
+  }
 ) => {
   return useQuery({
     queryKey: marketplaceKeys.datasetDetails(datasetId),
     queryFn: () => marketplaceService.getDatasetDetails(datasetId),
     enabled,
     initialData,
-    staleTime: 60_000, // 1 min — matches server-side prefetch; avoids immediate refetch after hydration
+    staleTime: options?.staleTime ?? 60_000, // 1 min — matches server-side prefetch; avoids immediate refetch after hydration
+    refetchOnMount: options?.refetchOnMount,
   });
 };
 

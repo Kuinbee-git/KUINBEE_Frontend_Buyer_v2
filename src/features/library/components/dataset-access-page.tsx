@@ -22,6 +22,8 @@ import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LIBRARY_SIDEBAR_SECTIONS } from "@/constants/library-sidebar.constants";
 import { useLibraryItem, useDownloadUrl } from "@/hooks/api/useLibrary";
+import { useDatasetDetails } from "@/hooks/api/useMarketplace";
+import type { DatasetDetailsResponse } from "@/types";
 
 // Access states
 type AccessStatus = "active" | "expired" | "revoked" | "not-entitled";
@@ -33,9 +35,16 @@ interface DatasetAccess {
   title: string;
   category: string;
   supplierName: string;
+  description: string;
   accessType: "free" | "purchased";
   grantedAt: string;
   license: string;
+  location: string;
+  dataFormat: string;
+  records: number | null;
+  tags: string[];
+  lastUpdated: string;
+  priceLabel: string;
   status: AccessStatus;
   expiresAt?: string;
 }
@@ -48,9 +57,10 @@ interface DownloadLink {
 
 interface DatasetAccessPageProps {
   datasetId?: string;
+  initialDatasetDetails?: DatasetDetailsResponse;
 }
 
-export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
+export function DatasetAccessPage({ datasetId, initialDatasetDetails }: DatasetAccessPageProps) {
   // Fetch dataset access details
   const {
     data: libraryItemResponse,
@@ -70,16 +80,51 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
 
   const libraryItem = libraryItemResponse?.item;
 
+  const resolvedDatasetId = libraryItem?.datasetId || datasetId || "";
+
+  // Fetch dataset metadata to enrich the access view
+  const {
+    data: datasetDetailsResponse,
+    isLoading: isLoadingDatasetDetails,
+  } = useDatasetDetails(
+    resolvedDatasetId,
+    !!resolvedDatasetId,
+    initialDatasetDetails && initialDatasetDetails.dataset ? initialDatasetDetails : undefined
+  );
+
+  const datasetDetails = datasetDetailsResponse?.dataset;
+  const datasetPrimaryCategory = datasetDetailsResponse?.primaryCategory?.name;
+  const datasetSourceName = datasetDetailsResponse?.source?.name;
+  const datasetLocation =
+    datasetDetailsResponse?.locationInfo?.coverage ||
+    datasetDetailsResponse?.locationInfo?.country ||
+    datasetDetailsResponse?.locationInfo?.state ||
+    datasetDetailsResponse?.locationInfo?.city;
+  const datasetFormat = datasetDetailsResponse?.dataFormatInfo?.fileFormat;
+  const datasetRows = datasetDetailsResponse?.dataFormatInfo?.rows;
+  const datasetTags = datasetDetailsResponse?.tags || [];
+
+  const priceLabel = datasetDetails?.isPaid
+    ? `${datasetDetails.currency || "INR"} ${datasetDetails.price || "0"}`
+    : "Free";
+
   // Map API response to component format
   const datasetAccess: DatasetAccess | null = libraryItem ? {
     id: libraryItem.datasetId,
-    datasetUniqueId: "N/A", // API doesn't provide
-    title: "N/A", // API doesn't provide
-    category: "Unknown", // API doesn't provide
-    supplierName: "Unknown", // API doesn't provide
+    datasetUniqueId: datasetDetails?.datasetUniqueId || libraryItem.datasetId,
+    title: datasetDetails?.title || "Dataset",
+    category: datasetPrimaryCategory || "Uncategorized",
+    supplierName: datasetSourceName || "Unknown Supplier",
+    description: datasetDetails?.description || datasetDetailsResponse?.aboutDatasetInfo?.overview || "Dataset metadata is available in this access record.",
     accessType: libraryItem.accessType === "FREE_CLAIM" ? "free" : "purchased",
     grantedAt: libraryItem.grantedAt,
-    license: "Unknown", // API doesn't provide
+    license: datasetDetails?.license || "Unknown",
+    location: datasetLocation || "Global",
+    dataFormat: datasetFormat || "Unknown",
+    records: typeof datasetRows === "number" ? datasetRows : null,
+    tags: datasetTags,
+    lastUpdated: datasetDetails?.updatedAt || libraryItem.grantedAt,
+    priceLabel,
     status: "active", // Assume active if we can fetch it
   } : null;
 
@@ -501,6 +546,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                 <p className="text-sm text-[#4e5a7e] dark:text-white/70">
                   Access details and download controls for this dataset.
                 </p>
+                {isLoadingDatasetDetails && (
+                  <p className="mt-2 text-xs text-[#4e5a7e]/70 dark:text-white/60">Loading additional dataset metadata...</p>
+                )}
               </div>
 
               <div className="space-y-6">
@@ -517,8 +565,11 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                       <p className="font-mono text-sm text-[#4e5a7e] dark:text-white/60">
                         {datasetAccess.datasetUniqueId}
                       </p>
+                      <p className="mt-3 text-sm leading-relaxed text-[#4e5a7e] dark:text-white/70">
+                        {datasetAccess.description}
+                      </p>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-2">
                       <div className="inline-flex items-center gap-2 text-sm bg-[#1a2240]/5 dark:bg-white/5 text-[#1a2240] dark:text-white/70 px-3 py-2 rounded-lg border border-[#1a2240]/10 dark:border-white/10">
                         <FileText className="w-4 h-4" />
                         {datasetAccess.category}
@@ -530,6 +581,10 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                       <div className="inline-flex items-center gap-2 text-sm bg-[#4e5a7e]/5 dark:bg-white/5 text-[#4e5a7e] dark:text-white/70 px-3 py-2 rounded-lg border border-[#4e5a7e]/10 dark:border-white/10">
                         <Building2 className="w-4 h-4" />
                         {datasetAccess.supplierName}
+                      </div>
+                      <div className="inline-flex items-center gap-2 text-sm bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                        <Download className="w-4 h-4" />
+                        {datasetAccess.dataFormat}
                       </div>
                     </div>
                   </div>
@@ -558,12 +613,58 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         {formatDate(datasetAccess.grantedAt)}
                       </div>
                     </div>
+                    <div>
+                      <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
+                        Last Updated
+                      </div>
+                      <div className="text-sm text-[#1a2240] dark:text-white font-medium">
+                        {formatDate(datasetAccess.lastUpdated)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
+                        Coverage
+                      </div>
+                      <div className="text-sm text-[#1a2240] dark:text-white font-medium">
+                        {datasetAccess.location}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
+                        Price
+                      </div>
+                      <div className="text-sm text-[#1a2240] dark:text-white font-medium">
+                        {datasetAccess.priceLabel}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
+                        Rows
+                      </div>
+                      <div className="text-sm text-[#1a2240] dark:text-white font-medium">
+                        {datasetAccess.records ? datasetAccess.records.toLocaleString() : "N/A"}
+                      </div>
+                    </div>
                     <div className="sm:col-span-2">
                       <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
                         License Terms
                       </div>
                       <div className="text-sm text-[#1a2240] dark:text-white font-medium">
                         {datasetAccess.license}
+                      </div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <div className="text-xs font-medium text-[#4e5a7e]/70 dark:text-white/60 uppercase tracking-wider mb-2">
+                        Tags
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {datasetAccess.tags.length > 0 ? datasetAccess.tags.slice(0, 8).map((tag) => (
+                          <Badge key={tag} className="bg-[#1a2240]/5 dark:bg-white/10 text-[#1a2240] dark:text-white/80 border border-[#1a2240]/10 dark:border-white/20">
+                            {tag}
+                          </Badge>
+                        )) : (
+                          <span className="text-sm text-[#4e5a7e] dark:text-white/60">No tags available</span>
+                        )}
                       </div>
                     </div>
                   </div>
