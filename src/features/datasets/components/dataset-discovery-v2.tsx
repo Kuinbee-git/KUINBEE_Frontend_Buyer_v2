@@ -40,8 +40,40 @@ const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
   return mapping[sort];
 };
 
+type DatasetApiItem = {
+  id: string;
+  datasetUniqueId: string;
+  title: string;
+  owner?: { name?: string };
+  category?: { name?: string };
+  license?: string;
+  isPaid?: boolean;
+  price?: string | number | null;
+  currency?: string;
+  updatedAt?: string;
+  createdAt?: string;
+  status?: string;
+  location?: {
+    country?: string;
+    state?: string;
+    city?: string;
+  };
+  dataFormatInfo?: {
+    fileFormat?: string;
+    rows?: number;
+    cols?: number;
+    fileSize?: string;
+  };
+  tags?: string[];
+  downloadCount?: number;
+  viewCount?: number;
+  rating?: number | null;
+  reviewCount?: number;
+  kdtsScore?: number | null;
+};
+
 // Map API dataset to UI format
-const mapDatasetToUI = (apiDataset: any): Dataset => ({
+const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => ({
   id: apiDataset.id,
   datasetUniqueId: apiDataset.datasetUniqueId,
   title: apiDataset.title,
@@ -51,10 +83,10 @@ const mapDatasetToUI = (apiDataset: any): Dataset => ({
   license: apiDataset.license || "Unknown",
   pricing: {
     type: apiDataset.isPaid ? "paid" : "free",
-    amount: apiDataset.price ? parseFloat(apiDataset.price) : undefined,
+    amount: apiDataset.price != null ? Number(apiDataset.price) : undefined,
     currency: apiDataset.currency || "INR",
   },
-  lastUpdated: new Date(apiDataset.updatedAt || apiDataset.createdAt).toLocaleDateString("en-US", {
+  lastUpdated: new Date(apiDataset.updatedAt ?? apiDataset.createdAt ?? Date.now()).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -65,21 +97,21 @@ const mapDatasetToUI = (apiDataset: any): Dataset => ({
   records: apiDataset.dataFormatInfo?.rows || 0,
   aboutDataset: null,
   dataFormat: apiDataset.dataFormatInfo ? {
-    fileFormat: apiDataset.dataFormatInfo.fileFormat,
-    rows: apiDataset.dataFormatInfo.rows,
-    cols: apiDataset.dataFormatInfo.cols,
-    fileSize: apiDataset.dataFormatInfo.fileSize,
+    fileFormat: apiDataset.dataFormatInfo.fileFormat ?? "UNKNOWN",
+    rows: apiDataset.dataFormatInfo.rows ?? 0,
+    cols: apiDataset.dataFormatInfo.cols ?? 0,
+    fileSize: apiDataset.dataFormatInfo.fileSize ?? "N/A",
     compressionType: "NONE",
     encoding: "UTF-8",
-    updatedAt: apiDataset.updatedAt,
+    updatedAt: apiDataset.updatedAt ?? apiDataset.createdAt ?? new Date().toISOString(),
   } : null,
   features: [],
   source: null,
   location: apiDataset.location ? {
     region: null,
-    country: apiDataset.location.country,
-    state: apiDataset.location.state,
-    city: apiDataset.location.city,
+    country: apiDataset.location.country ?? null,
+    state: apiDataset.location.state ?? null,
+    city: apiDataset.location.city ?? null,
     coordinates: null,
     coverage: null,
   } : null,
@@ -94,7 +126,7 @@ const mapDatasetToUI = (apiDataset: any): Dataset => ({
     published: apiDataset.status === "PUBLISHED",
   },
   reviewCount: apiDataset.reviewCount || 0,
-  kdtsScore: apiDataset.kdtsScore || null,
+  kdtsScore: apiDataset.kdtsScore != null ? String(apiDataset.kdtsScore) : null,
 });
 
 
@@ -301,7 +333,7 @@ export function DatasetDiscoveryV2() {
   // Map API response to UI format
   const allDatasets: Dataset[] = useMemo(() => {
     if (!apiResponse?.items) return [];
-    return apiResponse.items.map(mapDatasetToUI);
+    return (apiResponse.items as unknown as DatasetApiItem[]).map(mapDatasetToUI);
   }, [apiResponse]);
 
   // Pagination from API response
@@ -365,6 +397,8 @@ export function DatasetDiscoveryV2() {
     filters.city !== "" ||
     filters.tags.length > 0 ||
     filters.minKdtsScore !== "";
+
+  const isUpdatingResults = isFetching || isFilterPending;
 
   // Clear all filters — useCallback prevents FilterSidebar re-render on unrelated state changes
   const clearFilters = useCallback(() => {
@@ -468,17 +502,14 @@ export function DatasetDiscoveryV2() {
                     </p>
                   </div>
                 ) : paginatedDatasets.length > 0 ? (
-                  <div className="relative">
-                    {/* Subtle loading overlay when fetching between pages/filters */}
-                    {(isFetching || isFilterPending) && (
-                      <div className="absolute inset-0 bg-white/40 dark:bg-[#0f1729]/40 backdrop-blur-[1px] z-10 flex items-start justify-center pt-32 rounded-xl">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1e2847] rounded-full shadow-lg border border-border/40 dark:border-white/10">
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#1a2240] dark:border-white border-t-transparent" />
-                          <span className="text-sm text-[#1a2240] dark:text-white/80">Updating results…</span>
-                        </div>
-                      </div>
-                    )}
-                    <div className={cn("space-y-4 transition-opacity duration-200", (isFetching || isFilterPending) && "opacity-60")}>
+                  isUpdatingResults ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: Math.max(6, Math.min(filters.pageSize, paginatedDatasets.length || filters.pageSize)) }).map((_, i) => (
+                        <DatasetCardSkeleton key={`updating-${i}`} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-4 transition-opacity duration-200">
                       {paginatedDatasets.map((dataset) => (
                         <DatasetCard
                           key={dataset.id}
@@ -487,7 +518,7 @@ export function DatasetDiscoveryV2() {
                         />
                       ))}
                     </div>
-                  </div>
+                  )
                 ) : (
                   <div className="flex flex-col items-center justify-center py-20 px-6">
                     <Search className="w-16 h-16 text-muted-foreground/30 dark:text-white/20 mb-4" />
