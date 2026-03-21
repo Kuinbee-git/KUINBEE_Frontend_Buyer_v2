@@ -71,7 +71,8 @@ function createLightInitialDetails(details: DatasetDetailsResponse | null): Data
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const dataset = await fetchDatasetDetail(id);
+  const response = await fetchDatasetDetailsResponse(id);
+  const dataset = response?.dataset;
 
   if (!dataset) {
     return genMeta({
@@ -83,8 +84,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
 
-  const categoryName = dataset.primaryCategory?.name ?? dataset.category?.name ?? "";
-  const providerName = dataset.owner?.name ?? "";
+  const categoryName = response?.primaryCategory?.name ?? "";
+  const providerName = response?.source?.name ?? "";
   const pricing = dataset.isPaid
     ? `Starting at ${dataset.currency ?? "INR"} ${dataset.price}`
     : "Free";
@@ -100,7 +101,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "buy dataset",
       "dataset marketplace",
       "data download",
-      ...(dataset.tags ?? []),
+      ...(response?.tags ?? []),
     ].filter(Boolean),
     path: `/datasets/${id}`,
   });
@@ -113,14 +114,14 @@ export default async function DatasetDetailPage({ params }: Props) {
   const lightInitialDetails = createLightInitialDetails(detailsResponse);
 
   const datasetTitle = dataset?.title ?? `Dataset ${id}`;
-  const categoryName = dataset?.primaryCategory?.name ?? dataset?.category?.name ?? "";
+  const categoryName = detailsResponse?.primaryCategory?.name ?? "";
 
   // Breadcrumb: Home > Datasets > [Category] > [Dataset Title]
   const breadcrumbItems = [
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
     ...(categoryName
-      ? [{ name: categoryName, url: `/datasets?category=${dataset?.category?.id ?? ""}` }]
+      ? [{ name: categoryName, url: "/datasets" }]
       : []),
     { name: datasetTitle, url: `/datasets/${id}` },
   ];
@@ -139,10 +140,10 @@ export default async function DatasetDetailPage({ params }: Props) {
         license: dataset.license ?? "Unknown",
         datePublished: dataset.createdAt,
         dateModified: dataset.updatedAt,
-        creator: dataset.owner?.name
-          ? { "@type": "Organization", name: dataset.owner.name }
+        creator: detailsResponse?.source?.name
+          ? { "@type": "Organization", name: detailsResponse.source.name }
           : undefined,
-        keywords: dataset.tags ?? [],
+        keywords: detailsResponse?.tags ?? [],
         ...(dataset.isPaid && dataset.price
           ? {
               offers: {
@@ -152,12 +153,11 @@ export default async function DatasetDetailPage({ params }: Props) {
               },
             }
           : { isAccessibleForFree: true }),
-        ...(dataset.rating != null && (dataset.reviewCount ?? 0) > 0
+        ...(dataset.rating != null
           ? {
               aggregateRating: {
                 "@type": "AggregateRating",
                 ratingValue: dataset.rating,
-                reviewCount: dataset.reviewCount,
                 bestRating: 5,
                 worstRating: 1,
               },
