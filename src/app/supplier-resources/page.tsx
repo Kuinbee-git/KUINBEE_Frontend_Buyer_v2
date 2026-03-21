@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { generateMetadata as genMeta } from "@/core/config";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 
 import { SuppliersHero } from "./components/suppliers-hero";
 import { SuppliersValue } from "./components/suppliers-value";
