@@ -41,32 +41,32 @@ export function WebsiteFeedbackModal({ open, onOpenChange, loading, onSubmit }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white/95 dark:bg-[#1e2847]/95 backdrop-blur-xl border-border/40 dark:border-white/10">
+      <DialogContent className="overflow-hidden border border-primary/20 dark:border-white/20 bg-gradient-to-br from-white/95 via-white/92 to-slate-50/95 dark:from-[#1a2240]/95 dark:via-[#242f52]/90 dark:to-[#2d3a5f]/95 backdrop-blur-xl shadow-2xl sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-foreground dark:text-white">How was your experience?</DialogTitle>
-          <DialogDescription className="text-muted-foreground dark:text-white/60">
+          <DialogTitle className="text-slate-900 dark:text-white text-xl font-semibold tracking-tight">How was your experience?</DialogTitle>
+          <DialogDescription className="text-slate-600 dark:text-white/70">
             Rate your claim experience and share quick feedback.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">
           <div>
-            <p className="text-sm font-medium text-foreground dark:text-white mb-2">Star Rating</p>
+            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-white/80">Star Rating</p>
             <div className="flex items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
-                  className="p-1"
+                  className="rounded-md p-1.5 transition-colors hover:bg-slate-100 dark:hover:bg-white/10"
                   onClick={() => setRating(star)}
                 >
                   <Star
                     className={cn(
                       "w-6 h-6 transition-colors",
                       star <= rating
-                        ? "text-yellow-500 fill-yellow-500"
-                        : "text-muted-foreground/40 dark:text-white/30"
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-slate-400 dark:text-white/35"
                     )}
                   />
                 </button>
@@ -75,7 +75,7 @@ export function WebsiteFeedbackModal({ open, onOpenChange, loading, onSubmit }: 
           </div>
 
           <div>
-            <p className="text-sm font-medium text-foreground dark:text-white mb-2">Quick Feedback</p>
+            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-white/80">Quick Feedback</p>
             <div className="grid grid-cols-3 gap-2">
               {(["great", "good", "bad"] as FeedbackSentiment[]).map((value) => (
                 <button
@@ -85,8 +85,8 @@ export function WebsiteFeedbackModal({ open, onOpenChange, loading, onSubmit }: 
                   className={cn(
                     "rounded-lg border px-3 py-2 text-sm font-medium capitalize transition-colors",
                     sentiment === value
-                      ? "border-[#4f6ef7] bg-[#eef1fe] text-[#1a2240] dark:border-[#818cf8] dark:bg-[#2a3561] dark:text-white"
-                      : "border-border text-muted-foreground hover:bg-muted/60 dark:border-white/10 dark:text-white/70 dark:hover:bg-white/5"
+                      ? "border-primary/50 bg-primary/10 text-slate-900 dark:border-white/40 dark:bg-white/15 dark:text-white"
+                      : "border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-white/20 dark:text-white/75 dark:hover:bg-white/10"
                   )}
                 >
                   {value}
@@ -96,18 +96,19 @@ export function WebsiteFeedbackModal({ open, onOpenChange, loading, onSubmit }: 
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2 sm:gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={loading}
+            className="border-slate-300 bg-white/70 text-slate-700 hover:bg-slate-100 dark:border-white/25 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
           >
             Skip
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={loading || !sentiment || rating < 1}
-            className="bg-[#4f6ef7] hover:bg-[#3b55d9]"
+            className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 border border-transparent dark:border-white/30"
           >
             {loading ? "Submitting..." : "Submit Feedback"}
           </Button>
