@@ -1,19 +1,24 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DatasetDetailPage } from "@/features/datasets/components";
-import { RazorpayCheckoutFlow } from "@/features/datasets/components/razorpay-checkout-flow";
+import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail-page";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import { DatasetDetailsResponse } from "@/types/dataset.types";
-import { useQuery } from "@tanstack/react-query";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
-import { getDatasetKdts } from "@/services/kdts.service";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { WebsiteFeedbackModal } from "@/app/datasets/[id]/_components/website-feedback-modal";
+
+// Code-split: only loaded when user clicks Purchase (paid datasets)
+const RazorpayCheckoutFlow = lazy(() =>
+  import("@/features/datasets/components/razorpay-checkout-flow").then((m) => ({ default: m.RazorpayCheckoutFlow }))
+);
+// Code-split: only loaded after a successful claim
+const WebsiteFeedbackModal = lazy(() =>
+  import("@/app/datasets/[id]/_components/website-feedback-modal").then((m) => ({ default: m.WebsiteFeedbackModal }))
+);
 
 interface DatasetDetailPageContentProps {
   initialDatasetDetails?: DatasetDetailsResponse;
@@ -102,16 +107,8 @@ export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetai
     error: downloadError,
   } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
 
-  // Fetch KDTS score via React Query — cached, deduped, no manual cancel needed
-  const { data: kdtsData } = useQuery({
-    queryKey: ["dataset-kdts", id],
-    queryFn: () => getDatasetKdts(id),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes — score rarely changes
-    retry: false,             // KDTS is supplementary; don't hammer on failure
-    gcTime: 10 * 60 * 1000,
-  });
-  const kdtsScore = kdtsData?.currentScore ?? null;
+  // KDTS score is now fetched only by the lazy-loaded DatasetKdtsCard component
+  // to avoid a duplicate API call on mount.
 
   // ── Checkout flow state (declared before early returns to keep hook order stable) ──
   const [showCheckout, setShowCheckout] = useState(false);
@@ -257,9 +254,8 @@ export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetai
   // Memoize dataset mapping — must be called unconditionally, before early returns
   const dataset = useMemo(() => {
     if (!response?.dataset) return null;
-    const mapped = mapToUIDataset(response);
-    return { ...mapped, kdtsScore };
-  }, [response, kdtsScore]);
+    return mapToUIDataset(response);
+  }, [response]);
 
   // Stable purchase / checkout handlers — declared before early returns because
   // useCallback is a hook and must not appear after conditional returns.
@@ -340,25 +336,32 @@ export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetai
         currentUserId={user?.id}
       />
 
-      {/* Razorpay Checkout Flow — only mounted for paid datasets */}
-      {dataset.pricing.type === "paid" && (
-        <RazorpayCheckoutFlow
-          datasetId={id}
-          datasetTitle={dataset.title}
-          amount={dataset.pricing.amount}
-          currency={dataset.pricing.currency}
-          open={showCheckout}
-          onOpenChange={setShowCheckout}
-          onComplete={handleCheckoutComplete}
-        />
+      {/* Razorpay Checkout Flow — code-split, only loaded for paid datasets when checkout opens */}
+      {dataset.pricing.type === "paid" && showCheckout && (
+        <Suspense fallback={null}>
+          <RazorpayCheckoutFlow
+            datasetId={id}
+            datasetTitle={dataset.title}
+            amount={dataset.pricing.amount}
+            currency={dataset.pricing.currency}
+            open={showCheckout}
+            onOpenChange={setShowCheckout}
+            onComplete={handleCheckoutComplete}
+          />
+        </Suspense>
       )}
 
-      <WebsiteFeedbackModal
-        open={showFeedbackModal}
-        onOpenChange={setShowFeedbackModal}
-        loading={isSubmittingFeedback}
-        onSubmit={handleSubmitWebsiteFeedback}
-      />
+      {/* Feedback modal — code-split, only loaded after a successful claim */}
+      {showFeedbackModal && (
+        <Suspense fallback={null}>
+          <WebsiteFeedbackModal
+            open={showFeedbackModal}
+            onOpenChange={setShowFeedbackModal}
+            loading={isSubmittingFeedback}
+            onSubmit={handleSubmitWebsiteFeedback}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

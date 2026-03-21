@@ -434,15 +434,6 @@ const DatasetSubstanceSection = React.memo(function DatasetSubstanceSection({ da
           </div>
         </div>
       </div>
-
-      <Suspense fallback={
-        <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-muted/60 dark:bg-white/10 rounded w-1/3" />
-          <div className="h-32 bg-muted/40 dark:bg-white/5 rounded-xl" />
-        </div>
-      }>
-        <DatasetKdtsCard datasetId={dataset.id} />
-      </Suspense>
     </div>
   );
 });
@@ -723,6 +714,16 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
           {/* ZONE 3: DEEP DETAIL & ASSURANCE — Bottom, Trust Reinforcement */}
           <LazySection minHeight={900}>
             <div className="space-y-10">
+
+            {/* KDTS Breakdown Card — deferred to Zone 3, total score badge stays in header */}
+            <Suspense fallback={
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-muted/60 dark:bg-white/10 rounded w-1/3" />
+                <div className="h-32 bg-muted/40 dark:bg-white/5 rounded-xl" />
+              </div>
+            }>
+              <DatasetKdtsCard datasetId={dataset.id} />
+            </Suspense>
 
             {/* About This Dataset */}
             {dataset.aboutDataset && (
