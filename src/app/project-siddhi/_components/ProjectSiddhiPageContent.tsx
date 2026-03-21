@@ -18,7 +18,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 
 const mentalHealthStats = [
     { number: "1 in 4", label: "people experience mental health issues" },

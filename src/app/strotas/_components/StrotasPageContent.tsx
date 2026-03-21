@@ -31,7 +31,8 @@ import { useForm, ValidationError } from "@formspree/react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 
 /* ── Data ─────────────────────────────────────────────────────────── */
 

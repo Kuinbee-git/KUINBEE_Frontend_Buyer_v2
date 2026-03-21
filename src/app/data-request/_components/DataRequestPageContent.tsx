@@ -29,7 +29,8 @@ import {
     SelectValue,
 } from "@/shared/components/ui/select";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { toast } from "sonner";
 
 const industries = [
