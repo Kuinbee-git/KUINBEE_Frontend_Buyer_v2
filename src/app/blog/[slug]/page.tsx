@@ -239,40 +239,58 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
       );
 
     case "source-table": {
-      const tagBadge = (tag?: "free" | "paid" | "both") => {
+      const tagBadge = (tag?: string, color?: "green" | "emerald" | "amber" | "red" | "blue" | "purple") => {
         if (!tag) return null;
-        const styles = {
-          free: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/40",
-          paid: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-700/40",
-          both: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-700/40",
+        
+        // Map old formats
+        if (tag === "free") { tag = "Free"; color = "emerald"; }
+        if (tag === "paid") { tag = "Paid"; color = "amber"; }
+        if (tag === "both") { tag = "Free+Paid"; color = "purple"; }
+        
+        const c = color || "emerald"; // Default color if not provided
+        
+        const styles: Record<string, string> = {
+          emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/40",
+          green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/40",
+          amber: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-700/40",
+          purple: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-700/40",
+          blue: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-700/40",
+          red: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-700/40",
         };
-        return <span className={`ml-1 px-2 py-0.5 rounded text-xs font-bold border ${styles[tag]}`}>{tag === "both" ? "Free+Paid" : tag.charAt(0).toUpperCase() + tag.slice(1)}</span>;
+        return <span className={`ml-1 px-2 py-0.5 rounded text-xs font-bold border ${styles[c]}`}>{tag}</span>;
       };
       return (
-        <div className="my-8 overflow-x-auto rounded-xl border border-[#e5e7eb] dark:border-white/10">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[#1a2240] text-white">
-                {block.headers.map((h, i) => (
-                  <th key={i} className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${i === 0 ? "rounded-tl-xl" : ""} ${i === block.headers.length - 1 ? "rounded-tr-xl" : ""}`}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e5e7eb] dark:divide-white/10">
-              {block.rows.map((row, ri) => (
-                <tr key={ri} className={ri % 2 === 0 ? "bg-white dark:bg-[#1e2847]" : "bg-[#f8f9fc] dark:bg-white/5"}>
-                  {row.cells.map((cell, ci) => (
-                    <td key={ci} className="px-4 py-3 text-[#374151] dark:text-white/80 align-top">
-                      {cell.split("\n").map((line, li) => (
-                        <span key={li} className={`block ${li > 0 ? "text-xs text-[#6b7280] dark:text-white/40 mt-0.5" : "font-medium"}`}>{line}</span>
-                      ))}
-                      {ci === row.cells.length - 1 && tagBadge(row.tag)}
-                    </td>
+        <div className="my-8">
+          {block.caption && (
+            <p className="text-sm font-semibold text-[#1a2240] dark:text-white mb-3 text-left">
+              {block.caption}
+            </p>
+          )}
+          <div className="overflow-x-auto rounded-xl border border-[#e5e7eb] dark:border-white/10">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-[#1a2240] text-white">
+                  {block.headers.map((h, i) => (
+                    <th key={i} className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${i === 0 ? "rounded-tl-xl" : ""} ${i === block.headers.length - 1 ? "rounded-tr-xl" : ""}`}>{h}</th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#e5e7eb] dark:divide-white/10">
+                {block.rows.map((row, ri) => (
+                  <tr key={ri} className={ri % 2 === 0 ? "bg-white dark:bg-[#1e2847]" : "bg-[#f8f9fc] dark:bg-white/5"}>
+                    {row.cells.map((cell, ci) => (
+                      <td key={ci} className="px-4 py-3 text-[#374151] dark:text-white/80 align-top">
+                        {cell.split("\n").map((line, li) => (
+                          <span key={li} className={`block ${li > 0 ? "text-xs text-[#6b7280] dark:text-white/40 mt-0.5" : "font-medium"}`}>{line}</span>
+                        ))}
+                        {ci === row.cells.length - 1 && tagBadge(row.tag, row.tagColor)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       );
     }

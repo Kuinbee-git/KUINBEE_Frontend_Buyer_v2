@@ -19,6 +19,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Data Economy":      "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-700/40",
   "Data Buyer's Guide":"bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 border-violet-200 dark:border-violet-700/40",
   "Finance":           "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/40",
+  "Finance & Fintech": "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/40",
+  "Energy & Sustainability": "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-700/40",
   "Technology":        "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-700/40",
   "default":           "bg-[#1a2240]/5 text-[#1a2240] dark:bg-white/10 dark:text-white/80 border-[#1a2240]/20 dark:border-white/20",
 };
