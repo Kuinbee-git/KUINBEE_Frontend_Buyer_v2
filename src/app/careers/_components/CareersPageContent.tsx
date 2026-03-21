@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { MapPin, Clock, Users, Briefcase, Zap, Globe, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 
 interface JobOpening {
     id: number;
