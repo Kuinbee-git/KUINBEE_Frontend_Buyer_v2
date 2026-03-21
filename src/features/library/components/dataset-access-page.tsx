@@ -88,8 +88,7 @@ export function DatasetAccessPage({ datasetId, initialDatasetDetails }: DatasetA
     isLoading: isLoadingDatasetDetails,
   } = useDatasetDetails(
     resolvedDatasetId,
-    !!resolvedDatasetId,
-    initialDatasetDetails && initialDatasetDetails.dataset ? initialDatasetDetails : undefined
+    !!resolvedDatasetId
   );
 
   const datasetDetails = datasetDetailsResponse?.dataset;

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { cache } from "react";
 import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
 } from "@/core/config";
-import type { DatasetDetailsResponse } from "@/types";
 import { DatasetDetailPageContent } from "./_components/DatasetDetailPageContent";
 
 // ISR: cache the server-rendered page for 1 hour at the CDN edge.
@@ -35,8 +33,8 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-/** Fetch full dataset details response server-side (no auth needed for published datasets) */
-const fetchDatasetDetailsResponse = cache(async (id: string): Promise<DatasetDetailsResponse | null> => {
+/** Fetch dataset detail from API server-side (no auth needed for published datasets) */
+async function fetchDatasetDetail(id: string) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
     const res = await fetch(`${apiUrl}/api/v1/marketplace/datasets/${id}`, {
@@ -44,35 +42,18 @@ const fetchDatasetDetailsResponse = cache(async (id: string): Promise<DatasetDet
     });
     if (res.ok) {
       const json = await res.json();
-      // Expected envelope: { success, data: { dataset, ... } }
-      const payload = json?.data ?? json;
-      return payload?.dataset ? (payload as DatasetDetailsResponse) : null;
+      // Handle both { data: { dataset: ... } } and { dataset: ... } envelope formats
+      return json?.data?.dataset ?? json?.dataset ?? null;
     }
   } catch {
     // Silently fail — metadata/schema fall back to defaults
   }
   return null;
-});
-
-async function fetchDatasetDetail(id: string) {
-  const details = await fetchDatasetDetailsResponse(id);
-  return details?.dataset ?? null;
-}
-
-function createLightInitialDetails(details: DatasetDetailsResponse | null): DatasetDetailsResponse | undefined {
-  if (!details) return undefined;
-
-  return {
-    ...details,
-    features: [],
-    tags: details.tags?.slice(0, 12) || [],
-  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const response = await fetchDatasetDetailsResponse(id);
-  const dataset = response?.dataset;
+  const dataset = await fetchDatasetDetail(id);
 
   if (!dataset) {
     return genMeta({
@@ -84,8 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
 
-  const categoryName = response?.primaryCategory?.name ?? "";
-  const providerName = response?.source?.name ?? "";
+  const categoryName = dataset.primaryCategory?.name ?? dataset.category?.name ?? "";
+  const providerName = dataset.owner?.name ?? "";
   const pricing = dataset.isPaid
     ? `Starting at ${dataset.currency ?? "INR"} ${dataset.price}`
     : "Free";
@@ -101,7 +82,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       "buy dataset",
       "dataset marketplace",
       "data download",
-      ...(response?.tags ?? []),
+      ...(dataset.tags ?? []),
     ].filter(Boolean),
     path: `/datasets/${id}`,
   });
@@ -109,19 +90,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
-  const detailsResponse = await fetchDatasetDetailsResponse(id);
-  const dataset = detailsResponse?.dataset ?? null;
-  const lightInitialDetails = createLightInitialDetails(detailsResponse);
+  const dataset = await fetchDatasetDetail(id);
 
   const datasetTitle = dataset?.title ?? `Dataset ${id}`;
-  const categoryName = detailsResponse?.primaryCategory?.name ?? "";
+  const categoryName = dataset?.primaryCategory?.name ?? dataset?.category?.name ?? "";
 
   // Breadcrumb: Home > Datasets > [Category] > [Dataset Title]
   const breadcrumbItems = [
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
     ...(categoryName
-      ? [{ name: categoryName, url: "/datasets" }]
+      ? [{ name: categoryName, url: `/datasets?category=${dataset?.category?.id ?? ""}` }]
       : []),
     { name: datasetTitle, url: `/datasets/${id}` },
   ];
@@ -140,10 +119,10 @@ export default async function DatasetDetailPage({ params }: Props) {
         license: dataset.license ?? "Unknown",
         datePublished: dataset.createdAt,
         dateModified: dataset.updatedAt,
-        creator: detailsResponse?.source?.name
-          ? { "@type": "Organization", name: detailsResponse.source.name }
+        creator: dataset.owner?.name
+          ? { "@type": "Organization", name: dataset.owner.name }
           : undefined,
-        keywords: detailsResponse?.tags ?? [],
+        keywords: dataset.tags ?? [],
         ...(dataset.isPaid && dataset.price
           ? {
               offers: {
@@ -153,11 +132,12 @@ export default async function DatasetDetailPage({ params }: Props) {
               },
             }
           : { isAccessibleForFree: true }),
-        ...(dataset.rating != null
+        ...(dataset.rating != null && (dataset.reviewCount ?? 0) > 0
           ? {
               aggregateRating: {
                 "@type": "AggregateRating",
                 ratingValue: dataset.rating,
+                reviewCount: dataset.reviewCount,
                 bestRating: 5,
                 worstRating: 1,
               },
@@ -180,7 +160,7 @@ export default async function DatasetDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
         />
       )}
-      <DatasetDetailPageContent initialDatasetDetails={lightInitialDetails} />
+      <DatasetDetailPageContent />
     </>
   );
 }

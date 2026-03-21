@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from
 import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail-page";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
-import { DatasetDetailsResponse } from "@/types/dataset.types";
+import type { DatasetDetailsResponse } from "@/types/dataset.types";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
@@ -20,9 +20,7 @@ const WebsiteFeedbackModal = lazy(() =>
   import("@/app/datasets/[id]/_components/website-feedback-modal").then((m) => ({ default: m.WebsiteFeedbackModal }))
 );
 
-interface DatasetDetailPageContentProps {
-  initialDatasetDetails?: DatasetDetailsResponse;
-}
+
 
 // Map the full API response to UI Dataset format
 const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
@@ -78,17 +76,13 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
   };
 };
 
-export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetailPageContentProps) {
+export function DatasetDetailPageContent() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
 
   // Fetch dataset details from API
-  const { data: response, isLoading, error } = useDatasetDetails(
-    id,
-    !!id,
-    initialDatasetDetails
-  );
+  const { data: response, isLoading, error } = useDatasetDetails(id, !!id);
 
   // Check authentication status
   const { user, isAuthenticated } = useAuth();
