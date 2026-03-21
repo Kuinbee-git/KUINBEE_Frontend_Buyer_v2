@@ -79,7 +79,14 @@ export function DatasetDetailPageContent({ initialDatasetDetails }: DatasetDetai
   const id = params?.id as string;
 
   // Fetch dataset details from API
-  const { data: response, isLoading, error } = useDatasetDetails(id, !!id, initialDatasetDetails);
+  const { data: response, isLoading, error } = useDatasetDetails(
+    id,
+    !!id,
+    initialDatasetDetails,
+    initialDatasetDetails
+      ? { staleTime: 0, refetchOnMount: "always" }
+      : undefined
+  );
 
   // Check authentication status
   const { user, isAuthenticated } = useAuth();

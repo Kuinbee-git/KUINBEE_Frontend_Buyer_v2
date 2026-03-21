@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
@@ -35,7 +36,7 @@ type Props = {
 };
 
 /** Fetch full dataset details response server-side (no auth needed for published datasets) */
-async function fetchDatasetDetailsResponse(id: string): Promise<DatasetDetailsResponse | null> {
+const fetchDatasetDetailsResponse = cache(async (id: string): Promise<DatasetDetailsResponse | null> => {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
     const res = await fetch(`${apiUrl}/api/v1/marketplace/datasets/${id}`, {
@@ -51,11 +52,21 @@ async function fetchDatasetDetailsResponse(id: string): Promise<DatasetDetailsRe
     // Silently fail — metadata/schema fall back to defaults
   }
   return null;
-}
+});
 
 async function fetchDatasetDetail(id: string) {
   const details = await fetchDatasetDetailsResponse(id);
   return details?.dataset ?? null;
+}
+
+function createLightInitialDetails(details: DatasetDetailsResponse | null): DatasetDetailsResponse | undefined {
+  if (!details) return undefined;
+
+  return {
+    ...details,
+    features: [],
+    tags: details.tags?.slice(0, 12) || [],
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -99,6 +110,7 @@ export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
   const detailsResponse = await fetchDatasetDetailsResponse(id);
   const dataset = detailsResponse?.dataset ?? null;
+  const lightInitialDetails = createLightInitialDetails(detailsResponse);
 
   const datasetTitle = dataset?.title ?? `Dataset ${id}`;
   const categoryName = dataset?.primaryCategory?.name ?? dataset?.category?.name ?? "";
@@ -168,7 +180,7 @@ export default async function DatasetDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
         />
       )}
-      <DatasetDetailPageContent initialDatasetDetails={detailsResponse ?? undefined} />
+      <DatasetDetailPageContent initialDatasetDetails={lightInitialDetails} />
     </>
   );
 }
