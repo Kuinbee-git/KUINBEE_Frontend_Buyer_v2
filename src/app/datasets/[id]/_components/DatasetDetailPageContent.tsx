@@ -13,7 +13,7 @@ import { useAuth } from "@/core/providers/AuthProvider";
 import { getDatasetKdts } from "@/services/kdts.service";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { WebsiteFeedbackModal, type FeedbackSentiment } from "./WebsiteFeedbackModal";
+import { WebsiteFeedbackModal } from "@/app/datasets/[id]/_components/website-feedback-modal";
 
 // Map the full API response to UI Dataset format
 const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
@@ -186,7 +186,7 @@ export function DatasetDetailPageContent() {
   }, [claimMutation, id, router]);
 
   const handleSubmitWebsiteFeedback = useCallback(
-    async ({ rating, sentiment }: { rating: number; sentiment: FeedbackSentiment }) => {
+    async ({ rating, review }: { rating: number; review: string }) => {
       if (!user?.email) {
         toast.error("Unable to submit feedback. Missing user email.");
         return;
@@ -205,11 +205,12 @@ export function DatasetDetailPageContent() {
               email: user.email,
               meta: {
                 name: derivedName,
-                source: "post-dataset-claim-feedback",
-                sentiment,
+                source: "website-review",
+                feedbackType: "website",
                 rating,
-                datasetId: id,
-                datasetTitle: response?.dataset?.title,
+                review,
+                contextPage: "dataset-details",
+                contextDatasetId: id,
               },
             }),
           }
@@ -227,7 +228,7 @@ export function DatasetDetailPageContent() {
         setIsSubmittingFeedback(false);
       }
     },
-    [id, response?.dataset?.title, user?.email]
+    [id, user?.email]
   );
 
   // Handle login — stable callback keeps DatasetDetailPage memo intact
