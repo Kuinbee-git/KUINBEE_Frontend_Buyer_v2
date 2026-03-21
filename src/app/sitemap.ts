@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { blogPosts } from "@/features/blog/blog-posts";
+import { blogPostsMeta } from "@/features/blog/blog-posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Primary canonical domain for public marketing routes
@@ -101,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+  const blogPages: MetadataRoute.Sitemap = blogPostsMeta.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.publishedAt),
     changeFrequency: "weekly",

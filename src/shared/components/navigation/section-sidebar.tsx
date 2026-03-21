@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/shared/utils/cn";
 import { Separator } from "@/shared/components/ui/separator";
 
@@ -21,30 +22,7 @@ interface SectionSidebarProps {
 }
 
 export function SectionSidebar({ sections, className }: SectionSidebarProps) {
-  const [currentPath, setCurrentPath] = React.useState(
-    typeof window !== "undefined" ? window.location.pathname : "/"
-  );
-
-  // Update path on navigation
-  React.useEffect(() => {
-    const handlePathChange = () => {
-      setCurrentPath(window.location.pathname);
-    };
-
-    window.addEventListener("popstate", handlePathChange);
-
-    // Listen for custom navigation events from app routing
-    const observer = new MutationObserver(() => {
-      if (window.location.pathname !== currentPath) {
-        setCurrentPath(window.location.pathname);
-      }
-    });
-
-    return () => {
-      window.removeEventListener("popstate", handlePathChange);
-      observer.disconnect();
-    };
-  }, [currentPath]);
+  const currentPath = usePathname() || "/";
 
   return (
     <aside

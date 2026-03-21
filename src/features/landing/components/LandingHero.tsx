@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
@@ -101,21 +101,6 @@ const filters = [
 
 export function LandingHero() {
   const [activeTab] = useState("browse");
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof document === "undefined") return false;
-    return document.documentElement.classList.contains("dark");
-  });
-
-  useEffect(() => {
-    // Listen for theme changes
-    const observer = new MutationObserver(() => {
-      const isDarkMode = document.documentElement.classList.contains('dark');
-      setIsDark(isDarkMode);
-    });
-
-    observer.observe(document.documentElement, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section id="hero" className="relative pt-6 pb-16">
@@ -124,33 +109,54 @@ export function LandingHero() {
 
       {/* Radial glow effects - visible brand-colored glows */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {/* Top center glow - cool gray slate for light theme, navy for dark */}
+        {/* Top center glow - light theme */}
         <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[900px] blur-3xl opacity-75 dark:opacity-85"
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[900px] blur-3xl opacity-75 dark:hidden"
           style={{
-            background: isDark
-              ? 'radial-gradient(circle, rgba(26, 34, 64, 0.5) 0%, rgba(45, 58, 95, 0.35) 35%, rgba(26, 34, 64, 0.2) 55%, transparent 75%)'
-              : 'radial-gradient(circle, rgba(100, 116, 139, 0.08) 0%, rgba(71, 85, 105, 0.05) 35%, rgba(51, 65, 85, 0.02) 55%, transparent 75%)'
+            backgroundImage:
+              "radial-gradient(circle, rgba(100, 116, 139, 0.08) 0%, rgba(71, 85, 105, 0.05) 35%, rgba(51, 65, 85, 0.02) 55%, transparent 75%)",
+          }}
+        />
+        {/* Top center glow - dark theme */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 hidden h-[900px] w-[1100px] -translate-x-1/2 blur-3xl opacity-85 dark:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(26, 34, 64, 0.5) 0%, rgba(45, 58, 95, 0.35) 35%, rgba(26, 34, 64, 0.2) 55%, transparent 75%)",
           }}
         />
 
-        {/* Left side glow - cool gray accent for light theme, secondary brand for dark */}
+        {/* Left side glow - light theme */}
         <div
-          className="absolute top-1/3 -left-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
+          className="absolute top-1/3 -left-32 h-[750px] w-[750px] blur-3xl opacity-65 dark:hidden"
           style={{
-            background: isDark
-              ? 'radial-gradient(circle, rgba(78, 90, 126, 0.45) 0%, rgba(45, 58, 95, 0.3) 40%, rgba(36, 47, 82, 0.18) 60%, transparent 80%)'
-              : 'radial-gradient(circle, rgba(71, 85, 105, 0.06) 0%, rgba(51, 65, 85, 0.04) 40%, rgba(30, 41, 59, 0.02) 60%, transparent 80%)'
+            backgroundImage:
+              "radial-gradient(circle, rgba(71, 85, 105, 0.06) 0%, rgba(51, 65, 85, 0.04) 40%, rgba(30, 41, 59, 0.02) 60%, transparent 80%)",
+          }}
+        />
+        {/* Left side glow - dark theme */}
+        <div
+          className="absolute top-1/3 -left-32 hidden h-[750px] w-[750px] blur-3xl opacity-75 dark:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(78, 90, 126, 0.45) 0%, rgba(45, 58, 95, 0.3) 40%, rgba(36, 47, 82, 0.18) 60%, transparent 80%)",
           }}
         />
 
-        {/* Right side glow - cool gray slate for light theme, gradient mix for dark */}
+        {/* Right side glow - light theme */}
         <div
-          className="absolute top-1/3 -right-32 w-[750px] h-[750px] blur-3xl opacity-65 dark:opacity-75"
+          className="absolute top-1/3 -right-32 h-[750px] w-[750px] blur-3xl opacity-65 dark:hidden"
           style={{
-            background: isDark
-              ? 'radial-gradient(circle, rgba(45, 58, 95, 0.45) 0%, rgba(78, 90, 126, 0.3) 40%, rgba(26, 34, 64, 0.18) 60%, transparent 80%)'
-              : 'radial-gradient(circle, rgba(100, 116, 139, 0.06) 0%, rgba(71, 85, 105, 0.04) 40%, rgba(51, 65, 85, 0.02) 60%, transparent 80%)'
+            backgroundImage:
+              "radial-gradient(circle, rgba(100, 116, 139, 0.06) 0%, rgba(71, 85, 105, 0.04) 40%, rgba(51, 65, 85, 0.02) 60%, transparent 80%)",
+          }}
+        />
+        {/* Right side glow - dark theme */}
+        <div
+          className="absolute top-1/3 -right-32 hidden h-[750px] w-[750px] blur-3xl opacity-75 dark:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(45, 58, 95, 0.45) 0%, rgba(78, 90, 126, 0.3) 40%, rgba(26, 34, 64, 0.18) 60%, transparent 80%)",
           }}
         />
       </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { generateMetadata as genMeta, generateBreadcrumbSchema } from "@/core/config";
-import { blogPosts, getBlogPost, type ContentBlock } from "@/features/blog/blog-posts";
+import { blogPostsMeta, type ContentBlock } from "@/features/blog/blog-posts";
+import { getBlogPost } from "@/features/blog/get-blog-post";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
@@ -12,21 +13,21 @@ import { Calendar, Clock, ArrowLeft, Tag, ArrowRight, CheckCircle2 } from "lucid
 /*  Static generation                                                           */
 /* -------------------------------------------------------------------------- */
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  return blogPostsMeta.map((post) => ({ slug: post.slug }));
 }
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPost(slug);
-  if (!post) return {};
+  const meta = blogPostsMeta.find((p) => p.slug === slug);
+  if (!meta) return {};
 
   const canonicalUrl = `https://www.kuinbee.com/blog/${slug}`;
   const base = genMeta({
-    title: post.title,
-    description: post.description,
-    keywords: post.keywords,
+    title: meta.title,
+    description: meta.description,
+    keywords: meta.keywords,
     path: `/blog/${slug}`,
   });
 
@@ -39,22 +40,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ...base.openGraph,
       type: "article",
       url: canonicalUrl,
-      title: post.title,
-      description: post.description,
+      title: meta.title,
+      description: meta.description,
       images: [
         {
           url: "https://www.kuinbee.com/og-image.png",
           width: 1200,
           height: 630,
-          alt: `${post.title} | Kuinbee`,
+          alt: `${meta.title} | Kuinbee`,
         },
       ],
     },
     twitter: {
       ...base.twitter,
       card: "summary_large_image",
-      title: post.title,
-      description: post.description,
+      title: meta.title,
+      description: meta.description,
       images: ["https://www.kuinbee.com/og-image.png"],
     },
   };
@@ -309,7 +310,7 @@ function formatDate(iso: string) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await getBlogPost(slug);
   if (!post) notFound();
 
   const breadcrumbJsonLd = generateBreadcrumbSchema([
@@ -337,7 +338,7 @@ export default async function BlogPostPage({ params }: Props) {
     { href: "/about", label: "Learn about Kuinbee governance" },
   ];
 
-  const relatedPosts = blogPosts.filter((p) => p.slug !== slug).slice(0, 3);
+  const relatedPosts = blogPostsMeta.filter((p) => p.slug !== slug).slice(0, 3);
 
   return (
     <main className="min-h-screen relative bg-white dark:bg-[#111827]">

@@ -1,20 +1,15 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
 /**
  * Next.js template.tsx — re-mounted on every navigation by the framework.
- * No `key` prop needed; avoids shifting Radix UI's useId counter.
+ * Uses a CSS-only fade-in animation — no client-side JS needed.
+ * This keeps the template as a server component, avoiding a client boundary
+ * that would inflate RSC payloads for every page.
  */
 export default function Template({ children }: { children: ReactNode }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
-    >
+    <div className="animate-fade-in">
       {children}
-    </motion.div>
+    </div>
   );
 }

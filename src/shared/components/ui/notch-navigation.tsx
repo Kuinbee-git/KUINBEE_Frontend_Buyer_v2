@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
@@ -51,24 +51,6 @@ import {
   PopoverTrigger,
 } from "./popover";
 import { cn } from "@/shared/utils/cn";
-
-// Simple pathname hook for client-side routing
-function usePathname() {
-  const [pathname, setPathname] = React.useState(
-    typeof window !== "undefined" ? window.location.pathname : "/"
-  );
-
-  React.useEffect(() => {
-    const handlePopState = () => {
-      setPathname(window.location.pathname);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  return pathname;
-}
 
 // Purchase Staging Types
 interface StagedDataset {

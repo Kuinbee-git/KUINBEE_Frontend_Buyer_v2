@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { generateMetadata as genMeta } from "@/core/config";
-import { blogPosts } from "@/features/blog/blog-posts";
+import { blogPostsMeta } from "@/features/blog/blog-posts";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
@@ -34,7 +34,7 @@ function formatDate(iso: string) {
 }
 
 export default function BlogPage() {
-  const [hero, ...rest] = blogPosts;
+  const [hero, ...rest] = blogPostsMeta;
 
   return (
     <main className="min-h-screen relative bg-white dark:bg-[#111827]">
