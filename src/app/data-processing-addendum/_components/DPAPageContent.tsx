@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LandingHeader, LandingFooter } from "@/features/landing";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { motion } from "framer-motion";
 import {
