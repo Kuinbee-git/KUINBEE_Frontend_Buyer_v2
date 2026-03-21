@@ -457,7 +457,11 @@ function MobileNav() {
   );
 }
 
-function NotchNavigationInner() {
+interface NotchNavigationProps {
+  lite?: boolean;
+}
+
+function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   const [scrolled, setScrolled] = React.useState(false);
   const router = useRouter();
   const searchParamsObj = useSearchParams();
@@ -479,7 +483,7 @@ function NotchNavigationInner() {
     { unreadOnly: true },
     {
       refetchInterval: 120000, // Poll every 2 minutes
-      enabled: !!user, // Only fetch when user is logged in
+      enabled: !!user && !lite, // Disable polling in lite mode
     }
   );
   const { unreadCount, setUnreadCount } = useNotificationStore();
@@ -493,6 +497,8 @@ function NotchNavigationInner() {
 
   // Handle scroll state
   React.useEffect(() => {
+    if (lite) return;
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 20); // Reduced threshold for earlier transition
     };
@@ -502,10 +508,10 @@ function NotchNavigationInner() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lite]);
 
   // Calculate actual width based on scroll state
-  const actualMaxWidth = scrolled ? 1152 : 1400; // 1152px = max-w-6xl, 1400px default
+  const actualMaxWidth = lite ? 1400 : (scrolled ? 1152 : 1400); // 1152px = max-w-6xl, 1400px default
 
   // Get staged dataset from global state (if exists)
   const [stagedDataset, setStagedDataset] = React.useState<StagedDataset | null>(null);
@@ -860,10 +866,10 @@ function NotchNavigationInner() {
   );
 }
 
-export function NotchNavigation() {
+export function NotchNavigation({ lite = false }: NotchNavigationProps) {
   return (
     <React.Suspense fallback={null}>
-      <NotchNavigationInner />
+      <NotchNavigationInner lite={lite} />
     </React.Suspense>
   );
 }
