@@ -24,10 +24,13 @@ export function JsonLd({ data }: JsonLdProps) {
  * Generate canonical URL
  */
 export function getCanonicalUrl(path: string, baseUrl?: string): string {
-  const base =
+  let base =
     baseUrl ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://marketplace.kuinbee.com";
+    "https://www.kuinbee.com";
+  if (base.includes("vercel.app") || base.includes("marketplace.kuinbee.com")) {
+    base = "https://www.kuinbee.com";
+  }
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   return `${base}${cleanPath}`;
 }

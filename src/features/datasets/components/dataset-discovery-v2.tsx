@@ -20,6 +20,7 @@ import {
 } from "./types";
 import { useDatasets, useCategories, prefetchDatasets } from "@/hooks/api/useMarketplace";
 import { useWishlist } from "@/hooks/api/useWishlist";
+import { useAuth } from "@/core/providers/AuthProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
 
@@ -135,9 +136,10 @@ export function DatasetDiscoveryV2() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   // Lift wishlist up so cards don't individually re-fetch/subscribe
-  const { data: wishlistData } = useWishlist();
+  const { data: wishlistData } = useWishlist(isAuthenticated);
   const wishlistDatasetIds = useMemo(() => {
     return new Set(wishlistData?.items?.map(item => item.datasetId) || []);
   }, [wishlistData]);

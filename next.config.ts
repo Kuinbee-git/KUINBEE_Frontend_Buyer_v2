@@ -34,6 +34,32 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "kuinbee.com",
+          },
+        ],
+        destination: "https://www.kuinbee.com/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "marketplace.kuinbee.com",
+          },
+        ],
+        destination: "https://www.kuinbee.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

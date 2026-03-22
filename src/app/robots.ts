@@ -1,8 +1,10 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const marketplaceUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://marketplace.kuinbee.com";
+  let canonicalUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
+  if (canonicalUrl.includes("vercel.app") || canonicalUrl.includes("marketplace.kuinbee.com")) {
+    canonicalUrl = "https://www.kuinbee.com";
+  }
 
   return {
     rules: [
@@ -26,9 +28,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: [
-      `${marketplaceUrl}/sitemap.xml`,
-      "https://www.kuinbee.com/sitemap.xml",
-    ],
+    sitemap: `${canonicalUrl}/sitemap.xml`,
   };
 }

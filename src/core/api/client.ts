@@ -7,6 +7,7 @@ import type { ApiError } from "@/types";
 
 export class ApiClient {
   private baseURL: string;
+  private static readonly REQUEST_TIMEOUT_MS = 12000;
 
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;
@@ -18,6 +19,19 @@ export class ApiClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => {
+      timeoutController.abort();
+    }, ApiClient.REQUEST_TIMEOUT_MS);
+
+    if (options.signal) {
+      if (options.signal.aborted) {
+        timeoutController.abort();
+      } else {
+        options.signal.addEventListener("abort", () => timeoutController.abort(), { once: true });
+      }
+    }
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -25,10 +39,12 @@ export class ApiClient {
         ...options.headers,
       },
       credentials: "include", // Important for session cookies
+      signal: timeoutController.signal,
     };
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
 
       // Handle non-JSON responses (like redirects)
       const contentType = response.headers.get("content-type");
@@ -70,11 +86,20 @@ export class ApiClient {
         } as ApiError;
       }
 
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw {
+          code: "TIMEOUT",
+          message: "Request timed out. Please try again.",
+        } as ApiError;
+      }
+
       // Handle other errors
       throw {
         code: "UNKNOWN_ERROR",
         message: error instanceof Error ? error.message : "An error occurred",
       } as ApiError;
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 

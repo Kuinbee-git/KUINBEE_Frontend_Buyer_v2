@@ -30,6 +30,9 @@ export const useDatasetDetails = (datasetId: string, enabled = true) => {
     queryFn: () => marketplaceService.getDatasetDetails(datasetId),
     enabled,
     staleTime: 60_000, // 1 min — matches server-side prefetch; avoids immediate refetch after hydration
+    retry: 1,
+    retryDelay: 400,
+    refetchOnWindowFocus: false,
   });
 };
 
