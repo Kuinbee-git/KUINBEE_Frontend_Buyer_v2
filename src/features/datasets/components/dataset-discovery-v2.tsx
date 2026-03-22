@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback, useTransition, lazy, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/shared/components/ui/input";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -9,10 +10,18 @@ import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { DatasetCard, DatasetCardSkeleton } from "./dataset-card";
 import { DatasetSupplierTabs } from "./dataset-supplier-tabs";
-import { FilterSidebar } from "./FilterSidebar";
 
 // Lazy load footer for better performance
 const LandingFooter = lazy(() => import("@/features/landing/components/LandingFooter").then(mod => ({ default: mod.LandingFooter })));
+const FilterSidebar = dynamic(
+  () => import("./FilterSidebar").then((mod) => mod.FilterSidebar),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="hidden lg:block rounded-xl border border-border/40 dark:border-white/10 bg-white dark:bg-[#1e2847] h-[620px] animate-pulse" />
+    ),
+  }
+);
 import {
   Dataset,
   FilterState,
@@ -425,7 +434,7 @@ export function DatasetDiscoveryV2() {
     <main className="min-h-screen relative">
       {/* Navigation */}
       <div className="sticky top-0 z-50">
-        <NotchNavigation />
+        <NotchNavigation lite />
       </div>
 
       {/* Background */}

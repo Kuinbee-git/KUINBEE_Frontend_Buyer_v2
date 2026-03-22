@@ -3,28 +3,19 @@
 import * as React from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { categories, resources } from "@/config/navigation.config";
 
 import {
-  ChevronDown,
-  Menu,
-  Database,
   ArrowLeft,
-  ArrowRight,
-  Receipt,
   X,
-  User,
-  LogOut,
-  FolderOpen,
   Heart,
   Search,
 } from "lucide-react";
 import { Button } from "./button";
-import { Badge } from "./badge";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/shared/utils/cn";
 import type { StagedDataset } from "./purchase-staging-panel";
@@ -93,19 +84,20 @@ interface NotchNavigationProps {
 function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   const [scrolled, setScrolled] = React.useState(false);
   const router = useRouter();
-  const searchParamsObj = useSearchParams();
   const { openModal } = useModal();
   const { user, logout } = useAuth();
   const navConfig = useNavigationConfig();
   const pathname = usePathname();
 
-  // Search bar state - initialized from URL ?q= param
-  const [navSearchQuery, setNavSearchQuery] = React.useState(() => searchParamsObj?.get("q") || "");
+  // Search bar state
+  const [navSearchQuery, setNavSearchQuery] = React.useState("");
 
-  // Keep search input synced when URL changes (e.g. navigating back)
+  // Keep search input synced from URL (e.g. direct link /datasets?q=...)
   React.useEffect(() => {
-    setNavSearchQuery(searchParamsObj?.get("q") || "");
-  }, [searchParamsObj]);
+    if (typeof window === "undefined") return;
+    const query = new URLSearchParams(window.location.search).get("q") || "";
+    setNavSearchQuery(query);
+  }, [pathname]);
 
   // Handle scroll state
   React.useEffect(() => {
@@ -194,6 +186,9 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                     alt="Kuinbee marketplace favicon light theme | Kuinbee"
                     width={32}
                     height={32}
+                    priority
+                    fetchPriority="high"
+                    sizes="32px"
                     className={cn(
                       "transition-all duration-500 block dark:hidden",
                       scrolled ? "h-3 w-6" : "h-4 w-8"
@@ -204,6 +199,9 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                     alt="Kuinbee marketplace favicon dark theme | Kuinbee"
                     width={32}
                     height={32}
+                    priority
+                    fetchPriority="high"
+                    sizes="32px"
                     className={cn(
                       "transition-all duration-500 hidden dark:block dark:brightness-200",
                       scrolled ? "h-6 w-6" : "h-8 w-8"
@@ -400,9 +398,5 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
 }
 
 export function NotchNavigation({ lite = false }: NotchNavigationProps) {
-  return (
-    <React.Suspense fallback={null}>
-      <NotchNavigationInner lite={lite} />
-    </React.Suspense>
-  );
+  return <NotchNavigationInner lite={lite} />;
 }
