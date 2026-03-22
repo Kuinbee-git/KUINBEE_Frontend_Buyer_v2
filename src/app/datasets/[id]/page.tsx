@@ -19,7 +19,7 @@ export async function generateStaticParams() {
     if (res.ok) {
       const data = await res.json();
       const datasets = data.data?.datasets || [];
-      return datasets.map((d: any) => ({
+      return datasets.map((d: { datasetUniqueId?: string; id?: string }) => ({
         id: d.datasetUniqueId || d.id,
       }));
     }
@@ -33,118 +33,44 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-/** Fetch dataset detail from API server-side (no auth needed for published datasets) */
-async function fetchDatasetDetail(id: string) {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-    const res = await fetch(`${apiUrl}/api/v1/marketplace/datasets/${id}`, {
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      // Handle both { data: { dataset: ... } } and { dataset: ... } envelope formats
-      return json?.data?.dataset ?? json?.dataset ?? null;
-    }
-  } catch {
-    // Silently fail — metadata/schema fall back to defaults
-  }
-  return null;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const dataset = await fetchDatasetDetail(id);
-
-  if (!dataset) {
-    return genMeta({
-      title: "Dataset",
-      description:
-        "View detailed information about this dataset including samples, schema, pricing, and reviews on Kuinbee Marketplace.",
-      keywords: ["dataset details", "buy dataset", "dataset preview", "data sample"],
-      path: `/datasets/${id}`,
-    });
-  }
-
-  const categoryName = dataset.primaryCategory?.name ?? dataset.category?.name ?? "";
-  const providerName = dataset.owner?.name ?? "";
-  const pricing = dataset.isPaid
-    ? `Starting at ${dataset.currency ?? "INR"} ${dataset.price}`
-    : "Free";
-
   return genMeta({
-    title: dataset.title,
+    title: "Dataset Details",
     description:
-      dataset.description ??
-      `${dataset.title}${categoryName ? ` — ${categoryName} dataset` : ""}${providerName ? ` by ${providerName}` : ""}. ${pricing}. Explore schema, samples, and pricing on Kuinbee Marketplace.`,
+      "View detailed information about this dataset including samples, schema, pricing, quality metrics, and access conditions on Kuinbee Marketplace.",
     keywords: [
-      dataset.title,
-      categoryName,
+      "dataset details",
       "buy dataset",
       "dataset marketplace",
       "data download",
-      ...(dataset.tags ?? []),
-    ].filter(Boolean),
+      "dataset schema",
+      "dataset quality",
+    ],
     path: `/datasets/${id}`,
   });
 }
 
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
-  const dataset = await fetchDatasetDetail(id);
-
-  const datasetTitle = dataset?.title ?? `Dataset ${id}`;
-  const categoryName = dataset?.primaryCategory?.name ?? dataset?.category?.name ?? "";
 
   // Breadcrumb: Home > Datasets > [Category] > [Dataset Title]
   const breadcrumbItems = [
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
-    ...(categoryName
-      ? [{ name: categoryName, url: `/datasets?category=${dataset?.category?.id ?? ""}` }]
-      : []),
-    { name: datasetTitle, url: `/datasets/${id}` },
+    { name: `Dataset ${id}`, url: `/datasets/${id}` },
   ];
 
   const breadcrumbJsonLd = generateBreadcrumbSchema(breadcrumbItems);
 
-  // Google Dataset Schema (schema.org/Dataset) — enables Google Dataset Search indexing
-  const datasetJsonLd = dataset
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Dataset",
-        name: dataset.title,
-        description: dataset.description ?? dataset.title,
-        identifier: dataset.datasetUniqueId ?? id,
-        url: `https://marketplace.kuinbee.com/datasets/${id}`,
-        license: dataset.license ?? "Unknown",
-        datePublished: dataset.createdAt,
-        dateModified: dataset.updatedAt,
-        creator: dataset.owner?.name
-          ? { "@type": "Organization", name: dataset.owner.name }
-          : undefined,
-        keywords: dataset.tags ?? [],
-        ...(dataset.isPaid && dataset.price
-          ? {
-              offers: {
-                "@type": "Offer",
-                price: dataset.price,
-                priceCurrency: dataset.currency ?? "INR",
-              },
-            }
-          : { isAccessibleForFree: true }),
-        ...(dataset.rating != null && (dataset.reviewCount ?? 0) > 0
-          ? {
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: dataset.rating,
-                reviewCount: dataset.reviewCount,
-                bestRating: 5,
-                worstRating: 1,
-              },
-            }
-          : {}),
-      }
-    : null;
+  const datasetJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    identifier: id,
+    url: `https://www.kuinbee.com/datasets/${id}`,
+    name: `Dataset ${id}`,
+    description: "Dataset detail page on Kuinbee Marketplace",
+  };
 
   return (
     <>
@@ -154,12 +80,10 @@ export default async function DatasetDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* Dataset Schema — enables Google Dataset Search indexing */}
-      {datasetJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
+      />
       <DatasetDetailPageContent />
     </>
   );

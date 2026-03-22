@@ -42,6 +42,7 @@ import { useWishlist, useAddToWishlist, useRemoveFromWishlist } from "@/hooks/ap
 import { toast } from "sonner";
 import { useModal } from "@/core/providers";
 import { useAuth } from "@/core/providers/AuthProvider";
+import { DatasetKdtsBadge } from "./DatasetKdtsBadge";
 
 // Lazy-loaded heavy components that are never above-the-fold
 const LandingFooter = lazy(() =>
@@ -217,30 +218,26 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
             {dataset.downloadCount.toLocaleString()} downloads
           </span>
         </div>
-        {dataset.kdtsScore && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800">
-            <Gauge className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 tracking-wide">
-              KDTS&nbsp;{parseFloat(dataset.kdtsScore).toFixed(1)}
-            </span>
-          </div>
-        )}
+
       </div>
 
       <p className="text-base text-muted-foreground dark:text-white/70 max-w-4xl leading-relaxed">
         {dataset.aboutDataset?.overview || dataset.description}
       </p>
 
-      {dataset.tags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mt-4">
-          <Tag className="h-3.5 w-3.5 text-muted-foreground dark:text-white/50" />
-          {dataset.tags.map((tag, idx) => (
-            <span key={idx} className="text-xs bg-muted/60 dark:bg-white/10 text-muted-foreground dark:text-white/70 px-2.5 py-1 rounded-md">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap items-center gap-2 mt-4">
+        {dataset.tags.length > 0 && (
+          <>
+            <Tag className="h-3.5 w-3.5 text-muted-foreground dark:text-white/50" />
+            {dataset.tags.map((tag, idx) => (
+              <span key={idx} className="text-xs bg-muted/60 dark:bg-white/10 text-muted-foreground dark:text-white/70 px-2.5 py-1 rounded-md">
+                {tag}
+              </span>
+            ))}
+          </>
+        )}
+        <DatasetKdtsBadge datasetId={dataset.id} />
+      </div>
     </div>
   );
 });
