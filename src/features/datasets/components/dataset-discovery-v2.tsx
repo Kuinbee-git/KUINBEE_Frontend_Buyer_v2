@@ -80,6 +80,7 @@ type DatasetApiItem = {
   rating?: number | null;
   reviewCount?: number;
   kdtsScore?: number | null;
+  isSample?: boolean;
 };
 
 // Map API dataset to UI format
@@ -126,6 +127,7 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => ({
     coverage: null,
   } : null,
   tags: apiDataset.tags || [],
+  isSample: apiDataset.isSample ?? false,
   downloadCount: apiDataset.downloadCount || 0,
   viewCount: apiDataset.viewCount || 0,
   rating: apiDataset.rating ?? null,
