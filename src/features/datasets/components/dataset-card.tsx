@@ -126,9 +126,16 @@ export const DatasetCard = memo(function DatasetCard({
 
         {/* Price badge */}
         {dataset.pricing.type === "free" ? (
-          <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-[15px] font-semibold shrink-0 rounded-md">
-            Free
-          </Badge>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-[15px] font-semibold rounded-md">
+              Free
+            </Badge>
+            {dataset.isSample && (
+              <Badge className="bg-blue-50 dark:bg-blue-900/25 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 px-3 py-1 text-[13px] font-semibold rounded-md">
+                Sample
+              </Badge>
+            )}
+          </div>
         ) : (
           <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">
             <span className="text-[17px] font-bold text-[#1a2240] dark:text-white leading-tight">
