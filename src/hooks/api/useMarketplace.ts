@@ -3,6 +3,7 @@
  */
 
 import { useQuery, keepPreviousData, QueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { marketplaceService } from "@/services";
 import type { DatasetListQuery, CategoryListQuery } from "@/types";
 
@@ -41,6 +42,13 @@ export const useCategories = (query?: CategoryListQuery) => {
   return useQuery({
     queryKey: marketplaceKeys.categories(query),
     queryFn: () => marketplaceService.listCategories(query),
+  });
+};
+
+export const useInquireDataset = () => {
+  return useMutation({
+    mutationFn: ({ datasetId, message }: { datasetId: string; message?: string }) =>
+      marketplaceService.inquireDataset(datasetId, message),
   });
 };
 
