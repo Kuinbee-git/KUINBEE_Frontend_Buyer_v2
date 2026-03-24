@@ -5,11 +5,21 @@ import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail-page";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import type { DatasetDetailsResponse } from "@/types/dataset.types";
-import { useDatasetDetails } from "@/hooks/api/useMarketplace";
+import { useDatasetDetails, useInquireDataset } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/shared/components/ui/dialog";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { Button } from "@/shared/components/ui/button";
 
 // Code-split: only loaded when user clicks Purchase (paid datasets)
 const RazorpayCheckoutFlow = lazy(() =>
@@ -52,6 +62,11 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
       amount: dataset.price ? parseFloat(dataset.price) : undefined,
       currency: dataset.currency || "INR",
     },
+    isSample: dataset.isSample ?? false,
+    sampleNotes: dataset.sampleNotes ?? null,
+    actualPrice: dataset.actualPrice ? parseFloat(dataset.actualPrice) : null,
+    actualPriceCurrency: dataset.actualPriceCurrency ?? null,
+    isNegotiable: dataset.isNegotiable ?? null,
     // Rich content
     aboutDataset: aboutDatasetInfo || null,
     dataFormat: dataFormatInfo || null,
@@ -92,6 +107,10 @@ export function DatasetDetailPageContent() {
 
   // Claim dataset mutation
   const claimMutation = useClaimDataset();
+  const inquireMutation = useInquireDataset();
+
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquiryMessage, setInquiryMessage] = useState("");
 
   // Download URL
   const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
@@ -245,6 +264,43 @@ export function DatasetDetailPageContent() {
     setShouldFetchDownload(true);
   }, [isAuthenticated, router, id, isGeneratingDownload]);
 
+  const handleOpenInquiry = useCallback(() => {
+    if (!user) {
+      router.push(`/login?redirectTo=/datasets/${id}`);
+      return;
+    }
+
+    if (!user.emailVerified) {
+      toast.error("Please verify your email before contacting Kuinbee.");
+      router.push("/verify-email");
+      return;
+    }
+
+    setInquiryOpen(true);
+  }, [id, router, user]);
+
+  const handleSubmitInquiry = useCallback(async () => {
+    try {
+      await inquireMutation.mutateAsync({
+        datasetId: id,
+        message: inquiryMessage.trim() || undefined,
+      });
+      toast.success("Inquiry submitted. Kuinbee will contact you soon.");
+      setInquiryMessage("");
+      setInquiryOpen(false);
+    } catch (error: any) {
+      if (error?.code === "FORBIDDEN") {
+        toast.error("Please verify your email before submitting an inquiry.");
+        return;
+      }
+      if (error?.code === "NOT_FOUND") {
+        toast.error("Sample dataset not found.");
+        return;
+      }
+      toast.error(error?.message || "Failed to submit inquiry. Please try again.");
+    }
+  }, [id, inquiryMessage, inquireMutation]);
+
   // Memoize dataset mapping — must be called unconditionally, before early returns
   const dataset = useMemo(() => {
     if (!response?.dataset) return null;
@@ -327,6 +383,7 @@ export function DatasetDetailPageContent() {
         onClaimDataset={handleClaimDataset}
         onPurchaseDataset={handlePurchaseDataset}
         onDownloadDataset={handleDownload}
+        onInquireSampleDataset={handleOpenInquiry}
         currentUserId={user?.id}
       />
 
@@ -356,6 +413,35 @@ export function DatasetDetailPageContent() {
           />
         </Suspense>
       )}
+
+      <Dialog open={inquiryOpen} onOpenChange={setInquiryOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contact Kuinbee</DialogTitle>
+            <DialogDescription>
+              Share any requirements or context for this sample dataset. This message is optional.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Add your message (optional)"
+            value={inquiryMessage}
+            onChange={(event) => setInquiryMessage(event.target.value)}
+            rows={5}
+          />
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setInquiryOpen(false)}
+              disabled={inquireMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitInquiry} disabled={inquireMutation.isPending}>
+              {inquireMutation.isPending ? "Submitting..." : "Send Inquiry"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
