@@ -32,4 +32,11 @@ export const marketplaceService = {
       API_ENDPOINTS.MARKETPLACE.CATEGORIES,
       query as Record<string, unknown>
     ),
+
+  // Sample dataset inquiry
+  inquireDataset: (datasetId: string, message?: string) =>
+    apiClient.post<{ success: true }>(
+      API_ENDPOINTS.MARKETPLACE.INQUIRE(datasetId),
+      message ? { message } : undefined
+    ),
 };
