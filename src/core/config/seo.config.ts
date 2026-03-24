@@ -91,6 +91,9 @@ export function generateMetadata({
     },
     alternates: {
       canonical: canonicalUrl,
+      types: {
+        "application/rss+xml": `${siteConfig.url}/feed.xml`,
+      },
     },
   };
 }
