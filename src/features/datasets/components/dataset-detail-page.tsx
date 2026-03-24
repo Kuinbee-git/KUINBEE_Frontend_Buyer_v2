@@ -129,6 +129,7 @@ interface DatasetDetailPageProps {
   onClaimDataset?: () => void;
   onPurchaseDataset?: () => void;
   onDownloadDataset?: () => void;
+  onInquireSampleDataset?: () => void;
   onLogin?: () => void;
   onBack?: () => void;
   currentUserId?: string;
@@ -359,6 +360,68 @@ const DatasetSubstanceSection = React.memo(function DatasetSubstanceSection({ da
         </div>
       )}
 
+      {dataset.isSample && (
+        <div>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
+            Sample Dataset Details
+          </h2>
+          <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {dataset.sampleNotes?.actualDataSize && (
+                <div>
+                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Actual Data Size</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.actualDataSize}</div>
+                </div>
+              )}
+
+              {dataset.actualPrice != null && (
+                <div>
+                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Actual Price</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white">
+                    {getCurrencySymbol(dataset.actualPriceCurrency || dataset.pricing.currency)}{dataset.actualPrice.toLocaleString()} {dataset.actualPriceCurrency || dataset.pricing.currency}
+                  </div>
+                </div>
+              )}
+
+              {dataset.sampleNotes?.deliveryMechanism && (
+                <div>
+                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Delivery Mechanism</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.deliveryMechanism}</div>
+                </div>
+              )}
+
+              {typeof dataset.isNegotiable === "boolean" && (
+                <div>
+                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Negotiable</div>
+                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.isNegotiable ? "Yes" : "No"}</div>
+                </div>
+              )}
+            </div>
+
+            {dataset.sampleNotes?.whySample && (
+              <div>
+                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Why this is a sample</div>
+                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.whySample}</div>
+              </div>
+            )}
+
+            {dataset.sampleNotes?.completeness && (
+              <div>
+                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Completeness</div>
+                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.completeness}</div>
+              </div>
+            )}
+
+            {dataset.sampleNotes?.deliveryMechanismNotes && (
+              <div>
+                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Delivery Notes</div>
+                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.deliveryMechanismNotes}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {dataset.features.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
@@ -441,6 +504,7 @@ interface AccessPricingPanelProps {
   isPaid: boolean;
   accessState: AccessState;
   primaryAction: { label: string; onClick?: () => void; variant: "default" };
+  onInquireSampleDataset?: () => void;
   isInWishlist: boolean;
   isWishlistPending: boolean;
   isAuthenticated: boolean;
@@ -454,6 +518,7 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
   isPaid,
   accessState,
   primaryAction,
+  onInquireSampleDataset,
   isInWishlist,
   isWishlistPending,
   isAuthenticated,
@@ -560,6 +625,19 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
           </Button>
         </div>
 
+        {dataset.isSample && (
+          <div className="mb-4">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full h-10 text-xs font-semibold"
+              onClick={onInquireSampleDataset}
+            >
+              Contact Kuinbee
+            </Button>
+          </div>
+        )}
+
         <div className="bg-muted/50 dark:bg-white/5 rounded-lg p-4">
           <div className="flex items-start gap-2">
             <Info className="h-4 w-4 text-muted-foreground dark:text-white/60 mt-0.5 shrink-0" />
@@ -595,6 +673,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
   onClaimDataset,
   onPurchaseDataset,
   onDownloadDataset,
+  onInquireSampleDataset,
   onLogin,
   onBack,
   currentUserId,
@@ -700,6 +779,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
               isPaid={isPaid}
               accessState={accessState}
               primaryAction={primaryAction}
+              onInquireSampleDataset={onInquireSampleDataset}
               isInWishlist={isInWishlist}
               isWishlistPending={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
               isAuthenticated={isAuthenticated}
