@@ -60,6 +60,17 @@ export interface Dataset {
   reviewCount: number;
   rating: number | null;
   kdtsScore: string | null;
+  isSample?: boolean;
+  sampleNotes?: {
+    whySample?: string | null;
+    actualDataSize?: string | null;
+    completeness?: string | null;
+    deliveryMechanism?: string | null;
+    deliveryMechanismNotes?: string | null;
+  } | null;
+  actualPrice?: string | null;
+  actualPriceCurrency?: string | null;
+  isNegotiable?: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +91,17 @@ export interface DatasetDetails {
   viewCount: number;
   rating: number | null;
   kdtsScore: string | null;
+  isSample?: boolean;
+  sampleNotes?: {
+    whySample?: string | null;
+    actualDataSize?: string | null;
+    completeness?: string | null;
+    deliveryMechanism?: string | null;
+    deliveryMechanismNotes?: string | null;
+  } | null;
+  actualPrice?: string | null;
+  actualPriceCurrency?: string | null;
+  isNegotiable?: boolean | null;
   createdAt: string;
   updatedAt: string;
 }
