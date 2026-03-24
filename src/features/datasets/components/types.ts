@@ -69,6 +69,17 @@ export interface Dataset {
   source: DatasetSourceUI | null;
   location: DatasetLocationUI | null;
   tags: string[];
+  isSample?: boolean;
+  sampleNotes?: {
+    whySample?: string | null;
+    actualDataSize?: string | null;
+    completeness?: string | null;
+    deliveryMechanism?: string | null;
+    deliveryMechanismNotes?: string | null;
+  } | null;
+  actualPrice?: number | null;
+  actualPriceCurrency?: string | null;
+  isNegotiable?: boolean | null;
   // Stats
   downloadCount: number;
   viewCount: number;
