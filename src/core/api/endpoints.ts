@@ -53,6 +53,8 @@ export const API_ENDPOINTS = {
     DATASETS: "/api/v1/marketplace/datasets",
     DATASET_DETAILS: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}`,
+    INQUIRE: (datasetId: string) =>
+      `/api/v1/marketplace/datasets/${datasetId}/inquire`,
     CATEGORIES: "/api/v1/marketplace/categories",
     REVIEWS: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}/reviews`,
