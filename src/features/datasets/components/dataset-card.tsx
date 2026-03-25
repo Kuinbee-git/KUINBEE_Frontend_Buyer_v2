@@ -101,7 +101,7 @@ export const DatasetCard = memo(function DatasetCard({
   };
 
   const kdtsValue = dataset.kdtsScore ? parseFloat(dataset.kdtsScore) : null;
-  const ratingVal = dataset.rating ?? 0;
+  const ratingVal = toSafeNumber(dataset.rating) ?? 0;
   const fullStars = Math.floor(ratingVal);
   const hasHalfStar = ratingVal - fullStars >= 0.25;
   const totalStars = 5;

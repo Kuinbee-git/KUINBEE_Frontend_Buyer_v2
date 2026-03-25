@@ -205,7 +205,7 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
         <div className="flex items-center gap-1.5">
           <Star className="h-4 w-4 text-yellow-500" />
           <span className="text-sm text-muted-foreground dark:text-white/60">
-            {dataset.rating != null && dataset.rating > 0 ? dataset.rating.toFixed(1) : "No ratings"} ({dataset.reviewCount ?? 0} {dataset.reviewCount === 1 ? "review" : "reviews"})
+            {dataset.rating != null && Number(dataset.rating) > 0 ? Number(dataset.rating).toFixed(1) : "No ratings"} ({dataset.reviewCount ?? 0} {dataset.reviewCount === 1 ? "review" : "reviews"})
           </span>
         </div>
         <div className="flex items-center gap-1.5">
