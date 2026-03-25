@@ -35,6 +35,7 @@ import {
   TriangleAlert,
   Beaker,
   Gauge,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
@@ -362,59 +363,49 @@ const DatasetSubstanceSection = React.memo(function DatasetSubstanceSection({ da
 
       {dataset.isSample && (
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
-            Sample Dataset Details
-          </h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">
+              Sample Dataset Details
+            </h2>
+            <span className="inline-flex items-center rounded-full border border-border/50 dark:border-white/20 bg-muted/60 dark:bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/70">
+              Sample
+            </span>
+          </div>
+
           <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {dataset.sampleNotes?.actualDataSize && (
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Actual Data Size</div>
+                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Actual Data Size</div>
                   <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.actualDataSize}</div>
                 </div>
               )}
 
-              {dataset.actualPrice != null && (
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Actual Price</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">
-                    {getCurrencySymbol(dataset.actualPriceCurrency || dataset.pricing.currency)}{dataset.actualPrice.toLocaleString()} {dataset.actualPriceCurrency || dataset.pricing.currency}
-                  </div>
-                </div>
-              )}
-
               {dataset.sampleNotes?.deliveryMechanism && (
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Delivery Mechanism</div>
+                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Mechanism</div>
                   <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.deliveryMechanism}</div>
                 </div>
               )}
 
               {typeof dataset.isNegotiable === "boolean" && (
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Negotiable</div>
+                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Negotiable</div>
                   <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.isNegotiable ? "Yes" : "No"}</div>
                 </div>
               )}
             </div>
 
-            {dataset.sampleNotes?.whySample && (
-              <div>
-                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Why this is a sample</div>
-                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.whySample}</div>
-              </div>
-            )}
-
             {dataset.sampleNotes?.completeness && (
-              <div>
-                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Completeness</div>
+              <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Completeness</div>
                 <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.completeness}</div>
               </div>
             )}
 
             {dataset.sampleNotes?.deliveryMechanismNotes && (
-              <div>
-                <div className="text-xs text-muted-foreground dark:text-white/60 mb-1">Delivery Notes</div>
+              <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Notes</div>
                 <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.deliveryMechanismNotes}</div>
               </div>
             )}
@@ -563,6 +554,25 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
           </div>
         )}
 
+        {dataset.isSample && dataset.actualPrice != null && (
+          <div className="mb-6 pb-6 border-b border-border/40 dark:border-white/10">
+            <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-2">
+              Actual Dataset Price
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-foreground dark:text-white">
+                {getCurrencySymbol(dataset.actualPriceCurrency || dataset.pricing.currency)}{dataset.actualPrice.toLocaleString()}
+              </span>
+              <span className="text-sm text-muted-foreground dark:text-white/60">
+                {dataset.actualPriceCurrency || dataset.pricing.currency}
+              </span>
+            </div>
+            <div className="text-xs text-muted-foreground dark:text-white/60 mt-1">
+              Full dataset commercial price
+            </div>
+          </div>
+        )}
+
         <div className="mb-6 pb-6 border-b border-border/40 dark:border-white/10">
           <div className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-2">
             License
@@ -630,9 +640,10 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
             <Button
               size="sm"
               variant="outline"
-              className="w-full h-10 text-xs font-semibold"
+              className="w-full h-10 text-xs font-semibold border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 dark:border-white/25 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
               onClick={onInquireSampleDataset}
             >
+              <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
               Contact Kuinbee
             </Button>
           </div>
@@ -720,6 +731,38 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
 
   // Get primary action based on access state
   const getPrimaryAction = () => {
+    if (dataset.isSample) {
+      if (accessState === "not-logged-in") {
+        return {
+          label: "Sign In to Download Sample",
+          onClick: handleSignIn,
+          variant: "default" as const,
+        };
+      }
+
+      if (isOwned) {
+        return {
+          label: "Download Sample",
+          onClick: onDownloadDataset,
+          variant: "default" as const,
+        };
+      }
+
+      if (!isPaid) {
+        return {
+          label: "Claim Sample",
+          onClick: onClaimDataset,
+          variant: "default" as const,
+        };
+      }
+
+      return {
+        label: "Purchase Sample Access",
+        onClick: onPurchaseDataset,
+        variant: "default" as const,
+      };
+    }
+
     if (accessState === "not-logged-in") {
       return {
         label: "Sign In to Access",

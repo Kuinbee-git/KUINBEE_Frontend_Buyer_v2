@@ -53,6 +53,12 @@ const formatFileSize = (sizeStr?: string) => {
   return `${bytes} B`;
 };
 
+const toSafeNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 // ── Component ──
 
 interface DatasetCardProps {
@@ -99,6 +105,10 @@ export const DatasetCard = memo(function DatasetCard({
   const fullStars = Math.floor(ratingVal);
   const hasHalfStar = ratingVal - fullStars >= 0.25;
   const totalStars = 5;
+  const isSampleDataset = dataset.isSample === true;
+  const sampleActualPrice = toSafeNumber(dataset.actualPrice);
+  const hasActualSamplePrice = sampleActualPrice !== null;
+  const sampleCurrency = dataset.actualPriceCurrency || dataset.pricing.currency;
 
   return (
     <Link
@@ -125,16 +135,24 @@ export const DatasetCard = memo(function DatasetCard({
         </div>
 
         {/* Price badge */}
-        {dataset.pricing.type === "free" ? (
+        {isSampleDataset ? (
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Badge className="bg-blue-50 dark:bg-blue-900/25 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 px-3 py-1 text-[13px] font-semibold rounded-md">
+              Sample
+            </Badge>
+            {hasActualSamplePrice && (
+              <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">
+                <span className="text-[17px] font-bold text-[#1a2240] dark:text-white leading-tight">
+                  {getCurrencySymbol(sampleCurrency)}{sampleActualPrice?.toLocaleString()}
+                </span>
+              </div>
+            )}
+          </div>
+        ) : dataset.pricing.type === "free" ? (
           <div className="flex items-center gap-1.5 shrink-0">
             <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-[15px] font-semibold rounded-md">
               Free
             </Badge>
-            {dataset.isSample && (
-              <Badge className="bg-blue-50 dark:bg-blue-900/25 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 px-3 py-1 text-[13px] font-semibold rounded-md">
-                Sample
-              </Badge>
-            )}
           </div>
         ) : (
           <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">

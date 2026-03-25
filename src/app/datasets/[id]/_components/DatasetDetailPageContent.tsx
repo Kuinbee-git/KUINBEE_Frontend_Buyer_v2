@@ -8,16 +8,12 @@ import type { DatasetDetailsResponse } from "@/types/dataset.types";
 import { useDatasetDetails, useInquireDataset } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
+import { useModal } from "@/core/providers";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
+import { AuthModal } from "@/features/auth/components/auth-modal";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/components/ui/button";
 
@@ -101,6 +97,7 @@ export function DatasetDetailPageContent() {
 
   // Check authentication status
   const { user, isAuthenticated } = useAuth();
+  const { openModal } = useModal();
 
   // Check if user has access (only when authenticated)
   const { data: entitlementCheck } = useCheckEntitlement(id, isAuthenticated && !!id);
@@ -110,6 +107,7 @@ export function DatasetDetailPageContent() {
   const inquireMutation = useInquireDataset();
 
   const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [inquirySubject, setInquirySubject] = useState("");
   const [inquiryMessage, setInquiryMessage] = useState("");
 
   // Download URL
@@ -265,27 +263,42 @@ export function DatasetDetailPageContent() {
   }, [isAuthenticated, router, id, isGeneratingDownload]);
 
   const handleOpenInquiry = useCallback(() => {
-    if (!user) {
-      router.push(`/login?redirectTo=/datasets/${id}`);
-      return;
-    }
-
-    if (!user.emailVerified) {
-      toast.error("Please verify your email before contacting Kuinbee.");
-      router.push("/verify-email");
+    if (!isAuthenticated) {
+      openModal("login");
       return;
     }
 
     setInquiryOpen(true);
-  }, [id, router, user]);
+  }, [isAuthenticated, openModal]);
 
   const handleSubmitInquiry = useCallback(async () => {
+    if (!user) {
+      toast.info("Please sign in to submit an inquiry.");
+      openModal("login");
+      return;
+    }
+
+    if (!user.emailVerified) {
+      toast.error("Please verify your email before submitting an inquiry.");
+      return;
+    }
+
+    if (!inquirySubject.trim()) {
+      toast.error("Please add a short subject for your inquiry.");
+      return;
+    }
+
     try {
+      const composedMessage = inquiryMessage.trim()
+        ? `Subject: ${inquirySubject.trim()}\n\n${inquiryMessage.trim()}`
+        : `Subject: ${inquirySubject.trim()}`;
+
       await inquireMutation.mutateAsync({
         datasetId: id,
-        message: inquiryMessage.trim() || undefined,
+        message: composedMessage,
       });
       toast.success("Inquiry submitted. Kuinbee will contact you soon.");
+      setInquirySubject("");
       setInquiryMessage("");
       setInquiryOpen(false);
     } catch (error: any) {
@@ -299,7 +312,13 @@ export function DatasetDetailPageContent() {
       }
       toast.error(error?.message || "Failed to submit inquiry. Please try again.");
     }
-  }, [id, inquiryMessage, inquireMutation]);
+  }, [id, inquiryMessage, inquirySubject, inquireMutation, openModal, user]);
+
+  const handleCloseInquiry = useCallback(() => {
+    setInquiryOpen(false);
+    setInquirySubject("");
+    setInquiryMessage("");
+  }, []);
 
   // Memoize dataset mapping — must be called unconditionally, before early returns
   const dataset = useMemo(() => {
@@ -414,34 +433,70 @@ export function DatasetDetailPageContent() {
         </Suspense>
       )}
 
-      <Dialog open={inquiryOpen} onOpenChange={setInquiryOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Contact Kuinbee</DialogTitle>
-            <DialogDescription>
-              Share any requirements or context for this sample dataset. This message is optional.
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
-            placeholder="Add your message (optional)"
-            value={inquiryMessage}
-            onChange={(event) => setInquiryMessage(event.target.value)}
-            rows={5}
-          />
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setInquiryOpen(false)}
-              disabled={inquireMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSubmitInquiry} disabled={inquireMutation.isPending}>
-              {inquireMutation.isPending ? "Submitting..." : "Send Inquiry"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {inquiryOpen && (
+        <AuthModal onClose={handleCloseInquiry}>
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-white mb-2">Contact Kuinbee</h1>
+            <p className="text-sm text-white/70">Share your request for this sample dataset.</p>
+          </div>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleSubmitInquiry();
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="inquiry-subject" className="text-sm font-normal text-white/70">
+                Subject
+              </Label>
+              <Input
+                id="inquiry-subject"
+                placeholder="e.g. Pricing and delivery timeline"
+                value={inquirySubject}
+                onChange={(event) => setInquirySubject(event.target.value)}
+                disabled={inquireMutation.isPending}
+                className="h-11 text-sm bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:border-white/40 focus-visible:ring-white/20 rounded-lg"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="inquiry-message" className="text-sm font-normal text-white/70">
+                Message (optional)
+              </Label>
+              <Textarea
+                id="inquiry-message"
+                placeholder="Any additional details"
+                value={inquiryMessage}
+                onChange={(event) => setInquiryMessage(event.target.value)}
+                rows={4}
+                disabled={inquireMutation.isPending}
+                className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:border-white/40 focus-visible:ring-white/20 rounded-lg"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleCloseInquiry}
+                disabled={inquireMutation.isPending}
+                className="text-white/80 hover:text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={inquireMutation.isPending}
+                className="h-11 text-sm bg-white/20 text-white hover:bg-white/30 transition-colors rounded-lg border border-white/30"
+              >
+                {inquireMutation.isPending ? "Submitting..." : "Send Inquiry"}
+              </Button>
+            </div>
+          </form>
+        </AuthModal>
+      )}
     </>
   );
 }
