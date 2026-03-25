@@ -56,12 +56,14 @@ import type {
   RazorpayCheckoutInfo,
   RazorpaySuccessResponse,
   OrderStatus,
+  PaymentAttemptStatus,
 } from "@/types";
 
 // ─── Razorpay script loader ─────────────────────────────────────────
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 let razorpayScriptPromise: Promise<void> | null = null;
+const SUCCESSFUL_ATTEMPT_STATUSES: PaymentAttemptStatus[] = ["CLIENT_CONFIRMED", "CAPTURED"];
 
 function loadRazorpayScript(): Promise<void> {
   if (razorpayScriptPromise) return razorpayScriptPromise;
@@ -151,6 +153,30 @@ export function RazorpayCheckoutFlow({
   // Track polling start time for timeout
   const pollStartRef = useRef<number | null>(null);
 
+  const finalizeSuccessfulCheckout = useCallback((resolvedOrderId: string) => {
+    setStep("completed");
+    setPollEnabled(false);
+
+    if (completedRef.current) return;
+    completedRef.current = true;
+
+    toast.success("Payment successful! Dataset access granted.");
+    addOrderId(resolvedOrderId);
+
+    queryClient.setQueryData(["entitlements", datasetId, "check"], (previous: unknown) => {
+      if (previous && typeof previous === "object") {
+        return { ...(previous as Record<string, unknown>), entitled: true };
+      }
+      return { entitled: true };
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["entitlements"] });
+    queryClient.invalidateQueries({ queryKey: ["library"] });
+    queryClient.invalidateQueries({ queryKey: ["datasets"] });
+
+    onComplete?.(resolvedOrderId);
+  }, [datasetId, onComplete, queryClient]);
+
   // ── Reset state when dialog closes ──
   useEffect(() => {
     if (!open) {
@@ -185,20 +211,12 @@ export function RazorpayCheckoutFlow({
     if (!orderData) return;
 
     const status: OrderStatus = orderData.order.status;
+    const hasSuccessfulAttempt = orderData.paymentAttempts?.some((attempt) =>
+      SUCCESSFUL_ATTEMPT_STATUSES.includes(attempt.status)
+    );
 
-    if (status === "COMPLETED") {
-      setStep("completed");
-      setPollEnabled(false);
-      if (!completedRef.current) {
-        completedRef.current = true;
-        toast.success("Payment successful! Dataset access granted.");
-        // Persist this order ID so the Orders page can display it
-        addOrderId(orderData.order.id);
-        // Refresh entitlements & library so the dataset shows as owned
-        queryClient.invalidateQueries({ queryKey: ["entitlements"] });
-        queryClient.invalidateQueries({ queryKey: ["library"] });
-        onComplete?.(orderData.order.id);
-      }
+    if (status === "COMPLETED" || hasSuccessfulAttempt) {
+      finalizeSuccessfulCheckout(orderData.order.id);
     } else if (status === "FAILED") {
       setStep("failed");
       setPollEnabled(false);
@@ -208,7 +226,7 @@ export function RazorpayCheckoutFlow({
       setPollEnabled(false);
       setErrorMessage("Payment was refunded.");
     }
-  }, [orderData, onComplete]);
+  }, [finalizeSuccessfulCheckout, orderData]);
 
   // ── Start the checkout flow ──
   const handleStartCheckout = useCallback(async () => {
@@ -254,6 +272,16 @@ export function RazorpayCheckoutFlow({
               razorpaySignature: response.razorpay_signature,
             });
 
+            queryClient.setQueryData(["entitlements", datasetId, "check"], (previous: unknown) => {
+              if (previous && typeof previous === "object") {
+                return { ...(previous as Record<string, unknown>), entitled: true };
+              }
+              return { entitled: true };
+            });
+            queryClient.invalidateQueries({ queryKey: ["entitlements"] });
+            queryClient.invalidateQueries({ queryKey: ["library"] });
+            queryClient.invalidateQueries({ queryKey: ["datasets"] });
+
             // 5. Start polling for webhook confirmation
             setStep("polling");
             setPollEnabled(true);
@@ -291,7 +319,7 @@ export function RazorpayCheckoutFlow({
       setStep("failed");
       setErrorMessage(err?.message || "Could not initiate checkout. Please try again.");
     }
-  }, [datasetId, datasetTitle, user, createCheckout, confirmPayment]);
+  }, [datasetId, datasetTitle, user, createCheckout, confirmPayment, queryClient]);
 
   // ── Retry ──
   const handleRetry = () => {

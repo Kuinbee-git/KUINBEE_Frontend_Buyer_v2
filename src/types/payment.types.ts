@@ -57,7 +57,7 @@ export type OrderStatus =
   | "REFUNDED";
 
 export type PaymentAttemptStatus =
-  | "INITIATED"
+  | "CREATED"
   | "CLIENT_CONFIRMED"
   | "CAPTURED"
   | "FAILED"
@@ -118,6 +118,13 @@ export interface PaymentOrderListItem {
 export interface PaymentOrderListQuery {
   page?: number;
   pageSize?: number;
+}
+
+export interface PaymentOrderListResponse {
+  items: PaymentOrderListItem[];
+  page: number;
+  pageSize: number;
+  total: number;
 }
 
 // ─── Razorpay SDK ────────────────────────────────────────────────────

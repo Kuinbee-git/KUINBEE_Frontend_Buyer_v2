@@ -7,10 +7,10 @@
  * - useRazorpayCheckout — orchestrates the full Razorpay flow
  */
 
-import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentService } from "@/services";
-import { getStoredOrderIds } from "@/lib/orderHistory";
 import type {
+  PaymentOrderListQuery,
   RazorpayCheckoutCreateBody,
   RazorpayConfirmBody,
   OrderStatus,
@@ -19,39 +19,29 @@ import type {
 // ─── Query keys ──────────────────────────────────────────────────────
 
 export const paymentKeys = {
+  orders: (query?: PaymentOrderListQuery) => ["payment", "orders", query] as const,
   order: (orderId: string) => ["payment", "order", orderId] as const,
 };
 
-// ─── Order history (localStorage-backed) ────────────────────────────
+// ─── Order history ───────────────────────────────────────────────────
 
 /**
- * Reads order IDs persisted in localStorage after purchase and fetches
- * each one in parallel via GET /api/v1/user/payments/orders/:orderId.
- * Sorted newest-first by createdAt.
+ * Reads orders directly from backend via
+ * GET /api/v1/user/payments/orders.
  */
-export function useOrderHistory() {
-  const ids = getStoredOrderIds();
+export function useOrderHistory(query?: PaymentOrderListQuery) {
+  const effectiveQuery = query ?? { page: 1, pageSize: 200 };
 
-  const queries = useQueries({
-    queries: ids.map((id) => ({
-      queryKey: paymentKeys.order(id),
-      queryFn: () => paymentService.getOrder(id),
-      staleTime: 30_000,
-    })),
+  const ordersQuery = useQuery({
+    queryKey: paymentKeys.orders(effectiveQuery),
+    queryFn: () => paymentService.listOrders(effectiveQuery),
+    staleTime: 30_000,
   });
 
-  const isLoading = queries.some((q) => q.isLoading && !q.data);
-  const error = queries.find((q) => q.isError)?.error ?? null;
-
-  const orders = queries
-    .filter((q) => !!q.data)
-    .map((q) => q.data!.order)
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-  const refetch = () => Promise.all(queries.map((q) => q.refetch()));
+  const orders = ordersQuery.data?.items ?? [];
+  const isLoading = ordersQuery.isLoading;
+  const error = ordersQuery.error ?? null;
+  const refetch = () => ordersQuery.refetch();
 
   return { orders, isLoading, error, refetch, isEmpty: !isLoading && orders.length === 0 };
 }

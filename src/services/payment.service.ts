@@ -7,6 +7,8 @@
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
 import type {
+  PaymentOrderListQuery,
+  PaymentOrderListResponse,
   RazorpayCheckoutCreateBody,
   RazorpayCheckoutCreateResponse,
   RazorpayConfirmBody,
@@ -33,6 +35,15 @@ export const paymentService = {
     apiClient.post<RazorpayConfirmResponse>(
       API_ENDPOINTS.PAYMENTS.RAZORPAY.CONFIRM,
       body,
+    ),
+
+  /**
+   * List current user's orders.
+   */
+  listOrders: (query?: PaymentOrderListQuery) =>
+    apiClient.get<PaymentOrderListResponse>(
+      API_ENDPOINTS.PAYMENTS.ORDERS.LIST,
+      query,
     ),
 
   /**
