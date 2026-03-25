@@ -43,7 +43,7 @@ export const paymentService = {
   listOrders: (query?: PaymentOrderListQuery) =>
     apiClient.get<PaymentOrderListResponse>(
       API_ENDPOINTS.PAYMENTS.ORDERS.LIST,
-      query,
+      query as Record<string, unknown>,
     ),
 
   /**

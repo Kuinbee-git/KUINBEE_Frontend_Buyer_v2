@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { OwnedDatasetCard, type OwnedDataset } from "./owned-dataset-card";
 import { Button } from "@/shared/components/ui/button";
-import { Database, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Database, RefreshCw } from "lucide-react";
 import { useLibrary } from "@/hooks/api/useLibrary";
 import { Card, CardContent } from "@/shared/components/ui/card";
 
@@ -13,13 +13,26 @@ type ViewState = "loading" | "empty" | "error" | "data";
 export function MyDatasetsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
   
   // Use real API hook
   const { data: libraryResponse, isLoading, error, refetch } = useLibrary({ 
     q: searchQuery || undefined,
-    page: 1,
-    pageSize: 20 
+    page: currentPage,
+    pageSize,
   });
+
+  const totalItems = libraryResponse?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   // Map API response to OwnedDataset format
   const datasets: OwnedDataset[] = libraryResponse?.items?.map(item => ({
@@ -37,7 +50,7 @@ export function MyDatasetsPage() {
     status: "active" as const,
   })) || [];
 
-  const viewState: ViewState = isLoading ? "loading" : error ? "error" : datasets.length === 0 ? "empty" : "data";
+  const viewState: ViewState = isLoading ? "loading" : error ? "error" : totalItems === 0 ? "empty" : "data";
 
   const handleRetry = () => {
     refetch();
@@ -137,6 +150,34 @@ export function MyDatasetsPage() {
             onViewDetails={handleViewDetails}
           />
         ))}
+      </div>
+
+      <div className="flex items-center justify-between gap-4 pt-2">
+        <p className="text-sm text-[#4e5a7e] dark:text-white/60">
+          Page {currentPage} of {totalPages}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={!hasPreviousPage}
+            className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={!hasNextPage}
+            className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80"
+          >
+            Next
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
       </div>
     </div>
   );

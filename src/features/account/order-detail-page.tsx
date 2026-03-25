@@ -81,7 +81,7 @@ function getOrderStatusConfig(status: OrderStatus) {
 
 function getAttemptStatusLabel(status: PaymentAttemptStatus) {
   switch (status) {
-    case "INITIATED":  return "Initiated";
+    case "CREATED":  return "Created";
     case "CLIENT_CONFIRMED": return "Confirmed";
     case "CAPTURED":   return "Captured";
     case "FAILED":     return "Failed";
@@ -151,6 +151,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   const statusConfig = getOrderStatusConfig(order.status);
   const StatusIcon = statusConfig.icon;
   const sym = getCurrencySymbol(order.currency);
+  const primaryLibraryHref = items[0] ? `/library/access/${items[0].datasetId}` : "/my-datasets";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f9fa] via-white to-[#e8eaf6] dark:from-[#0f172a] dark:via-[#1e293b] dark:to-[#0f172a]">
@@ -260,7 +261,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
                           </Button>
                         </Link>
                       ))}
-                      <Link href="/library">
+                      <Link href={primaryLibraryHref}>
                         <Button
                           size="sm"
                           className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240]"

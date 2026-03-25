@@ -9,7 +9,8 @@ import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Package, RefreshCw, ArrowRight } from "lucide-react";
-import { useOrderHistory } from "@/hooks/api/usePayments";
+import { useQuery } from "@tanstack/react-query";
+import { paymentService } from "@/services";
 import type { PaymentOrder, OrderStatus } from "@/types";
 
 /**
@@ -24,7 +25,17 @@ import type { PaymentOrder, OrderStatus } from "@/types";
 export function OrdersPage() {
   const pathname = usePathname();
   const router = useRouter();
-  const { orders, isLoading, error, refetch, isEmpty } = useOrderHistory();
+  const ordersQuery = useQuery({
+    queryKey: ["payment", "orders", "orders-page", { page: 1, pageSize: 200 }] as const,
+    queryFn: () => paymentService.listOrders({ page: 1, pageSize: 200 }),
+    staleTime: 30_000,
+  });
+
+  const orders = ordersQuery.data?.items ?? [];
+  const isLoading = ordersQuery.isLoading;
+  const error = ordersQuery.error ?? null;
+  const refetch = () => ordersQuery.refetch();
+  const isEmpty = !isLoading && orders.length === 0;
 
   const handleViewDetails = (order: PaymentOrder) => {
     router.push(`/order/${order.id}`);
