@@ -90,6 +90,7 @@ export interface DatasetDetails {
   downloadCount: number;
   viewCount: number;
   rating: number | null;
+  reviews?: number;
   kdtsScore: string | null;
   isSample?: boolean;
   sampleNotes?: {

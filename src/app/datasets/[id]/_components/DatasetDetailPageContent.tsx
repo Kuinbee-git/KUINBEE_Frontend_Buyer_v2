@@ -50,7 +50,7 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
     status: dataset.status?.toLowerCase() || "published",
     license: dataset.license || "Unknown",
     rating: dataset.rating,
-    reviewCount: 0,
+    reviewCount: dataset.reviews ?? 0,
     downloadCount: dataset.downloadCount || 0,
     viewCount: dataset.viewCount || 0,
     pricing: {
