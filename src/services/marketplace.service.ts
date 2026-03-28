@@ -39,4 +39,10 @@ export const marketplaceService = {
       API_ENDPOINTS.MARKETPLACE.INQUIRE(datasetId),
       message ? { message } : undefined
     ),
+
+  // Sample file download for marketplace users
+  getSampleDownloadUrl: (datasetId: string) =>
+    apiClient.get<{ url: string; expiresAt: string; upload: { id: string; originalFileName: string | null; contentType: string | null; sizeBytes: string | null } }>(
+      API_ENDPOINTS.MARKETPLACE.SAMPLE_DOWNLOAD_URL(datasetId)
+    ),
 };

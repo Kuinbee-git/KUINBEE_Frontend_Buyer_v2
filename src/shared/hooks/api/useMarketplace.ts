@@ -11,6 +11,8 @@ export const marketplaceKeys = {
   datasets: (query?: DatasetListQuery) => ["datasets", query] as const,
   datasetDetails: (datasetId: string) =>
     ["datasets", datasetId, "details"] as const,
+  datasetSampleDownloadUrl: (datasetId: string) =>
+    ["datasets", datasetId, "sample-download-url"] as const,
   categories: (query?: CategoryListQuery) => ["categories", query] as const,
 };
 
@@ -28,6 +30,15 @@ export const useDatasetDetails = (datasetId: string, enabled = true) => {
     queryKey: marketplaceKeys.datasetDetails(datasetId),
     queryFn: () => marketplaceService.getDatasetDetails(datasetId),
     enabled,
+  });
+};
+
+export const useDatasetSampleDownloadUrl = (datasetId: string, enabled = true) => {
+  return useQuery({
+    queryKey: marketplaceKeys.datasetSampleDownloadUrl(datasetId),
+    queryFn: () => marketplaceService.getSampleDownloadUrl(datasetId),
+    enabled,
+    staleTime: 0,
   });
 };
 
