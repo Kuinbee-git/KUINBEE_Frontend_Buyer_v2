@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail-page";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import type { DatasetDetailsResponse } from "@/types/dataset.types";
-import { useDatasetDetails, useInquireDataset } from "@/hooks/api/useMarketplace";
+import { useDatasetDetails, useDatasetSampleDownloadUrl, useInquireDataset } from "@/hooks/api/useMarketplace";
 import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useModal } from "@/core/providers";
@@ -59,6 +59,7 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
       currency: dataset.currency || "INR",
     },
     isSample: dataset.isSample ?? false,
+    sampleFileAvailable: !dataset.isSample && !!dataset.isPaid,
     sampleNotes: dataset.sampleNotes ?? null,
     actualPrice: dataset.actualPrice ? parseFloat(dataset.actualPrice) : null,
     actualPriceCurrency: dataset.actualPriceCurrency ?? null,
@@ -118,6 +119,13 @@ export function DatasetDetailPageContent() {
     error: downloadError,
   } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
 
+  const [shouldFetchSampleDownload, setShouldFetchSampleDownload] = useState(false);
+  const {
+    data: sampleDownloadUrlResponse,
+    isLoading: isGeneratingSampleDownload,
+    error: sampleDownloadError,
+  } = useDatasetSampleDownloadUrl(id, shouldFetchSampleDownload && !!id);
+
   // KDTS score is now fetched only by the lazy-loaded DatasetKdtsCard component
   // to avoid a duplicate API call on mount.
 
@@ -153,6 +161,18 @@ export function DatasetDetailPageContent() {
     }
   }, [downloadUrlResponse]);
 
+  useEffect(() => {
+    if (sampleDownloadUrlResponse?.url) {
+      const a = document.createElement("a");
+      a.href = sampleDownloadUrlResponse.url;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setShouldFetchSampleDownload(false);
+    }
+  }, [sampleDownloadUrlResponse]);
+
   // Surface download errors
   useEffect(() => {
     if (downloadError && shouldFetchDownload) {
@@ -160,6 +180,13 @@ export function DatasetDetailPageContent() {
       setShouldFetchDownload(false);
     }
   }, [downloadError, shouldFetchDownload]);
+
+  useEffect(() => {
+    if (sampleDownloadError && shouldFetchSampleDownload) {
+      toast.error("Failed to generate sample download link. Please try again.");
+      setShouldFetchSampleDownload(false);
+    }
+  }, [sampleDownloadError, shouldFetchSampleDownload]);
 
   // Memoize access state so stable reference is passed to DatasetDetailPage
   const accessState = useMemo((): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
@@ -261,6 +288,11 @@ export function DatasetDetailPageContent() {
     if (isGeneratingDownload) return;
     setShouldFetchDownload(true);
   }, [isAuthenticated, router, id, isGeneratingDownload]);
+
+  const handleDownloadSampleFile = useCallback(() => {
+    if (isGeneratingSampleDownload) return;
+    setShouldFetchSampleDownload(true);
+  }, [isGeneratingSampleDownload]);
 
   const handleOpenInquiry = useCallback(() => {
     if (!isAuthenticated) {
@@ -402,6 +434,8 @@ export function DatasetDetailPageContent() {
         onClaimDataset={handleClaimDataset}
         onPurchaseDataset={handlePurchaseDataset}
         onDownloadDataset={handleDownload}
+        onDownloadSampleFile={handleDownloadSampleFile}
+        isDownloadingSampleFile={isGeneratingSampleDownload}
         onInquireSampleDataset={handleOpenInquiry}
         currentUserId={user?.id}
       />

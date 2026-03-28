@@ -130,6 +130,8 @@ interface DatasetDetailPageProps {
   onClaimDataset?: () => void;
   onPurchaseDataset?: () => void;
   onDownloadDataset?: () => void;
+  onDownloadSampleFile?: () => void;
+  isDownloadingSampleFile?: boolean;
   onInquireSampleDataset?: () => void;
   onLogin?: () => void;
   onBack?: () => void;
@@ -495,6 +497,8 @@ interface AccessPricingPanelProps {
   isPaid: boolean;
   accessState: AccessState;
   primaryAction: { label: string; onClick?: () => void; variant: "default" };
+  onDownloadSampleFile?: () => void;
+  isDownloadingSampleFile?: boolean;
   onInquireSampleDataset?: () => void;
   isInWishlist: boolean;
   isWishlistPending: boolean;
@@ -509,6 +513,8 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
   isPaid,
   accessState,
   primaryAction,
+  onDownloadSampleFile,
+  isDownloadingSampleFile,
   onInquireSampleDataset,
   isInWishlist,
   isWishlistPending,
@@ -649,6 +655,25 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
           </div>
         )}
 
+        {!dataset.isSample && dataset.pricing.type === "paid" && (
+          <div className="mb-4">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full h-10 text-xs font-semibold border-emerald-400/40 bg-emerald-500/5 text-emerald-700 hover:bg-emerald-500/10 dark:border-emerald-400/35 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/15"
+              onClick={onDownloadSampleFile}
+              disabled={isDownloadingSampleFile}
+            >
+              {isDownloadingSampleFile ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              Download Sample File
+            </Button>
+          </div>
+        )}
+
         <div className="bg-muted/50 dark:bg-white/5 rounded-lg p-4">
           <div className="flex items-start gap-2">
             <Info className="h-4 w-4 text-muted-foreground dark:text-white/60 mt-0.5 shrink-0" />
@@ -684,6 +709,8 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
   onClaimDataset,
   onPurchaseDataset,
   onDownloadDataset,
+  onDownloadSampleFile,
+  isDownloadingSampleFile = false,
   onInquireSampleDataset,
   onLogin,
   onBack,
@@ -822,6 +849,8 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
               isPaid={isPaid}
               accessState={accessState}
               primaryAction={primaryAction}
+              onDownloadSampleFile={onDownloadSampleFile}
+              isDownloadingSampleFile={isDownloadingSampleFile}
               onInquireSampleDataset={onInquireSampleDataset}
               isInWishlist={isInWishlist}
               isWishlistPending={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
