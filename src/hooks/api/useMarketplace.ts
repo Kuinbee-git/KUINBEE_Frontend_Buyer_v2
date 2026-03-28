@@ -52,6 +52,15 @@ export const useInquireDataset = () => {
   });
 };
 
+// Get sample download URL
+export const useDatasetSampleDownloadUrl = (datasetId: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["datasets", datasetId, "sample-download-url"] as const,
+    queryFn: () => marketplaceService.getSampleDownloadUrl(datasetId),
+    enabled,
+  });
+};
+
 // ── Prefetch helpers (fire-and-forget, no UI impact) ──
 
 /** Prefetch a dataset list page so it's cached before the user navigates to it. */

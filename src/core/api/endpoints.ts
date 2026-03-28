@@ -55,6 +55,8 @@ export const API_ENDPOINTS = {
       `/api/v1/marketplace/datasets/${datasetId}`,
     INQUIRE: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}/inquire`,
+    SAMPLE_DOWNLOAD_URL: (datasetId: string) =>
+      `/api/v1/marketplace/datasets/${datasetId}/sample-download-url`,
     CATEGORIES: "/api/v1/marketplace/categories",
     REVIEWS: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}/reviews`,

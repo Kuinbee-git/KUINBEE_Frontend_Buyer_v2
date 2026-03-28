@@ -70,6 +70,7 @@ export interface Dataset {
   location: DatasetLocationUI | null;
   tags: string[];
   isSample?: boolean;
+  sampleFileAvailable?: boolean;
   sampleNotes?: {
     whySample?: string | null;
     actualDataSize?: string | null;
