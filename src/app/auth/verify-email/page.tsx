@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useConfirmEmailVerification } from "@/hooks/api/useAuth";
 import { Button } from "@/shared/components/ui/button";
@@ -16,20 +16,22 @@ function VerifyEmailContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
+  const lastAttemptedKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const verifyEmail = async () => {
-      // Prevent multiple calls if we're no longer in the loading state
-      if (status !== "loading") return;
-
       const emailParam = searchParams.get("email");
       const tokenParam = searchParams.get("token");
+      const attemptKey = `${emailParam ?? ""}:${tokenParam ?? ""}`;
 
       if (!emailParam || !tokenParam) {
         setStatus("error");
         setMessage("Missing email or verification token");
         return;
       }
+
+      if (lastAttemptedKeyRef.current === attemptKey) return;
+      lastAttemptedKeyRef.current = attemptKey;
 
       setEmail(emailParam);
 
