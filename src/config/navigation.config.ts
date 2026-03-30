@@ -126,8 +126,12 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Datasets marketplace
   "/datasets": {
     showBack: false,
-    directLinks: [],
-    dropdowns: ["categories", "sort"],
+    directLinks: [
+      { label: "Pricing", href: "/pricing" },
+      { label: "Request Data", href: "/data-request" },
+      { label: "Supplier Resources", href: "/supplier-resources" },
+    ],
+    dropdowns: [],
     showSearch: true,
     searchPlaceholder: "Search datasets...",
     actions: ["filters-badge"],
