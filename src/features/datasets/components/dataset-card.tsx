@@ -109,6 +109,10 @@ export const DatasetCard = memo(function DatasetCard({
   const sampleActualPrice = toSafeNumber(dataset.actualPrice);
   const hasActualSamplePrice = sampleActualPrice !== null;
   const sampleCurrency = dataset.actualPriceCurrency || dataset.pricing.currency;
+  const normalizedProvider = dataset.provider?.trim().toLowerCase();
+  const isPlatformDatasetProvider =
+    normalizedProvider === "kuinbee information services pvt. ltd." ||
+    normalizedProvider === "kuinbee information services private limited";
 
   return (
     <Link
@@ -198,7 +202,8 @@ export const DatasetCard = memo(function DatasetCard({
 
       {/* ── Row 3: Provider ── */}
       <p className="text-[14px] text-[#4e5a7e] dark:text-white/60 mb-3">
-        by <span className="font-medium text-[#1a2240]/80 dark:text-white/80">{dataset.provider}</span>
+        {isPlatformDatasetProvider ? "Curated by " : "by "}
+        <span className="font-medium text-[#1a2240]/80 dark:text-white/80">{dataset.provider}</span>
       </p>
 
       {/* ── Row 4: Star Rating ── */}
