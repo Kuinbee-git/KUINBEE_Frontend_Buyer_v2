@@ -4,8 +4,9 @@ import { blogPostsMeta } from "@/features/blog/blog-posts";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
+import { RssSubscribeActions } from "./_components/rss-subscribe-actions";
 import Link from "next/link";
-import { Calendar, Clock, ArrowRight, Tag, Rss } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Tag } from "lucide-react";
 
 export const metadata: Metadata = genMeta({
   title: "Kuinbee Blog | AI Datasets, Buyer Guides & Insights",
@@ -59,17 +60,7 @@ export default function BlogPage() {
             <p className="text-base md:text-lg text-[#4e5a7e] dark:text-white/60 max-w-xl mx-auto leading-relaxed">
               Articles on the data economy, AI datasets, industry analysis, and the future of data access — from the Kuinbee team.
             </p>
-            <div className="mt-8 flex justify-center">
-              <a
-                href="/feed.xml"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold text-sm transition-colors hover:bg-orange-100 dark:hover:bg-orange-500/20 border border-orange-200 dark:border-orange-500/30"
-              >
-                <Rss className="w-4 h-4" />
-                Subscribe via RSS
-              </a>
-            </div>
+            <RssSubscribeActions fallbackUrl="https://www.kuinbee.com/feed.xml" />
           </div>
 
           {/* ── Hero post — full-width horizontal card ── */}
