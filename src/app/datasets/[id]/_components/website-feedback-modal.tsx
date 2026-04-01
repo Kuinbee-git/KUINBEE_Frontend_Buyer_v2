@@ -39,7 +39,7 @@ export function WebsiteFeedbackModal({
   }, [open]);
 
   const handleSubmit = async () => {
-    if (rating < 1 || !review.trim()) return;
+    if (rating < 1) return;
     await onSubmit({ rating, review: review.trim() });
   };
 
@@ -79,7 +79,7 @@ export function WebsiteFeedbackModal({
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-white/80">Website Review</p>
+            <p className="mb-2 text-sm font-medium text-slate-700 dark:text-white/80">Website Review (optional)</p>
             <Textarea
               value={review}
               onChange={(event) => setReview(event.target.value)}
@@ -101,7 +101,7 @@ export function WebsiteFeedbackModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={loading || rating < 1 || !review.trim()}
+            disabled={loading || rating < 1}
             className="border border-transparent bg-slate-900 text-white hover:bg-slate-800 dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30"
           >
             {loading ? "Submitting..." : "Submit Review"}
