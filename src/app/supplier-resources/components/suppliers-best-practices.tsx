@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { TrendingUp, Database, Lightbulb, Zap } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
 export function SuppliersBestPractices() {
@@ -18,10 +17,38 @@ export function SuppliersBestPractices() {
     }, []);
 
     const practices = [
-        { icon: Database, title: "The Perfect Sample File", description: "Don't just upload the first 100 rows. Upload a statistically representative sample, obfuscate sensitive fields while maintaining real data variance.", tip: "Buyers rely on samples to test ingestion pipelines before purchase", color: "text-blue-400", bgColor: "bg-blue-400/10" },
-        { icon: Lightbulb, title: "Mastering the Schema", description: 'Never leave descriptions blank. Transform "age: int" into "user_age_band: int, Age bucketed into 5-year intervals to preserve entity anonymity."', tip: "Clear field documentation dramatically increases enterprise purchasing confidence", color: "text-amber-400", bgColor: "bg-amber-400/10" },
-        { icon: TrendingUp, title: "Clear Methodologies", description: "Tell buyers HOW data was collected. Was it scraped, surveyed, or from IoT sensors? Include collection intervals like 'polled every 15 mins, batched daily at midnight UTC.'", tip: "Collection methodology details prove to enterprise buyers that your data is reliable", color: "text-emerald-400", bgColor: "bg-emerald-400/10" },
-        { icon: Zap, title: "Freemium Marketing", description: "Use free pricing strategically. Offer a highly aggregated 1-month historical extract for free, linking to your premium real-time, granular dataset.", tip: "Many top suppliers use freemium to drive trial-to-paid conversions", color: "text-purple-400", bgColor: "bg-purple-400/10" },
+        {
+            step: "01",
+            focus: "Sample Quality",
+            title: "The Perfect Sample File",
+            description: "Don't just upload the first 100 rows. Upload a statistically representative sample, obfuscate sensitive fields while maintaining real data variance.",
+            tip: "Buyers rely on samples to test ingestion pipelines before purchase",
+            impact: "Reduces pre-purchase uncertainty"
+        },
+        {
+            step: "02",
+            focus: "Schema Clarity",
+            title: "Mastering the Schema",
+            description: 'Never leave descriptions blank. Transform "age: int" into "user_age_band: int, Age bucketed into 5-year intervals to preserve entity anonymity."',
+            tip: "Clear field documentation dramatically increases enterprise purchasing confidence",
+            impact: "Improves enterprise approval confidence"
+        },
+        {
+            step: "03",
+            focus: "Collection Trust",
+            title: "Clear Methodologies",
+            description: "Tell buyers HOW data was collected. Was it scraped, surveyed, or from IoT sensors? Include collection intervals like 'polled every 15 mins, batched daily at midnight UTC.'",
+            tip: "Collection methodology details prove to enterprise buyers that your data is reliable",
+            impact: "Builds reliability for regulated teams"
+        },
+        {
+            step: "04",
+            focus: "Conversion Strategy",
+            title: "Freemium Marketing",
+            description: "Use free pricing strategically. Offer a highly aggregated 1-month historical extract for free, linking to your premium real-time, granular dataset.",
+            tip: "Many top suppliers use freemium to drive trial-to-paid conversions",
+            impact: "Increases trial-to-paid conversion"
+        },
     ];
 
     return (
@@ -46,7 +73,7 @@ export function SuppliersBestPractices() {
                 {/* Section header */}
                 <div className="mx-auto max-w-3xl text-center mb-20">
                     <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                        <TrendingUp className="h-4 w-4 text-primary dark:text-white" />
+                        <span className="h-2 w-2 rounded-full bg-primary dark:bg-white animate-pulse" />
                         <span className="text-sm font-medium text-primary dark:text-white">Best Practices</span>
                     </div>
                     <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
@@ -59,41 +86,86 @@ export function SuppliersBestPractices() {
                     </p>
                 </div>
 
-                {/* Practices grid */}
-                <div className="grid gap-6 md:grid-cols-2">
-                    {practices.map((practice) => {
-                        const Icon = practice.icon;
+                <div className="mb-10 rounded-2xl border border-primary/20 dark:border-white/15 bg-gradient-to-br from-primary/[0.08] via-primary/[0.03] to-transparent dark:from-white/[0.08] dark:via-white/[0.04] dark:to-transparent p-6 lg:p-8 backdrop-blur-sm">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                        <div className="max-w-2xl">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary dark:text-white mb-3">Conversion Playbook</p>
+                            <h3 className="text-2xl lg:text-3xl font-semibold text-foreground dark:text-white leading-tight">
+                                High-trust listings close faster and convert better.
+                            </h3>
+                            <p className="mt-3 text-sm lg:text-base text-muted-foreground dark:text-white/70">
+                                This is the section buyers evaluate before purchase intent turns into a transaction.
+                            </p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3 w-full lg:w-auto">
+                            {[
+                                { metric: "3x", label: "Schema Detail" },
+                                { metric: "85%", label: "Freemium Usage" },
+                                { metric: "92%", label: "Methodology Trust" },
+                            ].map((item) => (
+                                <div key={item.label} className="rounded-lg border border-primary/20 dark:border-white/15 bg-background/70 dark:bg-[#1a2240]/50 px-4 py-3 text-center min-w-[92px]">
+                                    <div className="text-lg lg:text-xl font-semibold text-primary dark:text-white">{item.metric}</div>
+                                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground dark:text-white/60">{item.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Practices grid - Editorial Bento Style */}
+                <div className="grid gap-6 lg:grid-cols-5">
+                    {practices.map((practice, index) => {
+                        const isWide = index === 0 || index === 3; // Staggered layout: W-N, N-W
                         return (
-                            <div key={practice.title} className="group relative rounded-2xl overflow-hidden border border-primary/15 dark:border-white/10 bg-card/80 dark:bg-card/30 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                                <div className="relative z-10 p-8 lg:p-10 h-full flex flex-col">
-                                    <div className={cn("flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent mb-6", practice.bgColor)}>
-                                        <Icon className={cn("h-7 w-7", practice.color)} />
+                            <div 
+                                key={practice.title} 
+                                className={cn(
+                                    "group relative rounded-3xl overflow-hidden border border-primary/10 dark:border-white/10 bg-card/80 dark:bg-card/20 backdrop-blur-sm p-8 flex flex-col justify-end min-h-[380px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 hover:border-primary/30 dark:hover:border-white/20",
+                                    isWide ? "lg:col-span-3" : "lg:col-span-2"
+                                )}
+                            >
+                                {/* Hover background glow */}
+                                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br from-primary/[0.06] via-primary/[0.02] to-transparent dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent" />
+                                
+                                {/* Massive Watermark Number */}
+                                <div className="absolute -top-6 -right-6 pointer-events-none select-none transition-transform duration-1000 ease-out group-hover:scale-105 group-hover:-translate-y-3 group-hover:-translate-x-3">
+                                    <span className="text-[180px] lg:text-[240px] font-black text-primary/[0.04] dark:text-white/[0.02] leading-none tracking-tighter">
+                                        {practice.step}
+                                    </span>
+                                </div>
+
+                                {/* Content */}
+                                <div className="relative z-10 flex-1 flex flex-col mt-4 lg:mt-8">
+                                    <div className="mb-6">
+                                        <span className="inline-flex items-center rounded-full border border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-primary dark:text-white/70">
+                                            {practice.focus}
+                                        </span>
                                     </div>
-                                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-3">{practice.title}</h3>
-                                    <p className="text-muted-foreground dark:text-white/70 mb-6 leading-relaxed flex-1">{practice.description}</p>
-                                    <div className="rounded-lg border border-border/50 dark:border-white/10 bg-background/50 dark:bg-[#1a2240]/40 backdrop-blur-sm p-4">
-                                        <p className="text-sm text-foreground/90 dark:text-white/80">
-                                            <span className="font-semibold text-primary dark:text-white">💡 Tip:</span> {practice.tip}
-                                        </p>
+                                    <h3 className="text-2xl lg:text-3xl font-bold text-foreground dark:text-white mb-4 leading-tight group-hover:text-primary dark:group-hover:text-white/90 transition-colors duration-300">
+                                        {practice.title}
+                                    </h3>
+                                    <p className="text-base text-muted-foreground dark:text-white/60 mb-8 leading-relaxed max-w-xl flex-1">
+                                        {practice.description}
+                                    </p>
+
+                                    {/* Impact Bar - Slide-in effect */}
+                                    <div className="mt-auto relative overflow-hidden rounded-xl bg-background/50 dark:bg-[#1a2240]/40 border border-primary/10 dark:border-white/10 p-5 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0 group-hover:bg-primary/5 dark:group-hover:bg-white/5">
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60 dark:text-white/40">
+                                                Why It Matters
+                                            </span>
+                                            <span className="text-sm font-semibold text-foreground/90 dark:text-white/90 leading-snug">
+                                                {practice.impact}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* Glare effect */}
+                                        <div className="absolute inset-0 -translate-x-[150%] skew-x-12 bg-gradient-to-r from-transparent via-primary/10 dark:via-white/10 to-transparent transition-transform duration-1000 ease-out group-hover:translate-x-[150%]" />
                                     </div>
                                 </div>
                             </div>
                         );
                     })}
-                </div>
-
-                {/* Metrics */}
-                <div className="mt-20 grid gap-6 md:grid-cols-3">
-                    {[
-                        { metric: "3x", label: "Higher conversion with detailed schema" },
-                        { metric: "85%", label: "Of top suppliers use freemium models" },
-                        { metric: "92%", label: "Enterprise buyers trust clear methodology" }
-                    ].map((item, i) => (
-                        <div key={i} className="rounded-lg border border-border/50 bg-card/80 dark:bg-card/50 backdrop-blur-sm p-6 text-center shadow-lg">
-                            <div className="text-3xl lg:text-4xl font-semibold text-primary dark:text-white mb-2">{item.metric}</div>
-                            <p className="text-sm text-muted-foreground dark:text-white/60">{item.label}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
         </section>
