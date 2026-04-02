@@ -72,11 +72,11 @@ export function SuppliersGuide() {
     }, [updateProgress]);
 
     const steps = [
-        { number: "01", icon: BadgeCheck, title: "Account Verification & KYC", description: "All suppliers verify identity via secure KYC. PAN for individuals, business registration for companies. Your profile becomes your storefront.", details: ["Self-service identity verification", "PAN or business registration required", "Profile becomes read-only after onboarding", "Changes require support ticket"], timeline: "1-2 hours", color: "text-blue-400", bgColor: "bg-blue-400/10" },
-        { number: "02", icon: FileText, title: "Building Dataset Proposals", description: "Document your dataset comprehensively. Schema definitions, methodology, sample data, and licensing declarations required.", details: ["Detailed overview and methodology", "Column-level schema documentation", "Sample data upload (CSV, JSON, Parquet)", "Governance & licensing declaration"], timeline: "As fast as you", color: "text-purple-400", bgColor: "bg-purple-400/10" },
-        { number: "03", icon: CheckCircle2, title: "The Quality Review", description: "Human review, not algorithms. Every proposal reviewed for structural, quality, and compliance standards.", details: ["2-3 business days typical turnaround", "Approval or change request feedback", "Locked during review for integrity", "Terminal rejection for policy violations"], timeline: "2-3 days", color: "text-amber-400", bgColor: "bg-amber-400/10" },
-        { number: "04", icon: DollarSign, title: "Pricing, Currencies & Revenue", description: "You set the price. Fixed pricing with no negotiation. Multiple currency support with transparent revenue.", details: ["INR, USD, EUR, GBP supported", "Fixed price or free access models", "Mini-approval on price changes", "No platform-determined pricing"], timeline: "Instant", color: "text-emerald-400", bgColor: "bg-emerald-400/10" },
-        { number: "05", icon: Settings, title: "Managing Published Data", description: "Your operational hub. Control visibility, track sales, respond to feedback, and manage your portfolio.", details: ["Public, Unlisted, or Private visibility", "Supplier dashboard for tracking", "Archive (not delete) datasets", "Preserve transaction history"], timeline: "Ongoing", color: "text-cyan-400", bgColor: "bg-cyan-400/10" },
+        { number: "01", icon: BadgeCheck, title: "Account Verification & KYC", description: "All suppliers verify identity via secure KYC. PAN for individuals, business registration for companies. Your profile becomes your storefront.", details: ["Self-service identity verification", "PAN or business registration required", "Profile becomes read-only after onboarding", "Changes require support ticket"], timeline: "1-2 hours" },
+        { number: "02", icon: FileText, title: "Building Dataset Proposals", description: "Document your dataset comprehensively. Schema definitions, methodology, sample data, and licensing declarations required.", details: ["Detailed overview and methodology", "Column-level schema documentation", "Sample data upload (CSV, JSON, Parquet)", "Governance & licensing declaration"], timeline: "As fast as you" },
+        { number: "03", icon: CheckCircle2, title: "The Quality Review", description: "Human review, not algorithms. Every proposal reviewed for structural, quality, and compliance standards.", details: ["2-3 business days typical turnaround", "Approval or change request feedback", "Locked during review for integrity", "Terminal rejection for policy violations"], timeline: "2-3 days" },
+        { number: "04", icon: DollarSign, title: "Pricing, Currencies & Revenue", description: "You set the price. Fixed pricing with no negotiation. Multiple currency support with transparent revenue.", details: ["INR, USD, EUR, GBP supported", "Fixed price or free access models", "Mini-approval on price changes", "No platform-determined pricing"], timeline: "Instant" },
+        { number: "05", icon: Settings, title: "Managing Published Data", description: "Your operational hub. Control visibility, track sales, respond to feedback, and manage your portfolio.", details: ["Public, Unlisted, or Private visibility", "Supplier dashboard for tracking", "Archive (not delete) datasets", "Preserve transaction history"], timeline: "Ongoing" },
     ];
 
     return (
@@ -172,7 +172,7 @@ export function SuppliersGuide() {
                                 >
                                     {/* Center node on the timeline — lg only */}
                                     <div data-timeline-node className="hidden lg:flex absolute left-1/2 top-6 -translate-x-1/2 z-20">
-                                        <div className={cn("flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary/30 dark:border-white/20 bg-card shadow-lg backdrop-blur-sm", step.bgColor)}>
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary/30 dark:border-white/20 bg-primary/10 dark:bg-white/10 shadow-lg backdrop-blur-sm">
                                             <span className="text-sm font-bold text-primary dark:text-white">{step.number}</span>
                                         </div>
                                     </div>
@@ -182,11 +182,11 @@ export function SuppliersGuide() {
                                         <div className="rounded-2xl border border-primary/15 dark:border-white/10 bg-card/80 dark:bg-card/30 backdrop-blur-sm p-6 lg:p-8 hover:shadow-lg transition-all duration-300">
                                             {/* Mobile: inline step number */}
                                             <div className="flex items-center gap-4 mb-4 lg:mb-6">
-                                                <div className={cn("lg:hidden flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 dark:border-transparent", step.bgColor)}>
+                                                <div className="lg:hidden flex h-10 w-10 items-center justify-center rounded-full border border-primary/20 dark:border-white/15 bg-primary/10 dark:bg-white/10">
                                                     <span className="text-sm font-bold text-primary dark:text-white">{step.number}</span>
                                                 </div>
-                                                <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent", step.bgColor)}>
-                                                    <Icon className={cn("h-5 w-5", step.color)} />
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 dark:border-white/15 bg-primary/10 dark:bg-white/10">
+                                                    <Icon className="h-5 w-5 text-primary dark:text-white" />
                                                 </div>
                                                 <div className="flex-1 flex items-center justify-between">
                                                     <h3 className="text-xl font-semibold text-foreground dark:text-white">{step.title}</h3>
@@ -216,7 +216,7 @@ export function SuppliersGuide() {
                                     <div className={cn("hidden lg:block relative", !isEven && "lg:col-start-1 lg:row-start-1")}>
                                         <div className="rounded-2xl border-2 border-primary/15 dark:border-white/10 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-[#1a2240]/40 dark:via-[#0f1729]/30 dark:to-[#0a0f1e]/40 p-8 overflow-hidden shadow-lg dark:shadow-xl">
                                             {/* Decorative gradient overlay */}
-                                            <div className={cn("absolute inset-0 opacity-[0.08] dark:opacity-[0.15] bg-gradient-to-br", step.bgColor)} />
+                                            <div className={cn("absolute inset-0 opacity-[0.08] dark:opacity-[0.15] bg-gradient-to-br")} />
 
                                             <div className="relative space-y-4">
                                                 {/* Step 01: KYC Verification */}
