@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { ArrowRight, Lock, TrendingUp, Zap } from "lucide-react";
+import { ArrowRight, Shield, DollarSign, Settings } from "lucide-react";
 
 export function SuppliersCTA() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -20,9 +20,9 @@ export function SuppliersCTA() {
     }, []);
 
     const benefits = [
-        { icon: Lock, text: "Full IP Protection" },
-        { icon: TrendingUp, text: "Transparent pricing " },
-        { icon: Zap, text: "Complete Control" },
+        { icon: Shield, text: "Full IP Protection" },
+        { icon: DollarSign, text: "Transparent Pricing" },
+        { icon: Settings, text: "Complete Control" },
     ];
 
     return (
