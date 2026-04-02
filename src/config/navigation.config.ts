@@ -127,11 +127,9 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   "/datasets": {
     showBack: false,
     directLinks: [
-      { label: "Pricing", href: "/pricing" },
-      { label: "Request Data", href: "/data-request" },
-      { label: "Supplier Resources", href: "/supplier-resources" },
+      { label: "Home", href: "/" },
     ],
-    dropdowns: [],
+    dropdowns: ["resources"],
     showSearch: true,
     searchPlaceholder: "Search datasets...",
     actions: ["filters-badge"],
