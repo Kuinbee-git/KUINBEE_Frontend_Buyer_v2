@@ -29,59 +29,27 @@ export const metadata: Metadata = genMeta({
   path: "/",
 });
 
-async function getCategoryCounts(): Promise<Record<string, number>> {
+async function fetchCategories() {
   try {
-    const slugMap: Record<string, string> = {
-      finance: "finance",
-      energy: "energy",
-      environment: "environment",
-      agriculture: "agriculture",
-      economics: "economics",
-      realestate: "real estate"
-    };
-    
-    // 1. Fetch live categories to get their true backend UUIDs
     const catRes = await fetch(`${API_BASE_URL}/api/v1/marketplace/categories`, {
       next: { revalidate: 3600 }
     });
     
-    if (!catRes.ok) return {};
+    if (!catRes.ok) return [];
     const catJson = await catRes.json();
-    if (!catJson.success || !catJson.data?.items) return {};
+    if (!catJson.success || !catJson.data?.items) return [];
 
-    const dbCategories: { id: string; name: string }[] = catJson.data.items;
-
-    const counts: Record<string, number> = {};
-    const fetchPromises = Object.entries(slugMap).map(async ([slug, searchName]) => {
-      // Find matching UUID
-      const match = dbCategories.find(c => c.name.toLowerCase().includes(searchName));
-      if (!match) return;
-
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/marketplace/datasets?categoryId=${match.id}&pageSize=1`, {
-          next: { revalidate: 3600 }
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && json.data) {
-            counts[slug] = json.data.total;
-          }
-        }
-      } catch (e) {
-        console.error(`Failed to fetch count for category ${slug}`, e);
-      }
-    });
-
-    await Promise.allSettled(fetchPromises);
-    return counts;
+    return catJson.data.items.filter((c: { id: string; name: string, datasetCount?: number }) => 
+      !c.name.toLowerCase().includes("test") && (c.datasetCount || 0) > 0
+    );
   } catch (err) {
-    console.error("Failed to execute getCategoryCounts:", err);
-    return {};
+    console.error("Failed to execute fetchCategories:", err);
+    return [];
   }
 }
 
 export default async function HomePage() {
-  const categoryCounts = await getCategoryCounts();
+  const dynamicCategories = await fetchCategories();
 
   return (
     <main className="min-h-screen bg-background">
@@ -89,7 +57,7 @@ export default async function HomePage() {
         <LandingHeader />
       </div>
       <LandingHero />
-      <DataCategories categoryCounts={categoryCounts} />
+      <DataCategories categories={dynamicCategories} />
       <HowItWorksSection />
       <GovernanceValue />
       <DataRequestSection />
