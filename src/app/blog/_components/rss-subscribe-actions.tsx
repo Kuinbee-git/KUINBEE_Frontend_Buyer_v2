@@ -19,7 +19,7 @@ export function RssSubscribeActions({ fallbackUrl }: RssSubscribeActionsProps) {
 
   // Always use fallbackUrl (production) for Feedly since it can't reach localhost
   const feedlyUrl = useMemo(
-    () => `https://feedly.com/i/subscription/feed/${encodeURIComponent(fallbackUrl)}`,
+    () => `https://feedly.com/i/subscription/feed/${fallbackUrl}`,
     [fallbackUrl]
   );
 
