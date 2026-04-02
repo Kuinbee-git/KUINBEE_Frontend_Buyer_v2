@@ -3,91 +3,75 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@/components/router/Link";
 import {
-  TrendingUp,
-  Zap,
+  LayoutDashboard,
   Leaf,
-  Wheat,
+  Brain,
+  Car,
+  Plane,
+  Headphones,
   BarChart3,
-  Building2,
-  ArrowRight,
+  Zap,
+  Globe,
+  DollarSign,
+  Map,
+  HeartPulse,
+  ShieldCheck,
+  Factory,
+  Cross,
+  Scan,
+  Sun,
+  Mic,
+  Signal,
   Database,
+  ArrowRight
 } from "lucide-react";
-import { CategoryCard } from "./category-card";
+import { cn } from "@/shared/utils/cn";
 
-const categories = [
-  {
-    icon: TrendingUp,
-    name: "Finance & Markets",
-    description:
-      "Verified market data, trading patterns, economic indicators, and regulated financial analytics",
-    datasets: "2,500+",
-    href: "/datasets?category=finance",
-  },
-  {
-    icon: Zap,
-    name: "Energy & Utilities",
-    description:
-      "Power generation metrics, consumption patterns, renewable sources, and grid analytics",
-    datasets: "1,800+",
-    href: "/datasets?category=energy",
-  },
-  {
-    icon: Leaf,
-    name: "Environment & Climate",
-    description:
-      "Climate data, emissions tracking, biodiversity metrics, and sustainability indicators",
-    datasets: "3,200+",
-    href: "/datasets?category=environment",
-  },
-  {
-    icon: Wheat,
-    name: "Agriculture & Food",
-    description:
-      "Crop yields, supply chain data, nutrition metrics, and agricultural trends",
-    datasets: "1,400+",
-    href: "/datasets?category=agriculture",
-  },
-  {
-    icon: BarChart3,
-    name: "Economics & Trade",
-    description:
-      "GDP metrics, trade data, employment statistics, and economic forecasts",
-    datasets: "2,100+",
-    href: "/datasets?category=economics",
-  },
-  {
-    icon: Building2,
-    name: "Real Estate",
-    description:
-      "Property valuations, market trends, transaction data, and development metrics",
-    datasets: "Coming Soon",
-    href: "/datasets?category=realestate",
-    comingSoon: true,
-  },
-];
+export const categoryIcons: Record<string, React.ElementType> = {
+  "All Categories": LayoutDashboard,
+  "Agriculture and Food Security": Leaf,
+  "AI & ML": Brain,
+  "Automobile": Car,
+  "Aviation": Plane,
+  "Call Center": Headphones,
+  "Economics": BarChart3,
+  "Energy": Zap,
+  "Environment": Globe,
+  "Finance": DollarSign,
+  "Geospatial": Map,
+  "Healthcare": HeartPulse,
+  "Insurance": ShieldCheck,
+  "Manufacturing": Factory,
+  "Medical": Cross,
+  "Medical Imagery": Scan,
+  "Solar": Sun,
+  "Speech": Mic,
+  "Telecom": Signal
+};
+
+export type CategoryItem = {
+  id: string;
+  name: string;
+};
 
 interface DataCategoriesProps {
-  categoryCounts?: Record<string, number>;
+  categories?: CategoryItem[];
 }
 
-export function DataCategories({ categoryCounts }: DataCategoriesProps) {
+function getIconForCategory(name: string) {
+  return categoryIcons[name] || Database;
+}
+
+export function DataCategories({ categories = [] }: DataCategoriesProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
       { threshold: 0.1 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -95,8 +79,10 @@ export function DataCategories({ categoryCounts }: DataCategoriesProps) {
     <section
       ref={sectionRef}
       id="categories"
-      className={`relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"
-        }`}
+      className={cn(
+        "relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000",
+        isVisible ? "opacity-100" : "opacity-0"
+      )}
     >
       {/* Subtle pattern for light mode depth */}
       <div
@@ -109,7 +95,7 @@ export function DataCategories({ categoryCounts }: DataCategoriesProps) {
 
       <div className="mx-auto max-w-6xl px-6 relative z-20">
         {/* Section header */}
-        <div className="mb-16 text-center">
+        <div className="mb-12 text-center">
           <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
             <Database className="h-4 w-4 text-primary dark:text-white" />
             <span className="text-sm font-medium text-primary dark:text-white">
@@ -122,43 +108,46 @@ export function DataCategories({ categoryCounts }: DataCategoriesProps) {
             <span className="text-muted-foreground">Industry Vertical</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Access verified datasets across regulated industries. Each category
+            Access verified datasets across regulated industries. Each domain
             maintains compliance standards and quality verification.
           </p>
         </div>
 
-        {/* Categories grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Categories Dense Grid Layout */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {categories.map((category) => {
-            // Check if we have a live count from the API based on the URL parameter (e.g. "?category=finance" -> "finance")
-            const slug = category.href.split("category=")[1];
-            const liveCount = categoryCounts?.[slug];
-            const datasetsText = liveCount && liveCount > 0 
-              ? `${liveCount.toLocaleString()} datasets` 
-              : category.datasets;
-
+            const Icon = getIconForCategory(category.name);
             return (
-              <CategoryCard
-                key={category.name}
-                name={category.name}
-                description={category.description}
-                icon={category.icon}
-                datasets={datasetsText}
-                href={category.href}
-                comingSoon={category.comingSoon}
-              />
+              <Link
+                key={category.id}
+                href={`/datasets?category=${category.id}`}
+                className="group relative flex flex-col items-center justify-center gap-3 rounded-xl border border-primary/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 dark:hover:border-white/20 hover:bg-white/80 dark:hover:bg-white/[0.06] hover:shadow-[0_8px_24px_-12px_rgba(26,34,64,0.15)] dark:hover:shadow-[0_8px_24px_-12px_rgba(255,255,255,0.1)]"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/5 dark:bg-white/5 text-primary dark:text-white transition-all group-hover:bg-primary/10 dark:group-hover:bg-white/10 group-hover:scale-110 duration-500 ease-out">
+                  <Icon className="h-5 w-5 transition-transform group-hover:-rotate-3" />
+                </div>
+                <h3 className="line-clamp-2 text-sm font-medium text-primary dark:text-white px-1 leading-tight">
+                  {category.name}
+                </h3>
+              </Link>
             );
           })}
+          
+          {categories.length === 0 && (
+            <div className="col-span-full py-16 text-center text-sm text-muted-foreground bg-primary/5 dark:bg-white/5 rounded-xl border border-primary/10 dark:border-white/10">
+               Marketplace categories are actively synchronizing.
+            </div>
+          )}
         </div>
 
         {/* View all CTA */}
         <div className="mt-12 text-center">
           <Link
             href="/datasets"
-            className="inline-flex items-center gap-2 text-sm text-secondary transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-2 text-sm text-secondary transition-colors hover:text-foreground group"
           >
-            <span>Browse Marketplace</span>
-            <ArrowRight className="h-4 w-4" />
+            <span>Browse Global Marketplace</span>
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>
