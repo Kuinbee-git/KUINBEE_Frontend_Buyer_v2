@@ -176,6 +176,7 @@ export interface DatasetListQuery extends PaginationQuery {
   q?: string;
   search?: string;
   categoryId?: string;
+  categoryIds?: string[];
   isPaid?: boolean;
   currency?: Currency;
   minPrice?: string;

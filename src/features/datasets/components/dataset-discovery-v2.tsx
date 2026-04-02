@@ -159,6 +159,17 @@ export function DatasetDiscoveryV2() {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
 
+  const getCategoriesFromSearchParams = useCallback(() => {
+    const repeated = searchParams.getAll("category");
+    const single = searchParams.get("category");
+    const raw = repeated.length > 0
+      ? repeated
+      : single
+        ? single.split(",")
+        : [];
+    return Array.from(new Set(raw.map((item) => item.trim()).filter(Boolean)));
+  }, [searchParams]);
+
   // Lift wishlist up so cards don't individually re-fetch/subscribe
   const { data: wishlistData } = useWishlist(isAuthenticated);
   const wishlistDatasetIds = useMemo(() => {
@@ -168,7 +179,16 @@ export function DatasetDiscoveryV2() {
   // Canonical filter state - backend aligned, initialized from URL params
   const [filters, setFilters] = useState<FilterState>(() => ({
     search: searchParams.get("q") || "",
-    category: searchParams.get("category") || null,
+    categories: (() => {
+      const repeated = searchParams.getAll("category");
+      const single = searchParams.get("category");
+      const raw = repeated.length > 0
+        ? repeated
+        : single
+          ? single.split(",")
+          : [];
+      return Array.from(new Set(raw.map((item) => item.trim()).filter(Boolean)));
+    })(),
     pricingType: (searchParams.get("pricingType") as FilterState["pricingType"]) || "all",
     priceRange: {
       min: searchParams.get("minPrice") || "",
@@ -190,7 +210,9 @@ export function DatasetDiscoveryV2() {
     const timer = setTimeout(() => {
       const params = new URLSearchParams();
       if (filters.search) params.set("q", filters.search);
-      if (filters.category) params.set("category", filters.category);
+      if (filters.categories.length > 0) {
+        filters.categories.forEach((categoryId) => params.append("category", categoryId));
+      }
       if (filters.pricingType !== "all") params.set("pricingType", filters.pricingType);
       if (filters.priceRange.min) params.set("minPrice", filters.priceRange.min);
       if (filters.priceRange.max) params.set("maxPrice", filters.priceRange.max);
@@ -219,18 +241,16 @@ export function DatasetDiscoveryV2() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get("q")]);
 
-  // Sync filters.category when URL ?category= changes externally (e.g. from nav bar links)
+  // Sync filters.categories when URL ?category= changes externally (e.g. from nav bar links)
   useEffect(() => {
-    const urlCategory = searchParams.get("category");
-    // Only apply if it changed externally (not identical to current state which might be a resolved UUID)
-    if (urlCategory && urlCategory !== filters.category) {
-      setFilters((prev) => ({ ...prev, category: urlCategory, page: 1 }));
-    } else if (!urlCategory && filters.category) {
-      // If the URL category was cleared externally
-      setFilters((prev) => ({ ...prev, category: null, page: 1 }));
+    const urlCategories = getCategoriesFromSearchParams();
+    const sameLength = urlCategories.length === filters.categories.length;
+    const sameValues = sameLength && urlCategories.every((value) => filters.categories.includes(value));
+    if (!sameValues) {
+      setFilters((prev) => ({ ...prev, categories: urlCategories, page: 1 }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.get("category")]);
+  }, [getCategoriesFromSearchParams]);
 
   // Debounce search to avoid hammering the API on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
@@ -242,12 +262,13 @@ export function DatasetDiscoveryV2() {
   // Build API query from filter state - memoized to stabilize object identity
   // so downstream useEffects (prefetching) don't fire on every render.
   const apiQuery = useMemo<DatasetListQuery>(() => {
-    // Only send categoryId if it's a valid ID (CUIDs are typically 25 chars, ObjectIDs 24, UUIDs 36).
-    const validCategoryId = (filters.category && filters.category.length >= 20) ? filters.category : undefined;
+    // Only send categoryIds if they look like IDs (CUIDs are typically 25 chars, ObjectIDs 24, UUIDs 36).
+    const validCategoryIds = filters.categories
+      .filter((value) => value.length >= 20);
 
     return {
       q: debouncedSearch || undefined,
-      categoryId: validCategoryId,
+      categoryIds: validCategoryIds.length > 0 ? validCategoryIds : undefined,
       ...(filters.pricingType !== "all" && { isPaid: filters.pricingType === "paid" }),
       currency: filters.pricingType === "paid" ? filters.currency as Currency : undefined,
       minPrice: filters.pricingType === "paid" && filters.priceRange.min ? filters.priceRange.min : undefined,
@@ -262,7 +283,7 @@ export function DatasetDiscoveryV2() {
       pageSize: filters.pageSize,
     };
   }, [
-    debouncedSearch, filters.category, filters.pricingType, filters.currency,
+    debouncedSearch, filters.categories, filters.pricingType, filters.currency,
     filters.priceRange.min, filters.priceRange.max, filters.country,
     filters.state, filters.city, filters.tags, filters.minKdtsScore,
     filters.sortOrder, filters.page, filters.pageSize,
@@ -314,37 +335,44 @@ export function DatasetDiscoveryV2() {
     const map = new Map<string, string>();
     if (categoriesResponse?.items) {
       categoriesResponse.items.forEach(cat => {
-        map.set(cat.id, cat.name);
+        const displayName = (cat.datasetCount && cat.datasetCount > 0) 
+          ? `${cat.name} (${cat.datasetCount})` 
+          : cat.name;
+        map.set(cat.id, displayName);
       });
     }
     return map;
   }, [categoriesResponse]);
 
-  // Resolve category slug to UUID (for navbar / landing page links)
+  // Resolve category slugs to UUIDs (for navbar / landing page links)
   useEffect(() => {
-    if (filters.category && categoriesResponse?.items) {
-      if (categoryMap.has(filters.category)) return;
+    if (!categoriesResponse?.items || filters.categories.length === 0) return;
 
-      const slug = filters.category.toLowerCase();
-      const searchTerms: Record<string, string> = {
-        finance: "finance",
-        energy: "energy",
-        agriculture: "agriculture",
-        environment: "environment",
-        economics: "economic",
-        realestate: "real estate",
-      };
-      
+    const searchTerms: Record<string, string> = {
+      finance: "finance",
+      energy: "energy",
+      agriculture: "agriculture",
+      environment: "environment",
+      economics: "economic",
+      realestate: "real estate",
+    };
+
+    const resolved = filters.categories.map((value) => {
+      if (categoryMap.has(value)) return value;
+      const slug = value.toLowerCase();
       const searchTerm = searchTerms[slug] || slug;
-      const matchedCategory = categoriesResponse.items.find(c => 
-        c.name.toLowerCase().includes(searchTerm)
-      );
+      const matchedCategory = categoriesResponse.items.find((c) => c.name.toLowerCase().includes(searchTerm));
+      return matchedCategory?.id ?? value;
+    });
 
-      if (matchedCategory) {
-        setFilters(prev => ({ ...prev, category: matchedCategory.id, page: 1 }));
-      }
+    const deduped = Array.from(new Set(resolved));
+    const changed = deduped.length !== filters.categories.length
+      || deduped.some((value) => !filters.categories.includes(value));
+
+    if (changed) {
+      setFilters((prev) => ({ ...prev, categories: deduped, page: 1 }));
     }
-  }, [filters.category, categoriesResponse, categoryMap]);
+  }, [filters.categories, categoriesResponse, categoryMap]);
 
   // Get category items for display (exclude test categories)
   const categoryItems = useMemo(() => {
@@ -411,7 +439,7 @@ export function DatasetDiscoveryV2() {
   // Check if filters are active
   const hasActiveFilters =
     filters.search !== "" ||
-    filters.category !== null ||
+    filters.categories.length > 0 ||
     filters.pricingType !== "all" ||
     filters.priceRange.min !== "" ||
     filters.priceRange.max !== "" ||
@@ -427,7 +455,7 @@ export function DatasetDiscoveryV2() {
   const clearFilters = useCallback(() => {
     setFilters({
       search: "",
-      category: null,
+      categories: [],
       pricingType: "all",
       priceRange: { min: "", max: "" },
       currency: "INR",
