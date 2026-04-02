@@ -106,7 +106,7 @@ export interface Dataset {
 
 export interface FilterState {
   search: string;
-  category: string | null;
+  categories: string[];
   pricingType: "all" | "free" | "paid";
   priceRange: { min: string; max: string };
   currency: "INR" | "USD" | "EUR" | "GBP";
