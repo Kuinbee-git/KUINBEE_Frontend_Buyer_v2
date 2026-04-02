@@ -53,8 +53,6 @@ const caseStudies = [
         id: "01",
         title: "Monetizing a Niche Real Estate Dataset",
         icon: Home,
-        color: "text-blue-400",
-        bgColor: "bg-blue-400/10",
         dataset: {
             type: "12-City Residential Transactions Dataset",
             rows: "85,000",
@@ -83,8 +81,6 @@ const caseStudies = [
         id: "02",
         title: "From Raw CSV to Published Asset in 18 Hours",
         icon: Wheat,
-        color: "text-emerald-400",
-        bgColor: "bg-emerald-400/10",
         dataset: {
             type: "Agricultural Yield & Crop Pattern Data",
             rows: "40,000",
@@ -112,8 +108,6 @@ const caseStudies = [
         id: "03",
         title: "Retaining Ownership While Monetizing Globally",
         icon: Shield,
-        color: "text-amber-400",
-        bgColor: "bg-amber-400/10",
         dataset: {
             type: "Financial Risk Indicators Dataset",
             rows: "120,000",
@@ -289,13 +283,8 @@ export function SuppliersTraction() {
                             >
                                 {/* Header band */}
                                 <div className="flex items-center gap-4 px-8 py-5 border-b border-border/50 dark:border-white/10">
-                                    <div
-                                        className={cn(
-                                            "flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent",
-                                            cs.bgColor
-                                        )}
-                                    >
-                                        <CsIcon className={cn("h-6 w-6", cs.color)} />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 dark:border-white/15 bg-primary/10 dark:bg-white/10">
+                                        <CsIcon className="h-6 w-6 text-primary dark:text-white" />
                                     </div>
                                     <div>
                                         <span className="text-xs font-medium text-muted-foreground dark:text-white/50 uppercase tracking-wider">

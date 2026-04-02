@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Users, TrendingUp, Lock, CheckCircle2, Eye, Zap } from "lucide-react";
+import { Users, Search, DollarSign, Shield, BadgeCheck, FileText, Settings, CheckCircle2 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
 export function SuppliersValue() {
@@ -18,12 +18,12 @@ export function SuppliersValue() {
     }, []);
 
     const pillars = [
-        { icon: Users, title: "Curated Discovery", description: "Manual review means low-quality data doesn't clutter the marketplace. If it's here, buyers know it's valuable.", color: "text-blue-400", bgColor: "bg-blue-400/10" },
-        { icon: TrendingUp, title: "No Hidden Negotiations", description: "You set a fixed price. Buyers either purchase at your stated terms or move on. No painful back-and-forth.", color: "text-emerald-400", bgColor: "bg-emerald-400/10" },
-        { icon: Lock, title: "Strict Governance", description: "Column-level schemas, explicit licensing, and quality statements protect you from liability and prove data provenance.", color: "text-amber-400", bgColor: "bg-amber-400/10" },
-        { icon: CheckCircle2, title: "Zero Bot Traffic", description: "Identity verification (PAN/business registration) for all. No bots, no fake buyers. Only verified humans.", color: "text-purple-400", bgColor: "bg-purple-400/10" },
-        { icon: Eye, title: "Comprehensive Portfolios", description: "Go beyond file uploads. Document use cases, limitations, methodology, and samples. Sell the true value of your work.", color: "text-pink-400", bgColor: "bg-pink-400/10" },
-        { icon: Zap, title: "Complete Autonomy", description: "You control visibility. Set datasets to Public, Private, or Unlisted. Unlist anytime. You're always in command.", color: "text-cyan-400", bgColor: "bg-cyan-400/10" },
+        { icon: Search, title: "Curated Discovery", description: "Manual review means low-quality data doesn't clutter the marketplace. If it's here, buyers know it's valuable." },
+        { icon: DollarSign, title: "No Hidden Negotiations", description: "You set a fixed price. Buyers either purchase at your stated terms or move on. No painful back-and-forth." },
+        { icon: Shield, title: "Strict Governance", description: "Column-level schemas, explicit licensing, and quality statements protect you from liability and prove data provenance." },
+        { icon: BadgeCheck, title: "Zero Bot Traffic", description: "Identity verification (PAN/business registration) for all. No bots, no fake buyers. Only verified humans." },
+        { icon: FileText, title: "Comprehensive Portfolios", description: "Go beyond file uploads. Document use cases, limitations, methodology, and samples. Sell the true value of your work." },
+        { icon: Settings, title: "Complete Autonomy", description: "You control visibility. Set datasets to Public, Private, or Unlisted. Unlist anytime. You're always in command." },
     ];
 
     return (
@@ -64,8 +64,8 @@ export function SuppliersValue() {
                         return (
                             <div key={pillar.title} className="group relative rounded-2xl overflow-hidden border border-primary/15 dark:border-white/10 bg-card/80 dark:bg-card/30 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                                 <div className="relative z-10 p-6 lg:p-8 h-full flex flex-col">
-                                    <div className={cn("flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent mb-6", pillar.bgColor)}>
-                                        <Icon className={cn("h-7 w-7", pillar.color)} />
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-white/15 mb-6 bg-primary/10 dark:bg-white/10">
+                                        <Icon className="h-7 w-7 text-primary dark:text-white" />
                                     </div>
                                     <h3 className="text-lg font-semibold text-foreground dark:text-white mb-3">{pillar.title}</h3>
                                     <p className="text-sm leading-relaxed text-muted-foreground dark:text-white/70 flex-1">{pillar.description}</p>

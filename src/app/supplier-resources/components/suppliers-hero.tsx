@@ -100,7 +100,15 @@ export function SuppliersHero() {
                                 className="border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10 backdrop-blur-sm"
                                 asChild
                             >
-                                <Link href="#guide">Why Kuinbee?</Link>
+                                <a
+                                    href="#guide"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        document.querySelector('#guide')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                >
+                                    Why Kuinbee?
+                                </a>
                             </Button>
                         </div>
                     </div>
