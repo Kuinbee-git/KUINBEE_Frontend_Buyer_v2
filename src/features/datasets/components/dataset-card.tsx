@@ -142,7 +142,7 @@ export const DatasetCard = memo(function DatasetCard({
         {isSampleDataset ? (
           <div className="flex items-center gap-1.5 shrink-0">
             <Badge className="bg-blue-50 dark:bg-blue-900/25 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 px-3 py-1 text-[13px] font-semibold rounded-md">
-              Sample
+              Free Sample
             </Badge>
             {hasActualSamplePrice && (
               <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">
