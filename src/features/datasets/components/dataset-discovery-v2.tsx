@@ -81,6 +81,13 @@ type DatasetApiItem = {
   reviewCount?: number;
   kdtsScore?: number | null;
   isSample?: boolean;
+  sampleNotes?: {
+    whySample?: string | null;
+    actualDataSize?: string | null;
+    completeness?: string | null;
+    deliveryMechanism?: string | null;
+    deliveryMechanismNotes?: string | null;
+  } | null;
   actualPrice?: string | number | null;
   actualPriceCurrency?: string | null;
 };
@@ -136,6 +143,7 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => ({
   } : null,
   tags: apiDataset.tags || [],
   isSample: apiDataset.isSample ?? false,
+  sampleNotes: apiDataset.sampleNotes ?? null,
   actualPrice: toNullableNumber(apiDataset.actualPrice),
   actualPriceCurrency: apiDataset.actualPriceCurrency ?? null,
   downloadCount: apiDataset.downloadCount || 0,

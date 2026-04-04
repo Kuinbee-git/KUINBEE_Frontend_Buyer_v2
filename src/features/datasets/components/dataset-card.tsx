@@ -268,7 +268,11 @@ export const DatasetCard = memo(function DatasetCard({
         {/* Records */}
         <div className="inline-flex items-center gap-1 text-[14px] bg-[#4e5a7e]/5 dark:bg-white/5 text-[#4e5a7e] dark:text-white/70 px-2.5 py-1 rounded-md border border-[#4e5a7e]/10 dark:border-white/10">
           <Database className="w-3.5 h-3.5 shrink-0" />
-          <span>{formatRecords(dataset.records)} records</span>
+          <span>
+            {isSampleDataset && dataset.sampleNotes?.actualDataSize
+              ? dataset.sampleNotes.actualDataSize
+              : `${formatRecords(dataset.records)} records`}
+          </span>
         </div>
 
         {/* File Format */}
