@@ -268,15 +268,23 @@ export const DatasetCard = memo(function DatasetCard({
         {/* Records */}
         <div className="inline-flex items-center gap-1 text-[14px] bg-[#4e5a7e]/5 dark:bg-white/5 text-[#4e5a7e] dark:text-white/70 px-2.5 py-1 rounded-md border border-[#4e5a7e]/10 dark:border-white/10">
           <Database className="w-3.5 h-3.5 shrink-0" />
-          <span>
-            {isSampleDataset && dataset.sampleNotes?.actualDataSize
-              ? dataset.sampleNotes.actualDataSize
-              : `${formatRecords(dataset.records)} records`}
-          </span>
+          <span>{`${formatRecords(dataset.records)} records`}</span>
         </div>
 
         {/* File Format */}
-        {dataset.dataFormat?.fileFormat ? (
+        {isSampleDataset ? (
+          dataset.sampleNotes?.actualDataSize ? (
+            <div className="inline-flex items-center gap-1 text-[14px] bg-purple-50 dark:bg-purple-900/15 text-purple-700 dark:text-purple-400 px-2.5 py-1 rounded-md border border-purple-100 dark:border-purple-900">
+              <FileType className="w-3.5 h-3.5 shrink-0" />
+              <span>{dataset.sampleNotes.actualDataSize}</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1 text-[14px] bg-[#4e5a7e]/5 dark:bg-white/5 text-[#4e5a7e] dark:text-white/70 px-2.5 py-1 rounded-md border border-[#4e5a7e]/10 dark:border-white/10">
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span>N/A</span>
+            </div>
+          )
+        ) : dataset.dataFormat?.fileFormat ? (
           <div className="inline-flex items-center gap-1 text-[14px] bg-purple-50 dark:bg-purple-900/15 text-purple-700 dark:text-purple-400 px-2.5 py-1 rounded-md border border-purple-100 dark:border-purple-900">
             <FileType className="w-3.5 h-3.5 shrink-0" />
             <span>

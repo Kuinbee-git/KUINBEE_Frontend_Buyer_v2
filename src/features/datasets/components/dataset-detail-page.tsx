@@ -199,7 +199,7 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
             : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
         )}>
           {isPaid ? <Lock className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
-          {isPaid ? "Paid" : "Free"}
+          {isPaid ? "Paid" : (dataset.isSample ? "Free Dataset Sample" : "Free")}
         </div>
       </div>
 
@@ -539,7 +539,9 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
           ) : (
             <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
               <CheckCircle className="h-5 w-5" />
-              <span className="text-sm font-semibold">Free Dataset</span>
+              <span className="text-sm font-semibold">
+                {dataset.isSample ? "Free Dataset Sample" : "Free Dataset"}
+              </span>
             </div>
           )}
         </div>
