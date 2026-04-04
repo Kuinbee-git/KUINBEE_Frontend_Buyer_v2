@@ -172,6 +172,12 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
           {dataset.category}
         </Badge>
 
+        {dataset.isSample && (
+          <Badge variant="outline" className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1">
+            Sample
+          </Badge>
+        )}
+
         {dataset.secondaryCategories.map((cat) => (
           <Badge key={cat} variant="outline" className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1">
             {cat}
@@ -323,96 +329,128 @@ const DatasetSubstanceSection = React.memo(function DatasetSubstanceSection({ da
         </div>
       </div>
 
-      {dataset.dataFormat && (
+      {dataset.isSample ? (
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
-            Data Format
+            Dataset Details
           </h2>
-          <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <FileType className="h-4 w-4 text-primary dark:text-white/70" />
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60">Format</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileFormat}</div>
-                </div>
+
+          <div className="space-y-4">
+            <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {dataset.sampleNotes?.actualDataSize && (
+                  <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Actual Data Size</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.actualDataSize}</div>
+                  </div>
+                )}
+
+                {dataset.sampleNotes?.deliveryMechanism && (
+                  <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Mechanism</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.deliveryMechanism}</div>
+                  </div>
+                )}
+
+                {typeof dataset.isNegotiable === "boolean" && (
+                  <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Negotiable</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.isNegotiable ? "Yes" : "No"}</div>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <HardDrive className="h-4 w-4 text-primary dark:text-white/70" />
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60">File Size</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileSize} KB</div>
+
+              {dataset.sampleNotes?.completeness && (
+                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Completeness</div>
+                  <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.completeness}</div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary dark:text-white/70" />
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60">Encoding</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.encoding}</div>
+              )}
+
+              {dataset.sampleNotes?.deliveryMechanismNotes && (
+                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Notes</div>
+                  <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.deliveryMechanismNotes}</div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-primary dark:text-white/70" />
-                <div>
-                  <div className="text-xs text-muted-foreground dark:text-white/60">Compression</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.compressionType}</div>
-                </div>
-              </div>
+              )}
             </div>
+
+            {dataset.dataFormat && (
+              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <FileType className="h-4 w-4 text-primary dark:text-white/70" />
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-white/60">Format</div>
+                      <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileFormat}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="h-4 w-4 text-primary dark:text-white/70" />
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-white/60">File Size</div>
+                      <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileSize} KB</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary dark:text-white/70" />
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-white/60">Encoding</div>
+                      <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.encoding}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Database className="h-4 w-4 text-primary dark:text-white/70" />
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-white/60">Compression</div>
+                      <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.compressionType}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
-
-      {dataset.isSample && (
-        <div>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60">
-              Sample Dataset Details
+      ) : (
+        dataset.dataFormat && (
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
+              Data Format
             </h2>
-            <span className="inline-flex items-center rounded-full border border-border/50 dark:border-white/20 bg-muted/60 dark:bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/70">
-              Sample
-            </span>
-          </div>
-
-          <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {dataset.sampleNotes?.actualDataSize && (
-                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Actual Data Size</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.actualDataSize}</div>
+            <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <FileType className="h-4 w-4 text-primary dark:text-white/70" />
+                  <div>
+                    <div className="text-xs text-muted-foreground dark:text-white/60">Format</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileFormat}</div>
+                  </div>
                 </div>
-              )}
-
-              {dataset.sampleNotes?.deliveryMechanism && (
-                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Mechanism</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.sampleNotes.deliveryMechanism}</div>
+                <div className="flex items-center gap-2">
+                  <HardDrive className="h-4 w-4 text-primary dark:text-white/70" />
+                  <div>
+                    <div className="text-xs text-muted-foreground dark:text-white/60">File Size</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.fileSize} KB</div>
+                  </div>
                 </div>
-              )}
-
-              {typeof dataset.isNegotiable === "boolean" && (
-                <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Negotiable</div>
-                  <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.isNegotiable ? "Yes" : "No"}</div>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary dark:text-white/70" />
+                  <div>
+                    <div className="text-xs text-muted-foreground dark:text-white/60">Encoding</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.encoding}</div>
+                  </div>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-primary dark:text-white/70" />
+                  <div>
+                    <div className="text-xs text-muted-foreground dark:text-white/60">Compression</div>
+                    <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.dataFormat.compressionType}</div>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {dataset.sampleNotes?.completeness && (
-              <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Completeness</div>
-                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.completeness}</div>
-              </div>
-            )}
-
-            {dataset.sampleNotes?.deliveryMechanismNotes && (
-              <div className="rounded-lg border border-border/40 dark:border-white/10 bg-muted/30 dark:bg-white/5 p-3">
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/60 mb-1.5">Delivery Notes</div>
-                <div className="text-sm text-foreground dark:text-white/80 leading-relaxed">{dataset.sampleNotes.deliveryMechanismNotes}</div>
-              </div>
-            )}
           </div>
-        </div>
+        )
       )}
 
       {dataset.features.length > 0 && (
