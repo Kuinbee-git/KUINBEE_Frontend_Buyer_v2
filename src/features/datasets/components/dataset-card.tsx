@@ -301,8 +301,8 @@ export const DatasetCard = memo(function DatasetCard({
       </div>
 
       {/* ── Row 7: Stats + Tags ── */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-3 text-[14px] text-[#4e5a7e] dark:text-white/50">
+      <div className="flex items-center justify-between gap-2 mb-3 min-w-0">
+        <div className="flex items-center gap-3 text-[14px] text-[#4e5a7e] dark:text-white/50 min-w-0">
           <div className="flex items-center gap-1">
             <Eye className="w-3.5 h-3.5" />
             <span>{dataset.viewCount.toLocaleString()} views</span>
@@ -315,12 +315,13 @@ export const DatasetCard = memo(function DatasetCard({
 
         {/* Tags on the right */}
         {dataset.tags.length > 0 && (
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center justify-end gap-1 min-w-0 max-w-[45%]">
             <Tag className="w-3 h-3 text-[#4e5a7e] dark:text-white/40" />
             {dataset.tags.slice(0, 2).map((tag, idx) => (
               <span
                 key={idx}
-                className="text-[12px] bg-muted/60 dark:bg-white/5 text-[#4e5a7e] dark:text-white/60 px-1.5 py-0.5 rounded border border-border/30 dark:border-white/10"
+                title={tag}
+                className="text-[12px] bg-muted/60 dark:bg-white/5 text-[#4e5a7e] dark:text-white/60 px-1.5 py-0.5 rounded border border-border/30 dark:border-white/10 max-w-[10rem] truncate"
               >
                 {tag}
               </span>
