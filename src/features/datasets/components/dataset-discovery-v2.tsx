@@ -81,6 +81,7 @@ type DatasetApiItem = {
   reviewCount?: number;
   kdtsScore?: number | null;
   isSample?: boolean;
+  sampleFileAvailable?: boolean;
   sampleNotes?: {
     whySample?: string | null;
     actualDataSize?: string | null;
@@ -90,6 +91,7 @@ type DatasetApiItem = {
   } | null;
   actualPrice?: string | number | null;
   actualPriceCurrency?: string | null;
+  buyInPartsAvailable?: boolean;
 };
 
 const toNullableNumber = (value: string | number | null | undefined): number | null => {
@@ -143,9 +145,11 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => ({
   } : null,
   tags: apiDataset.tags || [],
   isSample: apiDataset.isSample ?? false,
+  sampleFileAvailable: apiDataset.sampleFileAvailable ?? false,
   sampleNotes: apiDataset.sampleNotes ?? null,
   actualPrice: toNullableNumber(apiDataset.actualPrice),
   actualPriceCurrency: apiDataset.actualPriceCurrency ?? null,
+  buyInPartsAvailable: apiDataset.buyInPartsAvailable ?? false,
   downloadCount: apiDataset.downloadCount || 0,
   viewCount: apiDataset.viewCount || 0,
   rating: apiDataset.rating ?? null,

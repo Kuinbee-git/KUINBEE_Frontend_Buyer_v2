@@ -59,11 +59,12 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
       currency: dataset.currency || "INR",
     },
     isSample: dataset.isSample ?? false,
-    sampleFileAvailable: !dataset.isSample && !!dataset.isPaid,
+    sampleFileAvailable: dataset.sampleFileAvailable ?? false,
     sampleNotes: dataset.sampleNotes ?? null,
     actualPrice: dataset.actualPrice ? parseFloat(dataset.actualPrice) : null,
     actualPriceCurrency: dataset.actualPriceCurrency ?? null,
     isNegotiable: dataset.isNegotiable ?? null,
+    buyInPartsAvailable: dataset.buyInPartsAvailable ?? false,
     // Rich content
     aboutDataset: aboutDatasetInfo || null,
     dataFormat: dataFormatInfo || null,

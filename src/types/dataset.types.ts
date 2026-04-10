@@ -61,6 +61,7 @@ export interface Dataset {
   rating: number | null;
   kdtsScore: string | null;
   isSample?: boolean;
+  sampleFileAvailable?: boolean;
   sampleNotes?: {
     whySample?: string | null;
     actualDataSize?: string | null;
@@ -71,6 +72,7 @@ export interface Dataset {
   actualPrice?: string | null;
   actualPriceCurrency?: string | null;
   isNegotiable?: boolean | null;
+  buyInPartsAvailable?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -93,6 +95,7 @@ export interface DatasetDetails {
   reviews?: number;
   kdtsScore: string | null;
   isSample?: boolean;
+  sampleFileAvailable?: boolean;
   sampleNotes?: {
     whySample?: string | null;
     actualDataSize?: string | null;
@@ -103,6 +106,7 @@ export interface DatasetDetails {
   actualPrice?: string | null;
   actualPriceCurrency?: string | null;
   isNegotiable?: boolean | null;
+  buyInPartsAvailable?: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -81,6 +81,7 @@ export interface Dataset {
   actualPrice?: number | null;
   actualPriceCurrency?: string | null;
   isNegotiable?: boolean | null;
+  buyInPartsAvailable?: boolean;
   // Stats
   downloadCount: number;
   viewCount: number;

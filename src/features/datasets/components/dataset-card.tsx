@@ -106,6 +106,8 @@ export const DatasetCard = memo(function DatasetCard({
   const hasHalfStar = ratingVal - fullStars >= 0.25;
   const totalStars = 5;
   const isSampleDataset = dataset.isSample === true;
+  const hasSampleFileAvailable = !isSampleDataset && dataset.sampleFileAvailable === true;
+  const hasBuyInPartsAvailable = dataset.buyInPartsAvailable === true;
   const sampleActualPrice = toSafeNumber(dataset.actualPrice);
   const hasActualSamplePrice = sampleActualPrice !== null;
   const sampleCurrency = dataset.actualPriceCurrency || dataset.pricing.currency;
@@ -130,18 +132,17 @@ export const DatasetCard = memo(function DatasetCard({
               Verified
             </Badge>
           )}
-          {dataset.verification.datasetReviewed && (
-            <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[13px] font-medium gap-1">
-              <CheckCircle2 className="w-3 h-3" />
-              Reviewed
-            </Badge>
-          )}
         </div>
 
         {/* Price badge */}
         {isSampleDataset ? (
           <div className="flex items-center gap-1.5 shrink-0">
-            <Badge className="bg-blue-50 dark:bg-blue-900/25 border border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400 px-3 py-1 text-[13px] font-semibold rounded-md">
+            {hasBuyInPartsAvailable && (
+              <Badge className="bg-indigo-50 dark:bg-indigo-900/25 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 px-2 py-1 text-[13px] font-medium rounded-md">
+                Buy in parts
+              </Badge>
+            )}
+            <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-[13px] font-semibold rounded-md">
               Free Sample
             </Badge>
             {hasActualSamplePrice && (
@@ -159,10 +160,23 @@ export const DatasetCard = memo(function DatasetCard({
             </Badge>
           </div>
         ) : (
-          <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">
-            <span className="text-[17px] font-bold text-[#1a2240] dark:text-white leading-tight">
-              {getCurrencySymbol(dataset.pricing.currency)}{dataset.pricing.amount?.toLocaleString()}
-            </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {hasBuyInPartsAvailable && (
+              <Badge className="bg-indigo-50 dark:bg-indigo-900/25 border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 text-[13px] font-medium gap-1">
+                Buy in parts
+              </Badge>
+            )}
+            {hasSampleFileAvailable && (
+              <Badge className="bg-emerald-50 dark:bg-emerald-900/25 border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[13px] font-medium gap-1">
+                <Download className="w-3 h-3" />
+                Sample Available
+              </Badge>
+            )}
+            <div className="shrink-0 flex flex-col items-center bg-white/60 dark:bg-white/5 border border-border/50 dark:border-white/15 rounded-md px-3 py-1.5 min-w-[56px]">
+              <span className="text-[17px] font-bold text-[#1a2240] dark:text-white leading-tight">
+                {getCurrencySymbol(dataset.pricing.currency)}{dataset.pricing.amount?.toLocaleString()}
+              </span>
+            </div>
           </div>
         )}
       </div>
