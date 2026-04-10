@@ -290,10 +290,46 @@ export function DatasetDetailPageContent() {
     setShouldFetchDownload(true);
   }, [isAuthenticated, router, id, isGeneratingDownload]);
 
-  const handleDownloadSampleFile = useCallback(() => {
-    if (isGeneratingSampleDownload) return;
+  const handleDownloadSampleFile = useCallback(async () => {
+    if (isGeneratingSampleDownload || claimMutation.isPending) return;
+
+    const isSampleDataset = response?.dataset?.isSample === true;
+
+    if (isSampleDataset) {
+      if (!isAuthenticated) {
+        toast.info("Sign in to download the sample file.");
+        openModal("login");
+        return;
+      }
+
+      if (!entitlementCheck?.entitled) {
+        try {
+          await claimMutation.mutateAsync(id);
+        } catch (err: any) {
+          const errorMessage = err?.message || "Failed to claim sample dataset";
+          if (errorMessage.includes("ALREADY_OWNED")) {
+            // Continue to download flow if backend already has entitlement.
+          } else if (errorMessage.includes("NOT_FREE")) {
+            toast.error("This sample dataset cannot be claimed.");
+            return;
+          } else {
+            toast.error(errorMessage);
+            return;
+          }
+        }
+      }
+    }
+
     setShouldFetchSampleDownload(true);
-  }, [isGeneratingSampleDownload]);
+  }, [
+    isGeneratingSampleDownload,
+    claimMutation,
+    response?.dataset?.isSample,
+    isAuthenticated,
+    openModal,
+    entitlementCheck?.entitled,
+    id,
+  ]);
 
   const handleOpenInquiry = useCallback(() => {
     if (!isAuthenticated) {

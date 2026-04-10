@@ -35,7 +35,6 @@ import {
   TriangleAlert,
   Beaker,
   Gauge,
-  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
@@ -171,12 +170,6 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
         <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-3 py-1">
           {dataset.category}
         </Badge>
-
-        {dataset.isSample && (
-          <Badge variant="outline" className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1">
-            Sample
-          </Badge>
-        )}
 
         {dataset.secondaryCategories.map((cat) => (
           <Badge key={cat} variant="outline" className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1">
@@ -686,11 +679,16 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
             <Button
               size="sm"
               variant="outline"
-              className="w-full h-10 text-xs font-semibold border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 dark:border-white/25 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-              onClick={onInquireSampleDataset}
+              className="w-full h-10 text-xs font-semibold border-emerald-400/40 bg-emerald-500/5 text-emerald-700 hover:bg-emerald-500/10 dark:border-emerald-400/35 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/15"
+              onClick={onDownloadSampleFile}
+              disabled={isDownloadingSampleFile}
             >
-              <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
-              Contact Kuinbee
+              {isDownloadingSampleFile ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              Download Sample File
             </Button>
           </div>
         )}
@@ -801,31 +799,15 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
     if (dataset.isSample) {
       if (accessState === "not-logged-in") {
         return {
-          label: "Sign In to Download Sample",
+          label: "Sign In to Inquire",
           onClick: handleSignIn,
           variant: "default" as const,
         };
       }
 
-      if (isOwned) {
-        return {
-          label: "Download Sample",
-          onClick: onDownloadDataset,
-          variant: "default" as const,
-        };
-      }
-
-      if (!isPaid) {
-        return {
-          label: "Claim Sample",
-          onClick: onClaimDataset,
-          variant: "default" as const,
-        };
-      }
-
       return {
-        label: "Purchase Sample Access",
-        onClick: onPurchaseDataset,
+        label: "Contact Kuinbee",
+        onClick: onInquireSampleDataset,
         variant: "default" as const,
       };
     }
