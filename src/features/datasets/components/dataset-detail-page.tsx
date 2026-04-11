@@ -35,6 +35,7 @@ import {
   TriangleAlert,
   Beaker,
   Gauge,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
@@ -527,7 +528,7 @@ interface AccessPricingPanelProps {
   isOwned: boolean;
   isPaid: boolean;
   accessState: AccessState;
-  primaryAction: { label: string; onClick?: () => void; variant: "default" };
+  primaryAction: { label: string; onClick?: () => void; variant: "default"; intent?: "default" | "download" | "contact" };
   onDownloadSampleFile?: () => void;
   isDownloadingSampleFile?: boolean;
   onInquireSampleDataset?: () => void;
@@ -626,15 +627,22 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
             size="lg"
             className={cn(
               "w-full h-12 text-sm font-semibold",
-              isOwned
+              primaryAction.intent === "download"
                 ? "bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800"
-                : "bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                : primaryAction.intent === "contact"
+                  ? "bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                  : "bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
             )}
             onClick={primaryAction.onClick}
           >
-            {isOwned ? (
+            {primaryAction.intent === "download" ? (
               <>
                 <Download className="w-4 h-4 mr-2" />
+                {primaryAction.label}
+              </>
+            ) : primaryAction.intent === "contact" ? (
+              <>
+                <MessageSquare className="w-4 h-4 mr-2" />
                 {primaryAction.label}
               </>
             ) : (
@@ -802,6 +810,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
           label: "Sign In to Inquire",
           onClick: handleSignIn,
           variant: "default" as const,
+          intent: "default" as const,
         };
       }
 
@@ -809,6 +818,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
         label: "Contact Kuinbee",
         onClick: onInquireSampleDataset,
         variant: "default" as const,
+        intent: "contact" as const,
       };
     }
 
@@ -825,6 +835,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
         label: "Download Dataset",
         onClick: onDownloadDataset,
         variant: "default" as const,
+        intent: "download" as const,
       };
     }
 
@@ -833,6 +844,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
         label: "Claim Dataset",
         onClick: onClaimDataset,
         variant: "default" as const,
+        intent: "default" as const,
       };
     }
 
@@ -840,6 +852,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
       label: "Purchase Access",
       onClick: onPurchaseDataset,
       variant: "default" as const,
+      intent: "default" as const,
     };
   };
 
