@@ -318,6 +318,9 @@ export function DatasetDetailPageContent() {
           }
         }
       }
+
+      setShouldFetchDownload(true);
+      return;
     }
 
     setShouldFetchSampleDownload(true);
