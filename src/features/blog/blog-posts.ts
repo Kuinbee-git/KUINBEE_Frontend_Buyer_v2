@@ -39,6 +39,23 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "industrial-thermography-bearing-fault-detection-dataset",
+    title: "Industrial Thermography Dataset for Bearing Fault Detection: Predictive Maintenance & AI",
+    description: "Explore the real-world industrial thermography dataset for bearing fault detection. Radiometric thermal images, temperature matrices, and pre-labeled Healthy/Faulty data for predictive maintenance AI.",
+    category: "Industrial AI & Predictive Maintenance",
+    publishedAt: "2026-03-26",
+    readingTimeMinutes: 8,
+    keywords: [
+      "bearing fault detection dataset",
+      "industrial thermography data",
+      "predictive maintenance dataset",
+      "thermal imaging AI",
+      "radiometric dataset",
+      "bearing failure detection",
+      "machine learning industrial data",
+    ],
+  },
+  {
     slug: "what-is-a-data-marketplace",
     title: "What Is a Data Marketplace? The $5.7B Industry Reshaping How the World Accesses Data",
     description: "Data marketplaces are a $1.49B industry growing at 25.2% CAGR. Learn how they work, who uses them, and why platforms like Kuinbee are building the future of global data access.",
