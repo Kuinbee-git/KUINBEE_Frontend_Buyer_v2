@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Clock, Briefcase, Mail, ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/shared/components/ui";
+import { cn } from "@/shared/utils/cn";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
@@ -307,14 +308,9 @@ export function CareersPageContent() {
                         </motion.div>
                     ) : (
                         <div className="max-w-5xl mx-auto space-y-4 md:space-y-5">
-                            {jobOpenings.map((job, index) => (
-                                <motion.div
+                            {jobOpenings.map((job) => (
+                                <div
                                     key={job.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: 0.08 * index }}
-                                    viewport={{ once: true }}
-                                    layout
                                     className="bg-card rounded-2xl border border-border hover:border-primary/40 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300 overflow-hidden"
                                 >
                                     <div className="p-6 md:p-8">
@@ -341,35 +337,14 @@ export function CareersPageContent() {
                                             </div>
                                             </div>
 
-                                            <motion.div
-                                                animate={{ rotate: openJobId === job.id ? 180 : 0 }}
-                                                transition={{ type: "spring", stiffness: 320, damping: 24 }}
-                                                className="pt-1 text-muted-foreground dark:text-white/60"
-                                            >
-                                                <ChevronDown className="w-5 h-5" />
-                                            </motion.div>
+                                            <div className="pt-1 text-muted-foreground dark:text-white/60">
+                                                <ChevronDown className={cn("w-5 h-5 transition-transform duration-200", openJobId === job.id && "rotate-180")} />
+                                            </div>
                                         </button>
 
-                                        <motion.div
-                                            layout
-                                            initial={false}
-                                            animate={{
-                                                gridTemplateRows: openJobId === job.id ? "1fr" : "0fr",
-                                                opacity: openJobId === job.id ? 1 : 0,
-                                            }}
-                                            transition={{
-                                                gridTemplateRows: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
-                                                opacity: { duration: 0.2, ease: "easeOut" },
-                                            }}
-                                            className="grid"
-                                        >
+                                        <div className={cn("grid transition-all duration-300 ease-in-out", openJobId === job.id ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
                                             <div className="overflow-hidden">
-                                                <motion.div
-                                                    initial={false}
-                                                    animate={{ y: openJobId === job.id ? 0 : -8 }}
-                                                    transition={{ duration: 0.22, ease: "easeOut" }}
-                                                    className="pt-5 space-y-5"
-                                                >
+                                                <div className="pt-5 space-y-5">
                                                     <p className="text-sm text-muted-foreground dark:text-white/60 leading-relaxed">
                                                         <span className="font-medium text-foreground dark:text-white">About Kuinbee:</span> {job.about}
                                                     </p>
@@ -433,11 +408,11 @@ export function CareersPageContent() {
                                                             </a>
                                                         </Button>
                                                     </div>
-                                                </motion.div>
+                                                </div>
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     </div>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
                     )}
