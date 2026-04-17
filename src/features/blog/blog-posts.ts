@@ -39,6 +39,23 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "the-real-bottleneck-in-ai-isnt-models-its-data",
+    title: "The Real Bottleneck in AI Isn't Models. It's Data.",
+    description: "Why the companies winning the next phase of AI won't build better architectures—they'll control better training fuel.",
+    category: "AI Infrastructure",
+    publishedAt: "2026-04-17",
+    readingTimeMinutes: 8,
+    keywords: [
+      "AI training data",
+      "domain-specific speech datasets",
+      "conversational AI data",
+      "enterprise AI procurement",
+      "multilingual speech data",
+      "data compliance",
+      "AI infrastructure",
+    ],
+  },
+  {
     slug: "industrial-thermography-bearing-fault-detection-dataset",
     title: "Industrial Thermography Dataset for Bearing Fault Detection: Predictive Maintenance & AI",
     description: "Explore the real-world industrial thermography dataset for bearing fault detection. Radiometric thermal images, temperature matrices, and pre-labeled Healthy/Faulty data for predictive maintenance AI.",
