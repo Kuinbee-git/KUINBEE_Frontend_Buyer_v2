@@ -293,15 +293,15 @@ export function DatasetDetailPageContent() {
   const handleDownloadSampleFile = useCallback(async () => {
     if (isGeneratingSampleDownload || claimMutation.isPending) return;
 
+    if (!isAuthenticated) {
+      toast.info("Sign in to download the sample file.");
+      openModal("login");
+      return;
+    }
+
     const isSampleDataset = response?.dataset?.isSample === true;
 
     if (isSampleDataset) {
-      if (!isAuthenticated) {
-        toast.info("Sign in to download the sample file.");
-        openModal("login");
-        return;
-      }
-
       if (!entitlementCheck?.entitled) {
         try {
           await claimMutation.mutateAsync(id);
