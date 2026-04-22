@@ -270,6 +270,10 @@ export function LandingHero() {
                     { src: "/Eia-logomark.svg.png", alt: "EIA trusted data source logo | Kuinbee", w: 48, h: 34 },
                     { src: "/icrisat-logo.jpeg", alt: "ICRISAT trusted data source logo | Kuinbee", w: 68, h: 36 },
                     { src: "/opencity-logo.png", alt: "OpenCity trusted data source logo | Kuinbee", w: 100, h: 28 },
+                    { src: "/dot-logo.svg", alt: "Department of Transportation trusted data source logo | Kuinbee", w: 100, h: 40 },
+                    { src: "/mendeley-logo.svg", alt: "Mendeley trusted data source logo | Kuinbee", w: 90, h: 40 },
+                    { src: "/uci-logo.svg", alt: "UCI Machine Learning Repository trusted data source logo | Kuinbee", w: 110, h: 35 },
+                    { src: "/nhtsa-logo.svg", alt: "NHTSA trusted data source logo | Kuinbee", w: 100, h: 40 },
                     { src: "/logo.f9fcba1.svg", alt: "Kuinbee marketplace partner logo | Kuinbee", w: 110, h: 30 },
                   ].map((logo) => (
                     <Image
