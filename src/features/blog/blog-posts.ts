@@ -39,6 +39,41 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "one-million-de-identified-mri-scans-radiology-reports-medical-ai",
+    title: "What 1 Million De-Identified MRI Scans With Radiology Reports Actually Means for Medical AI",
+    description:
+      "AI medical imaging hits $2.55B in 2026 at a 34.7% CAGR. Here’s why this 1M-scan MRI dataset from India is the kind of data that moves that number.",
+    category: "Healthcare AI",
+    publishedAt: "2026-04-24",
+    readingTimeMinutes: 10,
+    keywords: [
+      "medical imaging",
+      "MRI dataset",
+      "healthcare AI",
+      "DICOM",
+      "radiology AI",
+      "India health data",
+    ],
+  },
+  {
+    slug: "mexican-spanish-telecom-audio-voice-ai-value",
+    title: "Why Mexican Spanish Telecom Audio Is One of the Most Valuable Datasets in Voice AI",
+    description:
+      "Voice AI reached $22.5B in 2026, but Mexican Spanish telecom conversations remain one of the biggest ASR gaps. Here’s why this dataset category is becoming strategic.",
+    category: "AI Infrastructure",
+    publishedAt: "2026-04-24",
+    readingTimeMinutes: 10,
+    keywords: [
+      "Mexican Spanish ASR",
+      "telecom call center dataset",
+      "voice AI training data",
+      "domain-specific speech data",
+      "contact center AI",
+      "KDTS",
+      "Kuinbee marketplace",
+    ],
+  },
+  {
     slug: "the-real-bottleneck-in-ai-isnt-models-its-data",
     title: "The Real Bottleneck in AI Isn't Models. It's Data.",
     description: "Why the companies winning the next phase of AI won't build better architectures—they'll control better training fuel.",
