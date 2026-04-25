@@ -10,14 +10,12 @@ import {
   Shield,
   CheckCircle2,
   Database,
-  MapPin,
   FileText,
   Download,
   Lock,
   CheckCircle,
   Info,
   ArrowRight,
-  Building2,
   Scale,
   Clock,
   HardDrive,
@@ -30,11 +28,6 @@ import {
   Columns,
   Rows3,
   FileType,
-  ExternalLink,
-  Lightbulb,
-  TriangleAlert,
-  Beaker,
-  Gauge,
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
@@ -44,6 +37,11 @@ import { toast } from "sonner";
 import { useModal } from "@/core/providers";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { DatasetKdtsBadge } from "./DatasetKdtsBadge";
+import { DatasetAboutSection } from "./DatasetAboutSection";
+import { DatasetLocationSection } from "./DatasetLocationSection";
+import { DatasetSourceSection } from "./DatasetSourceSection";
+import { DatasetGovernanceSection } from "./DatasetGovernanceSection";
+import { DatasetUsageSection } from "./DatasetUsageSection";
 
 // Lazy-loaded heavy components that are never above-the-fold
 const LandingFooter = lazy(() =>
@@ -910,269 +908,19 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
             </Suspense>
 
             {/* About This Dataset */}
-            {dataset.aboutDataset && (
-              <div>
-                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                  About This Dataset
-                </h3>
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <div className="space-y-5">
-                    {/* Description */}
-                    <div>
-                      <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                        {dataset.aboutDataset.description}
-                      </p>
-                    </div>
-
-                    {/* Data Quality */}
-                    {dataset.aboutDataset.dataQuality && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                          Data Quality
-                        </h4>
-                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                          {dataset.aboutDataset.dataQuality}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Use Cases */}
-                    {dataset.aboutDataset.useCases && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                          <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                          Use Cases
-                        </h4>
-                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                          {dataset.aboutDataset.useCases}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Limitations */}
-                    {dataset.aboutDataset.limitations && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                          <TriangleAlert className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                          Limitations
-                        </h4>
-                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                          {dataset.aboutDataset.limitations}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Methodology */}
-                    {dataset.aboutDataset.methodology && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2 flex items-center gap-2">
-                          <Beaker className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          Methodology
-                        </h4>
-                        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                          {dataset.aboutDataset.methodology}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Fallback: Plain description if no aboutDataset */}
-            {!dataset.aboutDataset && dataset.description && (
-              <div>
-                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                  Dataset Description
-                </h3>
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                    {dataset.description}
-                  </p>
-                </div>
-              </div>
-            )}
+            <DatasetAboutSection dataset={dataset} />
 
             {/* Location & Coverage */}
-            {dataset.location && (dataset.location.country || dataset.location.coverage || dataset.location.region) && (
-              <div>
-                <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                  Geographic Coverage
-                </h3>
-                <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    {dataset.location.country && (
-                      <div className="flex items-center gap-3">
-                        <Globe className="h-5 w-5 text-primary dark:text-white/70" />
-                        <div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">Country</div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.country}</div>
-                        </div>
-                      </div>
-                    )}
-                    {dataset.location.region && (
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
-                        <div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">Region</div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.region}</div>
-                        </div>
-                      </div>
-                    )}
-                    {dataset.location.state && (
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
-                        <div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">State</div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.state}</div>
-                        </div>
-                      </div>
-                    )}
-                    {dataset.location.city && (
-                      <div className="flex items-center gap-3">
-                        <Building2 className="h-5 w-5 text-primary dark:text-white/70" />
-                        <div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">City</div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.city}</div>
-                        </div>
-                      </div>
-                    )}
-                    {dataset.location.coverage && (
-                      <div className="col-span-2 flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-primary dark:text-white/70" />
-                        <div>
-                          <div className="text-xs text-muted-foreground dark:text-white/60">Coverage Detail</div>
-                          <div className="text-sm font-semibold text-foreground dark:text-white">{dataset.location.coverage}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+            <DatasetLocationSection dataset={dataset} />
 
             {/* Source Information */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Source Information
-              </h3>
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10">
-                    <Building2 className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-foreground dark:text-white">
-                        {dataset.source?.name || dataset.provider}
-                      </span>
-                      {dataset.source?.isVerified && (
-                        <div className="flex items-center gap-1 text-xs text-blue-700 dark:text-blue-400">
-                          <Shield className="w-3.5 h-3.5" />
-                          Verified
-                        </div>
-                      )}
-                    </div>
-                    {dataset.source?.description && (
-                      <p className="text-xs text-muted-foreground dark:text-white/60 mb-2">
-                        {dataset.source.description}
-                      </p>
-                    )}
-                    {dataset.source?.websiteUrl && (
-                      <a
-                        href={dataset.source.websiteUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-primary dark:text-blue-400 hover:underline"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Visit Website
-                      </a>
-                    )}
-                    {!dataset.source?.description && !dataset.source?.websiteUrl && (
-                      <div className="text-xs text-muted-foreground dark:text-white/60">
-                        Marketplace Data Source
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DatasetSourceSection dataset={dataset} />
 
             {/* Governance & Review */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Governance & Review
-              </h3>
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                <div className="space-y-4">
-                  {dataset.verification.published && (
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400 mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                          Published Status
-                        </div>
-                        <div className="text-xs text-muted-foreground dark:text-white/60">
-                          This dataset is approved for marketplace distribution and meets all publication criteria.
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {dataset.source?.isVerified && (
-                    <div className="flex items-start gap-3">
-                      <Shield className="h-5 w-5 text-blue-700 dark:text-blue-400 mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                          Verified Source
-                        </div>
-                        <div className="text-xs text-muted-foreground dark:text-white/60">
-                          The data source has been verified for authenticity and reliability.
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-start gap-3">
-                    <Scale className="h-5 w-5 text-primary dark:text-white mt-0.5 shrink-0" />
-                    <div>
-                      <div className="text-sm font-semibold text-foreground dark:text-white mb-1">
-                        Regulatory Compliance
-                      </div>
-                      <div className="text-xs text-muted-foreground dark:text-white/60">
-                        All transactions are governed, logged, and auditable. Access is subject to license terms.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DatasetGovernanceSection dataset={dataset} />
 
             {/* Usage & Restrictions */}
-            <div>
-              <h3 className="text-lg font-semibold text-foreground dark:text-white mb-4">
-                Usage & Restrictions
-              </h3>
-              <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6">
-                <div className="space-y-3 text-sm text-muted-foreground dark:text-white/70">
-                  <p className="leading-relaxed">
-                    <strong className="text-foreground dark:text-white">License:</strong>{" "}
-                    {dataset.license === "CC"
-                      ? "Creative Commons — This dataset may be used for research, analysis, and commercial applications with proper attribution."
-                      : dataset.license === "Open Data" || dataset.license === "ODbL"
-                        ? "Open Data — This dataset may be used for research, analysis, and commercial applications with proper attribution."
-                        : `${dataset.license} — This dataset is licensed for use by the purchasing entity. Refer to the specific license terms for permitted use.`
-                    }
-                  </p>
-                  <p className="leading-relaxed">
-                    <strong className="text-foreground dark:text-white">Access Control:</strong>{" "}
-                    Download links are time-limited and single-use. All access is logged for audit purposes.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <DatasetUsageSection dataset={dataset} />
 
             {/* Reviews & Ratings — code-split + lazy-rendered on scroll */}
             <LazySection minHeight={300}>

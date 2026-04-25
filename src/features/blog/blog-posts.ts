@@ -39,6 +39,42 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "why-call-center-speech-ai-is-harder-than-everyone-thinks",
+    title: "Why Call Center Speech AI Is Harder Than Everyone Thinks — And What It Actually Takes to Get It Right",
+    description:
+      "The call center AI market hits $4.1B in 2026. But telephony audio, dialect complexity, and LLM pipelines mean most deployments are failing quietly.",
+    category: "AI Infrastructure",
+    publishedAt: "2026-04-25",
+    readingTimeMinutes: 10,
+    keywords: [
+      "call center AI",
+      "speech recognition",
+      "ASR",
+      "telephony audio",
+      "conversational AI",
+      "telecom AI",
+      "voice AI",
+    ],
+  },
+  {
+    slug: "why-most-healthcare-call-centers-fail-at-the-moment-that-matters-most",
+    title: "Why Most Healthcare Call Centers Fail at the Exact Moment That Matters Most",
+    description:
+      "Most healthcare call centers don’t fail on scripts or staffing—they fail at the trust moment customers never say out loud.",
+    category: "Healthcare Operations",
+    publishedAt: "2026-04-25",
+    readingTimeMinutes: 8,
+    keywords: [
+      "healthcare call center",
+      "medical device sales",
+      "conversation friction",
+      "accent comprehension",
+      "customer trust",
+      "healthcare AI",
+      "contact center analytics",
+    ],
+  },
+  {
     slug: "one-million-de-identified-mri-scans-radiology-reports-medical-ai",
     title: "What 1 Million De-Identified MRI Scans With Radiology Reports Actually Means for Medical AI",
     description:
