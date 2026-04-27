@@ -376,7 +376,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         </Button>
                         <Button
                           size="sm"
-                          className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
+                          className="relative bg-gradient-to-b from-black/5 to-transparent dark:!bg-none dark:bg-white/[0.04] backdrop-blur-md border border-black/10 dark:border-white/10 text-[#1a2240] dark:text-white/90 shadow-sm hover:shadow-md hover:bg-gradient-to-r hover:from-[#1a2240] hover:to-[#2d3a5f] hover:text-white dark:hover:!bg-none dark:hover:bg-white/[0.08] hover:border-[#1a2240]/30 dark:hover:border-white/20 transition-all duration-300"
                           onClick={() => openModal("signup")}
                         >
                           Sign Up

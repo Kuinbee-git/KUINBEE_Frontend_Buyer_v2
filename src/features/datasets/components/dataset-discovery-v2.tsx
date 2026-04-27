@@ -3,13 +3,13 @@
 import { useState, useEffect, useMemo, useRef, useCallback, useTransition, lazy, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Input } from "@/shared/components/ui/input";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, ArrowRight, X } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { DatasetCard, DatasetCardSkeleton } from "./dataset-card";
-import { DatasetSupplierTabs } from "./dataset-supplier-tabs";
 
 // Lazy load footer for better performance
 const LandingFooter = lazy(() => import("@/features/landing/components/LandingFooter").then(mod => ({ default: mod.LandingFooter })));
@@ -188,6 +188,27 @@ export function DatasetDiscoveryV2() {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  
+  // Banner state sequence: Wait hidden -> Animate open -> Can be closed -> Animate closed
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const [bannerClosing, setBannerClosing] = useState(false);
+
+  useEffect(() => {
+    // Appear smoothly after 2 seconds
+    const timer = setTimeout(() => {
+      setBannerVisible(true);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleCloseBanner = () => {
+    setBannerClosing(true);
+    // After animation duration, remove from DOM
+    setTimeout(() => {
+      setBannerVisible(false);
+      setBannerClosing(false);
+    }, 400); // 400ms defined in css transition
+  };
 
   const getCategoriesFromSearchParams = useCallback(() => {
     const repeated = searchParams.getAll("category");
@@ -502,9 +523,51 @@ export function DatasetDiscoveryV2() {
 
   return (
     <main className="min-h-screen relative">
-      {/* Navigation */}
-      <div className="sticky top-0 z-50">
-        <NotchNavigation lite />
+      {/* Sticky Header Group */}
+      <div className="sticky top-0 z-50 flex flex-col w-full">
+        {/* Top Dismissible Banner */}
+        <div 
+          className={cn(
+            "grid transition-all duration-400 ease-in-out origin-top",
+            bannerVisible && !bannerClosing ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="relative isolate flex items-center justify-center gap-x-6 bg-[#2b61eb] px-6 py-2.5 sm:px-3.5 shadow-sm border-b border-[#2b61eb]/80 dark:bg-white/[0.02] dark:backdrop-blur-md dark:border-white/10 dark:shadow-[0_4px_24px_-8px_rgba(255,255,255,0.1)]">
+              <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.white/0.1),transparent)] dark:bg-[radial-gradient(45rem_50rem_at_top,theme(colors.white/0.05),transparent)]" aria-hidden="true" />
+              
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                <p className="text-sm leading-6 text-white/90">
+                  <strong className="font-semibold tracking-wide text-white">Custom Data Sourcing</strong>
+                  <svg viewBox="0 0 2 2" className="mx-2 hidden md:inline h-0.5 w-0.5 fill-current text-white/50" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>
+                  <span className="hidden md:inline">Can&apos;t find the right dataset? </span>Let our sourcing experts find it for you.
+                </p>
+                <Link
+                  href="/data-request"
+                  className="inline-flex items-center gap-1.5 flex-none rounded-md bg-white px-3.5 py-1 text-sm font-semibold text-[#2b61eb] shadow-sm hover:bg-blue-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/[0.04] dark:backdrop-blur-md dark:border dark:border-white/10 dark:text-white/90 dark:hover:bg-white/[0.08] dark:hover:border-white/20"
+                >
+                  <span>Submit Request</span>
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="flex flex-1 justify-end absolute right-0 pr-4 sm:pr-6">
+                <button 
+                  type="button" 
+                  onClick={handleCloseBanner}
+                  className="-m-3 p-3 focus-visible:outline-offset-[-4px] hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <X className="h-5 w-5 text-white/80 hover:text-white" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="relative w-full z-40 bg-background/80 backdrop-blur-lg border-b border-border/40">
+          <NotchNavigation lite />
+        </div>
       </div>
 
       {/* Background */}
@@ -542,20 +605,17 @@ export function DatasetDiscoveryV2() {
 
             {/* Main Content Column */}
             <div ref={datasetListRef}>
-              {/* Tabs and Search Container */}
+              {/* Search Container */}
               <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-4">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                  {/* Datasets/Suppliers Tabs */}
-                  <DatasetSupplierTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-                  {/* Search Bar */}
-                  <div className="flex-1 sm:max-w-md relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4e5a7e] dark:text-white/60" />
+                <div className="flex items-center justify-end w-full">
+                  {/* Expanded Search Bar aligned right */}
+                  <div className="w-full sm:max-w-2xl lg:max-w-full relative">
+                    <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4e5a7e] dark:text-white/60" />
                     <Input
-                      placeholder="Search datasets…"
+                      placeholder="Search datasets by name, provider, or category…"
                       value={filters.search}
                       onChange={(e) => updateFilter({ search: e.target.value })}
-                      className="h-9 pl-9 pr-3 text-sm rounded-lg border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
+                      className="h-11 pl-11 pr-4 text-base rounded-xl border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 placeholder:text-sm focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 shadow-sm"
                     />
                   </div>
                 </div>
@@ -599,24 +659,26 @@ export function DatasetDiscoveryV2() {
                     </div>
                   )
                 ) : (
-                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-8">
-                    <p className="font-mono text-xs text-[#4e5a7e] dark:text-white/60 mb-2">NO RESULTS</p>
-                    <h3 className="text-base font-semibold text-[#1a2240] dark:text-white mb-1">
-                      {filters.search
-                        ? `No datasets match "${filters.search}"`
-                        : "No datasets match the current filters"}
-                    </h3>
-                    <p className="text-sm text-[#4e5a7e] dark:text-white/70 mb-4">
-                      Try removing filters or browsing all datasets.
-                    </p>
-                    {hasActiveFilters && (
-                      <button
-                        onClick={clearFilters}
-                        className="inline-flex items-center h-8 px-3 text-sm font-medium rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors"
-                      >
-                        Clear filters
-                      </button>
-                    )}
+                  <div className="space-y-4">
+                    <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-8">
+                      <p className="font-mono text-xs text-[#4e5a7e] dark:text-white/60 mb-2">NO RESULTS</p>
+                      <h3 className="text-base font-semibold text-[#1a2240] dark:text-white mb-1">
+                        {filters.search
+                          ? `No datasets match "${filters.search}"`
+                          : "No datasets match the current filters"}
+                      </h3>
+                      <p className="text-sm text-[#4e5a7e] dark:text-white/70 mb-4">
+                        Try removing filters or browsing all datasets.
+                      </p>
+                      {hasActiveFilters && (
+                        <button
+                          onClick={clearFilters}
+                          className="inline-flex items-center h-8 px-3 text-sm font-medium rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors"
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
