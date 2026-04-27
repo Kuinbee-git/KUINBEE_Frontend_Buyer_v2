@@ -40,6 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/team`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/supplier-resources`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -115,14 +121,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Fetch datasets from the marketplace endpoint
     // Using a high limit to get all relevant datasets for the sitemap
-    const res = await fetch(`${apiUrl}/api/v1/marketplace/datasets?limit=1000`, {
-      next: { revalidate: 3600 } // Revalidate every hour
-    });
+    const res = await fetch(
+      `${apiUrl}/api/v1/marketplace/datasets?limit=1000`,
+      {
+        next: { revalidate: 3600 }, // Revalidate every hour
+      }
+    );
 
     if (res.ok) {
       const data = await res.json();
-      const datasets: Array<{ datasetUniqueId?: string; id: string; updatedAt?: string }> =
-        data?.data?.datasets || [];
+      const datasets: Array<{
+        datasetUniqueId?: string;
+        id: string;
+        updatedAt?: string;
+      }> = data?.data?.datasets || [];
 
       const datasetPages: MetadataRoute.Sitemap = datasets.map((d) => ({
         url: `${baseUrl}/datasets/${d.datasetUniqueId || d.id}`,
