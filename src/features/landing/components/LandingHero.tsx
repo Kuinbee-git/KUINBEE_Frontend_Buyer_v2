@@ -234,7 +234,7 @@ export function LandingHero() {
         {/* Supplier logo ticker band */}
         <div className="mt-16 w-full">
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
-            Trusted Data Sources &amp; Partners
+            Trusted Data Sources 
           </p>
 
           {/* Mask edges */}
