@@ -9,6 +9,7 @@ import {
   FileText,
   Info,
   Briefcase,
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -88,6 +89,12 @@ export const resources: NavItem[] = [
     description: "Learn about Kuinbee",
   },
   {
+    name: "Team",
+    href: "/team",
+    icon: Users,
+    description: "Meet the people building Kuinbee",
+  },
+  {
     name: "Careers",
     href: "/careers",
     icon: Briefcase,
@@ -126,9 +133,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Datasets marketplace
   "/datasets": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-    ],
+    directLinks: [{ label: "Home", href: "/" }],
     dropdowns: ["resources"],
     showSearch: true,
     searchPlaceholder: "Search datasets...",

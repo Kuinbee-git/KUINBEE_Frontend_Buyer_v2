@@ -254,7 +254,7 @@ export const FilterSidebar = memo(function FilterSidebar({
               className={cn(
                 "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 capitalize",
                 filters.pricingType === type
-                  ? "bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white shadow-md font-medium"
+                  ? "bg-primary text-primary-foreground font-medium"
                   : "text-[#4e5a7e] dark:text-white/70 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 hover:text-[#1a2240] dark:hover:text-white"
               )}
             >
@@ -676,7 +676,7 @@ function ResponsivePicker({
         animateOnOpen && (entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[0.98] translate-y-2"),
         dialogClassName
       )}>
-        <div className="relative overflow-hidden rounded-lg border border-primary/30 dark:border-white/30 bg-gradient-to-br from-[#1a2240]/95 via-[#242f52]/90 to-[#2d3a5f]/95 dark:from-white/15 dark:via-white/10 dark:to-white/5 backdrop-blur-xl shadow-2xl p-6 sm:p-8 text-white">
+        <div className="relative overflow-hidden rounded-lg border border-primary/30 dark:border-white/30 bg-[#1a2240] dark:bg-[#0f1729] shadow-xl p-6 sm:p-8 text-white">
           <button
             onClick={() => onOpenChange(false)}
             className="absolute top-4 right-4 h-10 w-10 flex items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-colors"

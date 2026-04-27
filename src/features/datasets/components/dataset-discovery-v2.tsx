@@ -18,7 +18,25 @@ const FilterSidebar = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="hidden lg:block rounded-xl border border-border/40 dark:border-white/10 bg-white dark:bg-[#1e2847] h-[620px] animate-pulse" />
+      <div className="hidden lg:block rounded-lg border border-border bg-card p-5 h-[620px]">
+        <div className="animate-pulse space-y-5">
+          <div className="h-4 w-24 rounded-sm bg-muted" />
+          <div className="space-y-2">
+            <div className="h-9 w-full rounded-md bg-muted" />
+            <div className="h-9 w-full rounded-md bg-muted" />
+            <div className="h-9 w-full rounded-md bg-muted" />
+          </div>
+          <div className="h-px bg-border" />
+          <div className="h-4 w-28 rounded-sm bg-muted" />
+          <div className="space-y-2">
+            <div className="h-9 w-full rounded-md bg-muted" />
+            <div className="h-9 w-full rounded-md bg-muted" />
+          </div>
+          <div className="h-px bg-border" />
+          <div className="h-4 w-20 rounded-sm bg-muted" />
+          <div className="h-20 w-full rounded-md bg-muted" />
+        </div>
+      </div>
     ),
   }
 );
@@ -499,14 +517,14 @@ export function DatasetDiscoveryV2() {
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           {/* Page Header */}
           <div className="mb-6 md:mb-8">
-            <h1 className="text-3xl md:text-4xl font-semibold text-[#1a2240] dark:text-white mb-2 md:mb-3">
+            <h1 className="text-2xl font-semibold text-foreground mb-2">
               Governed Dataset Marketplace
             </h1>
-            <p className="text-sm md:text-base text-[#4e5a7e] dark:text-white/70 mb-2">
+            <p className="text-sm text-muted-foreground mb-2 max-w-3xl">
               Discover and evaluate verified datasets from approved suppliers. Every dataset is reviewed before publication and listed with explicit pricing and access conditions.
             </p>
-            <p className="text-xs md:text-sm font-medium text-[#1a2240]/70 dark:text-white/60">
-              {isLoading ? "Loading..." : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
+            <p className="text-xs font-mono text-muted-foreground">
+              {isLoading ? "Loading…" : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
             </p>
           </div>
 
@@ -524,20 +542,20 @@ export function DatasetDiscoveryV2() {
 
             {/* Main Content Column */}
             <div ref={datasetListRef}>
-              {/* Tabs and Search Container - Unified glassmorphic container */}
-              <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl p-3 md:p-4 shadow-sm">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 md:gap-6">
+              {/* Tabs and Search Container */}
+              <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                   {/* Datasets/Suppliers Tabs */}
                   <DatasetSupplierTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
                   {/* Search Bar */}
                   <div className="flex-1 sm:max-w-md relative">
-                    <Search className="absolute left-3 md:left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4e5a7e]/50 dark:text-white/40" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4e5a7e] dark:text-white/60" />
                     <Input
-                      placeholder="Search datasets..."
+                      placeholder="Search datasets…"
                       value={filters.search}
                       onChange={(e) => updateFilter({ search: e.target.value })}
-                      className="h-10 border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 pl-9 md:pl-10 pr-3 md:pr-4 text-sm text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 rounded-lg"
+                      className="h-9 pl-9 pr-3 text-sm rounded-lg border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30"
                     />
                   </div>
                 </div>
@@ -553,15 +571,13 @@ export function DatasetDiscoveryV2() {
                     ))}
                   </div>
                 ) : error ? (
-                  <div className="flex flex-col items-center justify-center py-20 px-6">
-                    <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
-                      <Search className="w-8 h-8 text-red-600 dark:text-red-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-8">
+                    <p className="font-mono text-xs text-[#4e5a7e] dark:text-white/60 mb-2">ERROR</p>
+                    <h3 className="text-base font-semibold text-[#1a2240] dark:text-white mb-1">
                       Failed to load datasets
                     </h3>
-                    <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
-                      {error instanceof Error ? error.message : "An error occurred"}
+                    <p className="text-sm text-[#4e5a7e] dark:text-white/70">
+                      {error instanceof Error ? error.message : "An error occurred. Please try again."}
                     </p>
                   </div>
                 ) : paginatedDatasets.length > 0 ? (
@@ -583,42 +599,52 @@ export function DatasetDiscoveryV2() {
                     </div>
                   )
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-20 px-6">
-                    <Search className="w-16 h-16 text-muted-foreground/30 dark:text-white/20 mb-4" />
-                    <h3 className="text-xl font-semibold text-foreground dark:text-white mb-2">
-                      No datasets found
+                  <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-8">
+                    <p className="font-mono text-xs text-[#4e5a7e] dark:text-white/60 mb-2">NO RESULTS</p>
+                    <h3 className="text-base font-semibold text-[#1a2240] dark:text-white mb-1">
+                      {filters.search
+                        ? `No datasets match "${filters.search}"`
+                        : "No datasets match the current filters"}
                     </h3>
-                    <p className="text-muted-foreground dark:text-white/70 text-center max-w-sm">
-                      Try adjusting your search terms or filters to discover more datasets
+                    <p className="text-sm text-[#4e5a7e] dark:text-white/70 mb-4">
+                      Try removing filters or browsing all datasets.
                     </p>
+                    {hasActiveFilters && (
+                      <button
+                        onClick={clearFilters}
+                        className="inline-flex items-center h-8 px-3 text-sm font-medium rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors"
+                      >
+                        Clear filters
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* 8. Pagination - Explicit controls */}
+              {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 md:mt-8 p-3 md:p-4 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mt-6 p-4 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm">
                   <button
                     onClick={() => updateFilter({ page: Math.max(filters.page - 1, 1) })}
                     disabled={filters.page === 1}
                     className={cn(
-                      "inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium transition-all duration-200 rounded-lg",
+                      "inline-flex items-center gap-2 h-8 px-3 text-sm font-medium rounded-lg border transition-colors",
                       filters.page === 1
-                        ? "text-[#4e5a7e]/40 dark:text-white/30 cursor-not-allowed"
-                        : "text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/10"
+                        ? "border-border/40 dark:border-white/10 text-[#4e5a7e]/50 dark:text-white/40 cursor-not-allowed"
+                        : "border-[#1a2240]/20 dark:border-white/20 text-[#1a2240] dark:text-white bg-white/95 dark:bg-white/10 hover:bg-[#1a2240]/5 dark:hover:bg-white/20"
                     )}
                   >
-                    <ChevronLeft className="h-3.5 md:h-4 w-3.5 md:w-4" />
+                    <ChevronLeft className="h-4 w-4" />
                     <span className="hidden sm:inline">Previous</span>
                     <span className="sm:hidden">Prev</span>
                   </button>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2">
-                    <span className="text-xs md:text-sm text-[#4e5a7e] dark:text-white/60 whitespace-nowrap">
-                      Page {filters.page} of {totalPages}
+                  <div className="flex items-baseline gap-2 font-mono">
+                    <span className="text-sm text-[#1a2240] dark:text-white">
+                      {filters.page}<span className="text-[#4e5a7e] dark:text-white/70"> / {totalPages}</span>
                     </span>
-                    <span className="text-[10px] md:text-xs text-[#4e5a7e]/70 dark:text-white/50 whitespace-nowrap">
-                      ({totalCount} total)
+                    <span className="hidden sm:inline text-xs text-[#4e5a7e] dark:text-white/70">
+                      · {totalCount} total
                     </span>
                   </div>
 
@@ -626,14 +652,14 @@ export function DatasetDiscoveryV2() {
                     onClick={() => updateFilter({ page: Math.min(filters.page + 1, totalPages) })}
                     disabled={filters.page === totalPages}
                     className={cn(
-                      "inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium transition-all duration-200 rounded-lg",
+                      "inline-flex items-center gap-2 h-8 px-3 text-sm font-medium rounded-lg border transition-colors",
                       filters.page === totalPages
-                        ? "text-[#4e5a7e]/40 dark:text-white/30 cursor-not-allowed"
-                        : "text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/10"
+                        ? "border-border/40 dark:border-white/10 text-[#4e5a7e]/50 dark:text-white/40 cursor-not-allowed"
+                        : "border-[#1a2240]/20 dark:border-white/20 text-[#1a2240] dark:text-white bg-white/95 dark:bg-white/10 hover:bg-[#1a2240]/5 dark:hover:bg-white/20"
                     )}
                   >
                     Next
-                    <ChevronRight className="h-3.5 md:h-4 w-3.5 md:w-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               )}
