@@ -1,5 +1,3 @@
-
-
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/components/router/Link";
@@ -28,8 +26,16 @@ const RedditIcon = () => (
   </svg>
 );
 const SubstackIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 3.5h16v2H4v-2Zm0 4h16v2H4v-2ZM4 11h16v9.5H4V11Z" fill="currentColor" />
+  <svg
+    viewBox="0 0 24 24"
+    className="w-5 h-5"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M4 3.5h16v2H4v-2Zm0 4h16v2H4v-2ZM4 11h16v9.5H4V11Z"
+      fill="currentColor"
+    />
   </svg>
 );
 
@@ -37,9 +43,13 @@ export function LandingFooter() {
   return (
     <footer className="relative bg-gradient-to-b from-background via-background to-background dark:from-background/0 dark:via-background/0 dark:to-background/0 text-foreground dark:text-white border-t border-border dark:border-white/5">
       {/* Fade separator line at top */}
-      <div className="absolute top-0 left-0 right-0 h-px" style={{
-        background: 'linear-gradient(to right, transparent 0%, var(--border) 25%, var(--border) 75%, transparent 100%)',
-      }} />
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background:
+            "linear-gradient(to right, transparent 0%, var(--border) 25%, var(--border) 75%, transparent 100%)",
+        }}
+      />
 
       {/* Subtle pattern for depth - only visible in dark mode */}
       <div className="absolute inset-0 hidden dark:block">
@@ -47,7 +57,7 @@ export function LandingFooter() {
           className="absolute inset-0 opacity-[0.01]"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
-            backgroundSize: '48px 48px'
+            backgroundSize: "48px 48px",
           }}
         />
       </div>
@@ -76,26 +86,38 @@ export function LandingFooter() {
               </h3>
             </div>
             <p className="text-muted-foreground dark:text-white/70 leading-relaxed max-w-md text-sm">
-              The world&apos;s datasets, aggregated for you. Discover, understand, and act on data with speed and confidence.
+              The world&apos;s datasets, aggregated for you. Discover,
+              understand, and act on data with speed and confidence.
             </p>
           </div>
 
           {/* Product */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground dark:text-white">Product</h4>
+            <h4 className="text-sm font-semibold text-foreground dark:text-white">
+              Product
+            </h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/datasets" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/datasets"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Data Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/strotas" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/strotas"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Strotas
                 </Link>
               </li>
               <li>
-                <Link href="/#security" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/#security"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Security
                 </Link>
               </li>
@@ -104,25 +126,47 @@ export function LandingFooter() {
 
           {/* Company */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground dark:text-white">Company</h4>
+            <h4 className="text-sm font-semibold text-foreground dark:text-white">
+              Company
+            </h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/about" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/about"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/team"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
+                  Team
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/careers"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Careers
                 </Link>
               </li>
               <li>
-                <Link href="/project-siddhi" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/project-siddhi"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Project Siddhi
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/support"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Contact
                 </Link>
               </li>
@@ -131,20 +175,31 @@ export function LandingFooter() {
 
           {/* Community */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground dark:text-white">Community</h4>
+            <h4 className="text-sm font-semibold text-foreground dark:text-white">
+              Community
+            </h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/community" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/community"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Kuinbee Community Hub
                 </Link>
               </li>
               <li>
-                <Link href="/community" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/community"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   For Researchers
                 </Link>
               </li>
               <li>
-                <Link href="/community" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/community"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   For Students & Professionals
                 </Link>
               </li>
@@ -153,15 +208,23 @@ export function LandingFooter() {
 
           {/* Resources */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground dark:text-white">Resources</h4>
+            <h4 className="text-sm font-semibold text-foreground dark:text-white">
+              Resources
+            </h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/blog" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/blog"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/#faq" className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm">
+                <Link
+                  href="/#faq"
+                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
+                >
                   FAQs
                 </Link>
               </li>
@@ -180,7 +243,8 @@ export function LandingFooter() {
                     Registered Office - India
                   </h5>
                   <p className="text-muted-foreground dark:text-white/60 text-xs leading-relaxed">
-                    S NO 71/8/2/1 Vasudha Itasha Apt Wing B FN 804,<br />
+                    S NO 71/8/2/1 Vasudha Itasha Apt Wing B FN 804,
+                    <br />
                     Kothrud, Pune 411038, Maharashtra, India
                   </p>
                 </div>
@@ -195,7 +259,8 @@ export function LandingFooter() {
                     International Office - UK
                   </h5>
                   <p className="text-muted-foreground dark:text-white/60 text-xs leading-relaxed">
-                    6 Brook Street,<br />
+                    6 Brook Street,
+                    <br />
                     Oxford, England, OX1 4JT, United Kingdom
                   </p>
                 </div>
@@ -210,7 +275,8 @@ export function LandingFooter() {
               Stay ahead with data
             </h4>
             <p className="text-muted-foreground dark:text-white/70 text-xs">
-              Subscribe to get updates on datasets, features, and community insights.
+              Subscribe to get updates on datasets, features, and community
+              insights.
             </p>
             <div className="flex gap-2">
               <Input
@@ -228,24 +294,49 @@ export function LandingFooter() {
         <div className="border-t border-border dark:border-white/10 mt-8 pt-8">
           {/* Social Media */}
           <div className="flex justify-center gap-6 mb-6">
-            <a href="https://www.linkedin.com/company/kuinbee" target="_blank" rel="noopener noreferrer"
-              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200" aria-label="LinkedIn">
+            <a
+              href="https://www.linkedin.com/company/kuinbee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              aria-label="LinkedIn"
+            >
               <LinkedinIcon />
             </a>
-            <a href="https://www.instagram.com/the_kuinbee" target="_blank" rel="noopener noreferrer"
-              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200" aria-label="Instagram">
+            <a
+              href="https://www.instagram.com/the_kuinbee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              aria-label="Instagram"
+            >
               <InstagramIcon />
             </a>
-            <a href="https://twitter.com/Kuinbee00" target="_blank" rel="noopener noreferrer"
-              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200" aria-label="Twitter">
+            <a
+              href="https://twitter.com/Kuinbee00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              aria-label="Twitter"
+            >
               <TwitterIcon />
             </a>
-            <a href="https://www.reddit.com/user/Kuinbee00" target="_blank" rel="noopener noreferrer"
-              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200" aria-label="Reddit">
+            <a
+              href="https://www.reddit.com/user/Kuinbee00"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              aria-label="Reddit"
+            >
               <RedditIcon />
             </a>
-            <a href="https://substack.com/@kuinbee1" target="_blank" rel="noopener noreferrer"
-              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200" aria-label="Substack">
+            <a
+              href="https://substack.com/@kuinbee1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground dark:text-white/50 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200"
+              aria-label="Substack"
+            >
               <SubstackIcon />
             </a>
           </div>
@@ -253,8 +344,8 @@ export function LandingFooter() {
           {/* Bottom Section */}
           <div className="flex flex-col lg:flex-row justify-between items-center lg:items-end gap-6 text-xs text-muted-foreground dark:text-white/60">
             <p className="text-center lg:text-left max-w-lg">
-              © 2026 Kuinbee information services pvt ltd. All rights reserved. Built with
-              security, clarity, and community at the core.
+              © 2026 Kuinbee information services pvt ltd. All rights reserved.
+              Built with security, clarity, and community at the core.
             </p>
             <div className="flex gap-4 md:gap-6 text-xs flex-wrap justify-center lg:justify-end">
               <Link
@@ -282,5 +373,3 @@ export function LandingFooter() {
     </footer>
   );
 }
-
-
