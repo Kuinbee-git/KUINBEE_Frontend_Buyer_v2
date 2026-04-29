@@ -9,6 +9,7 @@ export { SupplierSection } from './components/SupplierSection';
 export { GovernanceValue } from './components/GovernanceValue';
 export { FAQSection } from './components/FAQSection';
 export { DataRequestSection } from './components/DataRequestSection';
+export { ProductHuntBadge } from './components/ProductHuntBadge';
 // export { CTASection } from './components/CTASection'; // Commented out - not currently used
 
 // Domain components

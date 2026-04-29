@@ -292,6 +292,40 @@ export function LandingHero() {
           </div>
         </div>
 
+        {/* Industry leaders logo strip */}
+        <div className="mt-16 w-full">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
+            Supported by industry leaders
+          </p>
+
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 px-4">
+            <Image
+              src="/nvidia-inception-program-badge-rgb-for-screen.svg"
+              alt="NVIDIA Inception Program"
+              width={160}
+              height={60}
+              loading="lazy"
+              className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
+            />
+            <Image
+              src="/aws.png"
+              alt="AWS Cloud"
+              width={80}
+              height={48}
+              loading="lazy"
+              className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
+            />
+            <Image
+              src="/Logo-Google-Cloud-500x313.png"
+              alt="Google Cloud"
+              width={140}
+              height={88}
+              loading="lazy"
+              className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
+            />
+          </div>
+        </div>
+
         {/* Mockup browser interface - Full width container - NON-INTERACTIVE */}
         <div className="mt-20 relative w-full max-w-[1600px] mx-auto px-4 hidden md:block">
           {/* Main browser mockup */}
