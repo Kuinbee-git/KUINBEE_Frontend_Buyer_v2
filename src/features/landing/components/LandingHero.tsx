@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -25,6 +26,17 @@ import {
   Lock,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
+
+const searchPlaceholders = [
+  "Search verified datasets...",
+  "Energy consumption data...",
+  "Climate & weather datasets...",
+  "Financial market indicators...",
+  "Agricultural yield data...",
+  "Healthcare statistics...",
+  "Real estate analytics...",
+  "Transportation metrics...",
+];
 
 const datasets = [
   {
@@ -100,8 +112,60 @@ const filters = [
 ];
 
 export function LandingHero() {
+  const router = useRouter();
   const [activeTab] = useState("browse");
   const [isDark, setIsDark] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
+
+  // Typewriter effect for placeholder
+  useEffect(() => {
+    const currentPhrase = searchPlaceholders[placeholderIndex];
+    const typingSpeed = isDeleting ? 20 : 40;
+    const pauseAfterComplete = 2000;
+    const pauseAfterDelete = 500;
+
+    if (!isDeleting && charIndex < currentPhrase.length) {
+      // Typing forward
+      const timeout = setTimeout(() => {
+        setPlaceholderText(currentPhrase.substring(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, typingSpeed);
+      return () => clearTimeout(timeout);
+    } else if (!isDeleting && charIndex === currentPhrase.length) {
+      // Finished typing, pause then start deleting
+      const timeout = setTimeout(() => {
+        setIsDeleting(true);
+      }, pauseAfterComplete);
+      return () => clearTimeout(timeout);
+    } else if (isDeleting && charIndex > 0) {
+      // Deleting backward
+      const timeout = setTimeout(() => {
+        setPlaceholderText(currentPhrase.substring(0, charIndex - 1));
+        setCharIndex(charIndex - 1);
+      }, typingSpeed);
+      return () => clearTimeout(timeout);
+    } else if (isDeleting && charIndex === 0) {
+      // Finished deleting, move to next phrase
+      const timeout = setTimeout(() => {
+        setIsDeleting(false);
+        setPlaceholderIndex((prev) => (prev + 1) % searchPlaceholders.length);
+      }, pauseAfterDelete);
+      return () => clearTimeout(timeout);
+    }
+  }, [charIndex, isDeleting, placeholderIndex]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/datasets?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/datasets');
+    }
+  };
 
   useEffect(() => {
     // Set initial dark mode state
@@ -231,14 +295,21 @@ export function LandingHero() {
 
           {/* Search section with inline button */}
           <div className="mt-8 md:mt-12 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center px-4 md:px-0">
-            <div className="relative w-full max-w-2xl flex">
+            <form onSubmit={handleSearch} className="relative w-full max-w-2xl flex">
               <input
                 type="text"
-                placeholder="Search verified datasets..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={placeholderText}
                 className="h-12 md:h-14 w-full rounded-lg border border-primary/20 dark:border-white/20 bg-card/80 dark:bg-white/5 backdrop-blur-sm px-4 md:px-5 pl-11 md:pl-12 text-sm md:text-base text-foreground dark:text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-white/30 shadow-lg"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch(e);
+                  }
+                }}
               />
               <Search className="absolute left-3 md:left-4 top-1/2 h-4 w-4 md:h-5 md:w-5 -translate-y-1/2 text-muted-foreground dark:text-white/60" />
-            </div>
+            </form>
             <Button
               variant="outline"
               size="lg"
