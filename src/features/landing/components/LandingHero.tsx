@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
@@ -101,6 +101,42 @@ const filters = [
 
 export function LandingHero() {
   const [activeTab] = useState("browse");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Set initial dark mode state
+    const checkDarkMode = () => {
+      const dark = document.documentElement.classList.contains("dark");
+      setIsDark(dark);
+    };
+
+    // Check immediately
+    checkDarkMode();
+
+    // Create observer to watch for class changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // Also listen to the window for media query changes (system theme)
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleMediaChange = () => {
+      checkDarkMode();
+    };
+    
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleMediaChange);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", handleMediaChange);
+      }
+    };
+  }, []);
 
   return (
     <section id="hero" className="relative pt-6 pb-16">
@@ -308,10 +344,10 @@ export function LandingHero() {
               className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
             />
             <Image
-              src="/aws.png"
+              src={isDark ? "/aws.png" : "/aws-light.png"}
               alt="AWS Cloud"
-              width={80}
-              height={48}
+              width={isDark ? 120 : 100}
+              height={isDark ? 85 : 60}
               loading="lazy"
               className="flex-shrink-0 object-contain opacity-90 dark:opacity-80 hover:opacity-100 dark:hover:opacity-90 transition-opacity duration-300"
             />
