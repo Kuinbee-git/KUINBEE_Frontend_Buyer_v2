@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { ProductHuntBadge } from "./ProductHuntBadge";
 
 // Inline SVG social icons — zero dependency
 const LinkedinIcon = () => (
@@ -292,6 +293,11 @@ export function LandingFooter() {
         </div>
 
         <div className="border-t border-border dark:border-white/10 mt-8 pt-8">
+          {/* Product Hunt Badge */}
+          <div className="flex justify-center mb-8">
+            <ProductHuntBadge />
+          </div>
+
           {/* Social Media */}
           <div className="flex justify-center gap-6 mb-6">
             <a
