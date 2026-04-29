@@ -72,8 +72,25 @@ type DatasetApiItem = {
   id: string;
   datasetUniqueId: string;
   title: string;
-  owner?: { name?: string };
+  owner?: { id?: string; name?: string; logoUrl?: string | null };
   category?: { name?: string };
+  source?: {
+    id?: string;
+    name?: string;
+    description?: string | null;
+    websiteUrl?: string | null;
+    isVerified?: boolean;
+    logoUrl?: string | null;
+  } | null;
+  sources?: Array<{
+    id?: string;
+    name?: string;
+    description?: string | null;
+    websiteUrl?: string | null;
+    isVerified?: boolean;
+    logoUrl?: string | null;
+  }>;
+  isPlatformDataset?: boolean;
   license?: string;
   isPaid?: boolean;
   price?: string | number | null;
@@ -118,68 +135,96 @@ const toNullableNumber = (value: string | number | null | undefined): number | n
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-// Map API dataset to UI format
-const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => ({
-  id: apiDataset.id,
-  datasetUniqueId: apiDataset.datasetUniqueId,
-  title: apiDataset.title,
-  provider: apiDataset.owner?.name || "Unknown",
-  category: apiDataset.category?.name || "Uncategorized",
-  secondaryCategories: [],
-  license: apiDataset.license || "Unknown",
-  pricing: {
-    type: apiDataset.isPaid ? "paid" : "free",
-    amount: apiDataset.price != null ? Number(apiDataset.price) : undefined,
-    currency: apiDataset.currency || "INR",
-  },
-  lastUpdated: new Date(apiDataset.updatedAt ?? apiDataset.createdAt ?? Date.now()).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }),
-  status: apiDataset.status?.toLowerCase() || "published",
-  description: apiDataset.title,
-  coverage: apiDataset.location?.country || "N/A",
-  records: apiDataset.dataFormatInfo?.rows || 0,
-  aboutDataset: null,
-  dataFormat: apiDataset.dataFormatInfo ? {
-    fileFormat: apiDataset.dataFormatInfo.fileFormat ?? "UNKNOWN",
-    rows: apiDataset.dataFormatInfo.rows ?? 0,
-    cols: apiDataset.dataFormatInfo.cols ?? 0,
-    fileSize: apiDataset.dataFormatInfo.fileSize ?? "N/A",
-    compressionType: "NONE",
-    encoding: "UTF-8",
-    updatedAt: apiDataset.updatedAt ?? apiDataset.createdAt ?? new Date().toISOString(),
-  } : null,
-  features: [],
-  source: null,
-  location: apiDataset.location ? {
-    region: null,
-    country: apiDataset.location.country ?? null,
-    state: apiDataset.location.state ?? null,
-    city: apiDataset.location.city ?? null,
-    coordinates: null,
-    coverage: null,
-  } : null,
-  tags: apiDataset.tags || [],
-  isSample: apiDataset.isSample ?? false,
-  sampleFileAvailable: apiDataset.sampleFileAvailable ?? false,
-  sampleNotes: apiDataset.sampleNotes ?? null,
-  actualPrice: toNullableNumber(apiDataset.actualPrice),
-  actualPriceCurrency: apiDataset.actualPriceCurrency ?? null,
-  buyInPartsAvailable: apiDataset.buyInPartsAvailable ?? false,
-  downloadCount: apiDataset.downloadCount || 0,
-  viewCount: apiDataset.viewCount || 0,
-  rating: apiDataset.rating ?? null,
-  quality: { quality: 0, legal: 0, provenance: 0, usability: 0, freshness: 0 },
-  verification: {
-    supplierVerified: true,
-    datasetReviewed: true,
-    published: apiDataset.status === "PUBLISHED",
-  },
-  reviewCount: apiDataset.reviewCount || 0,
-  kdtsScore: apiDataset.kdtsScore != null ? String(apiDataset.kdtsScore) : null,
+const isKnownPlatformProvider = (provider?: string | null): boolean => {
+  const normalized = provider?.trim().toLowerCase();
+  return normalized === "kuinbee information services pvt. ltd." ||
+    normalized === "kuinbee information services private limited";
+};
+
+const mapSourceToUI = (source: NonNullable<DatasetApiItem["source"]>): NonNullable<Dataset["source"]> => ({
+  id: source.id ?? source.name ?? "source",
+  name: source.name ?? "Unknown source",
+  description: source.description ?? null,
+  websiteUrl: source.websiteUrl ?? null,
+  isVerified: source.isVerified ?? false,
+  logoUrl: source.logoUrl ?? null,
 });
+
+// Map API dataset to UI format
+const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
+  const provider = apiDataset.owner?.name || "Unknown";
+  const source = apiDataset.source ? mapSourceToUI(apiDataset.source) : null;
+  const sourceLogos = apiDataset.sources?.length
+    ? apiDataset.sources.map(mapSourceToUI)
+    : source
+      ? [source]
+      : [];
+
+  return {
+    id: apiDataset.id,
+    datasetUniqueId: apiDataset.datasetUniqueId,
+    title: apiDataset.title,
+    provider,
+    supplierLogoUrl: apiDataset.owner?.logoUrl ?? null,
+    isPlatformDataset: apiDataset.isPlatformDataset ?? isKnownPlatformProvider(provider),
+    category: apiDataset.category?.name || "Uncategorized",
+    secondaryCategories: [],
+    license: apiDataset.license || "Unknown",
+    pricing: {
+      type: apiDataset.isPaid ? "paid" : "free",
+      amount: apiDataset.price != null ? Number(apiDataset.price) : undefined,
+      currency: apiDataset.currency || "INR",
+    },
+    lastUpdated: new Date(apiDataset.updatedAt ?? apiDataset.createdAt ?? Date.now()).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+    status: apiDataset.status?.toLowerCase() || "published",
+    description: apiDataset.title,
+    coverage: apiDataset.location?.country || "N/A",
+    records: apiDataset.dataFormatInfo?.rows || 0,
+    aboutDataset: null,
+    dataFormat: apiDataset.dataFormatInfo ? {
+      fileFormat: apiDataset.dataFormatInfo.fileFormat ?? "UNKNOWN",
+      rows: apiDataset.dataFormatInfo.rows ?? 0,
+      cols: apiDataset.dataFormatInfo.cols ?? 0,
+      fileSize: apiDataset.dataFormatInfo.fileSize ?? "N/A",
+      compressionType: "NONE",
+      encoding: "UTF-8",
+      updatedAt: apiDataset.updatedAt ?? apiDataset.createdAt ?? new Date().toISOString(),
+    } : null,
+    features: [],
+    source,
+    sourceLogos,
+    location: apiDataset.location ? {
+      region: null,
+      country: apiDataset.location.country ?? null,
+      state: apiDataset.location.state ?? null,
+      city: apiDataset.location.city ?? null,
+      coordinates: null,
+      coverage: null,
+    } : null,
+    tags: apiDataset.tags || [],
+    isSample: apiDataset.isSample ?? false,
+    sampleFileAvailable: apiDataset.sampleFileAvailable ?? false,
+    sampleNotes: apiDataset.sampleNotes ?? null,
+    actualPrice: toNullableNumber(apiDataset.actualPrice),
+    actualPriceCurrency: apiDataset.actualPriceCurrency ?? null,
+    buyInPartsAvailable: apiDataset.buyInPartsAvailable ?? false,
+    downloadCount: apiDataset.downloadCount || 0,
+    viewCount: apiDataset.viewCount || 0,
+    rating: apiDataset.rating ?? null,
+    quality: { quality: 0, legal: 0, provenance: 0, usability: 0, freshness: 0 },
+    verification: {
+      supplierVerified: true,
+      datasetReviewed: true,
+      published: apiDataset.status === "PUBLISHED",
+    },
+    reviewCount: apiDataset.reviewCount || 0,
+    kdtsScore: apiDataset.kdtsScore != null ? String(apiDataset.kdtsScore) : null,
+  };
+};
 
 
 
@@ -460,9 +505,6 @@ export function DatasetDiscoveryV2() {
     tags: false,
     kdtsScore: false,
   });
-
-  // Tab state
-  const [activeTab, setActiveTab] = useState<"datasets">("datasets");
 
   // useTransition keeps the UI responsive while React processes filter state updates.
   // Input fields remain interactive even while the dataset list re-renders.

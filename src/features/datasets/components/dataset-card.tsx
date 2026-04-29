@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -10,7 +11,7 @@ import {
   ShieldCheck,
   Award,
 } from "lucide-react";
-import { Dataset } from "./types";
+import { Dataset, DatasetSourceUI } from "./types";
 import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
@@ -49,6 +50,86 @@ const toSafeNumber = (value: unknown): number | null => {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 };
+
+const getLogoInitials = (name: string) => {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+};
+
+const isRenderableLogoUrl = (url?: string | null) => {
+  if (!url) return false;
+  return url.startsWith("https://") || url.startsWith("/");
+};
+
+function EntityLogo({
+  name,
+  logoUrl,
+  className,
+  imageClassName,
+  fallbackClassName,
+}: {
+  name: string;
+  logoUrl?: string | null;
+  className?: string;
+  imageClassName?: string;
+  fallbackClassName?: string;
+}) {
+  const canRenderLogo = isRenderableLogoUrl(logoUrl);
+
+  return (
+    <span
+      className={cn(
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#1a2240]/10 bg-[#1a2240]/5 text-[#1a2240] dark:border-white/10 dark:bg-white/5 dark:text-white",
+        className
+      )}
+      title={name}
+      aria-label={`${name} logo`}
+    >
+      {canRenderLogo ? (
+        <Image
+          src={logoUrl ?? ""}
+          alt={`${name} logo`}
+          fill
+          sizes="72px"
+          className={cn("object-contain", imageClassName)}
+        />
+      ) : (
+        <span className={cn("text-xs font-semibold tracking-normal", fallbackClassName)}>
+          {getLogoInitials(name)}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function SourceLogoStrip({ sources }: { sources: DatasetSourceUI[] }) {
+  if (sources.length === 0) return null;
+
+  const visibleSources = sources.slice(0, 3);
+  const hiddenCount = sources.length - visibleSources.length;
+
+  return (
+    <div className="mt-2 flex items-center gap-1.5" aria-label="Dataset sources">
+      {visibleSources.map((source) => (
+        <EntityLogo
+          key={source.id}
+          name={source.name}
+          logoUrl={source.logoUrl}
+          className="h-6 w-6 rounded-sm"
+          imageClassName="p-1"
+          fallbackClassName="text-[10px]"
+        />
+      ))}
+      {hiddenCount > 0 && (
+        <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-sm border border-[#1a2240]/10 bg-[#1a2240]/5 px-1.5 text-[11px] font-medium text-[#4e5a7e] dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+          +{hiddenCount}
+        </span>
+      )}
+    </div>
+  );
+}
 
 // ── Component ──
 
@@ -101,8 +182,12 @@ export const DatasetCard = memo(function DatasetCard({
   const sampleCurrency = dataset.actualPriceCurrency || dataset.pricing.currency;
   const normalizedProvider = dataset.provider?.trim().toLowerCase();
   const isPlatformDatasetProvider =
+    dataset.isPlatformDataset === true ||
     normalizedProvider === "kuinbee information services pvt. ltd." ||
     normalizedProvider === "kuinbee information services private limited";
+  const platformSourceLogos = isPlatformDatasetProvider
+    ? dataset.sourceLogos ?? (dataset.source ? [dataset.source] : [])
+    : [];
 
   // ── Price display (single source, not a badge) ──
   const priceDisplay = isSampleDataset
@@ -211,25 +296,37 @@ export const DatasetCard = memo(function DatasetCard({
         </button>
       </div>
 
-      {/* ── Row 2: Title ── */}
-      <h3 className="text-base font-semibold text-[#1a2240] dark:text-white leading-snug line-clamp-2 mb-2 group-hover:text-[#1a2240] dark:group-hover:text-white transition-colors">
-        {dataset.title}
-      </h3>
+      {/* ── Row 2: Identity ── */}
+      <div className="mb-4 grid min-w-0 grid-cols-[72px_1fr] items-start gap-4">
+        <div className="flex min-h-[72px] items-start justify-center">
+          <EntityLogo
+            name={dataset.provider}
+            logoUrl={dataset.supplierLogoUrl}
+            className="h-[72px] w-[72px]"
+            imageClassName="p-2"
+            fallbackClassName="text-xl"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base font-semibold text-[#1a2240] dark:text-white leading-snug line-clamp-2 group-hover:text-[#1a2240] dark:group-hover:text-white transition-colors">
+            {dataset.title}
+          </h3>
+          <p className="mt-1 text-sm text-[#4e5a7e] dark:text-white/70">
+            {isPlatformDatasetProvider ? "Curated by " : "by "}
+            <span className="text-[#1a2240] dark:text-white font-medium">{dataset.provider}</span>
+          </p>
+          <SourceLogoStrip sources={platformSourceLogos} />
+        </div>
+      </div>
 
-      {/* ── Row 3: Provider ── */}
-      <p className="text-sm text-[#4e5a7e] dark:text-white/70 mb-3">
-        {isPlatformDatasetProvider ? "Curated by " : "by "}
-        <span className="text-[#1a2240] dark:text-white font-medium">{dataset.provider}</span>
-      </p>
-
-      {/* ── Row 4: Metadata line (plain text, dot-separated) ── */}
+      {/* ── Row 3: Metadata line (plain text, dot-separated) ── */}
       {metadataParts.length > 0 && (
         <p className="text-sm text-[#4e5a7e] dark:text-white/70 mb-3">
           {metadataParts.join(" · ")}
         </p>
       )}
 
-      {/* ── Row 5: Tags ── */}
+      {/* ── Row 4: Tags ── */}
       {visibleTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {visibleTags.map((tag, idx) => (
@@ -251,7 +348,7 @@ export const DatasetCard = memo(function DatasetCard({
       {/* ── Divider ── */}
       <div className="h-px bg-[#1a2240]/10 dark:bg-white/10 mb-4" />
 
-      {/* ── Row 6: Rating + KDTS + Stats + Price ── */}
+      {/* ── Row 5: Rating + KDTS + Stats + Price ── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4 text-sm">
           {/* Rating - only show if reviews exist */}
@@ -323,19 +420,27 @@ export function DatasetCardSkeleton() {
         <div className="h-7 w-16 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
       </div>
 
-      {/* Row 2: Title */}
-      <div className="space-y-1.5 mb-2">
-        <div className="h-5 w-3/4 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
-        <div className="h-5 w-1/2 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+      {/* Row 2: Identity */}
+      <div className="mb-4 grid grid-cols-[72px_1fr] items-start gap-4">
+        <div className="h-[72px] w-[72px] shrink-0 rounded-md bg-[#1a2240]/10 dark:bg-white/10" />
+        <div className="min-w-0 flex-1">
+          <div className="space-y-1.5">
+            <div className="h-5 w-3/4 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+            <div className="h-5 w-1/2 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+          </div>
+          <div className="h-4 w-40 rounded-sm bg-[#1a2240]/10 dark:bg-white/10 mt-2" />
+          <div className="mt-2 flex gap-1.5">
+            <div className="h-6 w-6 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+            <div className="h-6 w-6 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+            <div className="h-6 w-6 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
+          </div>
+        </div>
       </div>
 
-      {/* Row 3: Provider */}
-      <div className="h-4 w-40 rounded-sm bg-[#1a2240]/10 dark:bg-white/10 mb-3" />
-
-      {/* Row 4: Metadata line */}
+      {/* Row 3: Metadata line */}
       <div className="h-4 w-2/3 rounded-sm bg-[#1a2240]/10 dark:bg-white/10 mb-3" />
 
-      {/* Row 5: Tags */}
+      {/* Row 4: Tags */}
       <div className="flex gap-1.5 mb-4">
         <div className="h-5 w-16 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />
         <div className="h-5 w-20 rounded-sm bg-[#1a2240]/10 dark:bg-white/10" />

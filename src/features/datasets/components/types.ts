@@ -15,6 +15,7 @@ export interface DatasetSourceUI {
   description: string | null;
   websiteUrl: string | null;
   isVerified: boolean;
+  logoUrl?: string | null;
 }
 
 export interface DatasetLocationUI {
@@ -51,6 +52,8 @@ export interface Dataset {
   datasetUniqueId?: string; // The actual unique ID used for API calls
   title: string;
   provider: string; // Source name
+  supplierLogoUrl?: string | null;
+  isPlatformDataset?: boolean;
   category: string; // Primary category name
   secondaryCategories: string[];
   license: string;
@@ -67,6 +70,7 @@ export interface Dataset {
   dataFormat: DataFormatUI | null;
   features: DatasetFeatureUI[];
   source: DatasetSourceUI | null;
+  sourceLogos?: DatasetSourceUI[];
   location: DatasetLocationUI | null;
   tags: string[];
   isSample?: boolean;
