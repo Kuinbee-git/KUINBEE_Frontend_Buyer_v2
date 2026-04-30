@@ -234,7 +234,7 @@ export function LandingHero() {
 
           {/* Description */}
           <p className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0">
-Find and buy datasets you can actually rely on. Every listing is reviewed, priced upfront, and ready to use — across finance, energy, environment,medicare, and more.
+Find and buy datasets you can actually rely on. Every listing is reviewed, priced upfront, and ready to use — across finance, energy, environment, medicare, and more.
 
           </p>
 
@@ -298,7 +298,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
         {/* Supplier logo ticker band */}
         <div className="mt-12 md:mt-16 w-full">
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
-            Trusted Data Sources 
+            Data aggregated from Trusted Sources 
           </p>
 
           {/* Mask edges */}
