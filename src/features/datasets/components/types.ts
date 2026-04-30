@@ -91,6 +91,7 @@ export interface Dataset {
   viewCount: number;
   rating: number | null;
   kdtsScore?: string | null;
+  searchScore?: number | null;
   // Legacy fields (kept for compatibility, derived from new data)
   coverage: string;
   records: number;

@@ -889,7 +889,7 @@ export function StrotasPageContent() {
                         </div>
 
                         <div className="pt-4 text-xs text-muted-foreground dark:text-white/35 space-y-0.5">
-                            <p>Expected launch: Q2 2026</p>
+                            <p>Expected launch: Q3 2026</p>
                             <p>
                                 Priority access for early subscribers · No spam, unsubscribe
                                 anytime

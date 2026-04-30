@@ -63,33 +63,40 @@ export function LandingFooter() {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-8 mb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-8 mb-10">
           {/* Brand Section */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Image
                 src="/logo-light.png"
                 alt="Kuinbee marketplace brand logo light theme | Kuinbee"
-                width={80}
-                height={80}
-                className="block hidden dark:hidden h-20"
+                width={40}
+                height={40}
+                className="block dark:hidden h-10 w-10"
               />
               <Image
                 src="/logo-dark.png"
                 alt="Kuinbee marketplace brand logo dark theme | Kuinbee"
-                width={80}
-                height={80}
-                className="hidden dark:block h-20"
+                width={40}
+                height={40}
+                className="hidden dark:block h-10 w-10"
               />
-              <h3 className="text-2xl font-semibold text-primary dark:text-white leading-tight">
+              <h3 className="text-xl font-bold text-primary dark:text-white leading-tight">
                 Kuinbee
               </h3>
             </div>
-            <p className="text-muted-foreground dark:text-white/70 leading-relaxed max-w-md text-sm">
-              The world&apos;s datasets, aggregated for you. Discover,
-              understand, and act on data with speed and confidence.
-            </p>
+            <div className="flex flex-col pt-1">
+              <p className="text-muted-foreground dark:text-white/70 leading-relaxed max-w-md text-xs font-bold tracking-widest uppercase">
+                THE DATA OS
+              </p>
+              <p className="text-muted-foreground dark:text-white/50 text-xs mt-1">
+                Born from Chaos Built for Eternity
+              </p>
+            </div>
+            <div className="pt-1">
+              <ProductHuntBadge className="justify-start py-0 scale-75 origin-top-left" />
+            </div>
           </div>
 
           {/* Product */}
@@ -293,11 +300,6 @@ export function LandingFooter() {
         </div>
 
         <div className="border-t border-border dark:border-white/10 mt-8 pt-8">
-          {/* Product Hunt Badge */}
-          <div className="flex justify-center mb-8">
-            <ProductHuntBadge />
-          </div>
-
           {/* Social Media */}
           <div className="flex justify-center gap-6 mb-6">
             <a

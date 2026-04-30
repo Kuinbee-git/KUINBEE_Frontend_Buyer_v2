@@ -8,6 +8,7 @@ import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { categories, resources } from "@/config/navigation.config";
+import { toast } from "sonner";
 
 import {
   ArrowLeft,
@@ -274,6 +275,10 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                     className="relative"
                     onSubmit={(e) => {
                       e.preventDefault();
+                      if (navSearchQuery.length > 200) {
+                        toast.error("Search query cannot exceed 200 characters.");
+                        return;
+                      }
                       const params = new URLSearchParams();
                       if (navSearchQuery) params.set("q", navSearchQuery);
                       router.push(`/datasets${params.toString() ? `?${params.toString()}` : ""}`);
@@ -285,7 +290,12 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                       placeholder={navConfig.searchPlaceholder || "Search datasets..."}
                       value={navSearchQuery}
                       onChange={(e) => {
-                        setNavSearchQuery(e.target.value);
+                        const val = e.target.value;
+                        if (val.length > 200) {
+                          toast.error("Search query cannot exceed 200 characters.");
+                          return;
+                        }
+                        setNavSearchQuery(val);
                         // If already on /datasets, update the URL in real-time (debounced by dataset-discovery)
                         if (pathname === "/datasets") {
                           const params = new URLSearchParams(window.location.search);

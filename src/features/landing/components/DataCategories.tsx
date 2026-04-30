@@ -80,7 +80,7 @@ export function DataCategories({ categories = [] }: DataCategoriesProps) {
       ref={sectionRef}
       id="categories"
       className={cn(
-        "relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000",
+        "relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-6 pb-16 md:pt-10 md:pb-24 transition-opacity duration-1000",
         isVisible ? "opacity-100" : "opacity-0"
       )}
     >

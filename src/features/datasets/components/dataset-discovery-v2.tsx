@@ -115,6 +115,7 @@ type DatasetApiItem = {
   rating?: number | null;
   reviewCount?: number;
   kdtsScore?: number | null;
+  searchScore?: number | null;
   isSample?: boolean;
   sampleFileAvailable?: boolean;
   sampleNotes?: {
@@ -223,6 +224,7 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
     },
     reviewCount: apiDataset.reviewCount || 0,
     kdtsScore: apiDataset.kdtsScore != null ? String(apiDataset.kdtsScore) : null,
+    searchScore: apiDataset.searchScore ?? null,
   };
 };
 
@@ -495,6 +497,18 @@ export function DatasetDiscoveryV2() {
       filters.page * filters.pageSize
     );
 
+  // Split results into strong hits and weak/related suggestions.
+  // Only applies when a search query is active AND the backend returned searchScores.
+  // RRF scores from hybrid search: FTS-anchored results score ~0.025+, semantic-only ~0.015 or below.
+  const WEAK_SCORE_THRESHOLD = 0.022;
+  const hasSearchScores = debouncedSearch && paginatedDatasets.some(d => d.searchScore != null);
+  const strongDatasets = hasSearchScores
+    ? paginatedDatasets.filter(d => d.searchScore == null || d.searchScore >= WEAK_SCORE_THRESHOLD)
+    : paginatedDatasets;
+  const relatedDatasets = hasSearchScores
+    ? paginatedDatasets.filter(d => d.searchScore != null && d.searchScore < WEAK_SCORE_THRESHOLD)
+    : [];
+
   // Accordion states for filter sections
   const [accordionState, setAccordionState] = useState({
     sort: true,
@@ -691,13 +705,31 @@ export function DatasetDiscoveryV2() {
                     </div>
                   ) : (
                     <div className="space-y-4 transition-opacity duration-200">
-                      {paginatedDatasets.map((dataset) => (
+                      {strongDatasets.map((dataset) => (
                         <DatasetCard
                           key={dataset.id}
                           dataset={dataset}
                           isInWishlist={wishlistDatasetIds.has(dataset.id)}
                         />
                       ))}
+                      {relatedDatasets.length > 0 && (
+                        <>
+                          <div className="flex items-center gap-3 pt-2">
+                            <div className="flex-1 h-px bg-border/60 dark:bg-white/10" />
+                            <span className="text-xs font-medium text-[#4e5a7e] dark:text-white/50 whitespace-nowrap">
+                              You might also be interested in
+                            </span>
+                            <div className="flex-1 h-px bg-border/60 dark:bg-white/10" />
+                          </div>
+                          {relatedDatasets.map((dataset) => (
+                            <DatasetCard
+                              key={dataset.id}
+                              dataset={dataset}
+                              isInWishlist={wishlistDatasetIds.has(dataset.id)}
+                            />
+                          ))}
+                        </>
+                      )}
                     </div>
                   )
                 ) : (

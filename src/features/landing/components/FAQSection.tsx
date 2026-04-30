@@ -131,20 +131,6 @@ export function FAQSection() {
             </AccordionItem>
           ))}
         </Accordion>
-
-        {/* Contact support */}
-        <div className="mt-12 rounded-lg border border-border/50 bg-card/80 dark:bg-card/50 backdrop-blur-sm p-6 text-center shadow-lg">
-          <p className="text-foreground">Additional questions?</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review our documentation or contact the registry administrator.
-          </p>
-          <a
-            href="/docs"
-            className="mt-4 inline-flex items-center rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-card"
-          >
-            Access Documentation
-          </a>
-        </div>
       </div>
     </section>
   );
