@@ -191,33 +191,17 @@ export function LandingHero() {
       <div className="relative z-20 mx-auto max-w-7xl px-6 pt-12 pb-6 md:pt-20 md:pb-10 lg:pt-28 lg:pb-12">
         {/* Hero content - single column, centered */}
         <div className="mx-auto max-w-5xl">
-          {/* Supported by */}
-          <div className="mb-6 md:mb-8 flex flex-col items-center justify-center gap-3">
+          {/* Member of */}
+          <div className="mb-6 md:mb-8 flex flex-row items-center justify-center gap-3">
             <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/70 dark:text-white/40">
-              Supported by
+              Member of
             </span>
-            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 transition-all duration-300">
+            <div className="flex items-center justify-center transition-all duration-300">
               <Image
                 src="/nvidia-inception-program-badge-rgb-for-screen.svg"
                 alt="NVIDIA Inception Program"
-                width={90}
-                height={35}
-                loading="lazy"
-                className="object-contain"
-              />
-              <Image
-                src={isDark ? "/aws.png" : "/aws-light.png"}
-                alt="AWS Cloud"
-                width={isDark ? 70 : 60}
-                height={isDark ? 45 : 35}
-                loading="lazy"
-                className="object-contain"
-              />
-              <Image
-                src="/Logo-Google-Cloud-500x313.png"
-                alt="Google Cloud"
-                width={90}
-                height={55}
+                width={100}
+                height={40}
                 loading="lazy"
                 className="object-contain"
               />
@@ -234,7 +218,7 @@ export function LandingHero() {
 
           {/* Description */}
           <p className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0">
-Find and buy datasets you can actually rely on. Every listing is reviewed, priced upfront, and ready to use — across finance, energy, environment, medicare, and more.
+Find and buy datasets you can actually rely on. Every listing is reviewed, priced upfront, and ready to use — across finance, energy, environment,medicare, and more.
 
           </p>
 
@@ -298,7 +282,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
         {/* Supplier logo ticker band */}
         <div className="mt-12 md:mt-16 w-full">
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
-            Data aggregated from Trusted Sources 
+            Trusted Data Sources 
           </p>
 
           {/* Mask edges */}
@@ -353,6 +337,31 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Supported by industry leaders */}
+        <div className="mt-12 md:mt-16 w-full flex flex-col items-center justify-center gap-4">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35">
+            Supported by industry leaders
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 transition-all duration-300 opacity-80 hover:opacity-100">
+            <Image
+              src={isDark ? "/aws.png" : "/aws-light.png"}
+              alt="AWS Cloud"
+              width={isDark ? 100 : 85}
+              height={isDark ? 60 : 50}
+              loading="lazy"
+              className="object-contain transition-all duration-300"
+            />
+            <Image
+              src="/Logo-Google-Cloud-500x313.png"
+              alt="Google Cloud"
+              width={120}
+              height={70}
+              loading="lazy"
+              className="object-contain transition-all duration-300"
+            />
           </div>
         </div>
 
