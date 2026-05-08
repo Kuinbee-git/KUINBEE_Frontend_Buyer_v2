@@ -18,6 +18,7 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
+        data-lenis-prevent
         className="size-full rounded-[inherit]"
       >
         {children}

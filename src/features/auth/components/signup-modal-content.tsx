@@ -61,10 +61,10 @@ export function SignupModalContent() {
       {/* Title and helper */}
       <div className="mb-5">
         <h1 className="text-2xl font-semibold text-white mb-2">
-          Create your account
+          Create Account to Download & Access
         </h1>
         <p className="text-sm text-white/70">
-          Join the governed data marketplace.
+          Download and access verified datasets from the marketplace.
         </p>
       </div>
 

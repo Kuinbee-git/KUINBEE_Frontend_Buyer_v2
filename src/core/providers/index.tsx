@@ -7,3 +7,4 @@ export { ThemeProvider, useTheme } from './ThemeProvider';
 export { QueryProvider } from './query-provider';
 export { ToastProvider } from './toast-provider';
 export { NavigationProgress } from './NavigationProgress';
+export { SmoothScrollProvider } from './SmoothScrollProvider';

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'lenis/dist/lenis.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -234,6 +235,25 @@ html.dark,
   .scrollbar-none::-webkit-scrollbar {
     display: none;
     /* Chrome, Safari, Opera */
+  }
+
+  .kuinbee-filter-scroll {
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .kuinbee-filter-scroll::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  .kuinbee-filter-scroll::-webkit-scrollbar-track,
+  .kuinbee-filter-scroll::-webkit-scrollbar-thumb {
+    display: none !important;
+    background: transparent !important;
+    border: 0 !important;
   }
 }
 

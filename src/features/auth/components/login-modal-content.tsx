@@ -71,10 +71,10 @@ export function LoginModalContent() {
       {/* Title and helper */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-white mb-2">
-          Sign in to Kuinbee
+          Sign in to Download & Access
         </h1>
         <p className="text-sm text-white/70">
-          Access the governed data registry.
+          Download and access verified datasets from the marketplace.
         </p>
       </div>
 

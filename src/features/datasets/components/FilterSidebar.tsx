@@ -122,6 +122,9 @@ export const FilterSidebar = memo(function FilterSidebar({
   const modalPrimaryButtonClass =
     "h-10 bg-white/20 text-white border border-white/30 hover:bg-white/30";
 
+  const filterScrollClass =
+    "kuinbee-filter-scroll overscroll-contain overflow-y-auto";
+
   const optionButtonClass = (active: boolean) =>
     cn(
       "w-full flex items-center justify-between text-left px-3 py-1.5 rounded-lg text-sm border transition-all duration-150",
@@ -157,12 +160,6 @@ export const FilterSidebar = memo(function FilterSidebar({
     updateFilter({ categories: Array.from(new Set(categoryDraft)) });
     setCategoryPickerOpen(false);
   };
-
-  useEffect(() => {
-    if (!categoryPickerOpen) {
-      setCategoryDraft(filters.categories);
-    }
-  }, [categoryPickerOpen, filters.categories]);
 
   const applyLocationDraft = () => {
     updateFilter({
@@ -374,7 +371,10 @@ export const FilterSidebar = memo(function FilterSidebar({
             <span>Filters {hasActiveFilters && `(${activeCount} active)`}</span>
             <ChevronDown className="h-4 w-4 text-[#4e5a7e] dark:text-white/60" />
           </summary>
-          <div className="px-4 pb-4 space-y-4 max-h-[70vh] overflow-y-auto scrollbar-none">
+          <div
+            data-lenis-prevent
+            className={cn("px-4 pb-4 space-y-4 max-h-[70vh]", filterScrollClass)}
+          >
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
@@ -387,7 +387,13 @@ export const FilterSidebar = memo(function FilterSidebar({
           </div>
         </details>
 
-        <div className="hidden lg:block space-y-6 max-h-[calc(100vh-7.5rem)] overflow-y-auto scrollbar-none pr-1">
+        <div
+          data-lenis-prevent
+          className={cn(
+            "hidden lg:block space-y-6 max-h-[calc(100vh-7.5rem)]",
+            filterScrollClass
+          )}
+        >
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
@@ -436,7 +442,10 @@ export const FilterSidebar = memo(function FilterSidebar({
             onChange={(e) => setCategorySearch(e.target.value)}
             className={modalInputClass}
           />
-          <div className="max-h-[520px] overflow-y-auto rounded-lg border border-white/20 bg-white/5 p-3">
+          <div
+            data-lenis-prevent
+            className="kuinbee-filter-scroll max-h-[520px] overflow-y-auto overscroll-contain rounded-lg border border-white/20 bg-white/5 p-3"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               <div
                 role="button"
@@ -572,7 +581,10 @@ export const FilterSidebar = memo(function FilterSidebar({
               Add
             </Button>
           </div>
-          <div className="max-h-[240px] overflow-y-auto rounded-lg border border-[#1a2240]/15 dark:border-white/10 bg-[#1a2240]/[0.03] dark:bg-white/[0.03] p-3">
+          <div
+            data-lenis-prevent
+            className="kuinbee-filter-scroll max-h-[240px] overflow-y-auto overscroll-contain rounded-lg border border-[#1a2240]/15 dark:border-white/10 bg-[#1a2240]/[0.03] dark:bg-white/[0.03] p-3"
+          >
             {filters.tags.length === 0 ? (
               <p className="text-xs text-[#4e5a7e] dark:text-white/50">No tags selected yet</p>
             ) : (
@@ -636,11 +648,7 @@ function ResponsivePicker({
 
   useEffect(() => {
     if (!animateOnOpen) return;
-    if (!open) {
-      setEntered(false);
-      return;
-    }
-    const frame = requestAnimationFrame(() => setEntered(true));
+    const frame = requestAnimationFrame(() => setEntered(open));
     return () => cancelAnimationFrame(frame);
   }, [open, animateOnOpen]);
 
@@ -652,7 +660,12 @@ function ResponsivePicker({
             <DrawerTitle>{title}</DrawerTitle>
             <DrawerDescription>{description}</DrawerDescription>
           </DrawerHeader>
-          <div className="px-4 pb-2 overflow-y-auto">{children}</div>
+          <div
+            data-lenis-prevent
+            className="kuinbee-filter-scroll px-4 pb-2 overflow-y-auto overscroll-contain"
+          >
+            {children}
+          </div>
           {footer && <DrawerFooter className="pt-2">{footer}</DrawerFooter>}
         </DrawerContent>
       </Drawer>
@@ -672,7 +685,7 @@ function ResponsivePicker({
         aria-hidden="true"
       />
       <div className={cn(
-        "relative w-full max-w-4xl max-h-[90vh] overflow-y-auto scrollbar-none transition-all duration-200 ease-out",
+        "kuinbee-filter-scroll relative w-full max-w-4xl max-h-[90vh] overflow-y-auto overscroll-contain transition-all duration-200 ease-out",
         animateOnOpen && (entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[0.98] translate-y-2"),
         dialogClassName
       )}>
@@ -690,7 +703,7 @@ function ResponsivePicker({
             <p className="mt-1 text-sm text-white/70">{description}</p>
           </div>
 
-          <div className="overflow-y-auto">{children}</div>
+          <div data-lenis-prevent className="overflow-y-auto overscroll-contain">{children}</div>
 
           {footer && <div className="mt-6 pt-4 border-t border-white/10 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">{footer}</div>}
         </div>
