@@ -40,7 +40,6 @@ const teamMembers: TeamMember[] = [
     role: "Co-Founder & Chief Operating Officer",
     initials: "VM",
     imageSrc: "/viraj.png",
-    linkedinUrl: "https://www.linkedin.com/in/deshpandeajay",
   },
 ];
 
