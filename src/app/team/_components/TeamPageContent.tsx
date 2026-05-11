@@ -23,7 +23,7 @@ const teamMembers: TeamMember[] = [
     displayName: "Aditya Patil",
     role: "Co-Founder & Chief Executive Officer",
     initials: "AP",
-    imageSrc: "/aditya.jpeg",
+    imageSrc: "/aditya.png",
     linkedinUrl: "https://www.linkedin.com/in/aditya-patil-64b87825a/",
   },
   {
@@ -31,7 +31,7 @@ const teamMembers: TeamMember[] = [
     displayName: "Tamanud Ghule",
     role: "Co-Founder, CTO & Head of Product",
     initials: "TG",
-    imageSrc: "/tamanud.jpeg",
+    imageSrc: "/tamanud.png",
     linkedinUrl: "https://www.linkedin.com/in/tamanudghule/",
   },
   {
