@@ -39,6 +39,24 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "how-ai-is-transforming-cardiac-ultrasound-echocardiography",
+    title: "How AI Is Transforming Cardiac Ultrasound: The New Era of Echocardiography",
+    description:
+      "AI in cardiology grows from $2.14B to $32B by 2033. Here is how machine learning is reshaping echocardiography, from automated EF measurement to point-of-care imaging in rural India.",
+    category: "Healthcare AI",
+    publishedAt: "2026-05-12",
+    readingTimeMinutes: 12,
+    keywords: [
+      "echocardiography",
+      "cardiac ultrasound",
+      "AI in cardiology",
+      "LVEF",
+      "DICOM",
+      "medical imaging AI",
+      "India healthcare",
+    ],
+  },
+  {
     slug: "why-call-center-speech-ai-is-harder-than-everyone-thinks",
     title: "Why Call Center Speech AI Is Harder Than Everyone Thinks — And What It Actually Takes to Get It Right",
     description:

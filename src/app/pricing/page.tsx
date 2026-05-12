@@ -87,10 +87,19 @@ export default function PricingPage() {
               Share your use case, target categories, and expected volume. Our team will recommend the best procurement model for your workflow.
             </p>
             <div className="mt-6 flex justify-center gap-3 flex-wrap">
-              <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
+              <Button
+                size="lg"
+                className="bg-primary text-white hover:bg-primary/90 dark:bg-[#4f6ef7] dark:hover:bg-[#3b5bfb]"
+                asChild
+              >
                 <Link href="/support">Contact Sales</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-[#1a2240]/20" asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-[#1a2240]/20 text-[#1a2240] hover:bg-[#1a2240]/5 dark:border-white/25 dark:text-white/85 dark:hover:bg-white/10"
+                asChild
+              >
                 <Link href="/datasets">Explore Datasets</Link>
               </Button>
             </div>
