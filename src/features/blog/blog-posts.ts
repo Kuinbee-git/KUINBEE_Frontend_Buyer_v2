@@ -57,6 +57,26 @@ export const blogPostsMeta: BlogPostMeta[] = [
     ],
   },
   {
+    slug: "solar-is-winning-grid-is-losing-curtailment-crisis",
+    title: "Solar Is Winning. The Grid Is Losing. | The Curtailment Crisis Explained",
+    description:
+      "511 GW of new solar in 2025. But Australia wasted 8 TWh, California curtailed 3.4M MWh, and Germany's solar waste nearly doubled. The grid cannot keep up. Here is what is happening.",
+    category: "Energy & Sustainability",
+    publishedAt: "2026-04-26",
+    readingTimeMinutes: 10,
+    keywords: [
+      "solar curtailment",
+      "grid integration",
+      "energy storage",
+      "renewable curtailment",
+      "solar overbuild",
+      "AEMO",
+      "CAISO",
+      "Bundesnetzagentur",
+      "energy market data",
+    ],
+  },
+  {
     slug: "why-call-center-speech-ai-is-harder-than-everyone-thinks",
     title: "Why Call Center Speech AI Is Harder Than Everyone Thinks — And What It Actually Takes to Get It Right",
     description:
