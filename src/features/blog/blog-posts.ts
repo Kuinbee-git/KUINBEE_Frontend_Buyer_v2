@@ -57,6 +57,24 @@ export const blogPostsMeta: BlogPostMeta[] = [
     ],
   },
   {
+    slug: "energy-narratives-2026-solar-future",
+    title: "The Stories Shaping Solar's Future Matter More Than the Data | Energy Narratives 2026",
+    description:
+      "Three competing narratives - technological confidence, cost anxiety, and grid-reliability fear - are shaping the solar transition more than any dataset. Here is why, and what history says happens next.",
+    category: "Energy & Sustainability",
+    publishedAt: "2026-04-28",
+    readingTimeMinutes: 10,
+    keywords: [
+      "solar narratives",
+      "energy transition",
+      "grid reliability",
+      "renewable policy",
+      "energy security",
+      "Hormuz crisis",
+      "ENTSO-E",
+    ],
+  },
+  {
     slug: "solar-is-winning-grid-is-losing-curtailment-crisis",
     title: "Solar Is Winning. The Grid Is Losing. | The Curtailment Crisis Explained",
     description:
