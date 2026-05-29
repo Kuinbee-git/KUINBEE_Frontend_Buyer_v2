@@ -22,6 +22,7 @@ export interface SuccessResponse {
 export interface ApiError {
   code: string;
   message: string;
+  status?: number;
   details?: Record<string, unknown>;
 }
 

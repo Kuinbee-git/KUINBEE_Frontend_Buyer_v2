@@ -52,16 +52,24 @@ export class ApiClient {
         if (response.ok) {
           return {} as T;
         }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw {
+          code: "HTTP_ERROR",
+          message: response.statusText || `HTTP ${response.status}`,
+          status: response.status,
+        } as ApiError;
       }
 
       const data = await response.json();
 
       if (!response.ok) {
+        const payload = data && typeof data === "object" && "error" in data
+          ? data.error
+          : data;
         const error: ApiError = {
-          code: data.code || "UNKNOWN_ERROR",
-          message: data.message || "An error occurred",
-          details: data.details,
+          code: payload?.code || "UNKNOWN_ERROR",
+          message: payload?.message || response.statusText || "An error occurred",
+          status: response.status,
+          details: payload?.details,
         };
         throw error;
       }

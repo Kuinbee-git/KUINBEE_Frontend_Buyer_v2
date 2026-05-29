@@ -4,11 +4,30 @@
 
 import type { ApiError } from "@/types";
 
+export function isApiError(error: unknown): error is ApiError {
+  return !!error && typeof error === "object" && "code" in error;
+}
+
+export function isMaintenanceError(error: unknown): boolean {
+  if (!isApiError(error)) return false;
+
+  const prismaCode = typeof error.details?.prismaCode === "string"
+    ? error.details.prismaCode
+    : undefined;
+
+  return (
+    (typeof error.status === "number" && error.status >= 500) ||
+    error.code === "NETWORK_ERROR" ||
+    error.code === "TIMEOUT" ||
+    prismaCode === "P2021" ||
+    prismaCode === "P2022" ||
+    prismaCode === "P1001"
+  );
+}
+
 export function getErrorMessage(error: unknown): string {
   // Handle API errors
-  if (error && typeof error === "object" && "code" in error) {
-    const apiError = error as ApiError;
-
+  if (isApiError(error)) {
     // Map error codes to user-friendly messages
     const errorMessages: Record<string, string> = {
       // Auth errors
@@ -32,7 +51,7 @@ export function getErrorMessage(error: unknown): string {
       UNKNOWN_ERROR: "An unexpected error occurred. Please try again.",
     };
 
-    return errorMessages[apiError.code] || apiError.message;
+    return errorMessages[error.code] || error.message;
   }
 
   // Handle generic errors

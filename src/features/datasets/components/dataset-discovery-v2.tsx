@@ -9,6 +9,7 @@ import { InstitutionalBackground } from "@/shared/components/ui/institutional-ba
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { Search, ChevronLeft, ChevronRight, ArrowRight, X } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
+import { getErrorMessage, isMaintenanceError } from "@/shared/utils/error.utils";
 import { DatasetCard, DatasetCardSkeleton } from "./dataset-card";
 
 // Lazy load footer for better performance
@@ -395,6 +396,15 @@ export function DatasetDiscoveryV2() {
     error
   } = useDatasets(apiQuery);
 
+  const showMaintenanceState = isMaintenanceError(error);
+
+  useEffect(() => {
+    if (!showMaintenanceState) return;
+
+    const from = `${window.location.pathname}${window.location.search}`;
+    router.replace(`/maintenance?from=${encodeURIComponent(from)}`);
+  }, [router, showMaintenanceState]);
+
   // Pagination from API response (calculated early for prefetching)
   const totalPagesRaw = apiResponse ? Math.ceil(apiResponse.total / apiResponse.pageSize) : 1;
 
@@ -686,6 +696,12 @@ export function DatasetDiscoveryV2() {
                       <DatasetCardSkeleton key={i} />
                     ))}
                   </div>
+                ) : showMaintenanceState ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: Math.min(3, filters.pageSize) }).map((_, i) => (
+                      <DatasetCardSkeleton key={`maintenance-redirect-${i}`} />
+                    ))}
+                  </div>
                 ) : error ? (
                   <div className="bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-8">
                     <p className="font-mono text-xs text-[#4e5a7e] dark:text-white/60 mb-2">ERROR</p>
@@ -693,7 +709,7 @@ export function DatasetDiscoveryV2() {
                       Failed to load datasets
                     </h3>
                     <p className="text-sm text-[#4e5a7e] dark:text-white/70">
-                      {error instanceof Error ? error.message : "An error occurred. Please try again."}
+                      {getErrorMessage(error)}
                     </p>
                   </div>
                 ) : paginatedDatasets.length > 0 ? (
