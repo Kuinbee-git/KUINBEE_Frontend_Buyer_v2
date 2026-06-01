@@ -39,6 +39,97 @@ export type BlogPostMeta = Omit<BlogPost, "content">;
 
 export const blogPostsMeta: BlogPostMeta[] = [
   {
+    slug: "skills-premium-salary-divide-india",
+    title: "The Skills Premium Has Become India's New Salary Divide",
+    description:
+      "As AI, cloud, cybersecurity, and global capability centers reshape hiring, pay is now a market signal for scarcity, capability, location, and speed of adaptation.",
+    category: "Workforce Intelligence",
+    publishedAt: "2026-05-27",
+    readingTimeMinutes: 9,
+    keywords: [
+      "skills premium",
+      "salary divide",
+      "India tech workforce",
+      "GCC",
+      "AI hiring",
+      "cybersecurity talent",
+      "salary benchmarks",
+    ],
+  },
+  {
+    slug: "india-pharma-data-gap-dataset",
+    title: "India's Pharmaceutical Data Gap - and the Dataset Filling It",
+    description:
+      "253,973 medicines, 8 attributes, and a KDTS score of 89.4. A structured A-Z medicines dataset is closing India's pharma intelligence gap.",
+    category: "Healthcare Data",
+    publishedAt: "2026-05-23",
+    readingTimeMinutes: 9,
+    keywords: [
+      "India pharma dataset",
+      "medicines database",
+      "drug pricing",
+      "pharmaceutical analytics",
+      "KDTS",
+      "healthcare data",
+      "generic medicines",
+    ],
+  },
+  {
+    slug: "india-corporate-revenue-landscape",
+    title: "India's Corporate Revenue Landscape: How the Country's Biggest Companies Are Growing",
+    description:
+      "India's BS1000 revenue grew 6.4% in FY25, with market cap hitting INR 325 trillion. Here is what the revenue data of India's top companies reveals about growth, sector divergence, and the GDP gap.",
+    category: "Corporate Finance",
+    publishedAt: "2026-06-01",
+    readingTimeMinutes: 9,
+    keywords: [
+      "India BS1000",
+      "corporate revenue",
+      "nominal GDP gap",
+      "sector divergence",
+      "market capitalization",
+      "financial services",
+      "IT services",
+    ],
+  },
+  {
+    slug: "true-economic-cost-of-war",
+    title: "The True Economic Cost of War: How Conflict Destroys Livelihoods and What Recovery Looks Like",
+    description:
+      "War costs the global economy $19.1 trillion a year. Real GDP falls 12% over a decade. IMF 2026 data shows fiscal deficits worsen by 2.6% of GDP. Here is the full economic anatomy of conflict.",
+    category: "Global Economics",
+    publishedAt: "2026-06-01",
+    readingTimeMinutes: 10,
+    keywords: [
+      "conflict economics",
+      "war GDP impact",
+      "IMF WEO 2026",
+      "fiscal deficits",
+      "reconstruction",
+      "refugee economics",
+      "global risks",
+    ],
+  },
+  {
+    slug: "india-ipo-market-2010-2025",
+    title: "India's IPO Market 2010-2025: From Tentative Listings to the World's Busiest Exchange",
+    description:
+      "338 companies went public in India in 2024, raising a record $21B. NSE became the world's #1 exchange by deal count. Here is the complete story of India's IPO decade and what comes next.",
+    category: "Finance",
+    publishedAt: "2026-06-01",
+    readingTimeMinutes: 9,
+    keywords: [
+      "India IPO market",
+      "NSE",
+      "BSE",
+      "SEBI",
+      "SME IPO",
+      "listing gains",
+      "capital markets",
+      "IPO oversubscription",
+    ],
+  },
+  {
     slug: "how-ai-is-transforming-cardiac-ultrasound-echocardiography",
     title: "How AI Is Transforming Cardiac Ultrasound: The New Era of Echocardiography",
     description:
