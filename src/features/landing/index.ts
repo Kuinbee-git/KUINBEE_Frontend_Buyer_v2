@@ -7,6 +7,7 @@ export { HowItWorksSection } from './components/HowItWorksSection';
 export { SecuritySection } from './components/SecuritySection';
 export { SupplierSection } from './components/SupplierSection';
 export { GovernanceValue } from './components/GovernanceValue';
+export { CustomerTestimonialsSection } from './components/CustomerTestimonialsSection';
 export { FAQSection } from './components/FAQSection';
 export { DataRequestSection } from './components/DataRequestSection';
 export { ProductHuntBadge } from './components/ProductHuntBadge';

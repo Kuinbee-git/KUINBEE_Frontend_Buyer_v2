@@ -54,6 +54,30 @@ const advisors: TeamMember[] = [
   },
 ];
 
+const departmentHeads: TeamMember[] = [
+  {
+    name: "Raghav Kulkarni",
+    displayName: "Raghav Kulkarni",
+    role: "Legal Head",
+    initials: "RK",
+    imageSrc: "/raghav.png",
+  },
+  {
+    name: "Mayank Saxena",
+    displayName: "Mayank Saxena",
+    role: "Marketing & Sales Lead",
+    initials: "MS",
+    imageSrc: "/mayank.png",
+  },
+  {
+    name: "Pantho Bandyopadhyay",
+    displayName: "Pantho Bandyopadhyay",
+    role: "Operational Lead",
+    initials: "PB",
+    imageSrc: "/pantho.png",
+  },
+];
+
 function TeamPhoto({ member }: { member: TeamMember }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -154,6 +178,22 @@ export function TeamPageContent() {
             <div className="mt-8 rounded-xl border border-dashed border-[#1a2240]/25 p-5 md:p-7 dark:border-white/8">
             <div className="flex flex-wrap items-stretch justify-center gap-6 md:gap-7">
               {teamMembers.map((member) => (
+                <TeamCard key={member.name} member={member} />
+              ))}
+            </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-dashed border-[#1a2240]/25 px-6 pb-12 pt-7 md:pt-9 lg:px-8 dark:border-white/8">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-center text-3xl font-semibold tracking-tight text-[#1a2240] dark:text-white md:text-4xl">
+              Our Team
+            </h2>
+
+            <div className="mt-8 rounded-xl border border-dashed border-[#1a2240]/25 p-5 md:p-7 dark:border-white/8">
+            <div className="flex flex-wrap items-stretch justify-center gap-6 md:gap-7">
+              {departmentHeads.map((member) => (
                 <TeamCard key={member.name} member={member} />
               ))}
             </div>

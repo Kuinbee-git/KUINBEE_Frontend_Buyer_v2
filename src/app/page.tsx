@@ -7,6 +7,7 @@ import {
   DataCategories,
   HowItWorksSection,
   GovernanceValue,
+  CustomerTestimonialsSection,
   DataRequestSection,
   SecuritySection,
   SupplierSection,
@@ -60,6 +61,7 @@ export default async function HomePage() {
       <DataCategories categories={dynamicCategories} />
       <HowItWorksSection />
       <GovernanceValue />
+      <CustomerTestimonialsSection />
       <DataRequestSection />
       <SupplierSection />
       <SecuritySection />

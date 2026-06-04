@@ -14,12 +14,8 @@ import {
   CheckCircle2,
   Eye,
   Database,
-  TrendingUp,
-  Zap,
-  Leaf,
-  BarChart3,
+  ArrowRight,
 } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
 
 const searchPlaceholders = [
   "Search verified datasets...",
@@ -34,7 +30,6 @@ const searchPlaceholders = [
 
 export function LandingHero() {
   const router = useRouter();
-  const [isDark, setIsDark] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderText, setPlaceholderText] = useState("");
@@ -90,41 +85,6 @@ export function LandingHero() {
       router.push('/datasets');
     }
   };
-
-  useEffect(() => {
-    // Set initial dark mode state
-    const checkDarkMode = () => {
-      const dark = document.documentElement.classList.contains("dark");
-      setIsDark(dark);
-    };
-
-    // Check immediately
-    checkDarkMode();
-
-    // Create observer to watch for class changes
-    const observer = new MutationObserver(checkDarkMode);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    // Also listen to the window for media query changes (system theme)
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleMediaChange = () => {
-      checkDarkMode();
-    };
-    
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleMediaChange);
-    }
-
-    return () => {
-      observer.disconnect();
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener("change", handleMediaChange);
-      }
-    };
-  }, []);
 
   return (
     <section id="hero" className="relative pt-6 pb-16">
@@ -340,28 +300,42 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
           </div>
         </div>
 
-        {/* Supported by industry leaders */}
-        <div className="mt-12 md:mt-16 w-full flex flex-col items-center justify-center gap-4">
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35">
-            Supported by industry leaders
+        {/* Customer band */}
+        <div className="mt-12 md:mt-16 w-full">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
+            Trusted by Data Teams
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 transition-all duration-300 opacity-80 hover:opacity-100">
+
+          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-7 md:gap-x-16">
+            <span className="text-2xl font-semibold tracking-tight text-black dark:text-white md:text-3xl">
+              OneClarity
+            </span>
             <Image
-              src={isDark ? "/aws.png" : "/aws-light.png"}
-              alt="AWS Cloud"
-              width={isDark ? 100 : 85}
-              height={isDark ? 60 : 50}
+              src="/policysalah.avif"
+              alt="PolicySalah customer logo | Kuinbee"
+              width={196}
+              height={91}
               loading="lazy"
-              className="object-contain transition-all duration-300"
+              className="h-16 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-[72px]"
             />
             <Image
-              src="/Logo-Google-Cloud-500x313.png"
-              alt="Google Cloud"
-              width={120}
-              height={70}
+              src="/policysalah-dark-tight.png"
+              alt="PolicySalah customer logo | Kuinbee"
+              width={219}
+              height={50}
               loading="lazy"
-              className="object-contain transition-all duration-300"
+              className="hidden h-12 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-14"
             />
+          </div>
+
+          <div className="mt-6 text-center">
+            <a
+              href="#client-testimonials"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/75 dark:text-white dark:hover:text-white/75"
+            >
+              Read client testimonials
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
         </div>
 
