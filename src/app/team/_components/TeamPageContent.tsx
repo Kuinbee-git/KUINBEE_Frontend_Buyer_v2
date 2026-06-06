@@ -61,13 +61,15 @@ const departmentHeads: TeamMember[] = [
     role: "Legal Head",
     initials: "RK",
     imageSrc: "/raghav.png",
+    linkedinUrl: "https://www.linkedin.com/in/raghav-kulkarni-544119279/",
   },
   {
     name: "Mayank Saxena",
     displayName: "Mayank Saxena",
-    role: "Marketing & Sales Lead",
+    role: "Marketing & Sales Head",
     initials: "MS",
     imageSrc: "/mayank.png",
+    linkedinUrl: "https://www.linkedin.com/in/mayank-saxena-pune/",
   },
   {
     name: "Pantho Bandyopadhyay",
@@ -75,6 +77,15 @@ const departmentHeads: TeamMember[] = [
     role: "Operational Lead",
     initials: "PB",
     imageSrc: "/pantho.png",
+    linkedinUrl: "https://www.linkedin.com/in/pantho-bandyopadhyay/",
+  },
+  {
+    name: "Mahalekshmi Vijayachandran",
+    displayName: "Mahalekshmi Vijayachandran",
+    role: "Data Operations Lead",
+    initials: "MV",
+    imageSrc: "/mahalekshmi.jpeg",
+    linkedinUrl: "https://www.linkedin.com/in/vmahalekshmi/",
   },
 ];
 
@@ -83,7 +94,7 @@ function TeamPhoto({ member }: { member: TeamMember }) {
   const [failed, setFailed] = useState(false);
 
   return (
-    <div className="relative h-[250px] w-full overflow-hidden rounded-xl border border-border/50 bg-white/80 shadow-sm dark:bg-transparent dark:border-white/20 dark:bg-white/10">
+    <div className="relative h-[285px] w-full overflow-hidden rounded-xl border border-border/50 bg-white/80 shadow-sm dark:bg-transparent dark:border-white/20 dark:bg-white/10">
       <div
         className={cn(
           "absolute inset-0 flex items-center justify-center bg-[#1a2240]/5 transition-opacity duration-200 dark:bg-white/10",
@@ -102,7 +113,7 @@ function TeamPhoto({ member }: { member: TeamMember }) {
           fill
           sizes="(min-width: 1024px) 280px, (min-width: 640px) 240px, 180px"
           className={cn(
-            "object-cover transition-all duration-300 group-hover:scale-[1.02]",
+            "object-cover object-[center_35%] transition-all duration-300 group-hover:scale-[1.02]",
             loaded ? "opacity-100" : "opacity-0"
           )}
           onLoad={() => setLoaded(true)}
@@ -115,7 +126,7 @@ function TeamPhoto({ member }: { member: TeamMember }) {
 
 function TeamCard({ member }: { member: TeamMember }) {
   return (
-    <article className="group h-auto w-full max-w-[300px] rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md border-border/50 bg-white dark:bg-transparent dark:border-white/30 dark:bg-gradient-to-br dark:from-white/15 dark:via-white/10 dark:to-white/5 dark:backdrop-blur-xl dark:shadow-2xl flex flex-col">
+    <article className="group h-auto w-full max-w-[320px] rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md border-border/50 bg-white dark:bg-transparent dark:border-white/30 dark:bg-gradient-to-br dark:from-white/15 dark:via-white/10 dark:to-white/5 dark:backdrop-blur-xl dark:shadow-2xl flex flex-col">
       <TeamPhoto member={member} />
       <div className="flex flex-1 flex-col items-center justify-center pt-4 text-center">
         <h3 className="text-xl font-semibold tracking-tight text-[#1a2240] dark:text-white">

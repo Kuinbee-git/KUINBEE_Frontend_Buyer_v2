@@ -271,6 +271,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
               {[...Array(2)].map((_, setIdx) => (
                 <div key={setIdx} className="flex items-center gap-10 pr-10">
                   {[
+                    { src: "/dcp-light.png", alt: "DCP trusted data source logo | Kuinbee", w: 55, h: 50, className: "dark:invert" },
                     { src: "/fao-logo.svg", alt: "FAO trusted data source logo | Kuinbee", w: 90, h: 24 },
                     { src: "/world-bank-logo.png", alt: "World Bank trusted data source logo | Kuinbee", w: 30, h: 30 },
                     { src: "/our-world-in-data-logo.png", alt: "Our World in Data trusted data source logo | Kuinbee", w: 28, h: 28 },
@@ -283,17 +284,28 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                     { src: "/uci-logo.svg", alt: "UCI Machine Learning Repository trusted data source logo | Kuinbee", w: 90, h: 29 },
                     { src: "/nhtsa-logo.svg", alt: "NHTSA trusted data source logo | Kuinbee", w: 82, h: 33 },
                     { src: "/logo.f9fcba1.svg", alt: "Kuinbee marketplace partner logo | Kuinbee", w: 90, h: 24 },
-                  ].map((logo) => (
-                    <Image
-                      key={`${setIdx}-${logo.alt}`}
-                      src={logo.src}
-                      alt={logo.alt}
-                      width={logo.w}
-                      height={logo.h}
-                      loading="lazy"
-                      className="flex-shrink-0 object-contain hover:opacity-100 transition-opacity duration-300 filter mix-blend-multiply dark:mix-blend-normal"
-                    />
-                  ))}
+                    { src: "/Dira.png", alt: "Dira Reliability trusted data source logo | Kuinbee", w: 60, h: 40, className: "dark:brightness-110" },
+                    { text: "Siom Technology" },
+                  ].map((logo) =>
+                    "text" in logo ? (
+                      <span
+                        key={`${setIdx}-${logo.text}`}
+                        className="flex-shrink-0 whitespace-nowrap text-lg font-semibold tracking-tight text-primary/90 transition-colors duration-300 hover:text-primary dark:text-white/85 dark:hover:text-white md:text-xl"
+                      >
+                        {logo.text}
+                      </span>
+                    ) : (
+                      <Image
+                        key={`${setIdx}-${logo.alt}`}
+                        src={logo.src}
+                        alt={logo.alt}
+                        width={logo.w}
+                        height={logo.h}
+                        loading="lazy"
+                        className={`flex-shrink-0 object-contain hover:opacity-100 transition-opacity duration-300 filter mix-blend-multiply dark:mix-blend-normal ${logo.className ?? ""}`}
+                      />
+                    )
+                  )}
                 </div>
               ))}
             </div>
