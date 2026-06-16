@@ -319,25 +319,55 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-7 md:gap-x-16">
-            <span className="text-2xl font-semibold tracking-tight text-black dark:text-white md:text-3xl">
-              OneClarity
-            </span>
-            <Image
-              src="/policysalah.avif"
-              alt="PolicySalah customer logo | Kuinbee"
-              width={196}
-              height={91}
-              loading="lazy"
-              className="h-16 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-[72px]"
-            />
-            <Image
-              src="/policysalah-dark-tight.png"
-              alt="PolicySalah customer logo | Kuinbee"
-              width={219}
-              height={50}
-              loading="lazy"
-              className="hidden h-12 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-14"
-            />
+            <div className="flex items-center gap-10 h-12 md:h-14">
+              <div className="flex items-center h-full">
+                <span className="text-2xl md:text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
+                  OneClarity
+                </span>
+              </div>
+
+              <div className="flex items-center h-full">
+                <Image
+                  src="/vaani-light.png"
+                  alt="Vaani customer logo (light) | Kuinbee"
+                  width={220}
+                  height={72}
+                  loading="lazy"
+                  className="block dark:hidden flex-shrink-0 h-full w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  style={{ width: 'auto' }}
+                />
+                <Image
+                  src="/vaani.png"
+                  alt="Vaani customer logo (dark) | Kuinbee"
+                  width={220}
+                  height={72}
+                  loading="lazy"
+                  className="hidden dark:block flex-shrink-0 h-full w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  style={{ width: 'auto' }}
+                />
+              </div>
+
+              <div className="flex items-center h-full">
+                <Image
+                  src="/policysalah.avif"
+                  alt="PolicySalah customer logo | Kuinbee"
+                  width={196}
+                  height={91}
+                  loading="lazy"
+                  className="flex-shrink-0 h-12 md:h-16 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden"
+                  style={{ width: 'auto' }}
+                />
+                <Image
+                  src="/policysalah-dark-tight.png"
+                  alt="PolicySalah customer logo | Kuinbee"
+                  width={219}
+                  height={50}
+                  loading="lazy"
+                  className="hidden dark:block flex-shrink-0 h-8 md:h-10 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  style={{ width: 'auto' }}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 text-center">
