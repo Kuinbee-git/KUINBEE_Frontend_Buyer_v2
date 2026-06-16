@@ -318,22 +318,22 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
             Trusted by Data Teams
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-7 md:gap-x-16">
-            <div className="flex items-center gap-10 h-12 md:h-14">
-              <div className="flex items-center h-full">
-                <span className="text-2xl md:text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">
+          <div className="flex flex-wrap items-center justify-center gap-y-7 md:gap-x-16">
+            <div className="grid w-full max-w-[22rem] grid-cols-3 items-center gap-2 md:flex md:h-14 md:w-auto md:max-w-none md:gap-10">
+              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
+                <span className="whitespace-nowrap text-[17px] font-semibold leading-none tracking-normal text-black dark:text-white md:text-3xl md:tracking-tight">
                   OneClarity
                 </span>
               </div>
 
-              <div className="flex items-center h-full">
+              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
                 <Image
                   src="/vaani-light.png"
                   alt="Vaani customer logo (light) | Kuinbee"
                   width={220}
                   height={72}
                   loading="lazy"
-                  className="block dark:hidden flex-shrink-0 h-full w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  className="block dark:hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 md:h-full md:max-w-none"
                   style={{ width: 'auto' }}
                 />
                 <Image
@@ -342,19 +342,19 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   width={220}
                   height={72}
                   loading="lazy"
-                  className="hidden dark:block flex-shrink-0 h-full w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  className="hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-full md:max-w-none"
                   style={{ width: 'auto' }}
                 />
               </div>
 
-              <div className="flex items-center h-full">
+              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
                 <Image
                   src="/policysalah.avif"
                   alt="PolicySalah customer logo | Kuinbee"
                   width={196}
                   height={91}
                   loading="lazy"
-                  className="flex-shrink-0 h-12 md:h-16 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden"
+                  className="h-10 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-16 md:max-w-none"
                   style={{ width: 'auto' }}
                 />
                 <Image
@@ -363,7 +363,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   width={219}
                   height={50}
                   loading="lazy"
-                  className="hidden dark:block flex-shrink-0 h-8 md:h-10 w-auto object-contain opacity-95 transition-opacity duration-300 hover:opacity-100"
+                  className="hidden h-7 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-10 md:max-w-none"
                   style={{ width: 'auto' }}
                 />
               </div>
