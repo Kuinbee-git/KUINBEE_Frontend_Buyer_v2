@@ -15,6 +15,7 @@ import {
   Eye,
   Database,
   ArrowRight,
+  Info,
 } from "lucide-react";
 
 const searchPlaceholders = [
@@ -241,9 +242,17 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
 
         {/* Supplier logo ticker band */}
         <div className="mt-12 md:mt-16 w-full">
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
-            Trusted Data Sources 
-          </p>
+          <div className="flex items-center justify-center gap-1.5 mb-8 group/disclaimer relative">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35">
+              Trusted Data Sources
+            </p>
+            <div className="relative">
+              <Info className="h-3 w-3 text-muted-foreground/50 dark:text-white/25 cursor-pointer hover:text-muted-foreground dark:hover:text-white/50 transition-colors" />
+              <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 rounded-md border border-border bg-popover px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground shadow-md opacity-0 group-hover/disclaimer:opacity-100 transition-opacity duration-200 z-50 normal-case tracking-normal font-normal">
+                References to third-party organizations, government bodies, institutions, trademarks, trade names, service marks, and logos are made solely for identification and source attribution purposes. Such references do not imply any association, sponsorship, endorsement, approval, or partnership between Kuinbee and the respective entities unless expressly stated.
+              </div>
+            </div>
+          </div>
 
           {/* Mask edges */}
           <div
@@ -283,7 +292,6 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                     { src: "/mendeley-logo.svg", alt: "Mendeley trusted data source logo | Kuinbee", w: 74, h: 33 },
                     { src: "/uci-logo.svg", alt: "UCI Machine Learning Repository trusted data source logo | Kuinbee", w: 90, h: 29 },
                     { src: "/nhtsa-logo.svg", alt: "NHTSA trusted data source logo | Kuinbee", w: 82, h: 33 },
-                    { src: "/logo.f9fcba1.svg", alt: "Kuinbee marketplace partner logo | Kuinbee", w: 90, h: 24 },
                     { src: "/Dira.png", alt: "Dira Reliability trusted data source logo | Kuinbee", w: 60, h: 40, className: "dark:brightness-110" },
                     { text: "Siom Technology" },
                   ].map((logo) =>
