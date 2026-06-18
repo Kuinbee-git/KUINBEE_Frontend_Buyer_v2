@@ -8,6 +8,7 @@ import { SuppliersValue } from "./components/suppliers-value";
 import { SuppliersGuide } from "./components/suppliers-guide";
 import { SuppliersBestPractices } from "./components/suppliers-best-practices";
 import { SuppliersTraction } from "./components/suppliers-traction";
+import { SuppliersTestimonials } from "./components/suppliers-testimonials";
 import { SuppliersFAQ } from "./components/suppliers-faq";
 import { SuppliersCTA } from "./components/suppliers-cta";
 
@@ -36,6 +37,7 @@ export default function SupplierResourcePage() {
       <SuppliersGuide />
       <SuppliersBestPractices />
       <SuppliersTraction />
+      <SuppliersTestimonials />
       <SuppliersFAQ />
       <SuppliersCTA />
       <LandingFooter />

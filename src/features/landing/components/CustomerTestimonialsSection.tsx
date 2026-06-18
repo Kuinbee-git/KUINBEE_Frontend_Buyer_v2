@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Quote, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 const testimonials = [
   {
@@ -23,12 +23,154 @@ const testimonials = [
   },
 ];
 
+type SupplierTestimonial = {
+  company: string;
+  category: string;
+  paragraphs: string[];
+  signatory: string;
+  role: string;
+} & (
+  | {
+      signType: "text";
+      signText: string;
+      logoSrc?: never;
+    }
+  | {
+      signType: "logo";
+      logoSrc: string;
+      signText?: never;
+    }
+);
+
+const supplierTestimonials: SupplierTestimonial[] = [
+  {
+    company: "SIOM Technology",
+    category: "Supplier market access",
+    signType: "text",
+    signText: "Siom Technology",
+    signatory: "SIOM Technology",
+    role: "Verified Supplier",
+    paragraphs: [
+      "Kuinbee has been a valuable partner for SIOM Technology in taking our data capabilities to the right market.",
+      "As a data supplier, having strong data assets is only one part of the challenge. Finding serious clients with real requirements is equally important. Kuinbee helped us bridge that gap by bringing relevant opportunities, understanding client needs clearly, and positioning our data professionally.",
+      "Their team made the process smooth across discovery, coordination, and follow-ups. What stood out most was their understanding of both sides of the data business: what suppliers can provide and what AI companies actually need.",
+      "We see Kuinbee as a trusted partner for data sourcing and client access.",
+    ],
+  },
+  {
+    company: "Debashis Productions",
+    category: "Supplier partnership",
+    signType: "logo",
+    logoSrc: "/dcp-light.png",
+    signatory: "Debashish",
+    role: "CEO & Founder, Debashis Productions",
+    paragraphs: [
+      "Working with Kuinbee has been a genuinely positive experience for Debashis Productions.",
+      "For a young company, they operate with a level of clarity, maturity, and professionalism that stands out. Every conversation felt structured, expectations were clear, and the overall process was handled with transparency.",
+      "What we appreciated most was the seriousness with which Kuinbee treated the partnership. Whether it was communication, coordination, or payment, everything was handled with respect and honesty.",
+      "Kuinbee is the kind of company we would be happy to work with again.",
+    ],
+  },
+];
+
 function OneClarityLogo() {
   return (
     <div className="flex h-14 min-w-36 items-center justify-center rounded-lg border border-primary/10 bg-background px-4 shadow-sm dark:border-white/10 dark:bg-white/10">
       <span className="text-xl font-semibold tracking-tight text-black dark:text-white">
         OneClarity
       </span>
+    </div>
+  );
+}
+
+function SupplierSign({ testimonial }: { testimonial: SupplierTestimonial }) {
+  return (
+    <div className="flex h-12 min-w-36 items-center justify-center rounded-lg border border-primary/10 bg-background px-3 shadow-sm dark:border-white/10 dark:bg-white/10">
+      {testimonial.signType === "logo" ? (
+        <Image
+          src={testimonial.logoSrc}
+          alt={`${testimonial.company} supplier logo | Kuinbee`}
+          width={72}
+          height={66}
+          loading="lazy"
+          className="h-9 w-auto object-contain dark:invert"
+        />
+      ) : (
+        <span className="whitespace-nowrap text-sm font-semibold tracking-tight text-primary dark:text-white">
+          {testimonial.signText}
+        </span>
+      )}
+    </div>
+  );
+}
+
+type SupplierTestimonialsBlockProps = {
+  id?: string;
+  className?: string;
+  showDivider?: boolean;
+};
+
+export function SupplierTestimonialsBlock({
+  id = "supplier-testimonials",
+  className = "",
+  showDivider = true,
+}: SupplierTestimonialsBlockProps) {
+  return (
+    <div
+      id={id}
+      className={[
+        "scroll-mt-24",
+        showDivider ? "border-t border-primary/10 pt-10 dark:border-white/10" : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div className="mx-auto max-w-2xl text-center">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/5 dark:text-white">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          Supplier Testimonials
+        </div>
+        <h3 className="text-2xl font-medium tracking-tight text-primary dark:text-white md:text-3xl">
+          Suppliers Trust Kuinbee for Market Access
+        </h3>
+      </div>
+
+      <div className="mx-auto mt-7 grid max-w-5xl gap-4 md:grid-cols-2">
+        {supplierTestimonials.map((testimonial) => (
+          <article
+            key={testimonial.company}
+            className="relative flex flex-col rounded-xl border border-primary/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-white/20"
+          >
+            <blockquote className="flex-1 space-y-3 text-[13px] leading-6 text-foreground/80 dark:text-white/80">
+              {testimonial.paragraphs.map((paragraph, index) => (
+                <p key={paragraph}>
+                  {index === 0 && <>&quot;</>}
+                  {paragraph}
+                  {index === testimonial.paragraphs.length - 1 && <>&quot;</>}
+                </p>
+              ))}
+            </blockquote>
+
+            <div className="mt-5 border-t border-primary/10 pt-4 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <SupplierSign testimonial={testimonial} />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-primary dark:text-white">
+                    {testimonial.signatory}
+                  </p>
+                  <p className="text-xs text-muted-foreground dark:text-white/55">
+                    {testimonial.role}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground/80 dark:text-white/45">
+                    {testimonial.category}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
@@ -76,10 +218,8 @@ export function CustomerTestimonialsSection() {
               key={testimonial.company}
               className="relative flex min-h-[300px] flex-col rounded-xl border border-primary/15 bg-white/70 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg dark:border-white/15 dark:bg-white/[0.04] dark:hover:border-white/25 md:p-8"
             >
-              <Quote className="h-9 w-9 text-primary/25 dark:text-white/25" />
-
-              <blockquote className="mt-6 flex-1 text-base leading-8 text-foreground/85 dark:text-white/85">
-                "{testimonial.quote}"
+              <blockquote className="flex-1 text-base leading-8 text-foreground/85 dark:text-white/85">
+                &quot;{testimonial.quote}&quot;
               </blockquote>
 
               <div className="mt-8 border-t border-primary/10 pt-5 dark:border-white/10">
@@ -126,6 +266,8 @@ export function CustomerTestimonialsSection() {
             </article>
           ))}
         </div>
+
+        <SupplierTestimonialsBlock className="mt-12 md:mt-14 md:pt-12" />
       </div>
     </section>
   );

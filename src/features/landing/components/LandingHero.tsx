@@ -318,6 +318,16 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
               ))}
             </div>
           </div>
+
+          <div className="mt-6 text-center">
+            <a
+              href="#supplier-testimonials"
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/75 dark:text-white dark:hover:text-white/75"
+            >
+              Read supplier testimonials
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         </div>
 
         {/* Customer band */}
