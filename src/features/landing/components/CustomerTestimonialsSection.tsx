@@ -290,7 +290,7 @@ export function CustomerTestimonialsSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+        <div className="mt-12 mx-auto max-w-4xl grid gap-5 md:grid-cols-2">
           {testimonials.map((testimonial) => (
             <article
               key={testimonial.founder}
