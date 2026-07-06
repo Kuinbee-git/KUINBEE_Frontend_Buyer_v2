@@ -3,7 +3,37 @@
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
 
-const testimonials = [
+type CustomerTestimonialBase = {
+  founder: string;
+  category: string;
+  quote: string;
+  role?: string;
+};
+
+type CustomerTestimonial =
+  | (CustomerTestimonialBase & {
+      company: string;
+      logoSrc: string;
+      logoDarkSrc?: string;
+      logoType?: never;
+      initials?: never;
+    })
+  | (CustomerTestimonialBase & {
+      company: string;
+      logoType: "oneclarity";
+      logoSrc?: never;
+      logoDarkSrc?: never;
+      initials?: never;
+    })
+  | (CustomerTestimonialBase & {
+      logoType: "initials";
+      initials: string;
+      company?: never;
+      logoSrc?: never;
+      logoDarkSrc?: never;
+    });
+
+const testimonials: CustomerTestimonial[] = [
   {
     company: "PolicySalah",
     founder: "Lakshya Jain",
@@ -75,12 +105,59 @@ const supplierTestimonials: SupplierTestimonial[] = [
 
 function OneClarityLogo() {
   return (
-    <div className="flex h-14 min-w-36 items-center justify-center rounded-lg border border-primary/10 bg-background px-4 shadow-sm dark:border-white/10 dark:bg-white/10">
-      <span className="text-xl font-semibold tracking-tight text-black dark:text-white">
+    <div className="flex h-12 min-w-32 items-center justify-center rounded-lg border border-primary/10 bg-background px-3 shadow-sm dark:border-white/10 dark:bg-white/10">
+      <span className="text-lg font-semibold tracking-tight text-black dark:text-white">
         OneClarity
       </span>
     </div>
   );
+}
+
+function InitialsLogo({ initials }: { initials: string }) {
+  return (
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-primary/10 bg-background shadow-sm dark:border-white/10 dark:bg-white/10">
+      <span className="text-sm font-semibold tracking-tight text-primary dark:text-white">
+        {initials}
+      </span>
+    </div>
+  );
+}
+
+function CustomerLogo({ testimonial }: { testimonial: CustomerTestimonial }) {
+  if (testimonial.logoSrc) {
+    return (
+      <div className="flex h-12 min-w-32 items-center justify-center rounded-lg border border-primary/10 bg-background px-3 shadow-sm dark:border-white/10 dark:bg-white/10">
+        <Image
+          src={testimonial.logoSrc}
+          alt={`${testimonial.company} customer logo | Kuinbee`}
+          width={132}
+          height={61}
+          loading="lazy"
+          className="h-9 w-auto object-contain dark:hidden"
+        />
+        {testimonial.logoDarkSrc && (
+          <Image
+            src={testimonial.logoDarkSrc}
+            alt={`${testimonial.company} customer logo | Kuinbee`}
+            width={150}
+            height={34}
+            loading="lazy"
+            className="hidden h-7 w-auto object-contain dark:block"
+          />
+        )}
+      </div>
+    );
+  }
+
+  if ("logoType" in testimonial && testimonial.logoType === "oneclarity") {
+    return <OneClarityLogo />;
+  }
+
+  if ("logoType" in testimonial && testimonial.logoType === "initials") {
+    return <InitialsLogo initials={testimonial.initials} />;
+  }
+
+  return null;
 }
 
 function SupplierSign({ testimonial }: { testimonial: SupplierTestimonial }) {
@@ -196,9 +273,10 @@ export function CustomerTestimonialsSection() {
 
       <div className="relative mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary shadow-sm backdrop-blur-sm dark:border-white/20 dark:bg-white/5 dark:text-white">
-            <ShieldCheck className="h-4 w-4" />
-            Client Testimonials
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Client Testimonials</span>
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
           </div>
           <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
             Customers Trust Kuinbee
@@ -212,52 +290,30 @@ export function CustomerTestimonialsSection() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
           {testimonials.map((testimonial) => (
             <article
-              key={testimonial.company}
-              className="relative flex min-h-[300px] flex-col rounded-xl border border-primary/15 bg-white/70 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg dark:border-white/15 dark:bg-white/[0.04] dark:hover:border-white/25 md:p-8"
+              key={testimonial.founder}
+              className="relative flex min-h-[320px] flex-col rounded-xl border border-primary/15 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg dark:border-white/15 dark:bg-white/[0.04] dark:hover:border-white/25"
             >
-              <blockquote className="flex-1 text-base leading-8 text-foreground/85 dark:text-white/85">
+              <blockquote className="flex-1 text-sm leading-6 text-foreground/85 dark:text-white/85">
                 &quot;{testimonial.quote}&quot;
               </blockquote>
 
-              <div className="mt-8 border-t border-primary/10 pt-5 dark:border-white/10">
+              <div className="mt-5 border-t border-primary/10 pt-4 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  {testimonial.logoSrc ? (
-                    <div className="flex h-14 min-w-36 items-center justify-center rounded-lg border border-primary/10 bg-background px-3 shadow-sm dark:border-white/10 dark:bg-white/10">
-                      <Image
-                        src={testimonial.logoSrc}
-                        alt={`${testimonial.company} customer logo | Kuinbee`}
-                        width={132}
-                        height={61}
-                        loading="lazy"
-                        className="h-10 w-auto object-contain dark:hidden"
-                      />
-                      {testimonial.logoDarkSrc && (
-                        <Image
-                          src={testimonial.logoDarkSrc}
-                          alt={`${testimonial.company} customer logo | Kuinbee`}
-                          width={150}
-                          height={34}
-                          loading="lazy"
-                          className="hidden h-8 w-auto object-contain dark:block"
-                        />
-                      )}
-                    </div>
-                  ) : testimonial.logoType === "oneclarity" ? (
-                    <OneClarityLogo />
-                  ) : (
-                    <OneClarityLogo />
-                  )}
-                  <div>
-                    <p className="font-semibold text-primary dark:text-white">
+                  <CustomerLogo testimonial={testimonial} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-primary dark:text-white">
                       {testimonial.founder}
                     </p>
-                    <p className="text-sm text-muted-foreground dark:text-white/60">
-                      Founder, {testimonial.company}
+                    <p className="truncate text-xs text-muted-foreground dark:text-white/60">
+                      {testimonial.role ??
+                        ("company" in testimonial
+                          ? `Founder, ${testimonial.company}`
+                          : testimonial.category)}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground/80 dark:text-white/45">
+                    <p className="mt-1 text-[11px] text-muted-foreground/80 dark:text-white/45">
                       {testimonial.category}
                     </p>
                   </div>

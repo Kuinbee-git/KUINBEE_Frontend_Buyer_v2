@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { HelpCircle } from "lucide-react";
 
 import {
   Accordion,
@@ -99,11 +99,10 @@ export function FAQSection() {
       <div className="mx-auto max-w-3xl px-6 relative z-10">
         {/* Section header */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-            <HelpCircle className="h-4 w-4 text-primary dark:text-white" />
-            <span className="text-sm font-medium text-primary dark:text-white">
-              Registry Information
-            </span>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Registry Information</span>
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
           </div>
           <h2 className="mt-4 text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl">
             Frequently Asked
@@ -131,6 +130,62 @@ export function FAQSection() {
             </AccordionItem>
           ))}
         </Accordion>
+
+        {/* Backed By band */}
+        <div className="mt-20 pt-10 border-t border-primary/10 dark:border-white/10">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60 dark:text-white/30 mb-8">
+            Backed By
+          </p>
+          <div className="flex items-center justify-center gap-12 flex-wrap">
+            {/* Google Cloud */}
+            <Image
+              src="/Logo-Google-Cloud-500x313.png"
+              alt="Google Cloud"
+              width={500}
+              height={313}
+              className="h-20 w-auto object-contain opacity-70 dark:opacity-90 hover:opacity-100 transition-opacity duration-200 dark:brightness-110"
+            />
+            {/* AWS light */}
+            <Image
+              src="/aws-light.png"
+              alt="Amazon Web Services"
+              width={120}
+              height={72}
+              className="block dark:hidden h-14 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-200"
+            />
+            {/* AWS dark */}
+            <Image
+              src="/aws.png"
+              alt="Amazon Web Services"
+              width={120}
+              height={72}
+              className="hidden dark:block h-14 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity duration-200 brightness-110"
+            />
+            {/* NVIDIA Inception */}
+            <Image
+              src="/nvidia-inception-program-badge-rgb-for-screen.png"
+              alt="NVIDIA Inception Program"
+              width={200}
+              height={80}
+              className="h-16 w-auto object-contain opacity-70 dark:opacity-90 hover:opacity-100 transition-opacity duration-200 dark:brightness-110"
+            />
+            {/* ElevenLabs light — image has large whitespace so constrain width directly */}
+            <div className="h-14 w-40 relative flex-shrink-0">
+              <Image
+                src="https://eleven-public-cdn.elevenlabs.io/payloadcms/pwsc4vchsqt-ElevenLabsGrants.webp"
+                alt="ElevenLabs"
+                fill
+                className="block dark:hidden object-contain opacity-70 hover:opacity-100 transition-opacity duration-200"
+              />
+              <Image
+                src="https://eleven-public-cdn.elevenlabs.io/payloadcms/cy7rxce8uki-IIElevenLabsGrants%201.webp"
+                alt="ElevenLabs"
+                fill
+                className="hidden dark:block object-contain opacity-90 hover:opacity-100 transition-opacity duration-200 brightness-110"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

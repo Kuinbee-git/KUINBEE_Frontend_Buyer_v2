@@ -85,11 +85,9 @@ export function DataRequestSection() {
                     {/* ── Left: copy ───────────────────────────────────── */}
                     <div className="space-y-8">
                         <div>
-                            <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                                <Search className="h-4 w-4 text-primary dark:text-white" />
-                                <span className="text-sm font-medium text-primary dark:text-white">
-                                    Custom Data Sourcing
-                                </span>
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Custom Data Sourcing</span>
                             </div>
 
                             <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">

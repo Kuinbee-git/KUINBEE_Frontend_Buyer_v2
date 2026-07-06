@@ -1,54 +1,30 @@
 import { LucideIcon } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
 
 interface ValueBadgeProps {
-  icon: LucideIcon;
   title: string;
   description: string;
-  borderColor: string;
-  iconBgColor: string;
-  iconColor: string;
+  icon: LucideIcon;
   className?: string;
 }
 
-/**
- * Value badge with colored accent border (4px left)
- * Used in SupplierSection for "Why Suppliers Choose Kuinbee"
- */
-export function ValueBadge({
-  icon: Icon,
-  title,
-  description,
-  borderColor,
-  iconBgColor,
-  iconColor,
-  className,
-}: ValueBadgeProps) {
+export function ValueBadge({ title, description, icon: Icon, className }: ValueBadgeProps) {
   return (
     <div
-      className={cn(
-        "group relative rounded-lg border-2 border-primary/20 dark:border-white/20 bg-background dark:bg-white/5 p-6 shadow-sm hover:shadow-md transition-all duration-200",
-        borderColor,
-        className
-      )}
+      className={`group relative rounded-2xl border border-primary/10 dark:border-white/8 bg-background dark:bg-white/[0.03] overflow-hidden transition-all duration-300 hover:border-primary/25 dark:hover:border-white/15 hover:shadow-md hover:-translate-y-0.5 p-6 flex flex-col gap-4 ${className ?? ""}`}
     >
-      <div className="flex items-start gap-4">
-        <div
-          className={cn(
-            "flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-primary/20 dark:border-transparent shadow-sm",
-            iconBgColor
-          )}
-        >
-          <Icon className={cn("h-6 w-6", iconColor)} />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-foreground dark:text-white mb-2">
-            {title}
-          </h3>
-          <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-            {description}
-          </p>
-        </div>
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 dark:via-white/15 to-transparent" />
+
+      <div className="flex-shrink-0 w-fit rounded-xl p-3 bg-primary/6 dark:bg-white/6 border border-primary/10 dark:border-white/8 transition-colors duration-300 group-hover:bg-primary/10 dark:group-hover:bg-white/10">
+        <Icon className="w-5 h-5 text-primary dark:text-white/80" strokeWidth={1.5} />
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-foreground dark:text-white mb-2 text-base">
+          {title}
+        </h3>
+        <p className="text-muted-foreground dark:text-white/55 leading-relaxed text-sm">
+          {description}
+        </p>
       </div>
     </div>
   );
