@@ -633,12 +633,12 @@ export function TermsPageContent() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="flex justify-center"
             >
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 dark:from-primary/20 dark:via-primary/10 dark:to-primary/20 rounded-full border border-primary/20 dark:border-primary/30 shadow-lg shadow-primary/5">
-                <div className="w-8 h-8 rounded-full bg-primary/20 dark:bg-primary/30 flex items-center justify-center">
-                  <Scale className="w-4 h-4 text-primary" />
-                </div>
-                <span className="text-sm font-semibold text-primary">Legal Information</span>
-                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              <div className="flex items-center justify-center gap-3 mb-6">
+                  <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                      Legal Information
+                  </span>
+                  <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
               </div>
             </motion.div>
 

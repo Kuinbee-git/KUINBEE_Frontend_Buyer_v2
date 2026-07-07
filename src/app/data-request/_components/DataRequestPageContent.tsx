@@ -287,11 +287,12 @@ export function DataRequestPageContent() {
                                 transition={{ duration: 0.6, delay: 0.1 }}
                                 className="flex justify-center"
                             >
-                                <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/30 bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/10 px-3 py-1.5 md:px-4 md:py-2 backdrop-blur-xl shadow-lg">
-                                    <Database className="h-3.5 w-3.5 text-white" />
-                                    <span className="text-xs md:text-sm font-medium text-white">
+                                <div className="flex items-center justify-center gap-3 mb-6">
+                                    <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                         Custom Data Sourcing
                                     </span>
+                                    <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                                 </div>
                             </motion.div>
 
@@ -350,11 +351,12 @@ export function DataRequestPageContent() {
 
                 <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
                     <div className="text-center mb-12">
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                            <Zap className="h-4 w-4 text-primary dark:text-white" />
-                            <span className="text-sm font-medium text-primary dark:text-white">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 Simple Process
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
                         <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
                             How It Works
@@ -417,11 +419,12 @@ export function DataRequestPageContent() {
                             viewport={{ once: true }}
                             className="space-y-8"
                         >
-                            <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 backdrop-blur-sm shadow-sm">
-                                <Database className="h-4 w-4 text-primary dark:text-white" />
-                                <span className="text-sm font-medium text-primary dark:text-white">
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                     Use Cases
                                 </span>
+                                <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                             </div>
 
                             <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
@@ -487,11 +490,12 @@ export function DataRequestPageContent() {
 
                 <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                            <Send className="h-4 w-4 text-primary dark:text-white" />
-                            <span className="text-sm font-medium text-primary dark:text-white">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 Request Form
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
                         <h2 className="mt-4 text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
                             Tell Us What You Need
@@ -782,11 +786,12 @@ export function DataRequestPageContent() {
 
                 <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                            <Shield className="h-4 w-4 text-primary dark:text-white" />
-                            <span className="text-sm font-medium text-primary dark:text-white">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 Why Kuinbee
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
                         <h2 className="mt-4 text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
                             Why Request Through Us

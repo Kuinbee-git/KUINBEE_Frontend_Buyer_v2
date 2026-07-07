@@ -195,11 +195,12 @@ export function SuppliersTraction() {
             <div className="relative mx-auto max-w-6xl px-6">
                 {/* ───── Section Header ───── */}
                 <div className="mx-auto max-w-3xl text-center mb-20">
-                    <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                        <BarChart3 className="h-4 w-4 text-primary dark:text-white" />
-                        <span className="text-sm font-medium text-primary dark:text-white">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                             Marketplace Traction
                         </span>
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                     </div>
                     <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
                         Proven Early
@@ -259,11 +260,12 @@ export function SuppliersTraction() {
 
                 {/* ───── Case Studies Header ───── */}
                 <div className="mx-auto max-w-3xl text-center mb-16">
-                    <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                        <TrendingUp className="h-4 w-4 text-primary dark:text-white" />
-                        <span className="text-sm font-medium text-primary dark:text-white">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                             Supplier Success Simulations
                         </span>
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                     </div>
                     <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl">
                         Based on Beta Demand Patterns
@@ -433,11 +435,12 @@ export function SuppliersTraction() {
 
                 {/* ───── Founding Data Supplier Program ───── */}
                 <div className="mx-auto max-w-3xl text-center mb-16">
-                    <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                        <Award className="h-4 w-4 text-primary dark:text-white" />
-                        <span className="text-sm font-medium text-primary dark:text-white">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                             Founding Supplier Program
                         </span>
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                     </div>
                     <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl">
                         Join the First 25
@@ -492,11 +495,12 @@ export function SuppliersTraction() {
 
                 {/* ───── Built for Structured Monetization ───── */}
                 <div className="mx-auto max-w-3xl text-center mb-12">
-                    <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 mb-6 backdrop-blur-sm shadow-sm">
-                        <Lock className="h-4 w-4 text-primary dark:text-white" />
-                        <span className="text-sm font-medium text-primary dark:text-white">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                             Built for Structured Monetization
                         </span>
+                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                     </div>
                     <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl">
                         Unlike Traditional

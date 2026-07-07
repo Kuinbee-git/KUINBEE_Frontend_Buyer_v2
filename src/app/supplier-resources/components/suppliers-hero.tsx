@@ -63,11 +63,12 @@ export function SuppliersHero() {
                     {/* Left: Content */}
                     <div className="space-y-8">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-primary/30 dark:border-white/20 bg-primary/5 dark:bg-white/5 px-4 py-2 backdrop-blur-sm shadow-sm">
-                            <TrendingUp className="h-4 w-4 text-primary dark:text-white" />
-                            <span className="text-sm font-medium text-primary dark:text-white">
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 For Data Suppliers
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
 
                         {/* Headline */}

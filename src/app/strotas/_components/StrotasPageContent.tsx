@@ -274,11 +274,12 @@ export function StrotasPageContent() {
                             transition={{ duration: 0.8 }}
                             className="space-y-7"
                         >
-                            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 dark:border-white/20 bg-gradient-to-r from-[#1a2240]/90 to-[#2d3a5f]/90 dark:from-white/15 dark:to-white/5 px-4 py-1.5 backdrop-blur-xl shadow-lg">
-                                <BarChart3 className="h-3.5 w-3.5 text-white" />
-                                <span className="text-xs font-medium text-white tracking-wide">
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                     Strotas by Kuinbee
                                 </span>
+                                <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                             </div>
 
                             <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight text-primary dark:text-white sm:text-5xl md:text-6xl lg:text-[4.5rem]">
@@ -551,11 +552,12 @@ export function StrotasPageContent() {
                 <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
                     {/* Header */}
                     <div className="text-center mb-14">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 dark:border-white/15 bg-primary/5 dark:bg-white/5 px-4 py-1.5 mb-5">
-                            <Workflow className="h-3.5 w-3.5 text-primary dark:text-white/70" />
-                            <span className="text-xs font-medium text-primary dark:text-white/70 tracking-wide">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 The Pipeline
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
                         <h2 className="text-3xl font-semibold tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl mb-3">
                             Seven Stages. One Outcome.
@@ -673,11 +675,12 @@ export function StrotasPageContent() {
 
                 <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
                     <div className="text-center mb-12">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 dark:border-white/15 bg-primary/5 dark:bg-white/5 px-4 py-1.5 mb-5">
-                            <BrainCircuit className="h-3.5 w-3.5 text-primary dark:text-white/70" />
-                            <span className="text-xs font-medium text-primary dark:text-white/70 tracking-wide">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+                            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                                 Intelligence Layer
                             </span>
+                            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                         </div>
                         <h2 className="text-3xl font-semibold tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl mb-3">
                             AI That Accelerates. Never Gates.

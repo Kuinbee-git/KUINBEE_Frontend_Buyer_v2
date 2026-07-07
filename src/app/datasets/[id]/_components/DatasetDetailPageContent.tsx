@@ -1,12 +1,28 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  lazy,
+  Suspense,
+} from "react";
 import { useParams, useRouter } from "next/navigation";
 import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail-page";
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
+import { getDatasetAccessPriceDisplay } from "@/features/datasets/components/price-display";
 import type { DatasetDetailsResponse } from "@/types/dataset.types";
-import { useDatasetDetails, useDatasetSampleDownloadUrl, useInquireDataset } from "@/hooks/api/useMarketplace";
-import { useClaimDataset, useCheckEntitlement, useDownloadUrl } from "@/hooks/api/useLibrary";
+import {
+  useDatasetDetails,
+  useDatasetSampleDownloadUrl,
+  useInquireDataset,
+} from "@/hooks/api/useMarketplace";
+import {
+  useClaimDataset,
+  useCheckEntitlement,
+  useDownloadUrl,
+} from "@/hooks/api/useLibrary";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useModal } from "@/core/providers";
 import { AlertCircle } from "lucide-react";
@@ -19,18 +35,30 @@ import { Button } from "@/shared/components/ui/button";
 
 // Code-split: only loaded when user clicks Purchase (paid datasets)
 const RazorpayCheckoutFlow = lazy(() =>
-  import("@/features/datasets/components/razorpay-checkout-flow").then((m) => ({ default: m.RazorpayCheckoutFlow }))
+  import("@/features/datasets/components/razorpay-checkout-flow").then((m) => ({
+    default: m.RazorpayCheckoutFlow,
+  }))
 );
 // Code-split: only loaded after a successful claim
 const WebsiteFeedbackModal = lazy(() =>
-  import("@/app/datasets/[id]/_components/website-feedback-modal").then((m) => ({ default: m.WebsiteFeedbackModal }))
+  import("@/app/datasets/[id]/_components/website-feedback-modal").then(
+    (m) => ({ default: m.WebsiteFeedbackModal })
+  )
 );
-
-
 
 // Map the full API response to UI Dataset format
 const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
-  const { dataset, primaryCategory, secondaryCategories, aboutDatasetInfo, dataFormatInfo, features, source, locationInfo, tags } = response;
+  const {
+    dataset,
+    primaryCategory,
+    secondaryCategories,
+    aboutDatasetInfo,
+    dataFormatInfo,
+    features,
+    source,
+    locationInfo,
+    tags,
+  } = response;
 
   return {
     id: dataset.id,
@@ -39,7 +67,10 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
     provider: source?.name || "Unknown",
     category: primaryCategory?.name || "Uncategorized",
     secondaryCategories: secondaryCategories?.map((c) => c.name) || [],
-    description: dataset.description || aboutDatasetInfo?.overview || "No description available",
+    description:
+      dataset.description ||
+      aboutDatasetInfo?.overview ||
+      "No description available",
     coverage: locationInfo?.coverage || locationInfo?.country || "N/A",
     records: dataFormatInfo?.rows || 0,
     lastUpdated: new Date(dataset.updatedAt).toLocaleDateString("en-US", {
@@ -58,6 +89,10 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
       amount: dataset.price ? parseFloat(dataset.price) : undefined,
       currency: dataset.currency || "INR",
     },
+    accessFlow: dataset.accessFlow,
+    commercialFlow: dataset.commercialFlow,
+    accessPrice: dataset.accessPrice ?? null,
+    commercialPrice: dataset.commercialPrice ?? null,
     isSample: dataset.isSample ?? false,
     sampleFileAvailable: dataset.sampleFileAvailable ?? false,
     sampleNotes: dataset.sampleNotes ?? null,
@@ -102,7 +137,10 @@ export function DatasetDetailPageContent() {
   const { openModal } = useModal();
 
   // Check if user has access (only when authenticated)
-  const { data: entitlementCheck } = useCheckEntitlement(id, isAuthenticated && !!id);
+  const { data: entitlementCheck } = useCheckEntitlement(
+    id,
+    isAuthenticated && !!id
+  );
 
   // Claim dataset mutation
   const claimMutation = useClaimDataset();
@@ -120,7 +158,8 @@ export function DatasetDetailPageContent() {
     error: downloadError,
   } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
 
-  const [shouldFetchSampleDownload, setShouldFetchSampleDownload] = useState(false);
+  const [shouldFetchSampleDownload, setShouldFetchSampleDownload] =
+    useState(false);
   const {
     data: sampleDownloadUrlResponse,
     isLoading: isGeneratingSampleDownload,
@@ -146,7 +185,11 @@ export function DatasetDetailPageContent() {
     };
 
     window.addEventListener("proceedToCheckout" as any, handleProceedEvent);
-    return () => window.removeEventListener("proceedToCheckout" as any, handleProceedEvent);
+    return () =>
+      window.removeEventListener(
+        "proceedToCheckout" as any,
+        handleProceedEvent
+      );
   }, [id]);
 
   // Trigger download as soon as URL arrives
@@ -190,7 +233,11 @@ export function DatasetDetailPageContent() {
   }, [sampleDownloadError, shouldFetchSampleDownload]);
 
   // Memoize access state so stable reference is passed to DatasetDetailPage
-  const accessState = useMemo((): "not-logged-in" | "not-entitled-free" | "not-entitled-paid" | "owned" => {
+  const accessState = useMemo(():
+    | "not-logged-in"
+    | "not-entitled-free"
+    | "not-entitled-paid"
+    | "owned" => {
     if (!isAuthenticated) return "not-logged-in";
     if (entitlementCheck?.entitled) return "owned";
     const isPaid = response?.dataset.isPaid;
@@ -382,7 +429,9 @@ export function DatasetDetailPageContent() {
         toast.error("Sample dataset not found.");
         return;
       }
-      toast.error(error?.message || "Failed to submit inquiry. Please try again.");
+      toast.error(
+        error?.message || "Failed to submit inquiry. Please try again."
+      );
     }
   }, [id, inquiryMessage, inquirySubject, inquireMutation, openModal, user]);
 
@@ -398,6 +447,11 @@ export function DatasetDetailPageContent() {
     return mapToUIDataset(response);
   }, [response]);
 
+  const checkoutPriceDisplay = useMemo(() => {
+    if (!dataset) return null;
+    return getDatasetAccessPriceDisplay(dataset);
+  }, [dataset]);
+
   // Stable purchase / checkout handlers — declared before early returns because
   // useCallback is a hook and must not appear after conditional returns.
   // dataset may be null here; the functions are no-ops in that case (unreachable in practice).
@@ -407,6 +461,7 @@ export function DatasetDetailPageContent() {
       return;
     }
     if (!dataset) return;
+    const purchasePrice = getDatasetAccessPriceDisplay(dataset);
     window.dispatchEvent(
       new CustomEvent("stagedDatasetUpdate", {
         detail: {
@@ -415,7 +470,11 @@ export function DatasetDetailPageContent() {
           title: dataset.title,
           category: dataset.category,
           license: dataset.license,
-          pricing: dataset.pricing,
+          pricing: {
+            ...dataset.pricing,
+            amount: purchasePrice.finalAmount ?? dataset.pricing.amount,
+            currency: purchasePrice.currency ?? dataset.pricing.currency,
+          },
           verification: dataset.verification,
         },
       })
@@ -434,7 +493,9 @@ export function DatasetDetailPageContent() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading dataset details...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading dataset details...
+          </p>
         </div>
       </div>
     );
@@ -452,7 +513,9 @@ export function DatasetDetailPageContent() {
             Dataset Not Found
           </h1>
           <p className="text-muted-foreground dark:text-white/70 mb-6">
-            {error instanceof Error ? error.message : "This dataset doesn't exist or is not published."}
+            {error instanceof Error
+              ? error.message
+              : "This dataset doesn't exist or is not published."}
           </p>
           <button
             onClick={() => router.push("/datasets")}
@@ -486,8 +549,10 @@ export function DatasetDetailPageContent() {
           <RazorpayCheckoutFlow
             datasetId={id}
             datasetTitle={dataset.title}
-            amount={dataset.pricing.amount}
-            currency={dataset.pricing.currency}
+            amount={checkoutPriceDisplay?.finalAmount ?? dataset.pricing.amount}
+            currency={
+              checkoutPriceDisplay?.currency ?? dataset.pricing.currency
+            }
             open={showCheckout}
             onOpenChange={setShowCheckout}
             onComplete={handleCheckoutComplete}
@@ -510,8 +575,12 @@ export function DatasetDetailPageContent() {
       {inquiryOpen && (
         <AuthModal onClose={handleCloseInquiry}>
           <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-white mb-2">Contact Kuinbee</h1>
-            <p className="text-sm text-white/70">Share your request for this sample dataset.</p>
+            <h1 className="text-2xl font-semibold text-white mb-2">
+              Contact Kuinbee
+            </h1>
+            <p className="text-sm text-white/70">
+              Share your request for this sample dataset.
+            </p>
           </div>
 
           <form
@@ -522,7 +591,10 @@ export function DatasetDetailPageContent() {
             className="space-y-4"
           >
             <div className="space-y-1.5">
-              <Label htmlFor="inquiry-subject" className="text-sm font-normal text-white/70">
+              <Label
+                htmlFor="inquiry-subject"
+                className="text-sm font-normal text-white/70"
+              >
                 Subject
               </Label>
               <Input
@@ -536,7 +608,10 @@ export function DatasetDetailPageContent() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="inquiry-message" className="text-sm font-normal text-white/70">
+              <Label
+                htmlFor="inquiry-message"
+                className="text-sm font-normal text-white/70"
+              >
                 Message (optional)
               </Label>
               <Textarea

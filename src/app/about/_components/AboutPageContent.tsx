@@ -87,10 +87,13 @@ export function AboutPageContent() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/10"
+              className="flex items-center gap-3 mb-6"
             >
-              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-primary">Making Data Accessible</span>
+              <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                Making Data Accessible
+              </span>
+              <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
             </motion.div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-foreground leading-tight">
@@ -319,8 +322,12 @@ export function AboutPageContent() {
             viewport={{ once: true }}
             className="text-center mb-12 md:mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/10 mb-4 md:mb-6">
-              <span className="text-sm font-medium text-primary">What we do</span>
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                What we do
+              </span>
+              <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-foreground leading-tight mb-4 md:mb-6">
               We make data accessible, accurate, and actionable on demand
@@ -388,8 +395,12 @@ export function AboutPageContent() {
             viewport={{ once: true }}
             className="text-center mb-12 md:mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 backdrop-blur-sm rounded-full border border-primary-foreground/20 mb-4 md:mb-6">
-              <span className="text-sm font-medium text-primary-foreground">Where we're going</span>
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <span className="h-px w-8 bg-primary-foreground/25 dark:bg-white/20" />
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                Where we're going
+              </span>
+              <span className="h-px w-8 bg-primary-foreground/25 dark:bg-white/20" />
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-primary-foreground leading-tight mb-4 md:mb-6">
               People around the world are already using Kuinbee
