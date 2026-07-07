@@ -49,7 +49,7 @@ export default function Error({
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                     <Button
-                        onClick={reset}
+                        onClick={() => window.location.reload()}
                         size="lg"
                         className="h-11 px-6 rounded-xl"
                     >
