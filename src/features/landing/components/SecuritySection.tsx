@@ -62,9 +62,10 @@ export function SecuritySection() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <FadeInOnView className="text-center mb-10 md:mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 dark:bg-white/10 text-primary dark:text-white rounded-full text-xs md:text-sm font-medium mb-4 md:mb-6 border border-primary/20 dark:border-white/20 backdrop-blur-sm">
-            <Shield className="w-4 h-4" />
-            Enterprise Security
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Enterprise Security</span>
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
           </div>
 
           <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl mb-4 md:mb-6">

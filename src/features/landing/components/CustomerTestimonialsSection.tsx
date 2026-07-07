@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { ShieldCheck } from "lucide-react";
 
 type CustomerTestimonialBase = {
   founder: string;
@@ -204,9 +203,10 @@ export function SupplierTestimonialsBlock({
         .join(" ")}
     >
       <div className="mx-auto max-w-2xl text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary shadow-sm backdrop-blur-sm dark:border-white/15 dark:bg-white/5 dark:text-white">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          Supplier Testimonials
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Supplier Testimonials</span>
+          <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
         </div>
         <h3 className="text-2xl font-medium tracking-tight text-primary dark:text-white md:text-3xl">
           Suppliers Trust Kuinbee for Market Access
