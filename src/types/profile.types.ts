@@ -19,6 +19,7 @@ export interface ProfileUser {
 export interface Profile {
   user: ProfileUser;
   personalInfo: PersonalInfo | null;
+  organization: string | null;
 }
 
 export interface ProfileResponse {
@@ -32,4 +33,5 @@ export interface UpdateProfileRequest {
     lastName?: string | null;
     profileImage?: string | null;
   };
+  organization?: string | null;
 }

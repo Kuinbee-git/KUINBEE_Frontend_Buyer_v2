@@ -68,6 +68,11 @@ export type PaymentMethod = "RAZORPAY";
 export interface PaymentOrderItem {
   datasetId: string;
   price: string;
+  listPrice: string | null;
+  discountAmount: string | null;
+  discountType: "PERCENTAGE" | "FIXED_AMOUNT" | null;
+  discountValue: string | null;
+  discountProposalId: string | null;
   currency: string;
 }
 
