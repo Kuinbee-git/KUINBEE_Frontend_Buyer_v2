@@ -14,3 +14,4 @@ export * from "./question.service";
 export * from "./notification.service";
 export * from "./support.service";
 export * from "./payment.service";
+export * from "./custom-collection.service";

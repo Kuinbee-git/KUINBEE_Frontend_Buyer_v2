@@ -9,6 +9,7 @@ export { SupplierSection } from './components/SupplierSection';
 export { GovernanceValue } from './components/GovernanceValue';
 export { CustomerTestimonialsSection } from './components/CustomerTestimonialsSection';
 export { FAQSection } from './components/FAQSection';
+export { BackedBySection } from './components/BackedBySection';
 export { DataRequestSection } from './components/DataRequestSection';
 export { ProductHuntBadge } from './components/ProductHuntBadge';
 // export { CTASection } from './components/CTASection'; // Commented out - not currently used
