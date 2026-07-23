@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Link } from "@/components/router/Link";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,11 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { cn } from "@/shared/utils/cn";
-import { categories, resources } from "@/config/navigation.config";
+import type { NavItem } from "@/config/navigation.config";
 
 export interface NavDropdownProps {
   label: string;
-  items: typeof categories | typeof resources;
+  items: NavItem[];
   align?: "start" | "center" | "end";
 }
 
@@ -70,20 +70,6 @@ export function NavDropdown({ label, items, align = "start" }: NavDropdownProps)
           </DropdownMenuItem>
         );
         })}
-        {label === "Categories" && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link
-                href="/datasets"
-                className="flex cursor-pointer items-center justify-between rounded-lg p-2 text-sm font-medium text-primary transition-colors hover:bg-accent"
-              >
-                Browse Marketplace
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </DropdownMenuItem>
-          </>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

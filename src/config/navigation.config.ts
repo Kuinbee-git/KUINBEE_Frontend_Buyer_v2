@@ -1,10 +1,5 @@
 import {
   Database,
-  TrendingUp,
-  Zap,
-  Leaf,
-  Wheat,
-  BarChart3,
   BookOpen,
   FileText,
   Info,
@@ -33,47 +28,13 @@ export interface NavigationConfig {
     href: string;
     prominent?: boolean;
   }>;
-  dropdowns?: Array<"categories" | "resources" | "sort">;
+  dropdowns?: Array<"resources" | "sort">;
   showSearch?: boolean;
   searchPlaceholder?: string;
   actions?: Array<"filters-badge" | "wishlist" | "view-toggle" | "export">;
   pageTitle?: string;
   isSupplierPage?: boolean;
 }
-
-// Dropdown configurations
-export const categories: NavItem[] = [
-  {
-    name: "Finance & Markets",
-    href: "/datasets?category=finance",
-    icon: TrendingUp,
-    description: "Verified market data & financial indicators",
-  },
-  {
-    name: "Energy & Utilities",
-    href: "/datasets?category=energy",
-    icon: Zap,
-    description: "Regulated energy consumption & production data",
-  },
-  {
-    name: "Agriculture & Food",
-    href: "/datasets?category=agriculture",
-    icon: Wheat,
-    description: "Farming metrics & crop analytics",
-  },
-  {
-    name: "Environment & Climate",
-    href: "/datasets?category=environment",
-    icon: Leaf,
-    description: "Climate data & sustainability indicators",
-  },
-  {
-    name: "Economics & Trade",
-    href: "/datasets?category=economics",
-    icon: BarChart3,
-    description: "GDP metrics & trade statistics",
-  },
-];
 
 export const resources: NavItem[] = [
   {
@@ -122,10 +83,11 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Marketplace", href: "/datasets", prominent: true },
+      { label: "Custom Data", href: "/data-request/services" },
       { label: "Strotas", href: "/strotas" },
       { label: "Support", href: "/support" },
     ],
-    dropdowns: ["categories", "resources"],
+    dropdowns: ["resources"],
     showSearch: false,
     actions: [],
   },
@@ -135,6 +97,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
+      { label: "Custom Data", href: "/data-request/services" },
       { label: "Be a Supplier", href: "/supplier-resources" },
     ],
     dropdowns: ["resources"],
@@ -211,10 +174,11 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     directLinks: [
       { label: "Home", href: "/" },
       { label: "Marketplace", href: "/datasets", prominent: true },
+      { label: "Custom Data", href: "/data-request/services" },
       { label: "Strotas", href: "/strotas" },
       { label: "Support", href: "/support" },
     ],
-    dropdowns: ["categories", "resources"],
+    dropdowns: ["resources"],
     showSearch: false,
     actions: [],
   },
@@ -225,10 +189,11 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     directLinks: [
       { label: "Home", href: "/" },
       { label: "Marketplace", href: "/datasets", prominent: true },
+      { label: "Custom Data", href: "/data-request/services" },
       { label: "Strotas", href: "/strotas" },
       { label: "Support", href: "/support" },
     ],
-    dropdowns: ["categories", "resources"],
+    dropdowns: ["resources"],
     showSearch: false,
     actions: [],
     isSupplierPage: true,
@@ -253,10 +218,11 @@ export const DEFAULT_CONFIG: NavigationConfig = {
   directLinks: [
     { label: "Home", href: "/" },
     { label: "Marketplace", href: "/datasets", prominent: true },
+    { label: "Custom Data", href: "/data-request/services" },
     { label: "Strotas", href: "/strotas" },
     { label: "Support", href: "/support" },
   ],
-  dropdowns: ["categories", "resources"],
+  dropdowns: ["resources"],
   showSearch: false,
   actions: [],
 };

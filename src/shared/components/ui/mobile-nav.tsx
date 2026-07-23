@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
-import { categories, resources } from "@/config/navigation.config";
+import { resources } from "@/config/navigation.config";
 import { Menu, Database, ArrowLeft } from "lucide-react";
 import { Button } from "./button";
 import {
@@ -99,33 +99,6 @@ export function MobileNav() {
                 {link.label}
               </Link>
             ))}
-
-            {/* Categories Section */}
-            {navConfig.dropdowns?.includes("categories") && (
-              <>
-                <div className="px-2 py-2 mt-4">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Data Categories
-                  </span>
-                </div>
-                {categories.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={closeNav}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                      pathname === item.href
-                        ? "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                    {item.name}
-                  </Link>
-                ))}
-              </>
-            )}
 
             {/* Resources Section */}
             {navConfig.dropdowns?.includes("resources") && (

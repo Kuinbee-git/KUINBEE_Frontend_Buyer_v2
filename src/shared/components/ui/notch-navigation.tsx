@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
-import { categories, resources } from "@/config/navigation.config";
+import { resources } from "@/config/navigation.config";
 import { toast } from "sonner";
 
 import {
@@ -45,8 +45,6 @@ const NotchStagingPopover = dynamic(
   () => import("./notch-staging-popover").then((module) => module.NotchStagingPopover),
   { ssr: false }
 );
-
-// Categories and resources now imported from config
 
 interface NavLinkProps {
   href: string;
@@ -262,9 +260,6 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                 ))}
 
                 {/* Dropdowns */}
-                {navConfig.dropdowns?.includes("categories") && (
-                  <NavDropdown label="Categories" items={categories} />
-                )}
                 {navConfig.dropdowns?.includes("resources") && (
                   <NavDropdown label="Resources" items={resources} />
                 )}
