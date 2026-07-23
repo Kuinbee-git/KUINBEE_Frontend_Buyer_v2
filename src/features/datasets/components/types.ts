@@ -47,6 +47,38 @@ export interface DataFormatUI {
   updatedAt: string;
 }
 
+export type DatasetDiscountTargetSurface =
+  | "DATASET_PRICING"
+  | "SAMPLE_ACTUAL_PRICE";
+
+export type DatasetDiscountType = "PERCENTAGE" | "FIXED_AMOUNT";
+
+export interface DatasetDiscountUI {
+  proposalId: string;
+  type: DatasetDiscountType;
+  value: string;
+  amountOff: string;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface DatasetPriceSurfaceUI {
+  surface: DatasetDiscountTargetSurface | null;
+  baseAmount: string | null;
+  finalAmount: string | null;
+  currency: string | null;
+  discount: DatasetDiscountUI | null;
+  payable: boolean;
+  visible: boolean;
+}
+
+export type DatasetAccessFlow = "FREE_CLAIM" | "PAID_CHECKOUT";
+
+export type DatasetCommercialFlow =
+  | "NONE"
+  | "DIRECT_PLATFORM_PURCHASE"
+  | "INQUIRY_FOR_FULL_DATASET";
+
 export interface Dataset {
   id: string; // Internal ID (may not be used for API calls)
   datasetUniqueId?: string; // The actual unique ID used for API calls
@@ -62,6 +94,10 @@ export interface Dataset {
     amount?: number;
     currency: string;
   };
+  accessFlow?: DatasetAccessFlow;
+  commercialFlow?: DatasetCommercialFlow;
+  accessPrice?: DatasetPriceSurfaceUI | null;
+  commercialPrice?: DatasetPriceSurfaceUI | null;
   lastUpdated: string;
   status: string;
   description: string;

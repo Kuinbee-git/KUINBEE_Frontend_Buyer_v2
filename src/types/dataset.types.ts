@@ -7,6 +7,38 @@ import { Currency } from "./preferences.types";
 
 export type DatasetStatus = "PUBLISHED";
 
+export type DatasetDiscountTargetSurface =
+  | "DATASET_PRICING"
+  | "SAMPLE_ACTUAL_PRICE";
+
+export type DatasetDiscountType = "PERCENTAGE" | "FIXED_AMOUNT";
+
+export interface DatasetDiscount {
+  proposalId: string;
+  type: DatasetDiscountType;
+  value: string;
+  amountOff: string;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface DatasetPriceSurface {
+  surface: DatasetDiscountTargetSurface | null;
+  baseAmount: string | null;
+  finalAmount: string | null;
+  currency: string | null;
+  discount: DatasetDiscount | null;
+  payable: boolean;
+  visible: boolean;
+}
+
+export type DatasetAccessFlow = "FREE_CLAIM" | "PAID_CHECKOUT";
+
+export type DatasetCommercialFlow =
+  | "NONE"
+  | "DIRECT_PLATFORM_PURCHASE"
+  | "INQUIRY_FOR_FULL_DATASET";
+
 export type DatasetSortOption =
   | "relevance"
   | "createdAt:desc"
@@ -55,6 +87,10 @@ export interface Dataset {
   isPaid: boolean;
   price: string | null;
   currency: string;
+  accessFlow?: DatasetAccessFlow;
+  commercialFlow?: DatasetCommercialFlow;
+  accessPrice?: DatasetPriceSurface;
+  commercialPrice?: DatasetPriceSurface;
   viewCount: number;
   downloadCount: number;
   reviewCount: number;
@@ -88,6 +124,10 @@ export interface DatasetDetails {
   isPaid: boolean;
   price: string | null;
   currency: string;
+  accessFlow?: DatasetAccessFlow;
+  commercialFlow?: DatasetCommercialFlow;
+  accessPrice?: DatasetPriceSurface;
+  commercialPrice?: DatasetPriceSurface;
   license: string;
   downloadCount: number;
   viewCount: number;
