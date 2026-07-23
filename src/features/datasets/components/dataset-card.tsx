@@ -4,30 +4,22 @@ import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Star,
-  Heart,
-  Loader2,
-  ShieldCheck,
-  Award,
-} from "lucide-react";
+import { Star, Heart, Loader2, ShieldCheck, Award } from "lucide-react";
 import { Dataset, DatasetSourceUI } from "./types";
-import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
+import {
+  useAddToWishlist,
+  useRemoveFromWishlist,
+} from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
+import {
+  formatPriceAmount,
+  getDatasetMarketplacePriceDisplay,
+  toSafeNumber,
+} from "./price-display";
 
 // ── Pure utility functions (module scope to avoid re-allocation inside memo) ──
-
-const getCurrencySymbol = (currency?: string) => {
-  switch (currency) {
-    case "USD": return "$";
-    case "EUR": return "€";
-    case "GBP": return "£";
-    case "INR": return "₹";
-    default: return "₹";
-  }
-};
 
 const formatRecords = (count: number) => {
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
@@ -45,17 +37,15 @@ const formatFileSize = (sizeStr?: string) => {
   return `${bytes} B`;
 };
 
-const toSafeNumber = (value: unknown): number | null => {
-  if (value === null || value === undefined) return null;
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-};
-
 const getLogoInitials = (name: string) => {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "?";
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return words.slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  return words
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
 };
 
 const isRenderableLogoUrl = (url?: string | null) => {
@@ -96,7 +86,12 @@ function EntityLogo({
           className={cn("object-contain", imageClassName)}
         />
       ) : (
-        <span className={cn("text-xs font-semibold tracking-normal", fallbackClassName)}>
+        <span
+          className={cn(
+            "text-xs font-semibold tracking-normal",
+            fallbackClassName
+          )}
+        >
           {getLogoInitials(name)}
         </span>
       )}
@@ -111,7 +106,10 @@ function SourceLogoStrip({ sources }: { sources: DatasetSourceUI[] }) {
   const hiddenCount = sources.length - visibleSources.length;
 
   return (
-    <div className="mt-2 flex items-center gap-1.5" aria-label="Dataset sources">
+    <div
+      className="mt-2 flex items-center gap-1.5"
+      aria-label="Dataset sources"
+    >
       {visibleSources.map((source) => (
         <EntityLogo
           key={source.id}
@@ -167,7 +165,9 @@ export const DatasetCard = memo(function DatasetCard({
         toast.success("Added to wishlist");
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update wishlist");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update wishlist"
+      );
     }
   };
 
@@ -177,26 +177,15 @@ export const DatasetCard = memo(function DatasetCard({
   const hasHalfStar = ratingVal - fullStars >= 0.25;
   const totalStars = 5;
   const isSampleDataset = dataset.isSample === true;
-  const sampleActualPrice = toSafeNumber(dataset.actualPrice);
-  const hasActualSamplePrice = sampleActualPrice !== null;
-  const sampleCurrency = dataset.actualPriceCurrency || dataset.pricing.currency;
+  const priceDisplay = getDatasetMarketplacePriceDisplay(dataset);
   const normalizedProvider = dataset.provider?.trim().toLowerCase();
   const isPlatformDatasetProvider =
     dataset.isPlatformDataset === true ||
     normalizedProvider === "kuinbee information services pvt. ltd." ||
     normalizedProvider === "kuinbee information services private limited";
   const platformSourceLogos = isPlatformDatasetProvider
-    ? dataset.sourceLogos ?? (dataset.source ? [dataset.source] : [])
+    ? (dataset.sourceLogos ?? (dataset.source ? [dataset.source] : []))
     : [];
-
-  // ── Price display (single source, not a badge) ──
-  const priceDisplay = isSampleDataset
-    ? hasActualSamplePrice
-      ? `${getCurrencySymbol(sampleCurrency)}${sampleActualPrice?.toLocaleString()}`
-      : null
-    : dataset.pricing.type === "free"
-      ? "Free"
-      : `${getCurrencySymbol(dataset.pricing.currency)}${dataset.pricing.amount?.toLocaleString()}`;
 
   // ── Status badge: max 1 (Verified OR Sample) ──
   const statusBadge = dataset.verification.supplierVerified
@@ -207,7 +196,8 @@ export const DatasetCard = memo(function DatasetCard({
 
   // ── Additional badges: Buy in Parts + Sample Available ──
   const hasBuyInPartsAvailable = dataset.buyInPartsAvailable === true;
-  const showSampleAvailable = isSampleDataset || dataset.sampleFileAvailable === true;
+  const showSampleAvailable =
+    isSampleDataset || dataset.sampleFileAvailable === true;
 
   // ── Tags: show as many as fit a ~60-char budget, collapse the rest ──
   const allTags = dataset.tags ?? [];
@@ -223,10 +213,12 @@ export const DatasetCard = memo(function DatasetCard({
 
   // ── Metadata line (plain text, dot-separated, no icons) ──
   const metadataParts: string[] = [];
-  if (dataset.coverage && dataset.coverage !== "N/A") metadataParts.push(dataset.coverage);
+  if (dataset.coverage && dataset.coverage !== "N/A")
+    metadataParts.push(dataset.coverage);
   metadataParts.push(`${formatRecords(dataset.records)} rows`);
   if (isSampleDataset) {
-    if (dataset.sampleNotes?.actualDataSize) metadataParts.push(dataset.sampleNotes.actualDataSize);
+    if (dataset.sampleNotes?.actualDataSize)
+      metadataParts.push(dataset.sampleNotes.actualDataSize);
   } else if (dataset.dataFormat?.fileFormat) {
     const fmt = dataset.dataFormat.fileSize
       ? `${dataset.dataFormat.fileFormat} · ${formatFileSize(dataset.dataFormat.fileSize)}`
@@ -235,25 +227,59 @@ export const DatasetCard = memo(function DatasetCard({
   }
 
   // ── KDTS color tier (single token, no gradient) ──
-  const kdtsTierClass = kdtsValue == null
-    ? ""
-    : kdtsValue >= 85
-      ? "text-emerald-700 dark:text-emerald-400"
-      : kdtsValue >= 70
-        ? "text-blue-700 dark:text-blue-400"
-        : kdtsValue >= 50
-          ? "text-amber-700 dark:text-amber-400"
-          : "text-red-700 dark:text-red-400";
+  const kdtsTierClass =
+    kdtsValue == null
+      ? ""
+      : kdtsValue >= 85
+        ? "text-emerald-700 dark:text-emerald-400"
+        : kdtsValue >= 70
+          ? "text-blue-700 dark:text-blue-400"
+          : kdtsValue >= 50
+            ? "text-amber-700 dark:text-amber-400"
+            : "text-red-700 dark:text-red-400";
 
-  const isWishlistPending = addToWishlistMutation.isPending || removeFromWishlistMutation.isPending;
+  const isWishlistPending =
+    addToWishlistMutation.isPending || removeFromWishlistMutation.isPending;
+  const discountSavingsAmount =
+    priceDisplay.isDiscounted &&
+    priceDisplay.originalAmount !== null &&
+    priceDisplay.finalAmount !== null
+      ? priceDisplay.originalAmount - priceDisplay.finalAmount
+      : null;
+  const discountBannerText =
+    discountSavingsAmount !== null && discountSavingsAmount > 0
+      ? `DISCOUNTED - SAVE ${formatPriceAmount(priceDisplay.currency, discountSavingsAmount)}`
+      : "DISCOUNTED";
 
   return (
     <Link
       href={`/datasets/${dataset.id}`}
-      className="group block bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-5 hover:bg-[#1a2240]/4 dark:hover:bg-white/5 transition-colors duration-200 no-underline"
+      className={cn(
+        "group relative block overflow-hidden bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-5 hover:bg-[#1a2240]/4 dark:hover:bg-white/5 transition-colors duration-200 no-underline",
+        priceDisplay.isDiscounted &&
+          "pt-14 border-rose-300/80 dark:border-rose-400/45 shadow-[0_8px_28px_-18px_rgba(225,29,72,0.65)]"
+      )}
       prefetch={false}
-      onClick={onViewDetails ? (e) => { e.preventDefault(); onViewDetails(dataset); } : undefined}
+      onClick={
+        onViewDetails
+          ? (e) => {
+              e.preventDefault();
+              onViewDetails(dataset);
+            }
+          : undefined
+      }
     >
+      {priceDisplay.isDiscounted && (
+        <div className="absolute inset-x-0 top-0 flex h-9 items-center justify-between bg-rose-600 px-5 text-white shadow-sm dark:bg-rose-500">
+          <span className="text-xs font-bold tracking-wide">
+            {discountBannerText}
+          </span>
+          <span className="text-[11px] font-semibold text-white/85">
+            Limited time
+          </span>
+        </div>
+      )}
+
       {/* ── Row 1: Status Badges + Save ── */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
@@ -263,37 +289,41 @@ export const DatasetCard = memo(function DatasetCard({
               {statusBadge.label}
             </Badge>
           )}
-          {hasBuyInPartsAvailable && (
-            <Badge variant="info">Buy in Parts</Badge>
-          )}
+          {hasBuyInPartsAvailable && <Badge variant="info">Buy in Parts</Badge>}
           {showSampleAvailable && (
             <Badge variant="success">Sample Available</Badge>
           )}
         </div>
 
-        <button
-          onClick={handleWishlistToggle}
-          disabled={isWishlistPending}
-          className={cn(
-            "shrink-0 inline-flex items-center gap-1.5 h-7 px-2 rounded-sm border text-xs font-medium transition-colors",
-            isInWishlist
-              ? "bg-[#1a2240]/10 dark:bg-white/10 border-[#1a2240]/25 dark:border-white/25 text-[#1a2240] dark:text-white"
-              : "bg-transparent border-[#1a2240]/15 dark:border-white/15 text-[#4e5a7e] dark:text-white/70 hover:text-[#1a2240] dark:hover:text-white hover:border-[#1a2240]/30 dark:hover:border-white/30"
-          )}
-          aria-label={isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
-        >
-          {isWishlistPending ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Heart
-              className={cn(
-                "w-3.5 h-3.5",
-                isInWishlist ? "fill-[#1a2240] dark:fill-white" : "fill-none"
-              )}
-            />
-          )}
-          <span className="hidden sm:inline">{isInWishlist ? "Saved" : "Save"}</span>
-        </button>
+        <div className="shrink-0 flex items-center gap-2">
+          <button
+            onClick={handleWishlistToggle}
+            disabled={isWishlistPending}
+            className={cn(
+              "inline-flex items-center gap-1.5 h-7 px-2 rounded-sm border text-xs font-medium transition-colors",
+              isInWishlist
+                ? "bg-[#1a2240]/10 dark:bg-white/10 border-[#1a2240]/25 dark:border-white/25 text-[#1a2240] dark:text-white"
+                : "bg-transparent border-[#1a2240]/15 dark:border-white/15 text-[#4e5a7e] dark:text-white/70 hover:text-[#1a2240] dark:hover:text-white hover:border-[#1a2240]/30 dark:hover:border-white/30"
+            )}
+            aria-label={
+              isInWishlist ? "Remove from wishlist" : "Save to wishlist"
+            }
+          >
+            {isWishlistPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Heart
+                className={cn(
+                  "w-3.5 h-3.5",
+                  isInWishlist ? "fill-[#1a2240] dark:fill-white" : "fill-none"
+                )}
+              />
+            )}
+            <span className="hidden sm:inline">
+              {isInWishlist ? "Saved" : "Save"}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* ── Row 2: Identity ── */}
@@ -313,7 +343,9 @@ export const DatasetCard = memo(function DatasetCard({
           </h3>
           <p className="mt-1 text-sm text-[#4e5a7e] dark:text-white/70">
             {isPlatformDatasetProvider ? "Curated by " : "by "}
-            <span className="text-[#1a2240] dark:text-white font-medium">{dataset.provider}</span>
+            <span className="text-[#1a2240] dark:text-white font-medium">
+              {dataset.provider}
+            </span>
           </p>
           <SourceLogoStrip sources={platformSourceLogos} />
         </div>
@@ -382,7 +414,9 @@ export const DatasetCard = memo(function DatasetCard({
           {kdtsValue != null && (
             <div className="flex items-center gap-1.5">
               <Award className="w-3.5 h-3.5 text-[#4e5a7e] dark:text-white/60" />
-              <span className="text-[#4e5a7e] dark:text-white/70">KDTS Score</span>
+              <span className="text-[#4e5a7e] dark:text-white/70">
+                KDTS Score
+              </span>
               <span className={cn("font-semibold", kdtsTierClass)}>
                 {kdtsValue.toFixed(1)}
               </span>
@@ -397,9 +431,25 @@ export const DatasetCard = memo(function DatasetCard({
         </div>
 
         {/* Price — right-aligned, strong, final */}
-        {priceDisplay && (
-          <div className="text-base font-semibold text-[#1a2240] dark:text-white tabular-nums">
-            {priceDisplay}
+        {priceDisplay.hasPrice && (
+          <div className="text-right tabular-nums">
+            {priceDisplay.isDiscounted &&
+              priceDisplay.originalAmount !== null && (
+                <div className="text-xs font-medium text-[#4e5a7e] line-through decoration-[#4e5a7e]/70 dark:text-white/50 dark:decoration-white/40">
+                  {formatPriceAmount(
+                    priceDisplay.currency,
+                    priceDisplay.originalAmount
+                  )}
+                </div>
+              )}
+            <div className="text-base font-semibold text-[#1a2240] dark:text-white">
+              {priceDisplay.isFree || priceDisplay.finalAmount === null
+                ? "Free"
+                : formatPriceAmount(
+                    priceDisplay.currency,
+                    priceDisplay.finalAmount
+                  )}
+            </div>
           </div>
         )}
       </div>
