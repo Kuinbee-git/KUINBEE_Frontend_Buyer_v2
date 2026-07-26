@@ -13,11 +13,12 @@ export const customCollectionKeys = {
     ["custom-collection-services", "detail", slug] as const,
 };
 
-export const useCustomCollectionServices = (query: CustomCollectionListQuery) =>
+export const useCustomCollectionServices = (query: CustomCollectionListQuery, enabled = true) =>
   useQuery({
     queryKey: customCollectionKeys.list(query),
     queryFn: () => customCollectionService.list(query),
     placeholderData: keepPreviousData,
+    enabled,
   });
 
 export const useCustomCollectionService = (slug: string) =>

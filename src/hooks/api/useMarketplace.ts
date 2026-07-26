@@ -16,11 +16,12 @@ export const marketplaceKeys = {
 };
 
 // List datasets
-export const useDatasets = (query?: DatasetListQuery) => {
+export const useDatasets = (query?: DatasetListQuery, enabled = true) => {
   return useQuery({
     queryKey: marketplaceKeys.datasets(query),
     queryFn: () => marketplaceService.listDatasets(query),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 
