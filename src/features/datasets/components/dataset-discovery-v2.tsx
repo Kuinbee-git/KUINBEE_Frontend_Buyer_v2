@@ -13,10 +13,9 @@ import {
 import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Input } from "@/shared/components/ui/input";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { Search, ChevronLeft, ChevronRight, ArrowRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, X } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import {
   getErrorMessage,
@@ -68,9 +67,11 @@ import {
   useCategories,
   prefetchDatasets,
 } from "@/hooks/api/useMarketplace";
+import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
 import { useWishlist } from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useQueryClient } from "@tanstack/react-query";
+import { MarketplaceSearch } from "@/shared/components/ui/marketplace-search";
 import type { DatasetSortOption, DatasetListQuery, Currency } from "@/types";
 
 // Map UI sort options to API sort format
@@ -476,6 +477,12 @@ export function DatasetDiscoveryV2() {
     error,
   } = useDatasets(apiQuery);
 
+  // Lightweight services count for the toggle pill — only fires when there's an active search
+  const { data: serviceCountData } = useCustomCollectionServices(
+    { q: debouncedSearch || undefined, page: 1, pageSize: 1 },
+    Boolean(debouncedSearch)
+  );
+
   const showMaintenanceState = isMaintenanceError(error);
 
   useEffect(() => {
@@ -797,18 +804,15 @@ export function DatasetDiscoveryV2() {
             <div ref={datasetListRef}>
               {/* Search Container */}
               <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-4">
-                <div className="flex items-center justify-end w-full">
-                  {/* Expanded Search Bar aligned right */}
-                  <div className="w-full sm:max-w-2xl lg:max-w-full relative">
-                    <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4e5a7e] dark:text-white/60" />
-                    <Input
-                      placeholder="Search datasets by name, provider, or category…"
-                      value={filters.search}
-                      onChange={(e) => updateFilter({ search: e.target.value })}
-                      className="h-11 pl-11 pr-4 text-base rounded-xl border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 placeholder:text-sm focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 shadow-sm"
-                    />
-                  </div>
-                </div>
+                <MarketplaceSearch
+                  active="datasets"
+                  value={filters.search}
+                  onValueChange={(search) => updateFilter({ search })}
+                  placeholder="Search datasets and collection services…"
+                  ariaLabel="Search the Kuinbee marketplace"
+                  datasetsTotal={totalCount}
+                  servicesTotal={serviceCountData?.total}
+                />
               </div>
 
               {/* Dataset List — min-height prevents layout collapse during loading */}
@@ -926,7 +930,9 @@ export function DatasetDiscoveryV2() {
                           Commission a custom dataset
                         </h3>
                         <p className="text-sm text-[#4e5a7e] dark:text-white/70 max-w-md">
-                          Browse verified collection services or submit an open brief — Kuinbee will source and deliver exactly what you need.
+                          Browse verified collection services or submit an open
+                          brief — Kuinbee will source and deliver exactly what
+                          you need.
                         </p>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-3 shrink-0">

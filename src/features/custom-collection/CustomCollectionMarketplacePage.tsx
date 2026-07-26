@@ -17,7 +17,8 @@ import {
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
-import { useCategories } from "@/hooks/api/useMarketplace";
+import { useCategories, useDatasets } from "@/hooks/api/useMarketplace";
+import { MarketplaceSearch } from "@/shared/components/ui/marketplace-search";
 import {
   COLLECTION_METHODS,
   FORMATS,
@@ -27,14 +28,6 @@ import {
   optionLabel,
 } from "@/features/custom-collection/customCollection.utils";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Input } from "@/shared/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -78,12 +71,6 @@ const emptyFilters: Filters = {
   languages: [],
   sort: "NEWEST",
   page: 1,
-};
-
-const sortLabels: Record<CustomCollectionSort, string> = {
-  NEWEST: "Newest",
-  TITLE_ASC: "Title A–Z",
-  TITLE_DESC: "Title Z–A",
 };
 
 const readList = (params: URLSearchParams, key: string) =>
@@ -198,6 +185,12 @@ export function CustomCollectionMarketplacePage() {
   const total = servicesQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const categories = categoriesQuery.data?.items ?? [];
+
+  // Lightweight dataset count for cross-type pill
+  const { data: datasetCountData } = useDatasets(
+    { q: debouncedSearch || undefined, page: 1, pageSize: 1 },
+    Boolean(debouncedSearch)
+  );
 
   const activeFilterCount =
     (filters.categoryId !== "ALL" ? 1 : 0) +
@@ -330,37 +323,24 @@ export function CustomCollectionMarketplacePage() {
 
             {/* Main Content Column */}
             <div id="service-results" className="scroll-mt-28">
-              {/* Search + Sort Container */}
+              {/* Marketplace search */}
               <div className="mb-6 md:mb-8 bg-white dark:bg-[#1e2847] border border-border/40 dark:border-white/10 rounded-xl shadow-sm p-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#4e5a7e] dark:text-white/60" />
-                    <Input
-                      value={filters.search}
-                      onChange={(event) =>
-                        updateFilters({ search: event.target.value })
-                      }
-                      placeholder="Search services, methods, suppliers, or industries"
-                      aria-label="Search custom collection services"
-                      className="h-11 pl-11 pr-10 text-base rounded-xl border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white placeholder:text-[#4e5a7e]/60 dark:placeholder:text-white/40 placeholder:text-sm focus-visible:ring-[#1a2240]/30 dark:focus-visible:ring-white/30 shadow-sm"
-                    />
-                    {filters.search && (
-                      <button
-                        type="button"
-                        onClick={() => updateFilters({ search: "" })}
-                        className="absolute right-2.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-[#4e5a7e] dark:text-white/60 transition-colors hover:bg-muted hover:text-foreground"
-                        aria-label="Clear search"
-                      >
-                        <X className="size-4" />
-                      </button>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-3">
+                  <MarketplaceSearch
+                    active="services"
+                    value={filters.search}
+                    onValueChange={(search) => updateFilters({ search })}
+                    placeholder="Search datasets and collection services…"
+                    ariaLabel="Search the Kuinbee marketplace"
+                    datasetsTotal={datasetCountData?.total}
+                    servicesTotal={total}
+                  />
 
-                  <div className="flex gap-3">
+                  <div className="flex items-center lg:hidden">
                     <button
                       type="button"
                       onClick={() => setMobileFiltersOpen(true)}
-                      className="inline-flex items-center gap-2 h-11 px-4 flex-1 text-sm font-medium rounded-xl border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors lg:hidden"
+                      className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#1a2240]/20 bg-white/95 px-4 text-sm font-medium text-[#1a2240] transition-colors hover:bg-[#1a2240]/5 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 lg:hidden"
                     >
                       <Filter className="h-4 w-4" />
                       Filters
@@ -370,23 +350,6 @@ export function CustomCollectionMarketplacePage() {
                         </span>
                       )}
                     </button>
-                    <Select
-                      value={filters.sort}
-                      onValueChange={(value) =>
-                        updateFilters({ sort: value as CustomCollectionSort })
-                      }
-                    >
-                      <SelectTrigger className="h-11 min-w-[140px] flex-1 rounded-xl border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white lg:flex-none">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(sortLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
               </div>
@@ -406,7 +369,8 @@ export function CustomCollectionMarketplacePage() {
                   <div
                     className={cn(
                       "grid gap-5 sm:grid-cols-2 xl:grid-cols-3",
-                      servicesQuery.isFetching && "opacity-70 transition-opacity"
+                      servicesQuery.isFetching &&
+                        "opacity-70 transition-opacity"
                     )}
                   >
                     {services.map((service) => (
@@ -477,7 +441,6 @@ export function CustomCollectionMarketplacePage() {
                   </button>
                 </div>
               )}
-
             </div>
           </div>
         </div>
@@ -603,7 +566,9 @@ function FilterPanel({
               className="group flex w-full items-center justify-between rounded-lg border border-[#1a2240]/10 dark:border-white/10 bg-[#1a2240]/[0.02] dark:bg-white/[0.02] px-3 py-2.5 text-left text-xs font-medium text-[#1a2240] dark:text-white transition-all hover:bg-[#1a2240]/5 dark:hover:bg-white/5"
             >
               <span>
-                {selectedCat ? "Change category" : `Browse all ${categories.length} categories`}
+                {selectedCat
+                  ? "Change category"
+                  : `Browse all ${categories.length} categories`}
               </span>
               <span className="text-[#4e5a7e] dark:text-white/50 transition-transform group-hover:translate-x-1">
                 →
@@ -618,7 +583,9 @@ function FilterPanel({
           onToggle={() => toggle("method")}
           options={COLLECTION_METHODS}
           selected={filters.collectionMethods}
-          setSelected={(collectionMethods) => updateFilters({ collectionMethods })}
+          setSelected={(collectionMethods) =>
+            updateFilters({ collectionMethods })
+          }
           onBrowseAll={() => setPickerOpen("method")}
         />
 
@@ -648,7 +615,9 @@ function FilterPanel({
           onToggle={() => toggle("format")}
           options={FORMATS}
           selected={filters.supportedFormats}
-          setSelected={(supportedFormats) => updateFilters({ supportedFormats })}
+          setSelected={(supportedFormats) =>
+            updateFilters({ supportedFormats })
+          }
           onBrowseAll={() => setPickerOpen("format")}
         />
 
@@ -666,13 +635,23 @@ function FilterPanel({
       {/* Category picker — large dark modal matching datasets ResponsivePicker */}
       <FilterPickerDialog
         open={pickerOpen === "category"}
-        onClose={() => { setPickerOpen(null); setCatSearch(""); }}
+        onClose={() => {
+          setPickerOpen(null);
+          setCatSearch("");
+        }}
         title="Choose Category"
         description="Search and select a category"
-        onClear={filters.categoryId !== "ALL" ? () => updateFilters({ categoryId: "ALL" }) : undefined}
+        onClear={
+          filters.categoryId !== "ALL"
+            ? () => updateFilters({ categoryId: "ALL" })
+            : undefined
+        }
         clearLabel="Clear Selection"
         applyLabel="Apply"
-        onApply={() => { setPickerOpen(null); setCatSearch(""); }}
+        onApply={() => {
+          setPickerOpen(null);
+          setCatSearch("");
+        }}
       >
         <div className="space-y-3">
           <div className="relative">
@@ -684,33 +663,41 @@ function FilterPanel({
               className="h-11 w-full rounded-lg border border-white/20 bg-white/10 pl-10 pr-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20"
             />
           </div>
-          <div className="max-h-[480px] overflow-y-auto overscroll-contain rounded-lg border border-white/20 bg-white/5 p-3" style={{ scrollbarWidth: "none" }}>
+          <div
+            className="max-h-[480px] overflow-y-auto overscroll-contain rounded-lg border border-white/20 bg-white/5 p-3"
+            style={{ scrollbarWidth: "none" }}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {[{ id: "ALL", name: "All Categories" }, ...categories]
-                .filter((cat) => cat.name.toLowerCase().includes(catSearch.toLowerCase()))
+                .filter((cat) =>
+                  cat.name.toLowerCase().includes(catSearch.toLowerCase())
+                )
                 .map((cat) => {
                   const isSelected = filters.categoryId === cat.id;
+                  const id = `category-picker-${cat.id}`;
                   return (
-                    <button
+                    <label
                       key={cat.id}
-                      onClick={() => {
-                        updateFilters({ categoryId: cat.id });
-                        setPickerOpen(null);
-                        setCatSearch("");
-                      }}
+                      htmlFor={id}
                       className={cn(
-                        "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+                        "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
                         isSelected
                           ? "border-white/35 bg-white/20 text-white font-medium"
                           : "border-white/15 text-white/80 hover:bg-white/10"
                       )}
                     >
                       <Checkbox
+                        id={id}
                         checked={isSelected}
-                        className="pointer-events-none border-white/30 data-[state=checked]:bg-white data-[state=checked]:border-white data-[state=checked]:text-[#1a2240]"
+                        onCheckedChange={() => {
+                          updateFilters({ categoryId: cat.id });
+                          setPickerOpen(null);
+                          setCatSearch("");
+                        }}
+                        className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:border-white data-[state=checked]:text-[#1a2240]"
                       />
                       <span className="line-clamp-2">{cat.name}</span>
-                    </button>
+                    </label>
                   );
                 })}
             </div>
@@ -721,11 +708,48 @@ function FilterPanel({
       {/* Checkbox picker dialogs — large dark modal */}
       {(
         [
-          { key: "method", title: "Collection Method", description: "Filter by data collection method", options: COLLECTION_METHODS, selected: filters.collectionMethods, setSelected: (v: string[]) => updateFilters({ collectionMethods: v }) },
-          { key: "industry", title: "Industry", description: "Filter by target industry", options: INDUSTRIES, selected: filters.industries, setSelected: (v: string[]) => updateFilters({ industries: v }) },
-          { key: "geography", title: "Geography", description: "Filter by coverage region", options: GEOGRAPHIES, selected: filters.geographies, setSelected: (v: string[]) => updateFilters({ geographies: v }) },
-          { key: "format", title: "Delivery Format", description: "Filter by output format", options: FORMATS, selected: filters.supportedFormats, setSelected: (v: string[]) => updateFilters({ supportedFormats: v }) },
-          { key: "language", title: "Language", description: "Filter by supported language", options: LANGUAGES, selected: filters.languages, setSelected: (v: string[]) => updateFilters({ languages: v }) },
+          {
+            key: "method",
+            title: "Collection Method",
+            description: "Filter by data collection method",
+            options: COLLECTION_METHODS,
+            selected: filters.collectionMethods,
+            setSelected: (v: string[]) =>
+              updateFilters({ collectionMethods: v }),
+          },
+          {
+            key: "industry",
+            title: "Industry",
+            description: "Filter by target industry",
+            options: INDUSTRIES,
+            selected: filters.industries,
+            setSelected: (v: string[]) => updateFilters({ industries: v }),
+          },
+          {
+            key: "geography",
+            title: "Geography",
+            description: "Filter by coverage region",
+            options: GEOGRAPHIES,
+            selected: filters.geographies,
+            setSelected: (v: string[]) => updateFilters({ geographies: v }),
+          },
+          {
+            key: "format",
+            title: "Delivery Format",
+            description: "Filter by output format",
+            options: FORMATS,
+            selected: filters.supportedFormats,
+            setSelected: (v: string[]) =>
+              updateFilters({ supportedFormats: v }),
+          },
+          {
+            key: "language",
+            title: "Language",
+            description: "Filter by supported language",
+            options: LANGUAGES,
+            selected: filters.languages,
+            setSelected: (v: string[]) => updateFilters({ languages: v }),
+          },
         ] as const
       ).map(({ key, title, description, options, selected, setSelected }) => (
         <FilterPickerDialog
@@ -740,7 +764,10 @@ function FilterPanel({
           onApply={() => setPickerOpen(null)}
           selectedCount={selected.length}
         >
-          <div className="max-h-[480px] overflow-y-auto overscroll-contain rounded-lg border border-white/20 bg-white/5 p-3" style={{ scrollbarWidth: "none" }}>
+          <div
+            className="max-h-[480px] overflow-y-auto overscroll-contain rounded-lg border border-white/20 bg-white/5 p-3"
+            style={{ scrollbarWidth: "none" }}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {options.map((option) => {
                 const checked = selected.includes(option);
@@ -955,7 +982,9 @@ function FilterPickerDialog({
       <div
         className={cn(
           "relative w-full max-w-4xl max-h-[90vh] transition-all duration-200 ease-out",
-          entered ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-[0.98] translate-y-2"
+          entered
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-[0.98] translate-y-2"
         )}
       >
         <div className="relative overflow-hidden rounded-lg border border-primary/30 dark:border-white/30 bg-[#1a2240] dark:bg-[#0f1729] shadow-xl p-6 sm:p-8 text-white">
@@ -979,7 +1008,10 @@ function FilterPickerDialog({
               <p className="mt-1 text-sm text-white/70">{description}</p>
             )}
           </div>
-          <div className="overflow-y-auto overscroll-contain" style={{ scrollbarWidth: "none" }}>
+          <div
+            className="overflow-y-auto overscroll-contain"
+            style={{ scrollbarWidth: "none" }}
+          >
             {children}
           </div>
           <div className="mt-6 pt-4 border-t border-white/10 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
