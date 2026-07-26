@@ -10,19 +10,17 @@ import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { resources } from "@/config/navigation.config";
 import { toast } from "sonner";
 
-import {
-  ArrowLeft,
-  X,
-  Heart,
-  Search,
-} from "lucide-react";
+import { ArrowLeft, X, Heart, Search } from "lucide-react";
 import { Button } from "./button";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/shared/utils/cn";
 import type { StagedDataset } from "./purchase-staging-panel";
 
 const NotchNotificationBell = dynamic(
-  () => import("./notch-notification-bell").then((module) => module.NotchNotificationBell),
+  () =>
+    import("./notch-notification-bell").then(
+      (module) => module.NotchNotificationBell
+    ),
   { ssr: false }
 );
 
@@ -42,7 +40,10 @@ const NotchUserMenu = dynamic(
 );
 
 const NotchStagingPopover = dynamic(
-  () => import("./notch-staging-popover").then((module) => module.NotchStagingPopover),
+  () =>
+    import("./notch-staging-popover").then(
+      (module) => module.NotchStagingPopover
+    ),
   { ssr: false }
 );
 
@@ -63,7 +64,9 @@ function NavLink({ href, children, className }: NavLinkProps) {
       className={cn(
         "relative text-sm font-medium transition-colors duration-200",
         "hover:text-foreground dark:hover:text-white",
-        isActive ? "text-foreground dark:text-white" : "text-muted-foreground dark:text-white/70",
+        isActive
+          ? "text-foreground dark:text-white"
+          : "text-muted-foreground dark:text-white/70",
         className
       )}
     >
@@ -72,21 +75,31 @@ function NavLink({ href, children, className }: NavLinkProps) {
   );
 }
 
-
-
-
-
 interface NotchNavigationProps {
   lite?: boolean;
 }
 
 function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   const [scrolled, setScrolled] = React.useState(false);
+  const [marketplaceSearchPassed, setMarketplaceSearchPassed] =
+    React.useState(false);
   const router = useRouter();
   const { openModal } = useModal();
   const { user, logout } = useAuth();
   const navConfig = useNavigationConfig();
   const pathname = usePathname();
+  const isMarketplaceListing =
+    pathname === "/datasets" || pathname === "/data-request/services";
+  const shouldShowNavSearch =
+    pathname !== "/" && (!isMarketplaceListing || marketplaceSearchPassed);
+  const searchTarget =
+    pathname === "/data-request/services"
+      ? "/data-request/services"
+      : "/datasets";
+  const searchPlaceholder =
+    pathname === "/data-request/services"
+      ? "Search services..."
+      : navConfig.searchPlaceholder || "Search datasets and services...";
 
   // Search bar state
   const [navSearchQuery, setNavSearchQuery] = React.useState("");
@@ -111,11 +124,49 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lite]);
 
+  // On marketplace listings, reveal the compact search only after the
+  // full-size page search has passed beneath the sticky navigation.
+  React.useEffect(() => {
+    if (!isMarketplaceListing) {
+      setMarketplaceSearchPassed(false);
+      return;
+    }
+
+    let frameId = 0;
+    const pageSearch = document.querySelector<HTMLElement>(
+      "[data-marketplace-page-search]"
+    );
+
+    const updateSearchPosition = () => {
+      frameId = 0;
+      if (!pageSearch) return;
+      setMarketplaceSearchPassed(
+        pageSearch.getBoundingClientRect().bottom <= 72
+      );
+    };
+
+    const scheduleUpdate = () => {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(updateSearchPosition);
+    };
+
+    updateSearchPosition();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, [isMarketplaceListing, pathname]);
+
   // Calculate actual width based on scroll state
   const actualMaxWidth = scrolled ? 1152 : 1400; // 1152px = max-w-6xl, 1400px default
 
   // Get staged dataset from global state (if exists)
-  const [stagedDataset, setStagedDataset] = React.useState<StagedDataset | null>(null);
+  const [stagedDataset, setStagedDataset] =
+    React.useState<StagedDataset | null>(null);
 
   // Listen for staged dataset updates
   React.useEffect(() => {
@@ -124,13 +175,22 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
       setStagedDataset(customEvent.detail);
     };
 
-    window.addEventListener("stagedDatasetUpdate", handleStagedDatasetUpdate as EventListener);
-    return () => window.removeEventListener("stagedDatasetUpdate", handleStagedDatasetUpdate as EventListener);
+    window.addEventListener(
+      "stagedDatasetUpdate",
+      handleStagedDatasetUpdate as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "stagedDatasetUpdate",
+        handleStagedDatasetUpdate as EventListener
+      );
   }, []);
 
   const handleProceedToCheckout = () => {
     // Dispatch checkout event
-    window.dispatchEvent(new CustomEvent("proceedToCheckout", { detail: stagedDataset }));
+    window.dispatchEvent(
+      new CustomEvent("proceedToCheckout", { detail: stagedDataset })
+    );
   };
 
   const handleRemoveFromStaging = () => {
@@ -157,16 +217,20 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
             )}
           >
             {/* Top highlight - only visible when scrolled */}
-            <div className={cn(
-              "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 dark:via-white/[0.05] to-transparent transition-opacity duration-500",
-              scrolled ? "opacity-100" : "opacity-0"
-            )} />
+            <div
+              className={cn(
+                "absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 dark:via-white/[0.05] to-transparent transition-opacity duration-500",
+                scrolled ? "opacity-100" : "opacity-0"
+              )}
+            />
 
             {/* Content */}
-            <div className={cn(
-              "flex items-center justify-between transition-all duration-500",
-              scrolled ? "h-14 px-5" : "h-16 px-6"
-            )}>
+            <div
+              className={cn(
+                "flex items-center justify-between transition-all duration-500",
+                scrolled ? "h-14 px-5" : "h-16 px-6"
+              )}
+            >
               {/* Left: Logo (Fixed Width) */}
               <div className="w-32">
                 <Link
@@ -175,7 +239,9 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                   onClick={(e) => {
                     if (pathname === "/") {
                       e.preventDefault();
-                      document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" });
+                      document
+                        .getElementById("hero")
+                        ?.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
                 >
@@ -206,29 +272,35 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                       scrolled ? "h-6 w-6" : "h-8 w-8"
                     )}
                   />
-                  <span className={cn(
-                    "font-semibold leading-none tracking-tight text-foreground dark:text-white transition-all duration-500 hidden lg:inline",
-                    scrolled ? "text-xs" : "text-sm"
-                  )}>
+                  <span
+                    className={cn(
+                      "font-semibold leading-none tracking-tight text-foreground dark:text-white transition-all duration-500 hidden lg:inline",
+                      scrolled ? "text-xs" : "text-sm"
+                    )}
+                  >
                     Kuinbee
                   </span>
                 </Link>
               </div>
 
               {/* Center: Navigation (Flex-1, Centered) */}
-              <nav className={cn(
-                "hidden items-center md:flex flex-1 justify-center transition-all duration-500",
-                scrolled ? "gap-4" : "gap-6"
-              )}>
+              <nav
+                className={cn(
+                  "hidden items-center md:flex flex-1 justify-center transition-all duration-500",
+                  scrolled ? "gap-4" : "gap-6"
+                )}
+              >
                 {/* Back Button (if configured) */}
-                {navConfig.showBack && (
-                  navConfig.useBack ? (
+                {navConfig.showBack &&
+                  (navConfig.useBack ? (
                     <button
                       onClick={() => router.back()}
                       className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
                     >
                       <ArrowLeft className="h-4 w-4" />
-                      <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
+                      <span className="hidden lg:inline">
+                        {navConfig.backLabel || "Back"}
+                      </span>
                     </button>
                   ) : (
                     <Link
@@ -236,10 +308,11 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                       className="flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/70 hover:text-foreground dark:hover:text-white transition-colors"
                     >
                       <ArrowLeft className="h-4 w-4" />
-                      <span className="hidden lg:inline">{navConfig.backLabel || "Back"}</span>
+                      <span className="hidden lg:inline">
+                        {navConfig.backLabel || "Back"}
+                      </span>
                     </Link>
-                  )
-                )}
+                  ))}
 
                 {/* Page Title (if configured) */}
                 {navConfig.pageTitle && (
@@ -264,64 +337,94 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                   <NavDropdown label="Resources" items={resources} />
                 )}
 
-                {/* Search Bar (if configured) */}
-                {navConfig.showSearch && (
-                  <form
-                    className="relative"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      if (navSearchQuery.length > 200) {
-                        toast.error("Search query cannot exceed 200 characters.");
-                        return;
-                      }
-                      const params = new URLSearchParams();
-                      if (navSearchQuery) params.set("q", navSearchQuery);
-                      router.push(`/datasets${params.toString() ? `?${params.toString()}` : ""}`);
-                    }}
+                {/* Global search — delayed on marketplace listings until scroll */}
+                {pathname !== "/" && (
+                  <div
+                    className={cn(
+                      "relative hidden shrink-0 overflow-visible lg:block",
+                      "origin-right transition-[width,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
+                      shouldShowNavSearch
+                        ? "w-56 translate-x-0 scale-100 opacity-100"
+                        : "pointer-events-none w-0 translate-x-2 scale-[0.98] opacity-0"
+                    )}
+                    aria-hidden={!shouldShowNavSearch}
                   >
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-white/40" />
-                    <input
-                      type="text"
-                      placeholder={navConfig.searchPlaceholder || "Search datasets..."}
-                      value={navSearchQuery}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val.length > 200) {
-                          toast.error("Search query cannot exceed 200 characters.");
+                    <form
+                      className="relative w-full"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (navSearchQuery.length > 200) {
+                          toast.error(
+                            "Search query cannot exceed 200 characters."
+                          );
                           return;
                         }
-                        setNavSearchQuery(val);
-                        // If already on /datasets, update the URL in real-time (debounced by dataset-discovery)
-                        if (pathname === "/datasets") {
-                          const params = new URLSearchParams(window.location.search);
-                          if (e.target.value) {
-                            params.set("q", e.target.value);
-                          } else {
-                            params.delete("q");
-                          }
-                          router.replace(`/datasets?${params.toString()}`, { scroll: false });
-                        }
+                        const params = new URLSearchParams();
+                        if (navSearchQuery) params.set("q", navSearchQuery);
+                        router.push(
+                          `${searchTarget}${params.toString() ? `?${params.toString()}` : ""}`
+                        );
                       }}
-                      className="h-9 w-64 rounded-lg border border-border/40 dark:border-white/10 bg-background/50 dark:bg-white/5 pl-9 pr-8 text-sm text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-white/20"
-                    />
-                    {navSearchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setNavSearchQuery("");
-                          if (pathname === "/datasets") {
-                            const params = new URLSearchParams(window.location.search);
-                            params.delete("q");
-                            router.replace(`/datasets?${params.toString()}`, { scroll: false });
+                    >
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-white/40" />
+                      <input
+                        type="text"
+                        placeholder={searchPlaceholder}
+                        value={navSearchQuery}
+                        tabIndex={shouldShowNavSearch ? 0 : -1}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val.length > 200) {
+                            toast.error(
+                              "Search query cannot exceed 200 characters."
+                            );
+                            return;
+                          }
+                          setNavSearchQuery(val);
+                          // Keep marketplace listing search in sync with the page.
+                          if (isMarketplaceListing) {
+                            const params = new URLSearchParams(
+                              window.location.search
+                            );
+                            if (e.target.value) {
+                              params.set("q", e.target.value);
+                            } else {
+                              params.delete("q");
+                            }
+                            const query = params.toString();
+                            router.replace(
+                              `${searchTarget}${query ? `?${query}` : ""}`,
+                              { scroll: false }
+                            );
                           }
                         }}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground/60 hover:text-foreground dark:text-white/50 dark:hover:text-white transition-colors"
-                        aria-label="Clear search"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </form>
+                        className="h-9 w-full rounded-lg border border-primary/25 bg-white/90 pl-9 pr-8 text-sm text-foreground shadow-sm shadow-primary/[0.04] placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-none dark:placeholder:text-white/40 dark:focus:border-white/25 dark:focus:ring-white/20"
+                      />
+                      {navSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNavSearchQuery("");
+                            if (isMarketplaceListing) {
+                              const params = new URLSearchParams(
+                                window.location.search
+                              );
+                              params.delete("q");
+                              const query = params.toString();
+                              router.replace(
+                                `${searchTarget}${query ? `?${query}` : ""}`,
+                                { scroll: false }
+                              );
+                            }
+                          }}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground/60 hover:text-foreground dark:text-white/50 dark:hover:text-white transition-colors"
+                          aria-label="Clear search"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </form>
+                  </div>
                 )}
               </nav>
 
@@ -344,7 +447,6 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                   </Link>
                 )}
 
-
                 {/* Purchase Staging Utility (Conditional) */}
                 {stagedDataset && (
                   <NotchStagingPopover
@@ -365,7 +467,11 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                         asChild
                       >
-                        <a href="https://calendly.com/ceo-kuinbee/30min" target="_blank" rel="noopener noreferrer">
+                        <a
+                          href="https://calendly.com/ceo-kuinbee/30min"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Book a Demo
                         </a>
                       </Button>
