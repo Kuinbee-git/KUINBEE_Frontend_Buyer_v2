@@ -1,11 +1,4 @@
-import {
-  Database,
-  BookOpen,
-  FileText,
-  Info,
-  Briefcase,
-  Users,
-} from "lucide-react";
+import { BookOpen, Info, Briefcase, LifeBuoy, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
@@ -38,10 +31,10 @@ export interface NavigationConfig {
 
 export const resources: NavItem[] = [
   {
-    name: "Blog",
-    href: "/blog",
-    icon: FileText,
-    description: "Data marketplace insights and buyer guides",
+    name: "Support",
+    href: "/support",
+    icon: LifeBuoy,
+    description: "Get help from the Kuinbee team",
   },
   {
     name: "About",
@@ -61,13 +54,6 @@ export const resources: NavItem[] = [
     icon: Briefcase,
     description: "Join our team",
   },
-  // FAQs removed
-  {
-    name: "Request Data",
-    href: "/data-request",
-    icon: Database,
-    description: "Can't find it? Request a custom dataset",
-  },
   {
     name: "Supplier Resources",
     href: "/supplier-resources",
@@ -82,10 +68,25 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   "/": {
     showBack: false,
     directLinks: [
-      { label: "Marketplace", href: "/datasets", prominent: true },
-      { label: "Custom Data", href: "/data-request/services" },
+      { label: "Marketplace", href: "/marketplace", prominent: true },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
-      { label: "Support", href: "/support" },
+    ],
+    dropdowns: ["resources"],
+    showSearch: false,
+    actions: [],
+  },
+
+  // Marketplace hub
+  "/marketplace": {
+    showBack: false,
+    directLinks: [
+      { label: "Home", href: "/" },
+      { label: "Datasets", href: "/datasets", prominent: true },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
+      { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
     showSearch: false,
@@ -97,13 +98,29 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Custom Data", href: "/data-request/services" },
-      { label: "Be a Supplier", href: "/supplier-resources" },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
+      { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
     showSearch: true,
     searchPlaceholder: "Search datasets...",
     actions: ["filters-badge"],
+  },
+
+  // Custom data collection services marketplace
+  "/data-request/services": {
+    showBack: false,
+    directLinks: [
+      { label: "Home", href: "/" },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
+      { label: "Strotas", href: "/strotas" },
+    ],
+    dropdowns: ["resources"],
+    showSearch: true,
+    searchPlaceholder: "Search services...",
+    actions: [],
   },
 
   // Dataset detail
@@ -173,10 +190,10 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Marketplace", href: "/datasets", prominent: true },
-      { label: "Custom Data", href: "/data-request/services" },
+      { label: "Marketplace", href: "/marketplace", prominent: true },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
-      { label: "Support", href: "/support" },
     ],
     dropdowns: ["resources"],
     showSearch: false,
@@ -188,27 +205,15 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Marketplace", href: "/datasets", prominent: true },
-      { label: "Custom Data", href: "/data-request/services" },
+      { label: "Marketplace", href: "/marketplace", prominent: true },
+      { label: "Blog", href: "/blog" },
+      { label: "Request Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
-      { label: "Support", href: "/support" },
     ],
     dropdowns: ["resources"],
     showSearch: false,
     actions: [],
     isSupplierPage: true,
-  },
-
-  // Pricing
-  "/pricing": {
-    showBack: true,
-    backUrl: "/",
-    backLabel: "Back to Home",
-    pageTitle: "Pricing",
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: ["resources"],
-    showSearch: false,
-    actions: [],
   },
 };
 
@@ -217,10 +222,10 @@ export const DEFAULT_CONFIG: NavigationConfig = {
   showBack: false,
   directLinks: [
     { label: "Home", href: "/" },
-    { label: "Marketplace", href: "/datasets", prominent: true },
-    { label: "Custom Data", href: "/data-request/services" },
+    { label: "Marketplace", href: "/marketplace", prominent: true },
+    { label: "Blog", href: "/blog" },
+    { label: "Request Data", href: "/data-request" },
     { label: "Strotas", href: "/strotas" },
-    { label: "Support", href: "/support" },
   ],
   dropdowns: ["resources"],
   showSearch: false,
