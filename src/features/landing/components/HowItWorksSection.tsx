@@ -174,10 +174,6 @@ export function HowItWorksSection() {
                 {/* Visual card */}
                 <div className={cn("relative", !isEven && "lg:col-start-1 lg:row-start-1")}>
                   <div className="relative rounded-2xl border-2 border-primary/15 dark:border-white/30 bg-gradient-to-br from-white/80 via-white/70 to-white/60 dark:from-[#1a2240]/40 dark:via-[#0f1729]/30 dark:to-[#0a0f1e]/40 p-8 overflow-hidden shadow-lg dark:shadow-xl">
-                    {/* Ghost number clipped inside the card */}
-                    <div className="absolute -bottom-4 -right-2 text-[120px] font-black leading-none select-none pointer-events-none text-primary/[0.05] dark:text-white/[0.04] tabular-nums">
-                      {step.number}
-                    </div>
                     <div className="relative space-y-4">
                       {idx === 0 && (
                         <>

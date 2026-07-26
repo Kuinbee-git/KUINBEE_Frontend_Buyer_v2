@@ -50,6 +50,7 @@ export const API_ENDPOINTS = {
 
   // Marketplace
   MARKETPLACE: {
+    SUGGESTIONS: "/api/v1/marketplace/suggestions",
     DATASETS: "/api/v1/marketplace/datasets",
     DATASET_DETAILS: (datasetId: string) =>
       `/api/v1/marketplace/datasets/${datasetId}`,

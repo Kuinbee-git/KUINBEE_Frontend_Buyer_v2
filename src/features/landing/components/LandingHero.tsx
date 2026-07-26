@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Link } from "@/components/router/Link";
-import { Button } from "@/shared/components/ui";
+import { Button, Input } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
+import { SearchSuggestionDropdown } from "@/shared/components/ui/search-suggestion-dropdown";
+import { useSearchSuggestions } from "@/hooks/api/useSearchSuggestions";
 import { TrustBadge } from "./trust-badge";
 import {
   Search,
@@ -16,6 +18,7 @@ import {
   Database,
   ArrowRight,
   Info,
+  X,
 } from "lucide-react";
 
 const searchPlaceholders = [
@@ -32,10 +35,33 @@ const searchPlaceholders = [
 export function LandingHero() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderText, setPlaceholderText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  const { data: suggestions, isLoading: suggestionsLoading } =
+    useSearchSuggestions(debouncedQuery);
+
+  const handleQueryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.value.length > 200) {
+        toast.error("Search query cannot exceed 200 characters.");
+        return;
+      }
+      setSearchQuery(e.target.value);
+      setShowSuggestions(true);
+    },
+    []
+  );
 
   // Typewriter effect for placeholder
   useEffect(() => {
@@ -80,10 +106,11 @@ export function LandingHero() {
       toast.error("Search query cannot exceed 200 characters.");
       return;
     }
+    setShowSuggestions(false);
     if (searchQuery.trim()) {
       router.push(`/datasets?q=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      router.push('/datasets');
+      router.push("/datasets");
     }
   };
 
@@ -173,44 +200,81 @@ export function LandingHero() {
           <h1 className="text-center text-4xl font-semibold leading-tight tracking-tight text-primary dark:text-white sm:text-5xl md:text-6xl lg:text-7xl">
             Governed Marketplace
             <br />
-            <span className="text-primary/70 dark:text-white/80">for All Datasets</span>
+            <span className="text-primary/70 dark:text-white/80">
+              for All Datasets
+            </span>
           </h1>
-
 
           {/* Description */}
           <p className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0">
-Find and buy datasets you can actually rely on. Every listing is reviewed, priced upfront, and ready to use — across finance, energy, environment,medicare, and more.
-
+            Find and buy datasets you can actually rely on. Every listing is
+            reviewed, priced upfront, and ready to use — across finance, energy,
+            environment,medicare, and more.
           </p>
 
           {/* Search section with inline button */}
           <div className="mt-8 md:mt-12 flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center px-4 md:px-0">
-            <form onSubmit={handleSearch} className="relative w-full max-w-2xl flex">
+            <form
+              ref={formRef}
+              onSubmit={handleSearch}
+              className="relative flex w-full max-w-2xl"
+            >
               <button
                 type="submit"
-                className="absolute left-0 top-0 bottom-0 w-12 md:w-14 flex items-center justify-center rounded-l-lg border-r border-primary/20 dark:border-white/20 bg-primary/5 dark:bg-white/5 backdrop-blur-md hover:bg-primary/10 dark:hover:bg-white/10 transition-colors z-10 group"
+                className="absolute left-0 top-0 bottom-0 z-10 flex w-12 items-center justify-center rounded-l-xl text-[#4e5a7e] transition-colors hover:text-[#1a2240] dark:text-white/60 dark:hover:text-white md:w-14"
                 aria-label="Search"
               >
-                <Search className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground dark:text-white/60 group-hover:text-primary dark:group-hover:text-white transition-colors" />
+                <Search className="size-5" aria-hidden="true" />
               </button>
-              <input
+              <Input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => {
-                  if (e.target.value.length > 200) {
-                    toast.error("Search query cannot exceed 200 characters.");
-                    return;
-                  }
-                  setSearchQuery(e.target.value);
-                }}
+                onChange={handleQueryChange}
+                onFocus={() =>
+                  searchQuery.trim().length >= 2 && setShowSuggestions(true)
+                }
                 placeholder={placeholderText}
-                className="h-12 md:h-14 w-full rounded-lg border border-primary/20 dark:border-white/20 bg-card/80 dark:bg-white/5 backdrop-blur-sm px-4 md:px-5 pl-14 md:pl-16 text-sm md:text-base text-foreground dark:text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-white/30 shadow-lg transition-all"
+                className="h-12 rounded-xl border-[#1a2240]/20 bg-white/95 pr-11 pl-14 text-base text-[#1a2240] shadow-sm backdrop-blur-md placeholder:text-sm placeholder:text-[#4e5a7e]/60 focus-visible:ring-[#1a2240]/30 dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/40 dark:focus-visible:ring-white/30 md:h-14 md:pl-16"
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     handleSearch(e);
+                  } else if (e.key === "Escape") {
+                    setShowSuggestions(false);
                   }
                 }}
+                aria-label="Search datasets and services"
+                aria-expanded={
+                  showSuggestions && debouncedQuery.trim().length >= 2
+                }
+                aria-autocomplete="list"
+                autoComplete="off"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setDebouncedQuery("");
+                    setShowSuggestions(false);
+                  }}
+                  className="absolute right-2.5 top-1/2 z-10 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-[#4e5a7e] transition-colors hover:bg-muted hover:text-foreground dark:text-white/60"
+                  aria-label="Clear search"
+                >
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              )}
+              {showSuggestions && (
+                <SearchSuggestionDropdown
+                  datasets={suggestions?.datasets ?? []}
+                  services={suggestions?.services ?? []}
+                  isLoading={
+                    suggestionsLoading ||
+                    debouncedQuery.trim() !== searchQuery.trim()
+                  }
+                  query={debouncedQuery}
+                  onClose={() => setShowSuggestions(false)}
+                />
+              )}
             </form>
             <Button
               variant="outline"
@@ -218,7 +282,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
               className="h-12 md:h-14 w-full sm:w-auto border-primary/20 dark:border-white/20 bg-transparent px-6 md:px-8 text-sm md:text-base font-medium text-primary dark:text-white hover:bg-primary/10 dark:hover:bg-white/10 whitespace-nowrap"
               asChild
             >
-              <Link href="/datasets">Browse All</Link>
+              <Link href="/marketplace">Browse All</Link>
             </Button>
             <Button
               size="lg"
@@ -232,10 +296,26 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
           {/* Trust badges section */}
           <div className="mt-12 md:mt-16">
             <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-12 gap-y-6">
-              <TrustBadge icon={ShieldCheck} label="Verified Suppliers" iconColor="text-emerald-400" />
-              <TrustBadge icon={CheckCircle2} label="Enforced Governance" iconColor="text-blue-400" />
-              <TrustBadge icon={Eye} label="Transparent Pricing" iconColor="text-amber-400" />
-              <TrustBadge icon={Database} label="Full Auditability" iconColor="text-purple-400" />
+              <TrustBadge
+                icon={ShieldCheck}
+                label="Verified Suppliers"
+                iconColor="text-emerald-400"
+              />
+              <TrustBadge
+                icon={CheckCircle2}
+                label="Enforced Governance"
+                iconColor="text-blue-400"
+              />
+              <TrustBadge
+                icon={Eye}
+                label="Transparent Pricing"
+                iconColor="text-amber-400"
+              />
+              <TrustBadge
+                icon={Database}
+                label="Full Auditability"
+                iconColor="text-purple-400"
+              />
             </div>
           </div>
         </div>
@@ -249,7 +329,12 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
             <div className="relative">
               <Info className="h-3 w-3 text-muted-foreground/50 dark:text-white/25 cursor-pointer hover:text-muted-foreground dark:hover:text-white/50 transition-colors" />
               <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 rounded-md border border-border bg-popover px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground shadow-md opacity-0 group-hover/disclaimer:opacity-100 transition-opacity duration-200 z-50 normal-case tracking-normal font-normal">
-                References to third-party organizations, government bodies, institutions, trademarks, trade names, service marks, and logos are made solely for identification and source attribution purposes. Such references do not imply any association, sponsorship, endorsement, approval, or partnership between Kuinbee and the respective entities unless expressly stated.
+                References to third-party organizations, government bodies,
+                institutions, trademarks, trade names, service marks, and logos
+                are made solely for identification and source attribution
+                purposes. Such references do not imply any association,
+                sponsorship, endorsement, approval, or partnership between
+                Kuinbee and the respective entities unless expressly stated.
               </div>
             </div>
           </div>
@@ -258,8 +343,10 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
           <div
             className="relative overflow-hidden py-2"
             style={{
-              maskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
             }}
           >
             <style>{`
@@ -280,19 +367,86 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
               {[...Array(2)].map((_, setIdx) => (
                 <div key={setIdx} className="flex items-center gap-10 pr-10">
                   {[
-                    { src: "/dcp-light.png", alt: "DCP trusted data source logo | Kuinbee", w: 55, h: 50, className: "dark:invert" },
-                    { src: "/fao-logo.svg", alt: "FAO trusted data source logo | Kuinbee", w: 90, h: 24 },
-                    { src: "/world-bank-logo.png", alt: "World Bank trusted data source logo | Kuinbee", w: 30, h: 30 },
-                    { src: "/our-world-in-data-logo.png", alt: "Our World in Data trusted data source logo | Kuinbee", w: 28, h: 28 },
-                    { src: "/data-gov_logo.webp", alt: "Data.gov trusted data source logo | Kuinbee", w: 90, h: 23 },
-                    { src: "/Eia-logomark.svg.png", alt: "EIA trusted data source logo | Kuinbee", w: 40, h: 28 },
-                    { src: "/icrisat-logo.jpeg", alt: "ICRISAT trusted data source logo | Kuinbee", w: 56, h: 30 },
-                    { src: "/opencity-logo.png", alt: "OpenCity trusted data source logo | Kuinbee", w: 82, h: 23 },
-                    { src: "/dot-logo.svg", alt: "Department of Transportation trusted data source logo | Kuinbee", w: 82, h: 33 },
-                    { src: "/mendeley-logo.svg", alt: "Mendeley trusted data source logo | Kuinbee", w: 74, h: 33 },
-                    { src: "/uci-logo.svg", alt: "UCI Machine Learning Repository trusted data source logo | Kuinbee", w: 90, h: 29 },
-                    { src: "/nhtsa-logo.svg", alt: "NHTSA trusted data source logo | Kuinbee", w: 82, h: 33 },
-                    { src: "/Dira.png", alt: "Dira Reliability trusted data source logo | Kuinbee", w: 60, h: 40, className: "dark:brightness-110" },
+                    {
+                      src: "/dcp-light.png",
+                      alt: "DCP trusted data source logo | Kuinbee",
+                      w: 55,
+                      h: 50,
+                      className: "dark:invert",
+                    },
+                    {
+                      src: "/fao-logo.svg",
+                      alt: "FAO trusted data source logo | Kuinbee",
+                      w: 90,
+                      h: 24,
+                    },
+                    {
+                      src: "/world-bank-logo.png",
+                      alt: "World Bank trusted data source logo | Kuinbee",
+                      w: 30,
+                      h: 30,
+                    },
+                    {
+                      src: "/our-world-in-data-logo.png",
+                      alt: "Our World in Data trusted data source logo | Kuinbee",
+                      w: 28,
+                      h: 28,
+                    },
+                    {
+                      src: "/data-gov_logo.webp",
+                      alt: "Data.gov trusted data source logo | Kuinbee",
+                      w: 90,
+                      h: 23,
+                    },
+                    {
+                      src: "/Eia-logomark.svg.png",
+                      alt: "EIA trusted data source logo | Kuinbee",
+                      w: 40,
+                      h: 28,
+                    },
+                    {
+                      src: "/icrisat-logo.jpeg",
+                      alt: "ICRISAT trusted data source logo | Kuinbee",
+                      w: 56,
+                      h: 30,
+                    },
+                    {
+                      src: "/opencity-logo.png",
+                      alt: "OpenCity trusted data source logo | Kuinbee",
+                      w: 82,
+                      h: 23,
+                    },
+                    {
+                      src: "/dot-logo.svg",
+                      alt: "Department of Transportation trusted data source logo | Kuinbee",
+                      w: 82,
+                      h: 33,
+                    },
+                    {
+                      src: "/mendeley-logo.svg",
+                      alt: "Mendeley trusted data source logo | Kuinbee",
+                      w: 74,
+                      h: 33,
+                    },
+                    {
+                      src: "/uci-logo.svg",
+                      alt: "UCI Machine Learning Repository trusted data source logo | Kuinbee",
+                      w: 90,
+                      h: 29,
+                    },
+                    {
+                      src: "/nhtsa-logo.svg",
+                      alt: "NHTSA trusted data source logo | Kuinbee",
+                      w: 82,
+                      h: 33,
+                    },
+                    {
+                      src: "/Dira.png",
+                      alt: "Dira Reliability trusted data source logo | Kuinbee",
+                      w: 60,
+                      h: 40,
+                      className: "dark:brightness-110",
+                    },
                     { text: "Siom Technology" },
                   ].map((logo) =>
                     "text" in logo ? (
@@ -352,7 +506,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   height={72}
                   loading="lazy"
                   className="block dark:hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 md:h-full md:max-w-none"
-                  style={{ width: 'auto' }}
+                  style={{ width: "auto" }}
                 />
                 <Image
                   src="/vaani.png"
@@ -361,7 +515,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   height={72}
                   loading="lazy"
                   className="hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-full md:max-w-none"
-                  style={{ width: 'auto' }}
+                  style={{ width: "auto" }}
                 />
               </div>
 
@@ -373,7 +527,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   height={91}
                   loading="lazy"
                   className="h-10 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-16 md:max-w-none"
-                  style={{ width: 'auto' }}
+                  style={{ width: "auto" }}
                 />
                 <Image
                   src="/policysalah-dark-tight.png"
@@ -382,7 +536,7 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
                   height={50}
                   loading="lazy"
                   className="hidden h-7 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-10 md:max-w-none"
-                  style={{ width: 'auto' }}
+                  style={{ width: "auto" }}
                 />
               </div>
             </div>
@@ -398,7 +552,6 @@ Find and buy datasets you can actually rely on. Every listing is reviewed, price
             </a>
           </div>
         </div>
-
       </div>
     </section>
   );
