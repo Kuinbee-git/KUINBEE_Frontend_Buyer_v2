@@ -1,0 +1,63 @@
+import {
+  MarketplaceOptions,
+  type MarketplaceOption,
+} from "@/features/marketplace/MarketplaceOptions";
+import { DataOpportunityShell } from "./DataOpportunityShell";
+
+const options: MarketplaceOption[] = [
+  {
+    index: "01",
+    eyebrow: "Buyer Demand",
+    title: "Active Requirements",
+    summary: "Discover current data needs from qualified buyers.",
+    description:
+      "Review open data requirements and identify opportunities that match your coverage, capabilities, and delivery model.",
+    features: [
+      "Current opportunities",
+      "Clear requirement briefs",
+      "Supplier-ready demand",
+    ],
+    href: "/data-request/active-requirements",
+    cta: "View requirements",
+  },
+  {
+    index: "02",
+    eyebrow: "Supplier Enablement",
+    title: "Be a Supplier",
+    summary: "Turn your data capabilities into marketplace opportunities.",
+    description:
+      "Learn how to join Kuinbee, prepare your datasets, and build a trusted supplier presence in the marketplace.",
+    features: [
+      "Onboarding guidance",
+      "Listing best practices",
+      "Marketplace support",
+    ],
+    href: "/supplier-resources",
+    cta: "Explore supplier resources",
+  },
+];
+
+export function DataRequestHubPage() {
+  return (
+    <DataOpportunityShell>
+      <section className="relative pb-24 pt-12 md:pt-16">
+        <div className="mx-auto max-w-5xl px-4 md:px-6">
+          <div className="mb-12 text-center md:mb-16">
+            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">
+              Sell Data
+            </p>
+            <h1 className="mb-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+              Put your data to work
+            </h1>
+            <p className="mx-auto max-w-2xl text-base text-muted-foreground md:text-lg">
+              Respond to active buyer requirements or learn how to become a
+              trusted Kuinbee supplier.
+            </p>
+          </div>
+
+          <MarketplaceOptions options={options} />
+        </div>
+      </section>
+    </DataOpportunityShell>
+  );
+}
