@@ -68,9 +68,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   "/": {
     showBack: false,
     directLinks: [
-      { label: "Marketplace", href: "/marketplace", prominent: true },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Buy Data", href: "/marketplace", prominent: true },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -84,8 +83,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     directLinks: [
       { label: "Home", href: "/" },
       { label: "Datasets", href: "/datasets", prominent: true },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -98,8 +96,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -113,8 +110,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -190,9 +186,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Marketplace", href: "/marketplace", prominent: true },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Buy Data", href: "/marketplace", prominent: true },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -205,9 +200,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Marketplace", href: "/marketplace", prominent: true },
-      { label: "Blog", href: "/blog" },
-      { label: "Request Data", href: "/data-request" },
+      { label: "Buy Data", href: "/marketplace", prominent: true },
+      { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],
     dropdowns: ["resources"],
@@ -222,9 +216,8 @@ export const DEFAULT_CONFIG: NavigationConfig = {
   showBack: false,
   directLinks: [
     { label: "Home", href: "/" },
-    { label: "Marketplace", href: "/marketplace", prominent: true },
-    { label: "Blog", href: "/blog" },
-    { label: "Request Data", href: "/data-request" },
+    { label: "Buy Data", href: "/marketplace", prominent: true },
+    { label: "Sell Data", href: "/data-request" },
     { label: "Strotas", href: "/strotas" },
   ],
   dropdowns: ["resources"],
