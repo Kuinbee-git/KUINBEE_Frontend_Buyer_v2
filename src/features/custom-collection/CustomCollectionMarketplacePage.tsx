@@ -1147,7 +1147,7 @@ function ServiceCard({ service }: { service: CustomCollectionService }) {
 function CustomRequestCallout() {
   return (
     <Link
-      href="/data-request#request-form"
+      href="/request-data#request-form"
       className="group relative overflow-hidden rounded-xl border border-[#1a2240]/15 bg-white p-6 shadow-sm transition-[border-color,box-shadow] hover:border-[#1a2240]/30 hover:shadow-md dark:border-white/10 dark:bg-[#1e2847] dark:hover:border-white/20 sm:col-span-2 xl:col-span-3"
     >
       <span className="absolute inset-y-0 left-0 w-1 bg-[#1a2240] dark:bg-white" />
@@ -1287,7 +1287,7 @@ function EmptyState({
           </button>
         )}
         <Link
-          href="/data-request#request-form"
+          href="/request-data#request-form"
           className="inline-flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors"
         >
           Request custom data
