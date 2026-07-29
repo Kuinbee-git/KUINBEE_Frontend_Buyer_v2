@@ -6,7 +6,6 @@ import { Button } from "@/shared/components/ui";
 import {
     Database,
     ArrowRight,
-    Search,
     FileText,
     BarChart3,
     GraduationCap,
@@ -91,7 +90,7 @@ export function DataRequestSection() {
                             </div>
 
                             <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
-                                Can't Find
+                                Can&apos;t Find
                                 <br />
                                 <span className="text-muted-foreground dark:text-white/70">
                                     What You Need?
@@ -124,7 +123,7 @@ export function DataRequestSection() {
                                 size="lg"
                                 className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90 px-8"
                             >
-                                <Link href="/data-request">
+                                <Link href="/request-data">
                                     <Send className="w-5 h-5 mr-2" />
                                     Submit a Request
                                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -166,13 +165,13 @@ export function DataRequestSection() {
                         {/* Inline CTA tile */}
                         <div className="sm:col-span-2 bg-gradient-to-r from-primary/5 to-primary/[0.02] dark:from-white/5 dark:to-white/[0.02] rounded-2xl border border-primary/20 dark:border-white/10 p-5 flex items-center justify-between gap-4">
                             <p className="text-sm font-medium text-primary dark:text-white">
-                                Don't see your use case?{" "}
+                                Don&apos;t see your use case?{" "}
                                 <span className="text-muted-foreground dark:text-white/60 font-normal">
                                     We source data across any industry or geography.
                                 </span>
                             </p>
                             <Link
-                                href="/data-request"
+                                href="/request-data"
                                 className="flex-shrink-0 text-sm font-medium text-primary dark:text-white flex items-center gap-1 hover:gap-2 transition-all"
                             >
                                 Request now <ArrowRight className="w-3.5 h-3.5" />

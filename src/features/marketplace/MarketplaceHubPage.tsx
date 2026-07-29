@@ -9,7 +9,7 @@ import { MarketplaceOptions } from "./MarketplaceOptions";
 const LandingFooter = lazy(() =>
   import("@/features/landing/components/LandingFooter").then((mod) => ({
     default: mod.LandingFooter,
-  })),
+  }))
 );
 
 export function MarketplaceHubPage() {
@@ -44,7 +44,7 @@ export function MarketplaceHubPage() {
             <p className="text-sm text-muted-foreground">
               Not sure what you need?{" "}
               <Link
-                href="/data-request"
+                href="/request-data"
                 className="font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-2"
               >
                 Send us a brief

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/shared/utils/cn";
 
-type Option = {
+export type MarketplaceOption = {
   index: string;
   eyebrow: string;
   title: string;
@@ -15,7 +15,7 @@ type Option = {
   cta: string;
 };
 
-const options: Option[] = [
+const marketplaceOptions: MarketplaceOption[] = [
   {
     index: "01",
     eyebrow: "OTS Datasets",
@@ -46,7 +46,7 @@ function OptionCard({
   option,
   revealOnHover,
 }: {
-  option: Option;
+  option: MarketplaceOption;
   revealOnHover: boolean;
 }) {
   const cardRef = useRef<HTMLAnchorElement>(null);
@@ -60,14 +60,14 @@ function OptionCard({
       const rect = card.getBoundingClientRect();
       card.style.setProperty(
         "--px",
-        `${((event.clientX - rect.left) / rect.width) * 100}%`,
+        `${((event.clientX - rect.left) / rect.width) * 100}%`
       );
       card.style.setProperty(
         "--py",
-        `${((event.clientY - rect.top) / rect.height) * 100}%`,
+        `${((event.clientY - rect.top) / rect.height) * 100}%`
       );
     },
-    [],
+    []
   );
 
   return (
@@ -81,8 +81,7 @@ function OptionCard({
       onBlur={() => setHovered(false)}
       style={{
         transitionTimingFunction: EASE,
-        transform:
-          open && revealOnHover ? "translateY(-3px)" : "translateY(0)",
+        transform: open && revealOnHover ? "translateY(-3px)" : "translateY(0)",
       }}
       className={cn(
         "group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-7 outline-none",
@@ -94,7 +93,7 @@ function OptionCard({
         "md:h-[28.5rem] md:p-9",
         open
           ? "border-primary/30 dark:border-white/30 shadow-[0_1px_2px_-1px_rgb(0_0_0/0.2),0_18px_36px_-20px_rgb(0_0_0/0.5)] dark:shadow-[0_20px_40px_-26px_rgb(0_0_0/0.7)]"
-          : "border-primary/15 dark:border-white/10 shadow-none",
+          : "border-primary/15 dark:border-white/10 shadow-none"
       )}
     >
       {/* cursor-following wash — light mode (blue tint) */}
@@ -122,7 +121,7 @@ function OptionCard({
         className={cn(
           "absolute inset-x-0 top-0 h-px origin-left transition-transform duration-700",
           "bg-[#2b61eb]/50 dark:bg-white/40",
-          open ? "scale-x-100" : "scale-x-0",
+          open ? "scale-x-100" : "scale-x-0"
         )}
         style={{ transitionTimingFunction: EASE }}
       />
@@ -131,7 +130,7 @@ function OptionCard({
         <p
           className={cn(
             "text-[0.8rem] font-semibold uppercase tracking-[0.16em] transition-colors duration-500",
-            open ? "text-[#e2e8f0]/90" : "text-[#e2e8f0]/55",
+            open ? "text-[#e2e8f0]/90" : "text-[#e2e8f0]/55"
           )}
         >
           {option.eyebrow}
@@ -141,7 +140,7 @@ function OptionCard({
             "font-mono text-[0.8rem] transition-all duration-500",
             open
               ? "tracking-[0.22em] text-[#e2e8f0]/75"
-              : "tracking-normal text-[#e2e8f0]/45",
+              : "tracking-normal text-[#e2e8f0]/45"
           )}
           style={{ transitionTimingFunction: EASE }}
         >
@@ -214,12 +213,15 @@ function OptionCard({
             aria-hidden="true"
             className={cn(
               "absolute -bottom-0.5 left-0 h-px w-full origin-left bg-current transition-transform duration-500",
-              open ? "scale-x-100" : "scale-x-0",
+              open ? "scale-x-100" : "scale-x-0"
             )}
             style={{ transitionTimingFunction: EASE }}
           />
         </span>
-        <span aria-hidden="true" className="relative block h-4 w-4 overflow-hidden">
+        <span
+          aria-hidden="true"
+          className="relative block h-4 w-4 overflow-hidden"
+        >
           <span
             className="absolute inset-0 flex items-center justify-center transition-transform duration-500 motion-reduce:transform-none"
             style={{
@@ -244,12 +246,16 @@ function OptionCard({
   );
 }
 
-export function MarketplaceOptions() {
+export function MarketplaceOptions({
+  options = marketplaceOptions,
+}: {
+  options?: MarketplaceOption[];
+}) {
   const [revealOnHover, setRevealOnHover] = useState(true);
 
   useEffect(() => {
     const query = window.matchMedia(
-      "(min-width: 768px) and (not (pointer: coarse))",
+      "(min-width: 768px) and (not (pointer: coarse))"
     );
     const sync = () => setRevealOnHover(query.matches);
     sync();
