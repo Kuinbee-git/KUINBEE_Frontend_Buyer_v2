@@ -82,7 +82,6 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     showBack: false,
     directLinks: [
       { label: "Home", href: "/" },
-      { label: "Datasets", href: "/datasets", prominent: true },
       { label: "Sell Data", href: "/data-request" },
       { label: "Strotas", href: "/strotas" },
     ],

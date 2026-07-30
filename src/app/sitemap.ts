@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 import { blogPostsMeta } from "@/features/blog/blog-posts";
-import { activeRequirements } from "@/features/active-requirements/active-requirements.data";
+import { listPublicDataRequirements } from "@/services/public-data-requirement.service";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Primary canonical domain for public marketing routes
@@ -89,6 +89,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/data-request/submit-requirement`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/request-data`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -127,14 +133,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const requirementPages: MetadataRoute.Sitemap = activeRequirements.map(
-    (requirement) => ({
-      url: `${baseUrl}/data-request/active-requirements/${requirement.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    })
-  );
+  const requirementPages: MetadataRoute.Sitemap = [];
+  try {
+    let page = 1;
+    let total = 0;
+    do {
+      const result = await listPublicDataRequirements({ page, pageSize: 48 });
+      total = result.total;
+      requirementPages.push(
+        ...result.items.map((requirement) => ({
+          url: `${baseUrl}/data-request/active-requirements/${requirement.slug}`,
+          lastModified: new Date(requirement.publishedAt),
+          changeFrequency: "weekly" as const,
+          priority: 0.6,
+        }))
+      );
+      page += 1;
+    } while (requirementPages.length < total && page <= 20);
+  } catch (error) {
+    console.error("Failed to fetch data requirements for sitemap:", error);
+  }
 
   // Fetch dynamic dataset pages
   try {
