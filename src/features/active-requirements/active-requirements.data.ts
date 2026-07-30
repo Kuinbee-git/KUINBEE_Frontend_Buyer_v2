@@ -150,7 +150,7 @@ export const activeRequirements: ActiveRequirement[] = [
       "Full sublicensing rights must be granted for all provided media",
     ],
     volume: [
-      "Short videos: 150 bundles, with 30,000 video files per bundle",
+      "Short videos: 150 bundles, with 3000 video files per bundle",
       "Images: 300 bundles, with 3,000 images per bundle",
     ],
   },
