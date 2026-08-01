@@ -1,4 +1,4 @@
-import { BookOpen, Info, Briefcase, LifeBuoy, Users } from "lucide-react";
+import { BookOpen, Info, Briefcase, LifeBuoy, Users, Database } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
@@ -31,6 +31,12 @@ export interface NavigationConfig {
 
 export const resources: NavItem[] = [
   {
+    name: "Request Data",
+    href: "/request-data",
+    icon: Database,
+    description: "Request a custom dataset from Kuinbee",
+  },
+  {
     name: "Support",
     href: "/support",
     icon: LifeBuoy,
@@ -62,16 +68,26 @@ export const resources: NavItem[] = [
   },
 ];
 
+// Consistent nav links across all pages
+const HOME_LINKS: NavigationConfig["directLinks"] = [
+  { label: "Buy Data", href: "/marketplace", prominent: true },
+  { label: "Sell Data", href: "/data-request" },
+  { label: "Strotas", href: "/strotas" },
+];
+
+const NON_HOME_LINKS: NavigationConfig["directLinks"] = [
+  { label: "Home", href: "/" },
+  { label: "Buy Data", href: "/marketplace", prominent: true },
+  { label: "Sell Data", href: "/data-request" },
+  { label: "Strotas", href: "/strotas" },
+];
+
 // Route-based navigation configurations
 export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Landing page
   "/": {
     showBack: false,
-    directLinks: [
-      { label: "Buy Data", href: "/marketplace", prominent: true },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: false,
     actions: [],
@@ -80,11 +96,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Marketplace hub
   "/marketplace": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: NON_HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: false,
     actions: [],
@@ -93,11 +105,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Datasets marketplace
   "/datasets": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: NON_HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: true,
     searchPlaceholder: "Search datasets...",
@@ -107,11 +115,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Custom data collection services marketplace
   "/data-request/services": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: NON_HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: true,
     searchPlaceholder: "Search services...",
@@ -125,8 +129,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     backUrl: "/datasets",
     backLabel: "Back to Marketplace",
     showBreadcrumb: true,
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: [],
+    directLinks: NON_HOME_LINKS,
+    dropdowns: ["resources"],
     showSearch: false,
     actions: ["wishlist"],
   },
@@ -137,8 +141,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     backUrl: "/",
     backLabel: "Back to Home",
     pageTitle: "Account Settings",
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: [],
+    directLinks: NON_HOME_LINKS,
+    dropdowns: ["resources"],
     showSearch: false,
     actions: [],
   },
@@ -149,8 +153,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     backUrl: "/",
     backLabel: "Back to Home",
     pageTitle: "My Orders",
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: [],
+    directLinks: NON_HOME_LINKS,
+    dropdowns: ["resources"],
     showSearch: false,
     actions: ["filters-badge", "export"],
   },
@@ -161,8 +165,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     backUrl: "/",
     backLabel: "Back to Home",
     pageTitle: "My Library",
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: ["sort"],
+    directLinks: NON_HOME_LINKS,
+    dropdowns: ["resources", "sort"],
     showSearch: true,
     searchPlaceholder: "Search my datasets...",
     actions: ["view-toggle"],
@@ -174,8 +178,8 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
     backUrl: "/",
     backLabel: "Back to Home",
     pageTitle: "Wishlist",
-    directLinks: [{ label: "Home", href: "/" }],
-    dropdowns: [],
+    directLinks: NON_HOME_LINKS,
+    dropdowns: ["resources"],
     showSearch: false,
     actions: [],
   },
@@ -183,12 +187,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Support
   "/support": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-      { label: "Buy Data", href: "/marketplace", prominent: true },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: NON_HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: false,
     actions: [],
@@ -197,12 +196,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   // Supplier Resources
   "/supplier-resources": {
     showBack: false,
-    directLinks: [
-      { label: "Home", href: "/" },
-      { label: "Buy Data", href: "/marketplace", prominent: true },
-      { label: "Sell Data", href: "/data-request" },
-      { label: "Strotas", href: "/strotas" },
-    ],
+    directLinks: NON_HOME_LINKS,
     dropdowns: ["resources"],
     showSearch: false,
     actions: [],
@@ -210,15 +204,10 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
   },
 };
 
-// Default fallback config
+// Default fallback config (any non-home page without explicit config)
 export const DEFAULT_CONFIG: NavigationConfig = {
   showBack: false,
-  directLinks: [
-    { label: "Home", href: "/" },
-    { label: "Buy Data", href: "/marketplace", prominent: true },
-    { label: "Sell Data", href: "/data-request" },
-    { label: "Strotas", href: "/strotas" },
-  ],
+  directLinks: NON_HOME_LINKS,
   dropdowns: ["resources"],
   showSearch: false,
   actions: [],
