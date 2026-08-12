@@ -35,21 +35,6 @@ const options: MarketplaceOption[] = [
     href: "/data-request/submit-requirement",
     cta: "Submit requirement",
   },
-  {
-    index: "03",
-    eyebrow: "Supplier Enablement",
-    title: "Be a Supplier",
-    summary: "Turn your data capabilities into marketplace opportunities.",
-    description:
-      "Learn how to join Kuinbee, prepare your datasets, and build a trusted supplier presence in the marketplace.",
-    features: [
-      "Onboarding guidance",
-      "Listing best practices",
-      "Marketplace support",
-    ],
-    href: "/supplier-resources",
-    cta: "Explore supplier resources",
-  },
 ];
 
 export function DataRequestHubPage() {
@@ -65,8 +50,8 @@ export function DataRequestHubPage() {
               Put your data to work
             </h1>
             <p className="mx-auto max-w-2xl text-base text-muted-foreground md:text-lg">
-              Respond to active buyer requirements or learn how to become a
-              trusted Kuinbee supplier.
+              Review active buyer requirements or submit a data need for the
+              marketplace.
             </p>
           </div>
 
