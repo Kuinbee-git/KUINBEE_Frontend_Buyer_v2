@@ -568,7 +568,7 @@ function PageFrame({ children }: { children: React.ReactNode }) {
       <div className="sticky top-0 z-50">
         <LandingHeader />
       </div>
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 pt-16 sm:pt-20">{children}</div>
       <div className="relative z-10">
         <LandingFooter />
       </div>
