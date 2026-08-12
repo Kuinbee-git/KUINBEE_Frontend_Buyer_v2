@@ -44,7 +44,7 @@ export function MarketplaceHubPage() {
             <p className="text-sm text-muted-foreground">
               Not sure what you need?{" "}
               <Link
-                href="/request-data"
+                href="/data-request/submit-requirement"
                 className="font-medium text-primary hover:text-primary/80 transition-colors underline underline-offset-2"
               >
                 Send us a brief

@@ -733,7 +733,7 @@ export function DatasetDiscoveryV2() {
                   Let our sourcing experts find it for you.
                 </p>
                 <Link
-                  href="/request-data"
+                  href="/data-request/submit-requirement"
                   className="inline-flex items-center gap-1.5 flex-none rounded-md bg-white px-3.5 py-1 text-sm font-semibold text-[#2b61eb] shadow-sm hover:bg-blue-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:bg-white/[0.04] dark:backdrop-blur-md dark:border dark:border-white/10 dark:text-white/90 dark:hover:bg-white/[0.08] dark:hover:border-white/20"
                 >
                   <span>Submit Request</span>
@@ -943,7 +943,7 @@ export function DatasetDiscoveryV2() {
                           Browse services
                         </Link>
                         <Link
-                          href="/request-data#request-form"
+                          href="/data-request/submit-requirement"
                           className="inline-flex items-center justify-center gap-2 h-9 px-4 text-sm font-medium rounded-lg bg-[#1a2240] dark:bg-white text-white dark:text-[#1a2240] hover:bg-[#1a2240]/90 dark:hover:bg-white/90 transition-colors"
                         >
                           Submit a brief

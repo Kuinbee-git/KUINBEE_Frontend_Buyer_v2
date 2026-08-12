@@ -32,7 +32,7 @@ export interface NavigationConfig {
 export const resources: NavItem[] = [
   {
     name: "Request Data",
-    href: "/request-data",
+    href: "/data-request/submit-requirement",
     icon: Database,
     description: "Request a custom dataset from Kuinbee",
   },

@@ -123,7 +123,7 @@ export function DataRequestSection() {
                                 size="lg"
                                 className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90 px-8"
                             >
-                                <Link href="/request-data">
+                                <Link href="/data-request/submit-requirement">
                                     <Send className="w-5 h-5 mr-2" />
                                     Submit a Request
                                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -171,7 +171,7 @@ export function DataRequestSection() {
                                 </span>
                             </p>
                             <Link
-                                href="/request-data"
+                                href="/data-request/submit-requirement"
                                 className="flex-shrink-0 text-sm font-medium text-primary dark:text-white flex items-center gap-1 hover:gap-2 transition-all"
                             >
                                 Request now <ArrowRight className="w-3.5 h-3.5" />

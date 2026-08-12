@@ -6,7 +6,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 export function DataOpportunityShell({ children }: { children: ReactNode }) {
   return (
     <main className="relative min-h-screen">
-      <div className="sticky top-0 z-50 h-16 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
+      <div className="sticky top-0 z-50">
         <NotchNavigation lite />
       </div>
 

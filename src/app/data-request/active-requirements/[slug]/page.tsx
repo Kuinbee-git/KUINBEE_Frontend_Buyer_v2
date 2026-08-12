@@ -12,27 +12,21 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { generateMetadata as genMeta } from "@/core/config";
-import {
-  activeRequirements,
-  getActiveRequirement,
-} from "@/features/active-requirements/active-requirements.data";
 import { DataOpportunityShell } from "@/features/data-request/DataOpportunityShell";
+import { getPublicDataRequirement } from "@/services/public-data-requirement.service";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return activeRequirements.map((requirement) => ({
-    slug: requirement.slug,
-  }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const requirement = getActiveRequirement(slug);
-
-  if (!requirement) return {};
+  let requirement;
+  try {
+    requirement = await getPublicDataRequirement(slug);
+  } catch {
+    return {};
+  }
 
   return genMeta({
     title: `${requirement.title} | Active Requirement`,
@@ -40,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: [
       "active data requirement",
       "supplier opportunity",
-      requirement.type,
+      requirement.dataType,
       requirement.title,
     ],
     path: `/data-request/active-requirements/${requirement.slug}`,
@@ -49,13 +43,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ActiveRequirementDetailPage({ params }: Props) {
   const { slug } = await params;
-  const requirement = getActiveRequirement(slug);
-
-  if (!requirement) notFound();
+  let requirement;
+  try {
+    requirement = await getPublicDataRequirement(slug);
+  } catch {
+    notFound();
+  }
 
   return (
     <DataOpportunityShell>
-      <section className="relative px-4 pb-24 pt-8 sm:px-6 md:pt-12">
+      <section className="relative px-4 pb-24 pt-24 sm:px-6 md:pt-28">
         <div className="mx-auto max-w-4xl">
           <Link
             href="/data-request/active-requirements"
@@ -73,7 +70,7 @@ export default async function ActiveRequirementDetailPage({ params }: Props) {
                   Active
                 </span>
                 <span className="font-mono text-xs tracking-[0.14em] text-muted-foreground">
-                  {requirement.id}
+                  {requirement.referenceCode}
                 </span>
               </div>
 
@@ -87,19 +84,26 @@ export default async function ActiveRequirementDetailPage({ params }: Props) {
 
             <dl className="grid border-y border-border/70 bg-muted/20 sm:grid-cols-3 sm:divide-x sm:divide-x-border/70">
               <OverviewItem icon={Database} label="Data type">
-                {requirement.type}
+                {requirement.dataType}
               </OverviewItem>
               <OverviewItem icon={PackageOpen} label="Volume">
-                {requirement.volume?.map((volume) => (
+                {requirement.volume.map((volume) => (
                   <span key={volume} className="block">
                     {volume}
                   </span>
-                )) ?? (
+                ))}
+                {!requirement.volume.length ? (
                   <span className="text-muted-foreground">Not specified</span>
-                )}
+                ) : null}
               </OverviewItem>
               <OverviewItem icon={CalendarDays} label="Delivery date">
-                {requirement.deliveryDate ?? (
+                {requirement.deliveryDate ? (
+                  new Intl.DateTimeFormat("en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  }).format(new Date(requirement.deliveryDate))
+                ) : (
                   <span className="text-muted-foreground">Not specified</span>
                 )}
               </OverviewItem>
@@ -126,14 +130,14 @@ export default async function ActiveRequirementDetailPage({ params }: Props) {
                 </ul>
               </section>
 
-              {requirement.typeDetails && (
+              {requirement.coverage.length > 0 && (
                 <section className="py-8 sm:py-10">
                   <SectionHeading
                     eyebrow="Coverage"
                     title="Required coverage"
                   />
                   <ul className="mt-6 grid gap-x-8 gap-y-3 sm:grid-cols-2">
-                    {requirement.typeDetails.map((detail) => (
+                    {requirement.coverage.map((detail) => (
                       <li
                         key={detail}
                         className="flex items-start gap-3 text-sm leading-6 text-muted-foreground"

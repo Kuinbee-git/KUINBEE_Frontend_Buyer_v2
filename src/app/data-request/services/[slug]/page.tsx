@@ -35,6 +35,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Textarea } from "@/shared/components/ui/textarea";
 import type { ApiError, GuestCustomCollectionLeadInput } from "@/types";
 import {
+  customCollectionCoverUrl,
   missingFieldLabel,
   withOther,
 } from "@/features/custom-collection/customCollection.utils";
@@ -133,7 +134,7 @@ export default function CustomCollectionServicePage({
               <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border bg-muted shadow-sm">
                 {r.coverImage ? (
                   <Image
-                    src={r.coverImage.url}
+                    src={customCollectionCoverUrl(r.coverImage.url)}
                     alt={`${r.title} cover`}
                     fill
                     priority

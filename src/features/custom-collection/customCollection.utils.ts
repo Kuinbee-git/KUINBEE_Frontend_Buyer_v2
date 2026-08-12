@@ -93,3 +93,10 @@ export const missingFieldLabel = (field: string) =>
     phone: "phone number",
     organization: "organization",
   })[field] ?? optionLabel(field);
+
+/**
+ * The API normally returns a CDN URL. During asset-CDN cutover it can return
+ * a storage key instead; resolve that key from the public frontend root.
+ */
+export const customCollectionCoverUrl = (url: string) =>
+  /^(https?:)?\/\//.test(url) || url.startsWith("/") ? url : `/${url}`;

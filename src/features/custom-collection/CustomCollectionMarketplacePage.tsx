@@ -25,6 +25,7 @@ import {
   GEOGRAPHIES,
   INDUSTRIES,
   LANGUAGES,
+  customCollectionCoverUrl,
   optionLabel,
 } from "@/features/custom-collection/customCollection.utils";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -1057,7 +1058,7 @@ function ServiceCard({ service }: { service: CustomCollectionService }) {
       <div className="relative aspect-[16/10] overflow-hidden border-b border-border/40 dark:border-white/10 bg-muted/50">
         {revision.coverImage ? (
           <Image
-            src={revision.coverImage.url}
+            src={customCollectionCoverUrl(revision.coverImage.url)}
             alt={`${revision.title} service cover`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -1077,13 +1078,10 @@ function ServiceCard({ service }: { service: CustomCollectionService }) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center justify-between gap-3">
+        <div>
           <p className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-[#1a2240]/60 dark:text-white/60">
             {revision.primaryCategory.name}
           </p>
-          <span className="shrink-0 text-[11px] text-[#4e5a7e] dark:text-white/50">
-            v{revision.version}
-          </span>
         </div>
         <h2 className="mt-2 line-clamp-2 text-lg font-semibold leading-snug tracking-tight text-[#1a2240] dark:text-white transition-colors group-hover:text-[#2b61eb] dark:group-hover:text-white/90">
           {revision.title}
@@ -1147,7 +1145,7 @@ function ServiceCard({ service }: { service: CustomCollectionService }) {
 function CustomRequestCallout() {
   return (
     <Link
-      href="/request-data#request-form"
+      href="/data-request/submit-requirement"
       className="group relative overflow-hidden rounded-xl border border-[#1a2240]/15 bg-white p-6 shadow-sm transition-[border-color,box-shadow] hover:border-[#1a2240]/30 hover:shadow-md dark:border-white/10 dark:bg-[#1e2847] dark:hover:border-white/20 sm:col-span-2 xl:col-span-3"
     >
       <span className="absolute inset-y-0 left-0 w-1 bg-[#1a2240] dark:bg-white" />
@@ -1287,7 +1285,7 @@ function EmptyState({
           </button>
         )}
         <Link
-          href="/request-data#request-form"
+          href="/data-request/submit-requirement"
           className="inline-flex items-center gap-1.5 h-8 px-3 text-sm font-medium rounded-lg border border-[#1a2240]/20 dark:border-white/20 bg-white/95 dark:bg-white/10 text-[#1a2240] dark:text-white hover:bg-[#1a2240]/5 dark:hover:bg-white/20 transition-colors"
         >
           Request custom data

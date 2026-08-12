@@ -22,6 +22,21 @@ const options: MarketplaceOption[] = [
   },
   {
     index: "02",
+    eyebrow: "Submit Data Need",
+    title: "Submit a Requirement",
+    summary: "Tell us exactly what data you need.",
+    description:
+      "Describe your data requirement and let our marketplace match you with qualified suppliers who can deliver.",
+    features: [
+      "Structured submission",
+      "Supplier matching",
+      "Progress tracking",
+    ],
+    href: "/data-request/submit-requirement",
+    cta: "Submit requirement",
+  },
+  {
+    index: "03",
     eyebrow: "Supplier Enablement",
     title: "Be a Supplier",
     summary: "Turn your data capabilities into marketplace opportunities.",
@@ -40,7 +55,7 @@ const options: MarketplaceOption[] = [
 export function DataRequestHubPage() {
   return (
     <DataOpportunityShell>
-      <section className="relative pb-24 pt-12 md:pt-16">
+      <section className="relative pb-24 pt-24 md:pt-32">
         <div className="mx-auto max-w-5xl px-4 md:px-6">
           <div className="mb-12 text-center md:mb-16">
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import type { CustomCollectionService } from "@/types/custom-collection.types";
+import { customCollectionCoverUrl } from "@/features/custom-collection/customCollection.utils";
 import { DataRequestSectionHeading } from "./DataRequestSectionHeading";
 
 const featuredServicesQuery = {
@@ -110,7 +111,7 @@ function ServiceCard({
         <div className="relative aspect-[16/9] overflow-hidden bg-primary/[0.06] dark:bg-white/[0.06]">
           {revision.coverImage ? (
             <Image
-              src={revision.coverImage.url}
+              src={customCollectionCoverUrl(revision.coverImage.url)}
               alt=""
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

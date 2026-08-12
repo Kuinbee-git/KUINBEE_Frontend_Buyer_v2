@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, PackageOpen } from "lucide-react";
-import type { ActiveRequirement } from "./active-requirements.data";
-import { RequirementIcon } from "./RequirementIcon";
+import { ArrowUpRight, CalendarDays, Database, PackageOpen } from "lucide-react";
+import type { MarketplaceDataRequirement } from "@/types/data-requirement.types";
 
 export function ActiveRequirementCard({
   requirement,
 }: {
-  requirement: ActiveRequirement;
+  requirement: MarketplaceDataRequirement;
 }) {
   return (
     <Link
@@ -25,17 +24,17 @@ export function ActiveRequirementCard({
           Active
         </span>
         <span className="font-mono text-xs tracking-[0.14em] text-muted-foreground">
-          {requirement.id}
+          {requirement.referenceCode}
         </span>
       </div>
 
       <span className="mt-7 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/[0.08] text-primary transition-transform duration-300 group-hover:scale-105 dark:bg-white/[0.08] dark:text-white">
-        <RequirementIcon kind={requirement.kind} className="h-5 w-5" />
+        <Database className="h-5 w-5" aria-hidden="true" />
       </span>
 
       <div className="mt-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary/70 dark:text-white/55">
-          {requirement.type}
+          {requirement.dataType}
         </p>
         <h2 className="mt-2 text-xl font-semibold leading-snug tracking-tight text-foreground">
           {requirement.title}
@@ -51,12 +50,18 @@ export function ActiveRequirementCard({
             className="mt-0.5 h-3.5 w-3.5 shrink-0"
             aria-hidden="true"
           />
-          <span>{requirement.volume?.[0] ?? "Volume not specified"}</span>
+          <span>{requirement.volume[0] ?? "Volume not specified"}</span>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span>
-            {requirement.deliveryDate ?? "Delivery date not specified"}
+            {requirement.deliveryDate
+              ? new Intl.DateTimeFormat("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }).format(new Date(requirement.deliveryDate))
+              : "Delivery date not specified"}
           </span>
         </div>
       </div>

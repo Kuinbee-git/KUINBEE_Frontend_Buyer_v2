@@ -90,7 +90,7 @@ export default async function ActiveRequirementsPage({ searchParams }: Props) {
             </p>
             <div className="flex flex-wrap items-center justify-end gap-3">
               <Link
-                href="/request-data#request-form"
+                href="/data-request/submit-requirement"
                 className="text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-600 dark:text-emerald-400"
               >
                 Submit a requirement
