@@ -30,12 +30,12 @@ export function CategoryCard({
   sellHref,
 }: CategoryCardProps) {
   return (
-    <article className="group relative isolate flex min-h-[42rem] overflow-hidden rounded-[1.75rem] border border-black/[0.11] bg-white/70 text-[#17191d] shadow-[0_28px_70px_-50px_rgba(15,23,42,0.5)] backdrop-blur-xl transition-[border-color,box-shadow,transform] duration-500 hover:-translate-y-1 hover:border-black/[0.18] hover:shadow-[0_34px_80px_-48px_rgba(15,23,42,0.58)] dark:border-white/[0.12] dark:bg-[#071426]/70 dark:text-white dark:hover:border-white/[0.2] sm:min-h-[46rem] md:min-h-[40rem] lg:min-h-[45rem]">
+    <article className="group relative isolate flex min-h-[42rem] overflow-hidden rounded-[1.75rem] border border-black/[0.11] bg-white/70 text-[#17191d] shadow-[0_28px_70px_-50px_rgba(15,23,42,0.5)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-black/[0.18] hover:shadow-[0_34px_80px_-48px_rgba(15,23,42,0.58)] dark:border-white/[0.12] dark:bg-[#071426]/70 dark:text-white dark:hover:border-white/[0.2] motion-reduce:transform-none motion-reduce:transition-none sm:min-h-[46rem] md:min-h-[40rem] lg:min-h-[45rem]">
       <Image
         src={imageLight}
         alt={imageAlt}
         fill
-        className="-z-20 object-cover object-top opacity-90 mix-blend-multiply transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-100 group-focus-within:scale-[1.015] dark:hidden motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
+        className="-z-20 object-cover object-top opacity-90 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.03] dark:hidden motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
         sizes="(min-width: 768px) 33vw, 100vw"
         quality={88}
       />
@@ -44,7 +44,7 @@ export function CategoryCard({
         src={imageDark}
         alt={imageAlt}
         fill
-        className="-z-20 hidden object-cover object-top opacity-80 transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-95 group-focus-within:scale-[1.015] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
+        className="-z-20 hidden object-cover object-top opacity-80 transition-transform duration-500 group-hover:scale-[1.03] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
         sizes="(min-width: 768px) 33vw, 100vw"
         quality={88}
       />
