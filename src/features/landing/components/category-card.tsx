@@ -1,96 +1,141 @@
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+
 import { Link } from "@/components/router/Link";
-import { LucideIcon } from "lucide-react";
-import { ArrowRight } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
 
 interface CategoryCardProps {
+  index: string;
   name: string;
+  eyebrow: string;
   description: string;
-  icon: LucideIcon;
-  datasets: string;
-  href: string;
-  comingSoon?: boolean;
-  className?: string;
+  imageLight: string;
+  imageDark: string;
+  imageAlt: string;
+  buyHref: string;
+  sellHref: string;
 }
 
 /**
- * Category card for data registry organization
- * Used in DataCategories section
+ * Full-bleed editorial panel used in the landing-page category index.
  */
 export function CategoryCard({
+  index,
   name,
+  eyebrow,
   description,
-  icon: Icon,
-  datasets,
-  href,
-  comingSoon = false,
-  className,
+  imageLight,
+  imageDark,
+  imageAlt,
+  buyHref,
+  sellHref,
 }: CategoryCardProps) {
-  const content = (
-    <>
-      {/* Dataset count badge */}
-      <div className="absolute top-6 right-6">
-        <span
-          className={`text-sm font-medium ${
-            comingSoon ? "text-muted-foreground" : "text-white"
-          }`}
-        >
-          {datasets}
-        </span>
-      </div>
-
-      {/* Icon */}
-      <div
-        className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${
-          comingSoon
-            ? "bg-muted/50 ring-1 ring-primary/10 dark:ring-white/10"
-            : "bg-white/20 ring-1 ring-white/30"
-        }`}
-      >
-        <Icon
-          className={`h-6 w-6 ${
-            comingSoon ? "text-muted-foreground" : "text-white"
-          }`}
-        />
-      </div>
-
-      {/* Content */}
-      <h3
-        className={`text-xl font-medium ${
-          comingSoon ? "text-foreground/60" : "text-white"
-        }`}
-      >
-        {name}
-      </h3>
-      <p
-        className={`mt-2 text-sm leading-relaxed ${
-          comingSoon ? "text-muted-foreground/70" : "text-white/80"
-        }`}
-      >
-        {description}
-      </p>
-
-      {/* Arrow */}
-      {!comingSoon && (
-        <div className="mt-4 flex items-center gap-1 text-sm text-white/80 transition-all group-hover:text-white group-hover:gap-2">
-          <span>View Category</span>
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-        </div>
-      )}
-    </>
-  );
-
-  const baseClassName = cn(
-    "group relative overflow-hidden rounded-lg transition-all p-6",
-    comingSoon
-      ? "pointer-events-none border border-dashed border-primary/20 dark:border-white/20 bg-gradient-to-br from-muted/40 to-muted/20 dark:from-white/5 dark:to-white/[0.02] backdrop-blur-sm"
-      : "border border-primary/30 dark:border-white/30 bg-gradient-to-br from-[#1a2240]/95 via-[#242f52]/90 to-[#2d3a5f]/95 dark:from-white/15 dark:via-white/10 dark:to-white/5 backdrop-blur-xl hover:shadow-xl hover:scale-[1.02]",
-    className
-  );
-
   return (
-    <Link href={href} className={baseClassName}>
-      {content}
-    </Link>
+    <article className="group relative isolate flex min-h-[42rem] overflow-hidden rounded-[1.75rem] border border-black/[0.11] bg-white/70 text-[#17191d] shadow-[0_28px_70px_-50px_rgba(15,23,42,0.5)] backdrop-blur-xl transition-[border-color,box-shadow,transform] duration-500 hover:-translate-y-1 hover:border-black/[0.18] hover:shadow-[0_34px_80px_-48px_rgba(15,23,42,0.58)] dark:border-white/[0.12] dark:bg-[#071426]/70 dark:text-white dark:hover:border-white/[0.2] sm:min-h-[46rem] md:min-h-[40rem] lg:min-h-[45rem]">
+      <Image
+        src={imageLight}
+        alt={imageAlt}
+        fill
+        className="-z-20 object-cover object-top opacity-90 mix-blend-multiply transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-100 group-focus-within:scale-[1.015] dark:hidden motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
+        sizes="(min-width: 768px) 33vw, 100vw"
+        quality={88}
+      />
+
+      <Image
+        src={imageDark}
+        alt={imageAlt}
+        fill
+        className="-z-20 hidden object-cover object-top opacity-80 transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.025] group-hover:opacity-95 group-focus-within:scale-[1.015] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
+        sizes="(min-width: 768px) 33vw, 100vw"
+        quality={88}
+      />
+
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 dark:hidden"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 34%, rgba(248,249,250,0.74) 60%, rgba(248,249,250,0.9) 77%, rgba(248,249,250,0.92) 100%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 hidden dark:block"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(7,20,38,0.02) 0%, rgba(7,20,38,0.08) 34%, rgba(7,20,38,0.78) 61%, rgba(7,20,38,0.9) 77%, rgba(7,20,38,0.92) 100%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="flex min-h-full w-full flex-1 flex-col">
+        <div className="flex items-center gap-3 px-6 pt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/[0.65] md:px-5 lg:px-7 lg:pt-7">
+          <span className="tabular-nums text-white">
+            {index}
+          </span>
+          <span className="h-px w-7 shrink-0 bg-white/45" />
+          <span>{eyebrow}</span>
+        </div>
+
+        <div className="mt-auto">
+          <div className="px-6 pb-7 md:px-5 lg:px-7 lg:pb-8">
+            <div
+              className="mb-5 h-0.5 w-10 origin-left rounded-full bg-black/65 transition-[width] duration-500 group-hover:w-20 group-focus-within:w-20 dark:bg-white/75 motion-reduce:transition-none"
+              aria-hidden="true"
+            />
+            <h3 className="text-[2.35rem] font-semibold leading-none tracking-[-0.045em] md:text-[2rem] lg:text-[2.6rem]">
+              {name}
+            </h3>
+            <p className="mt-5 text-[15px] leading-7 text-black/60 dark:text-white/[0.68] md:min-h-[10rem] md:text-sm md:leading-6 lg:min-h-[8.25rem] lg:text-[15px] lg:leading-7 xl:min-h-[7rem]">
+              {description}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 border-t border-black/[0.1] dark:border-white/[0.12]">
+            <Link
+              href={buyHref}
+              aria-label={`Buy ${name} data`}
+              className="group/action flex min-h-20 items-end justify-between gap-2 border-r border-black/[0.1] px-5 py-4 transition-colors duration-300 hover:bg-black/[0.035] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/70 dark:border-white/[0.12] dark:hover:bg-white/[0.065] dark:focus-visible:ring-white md:px-4 lg:min-h-24 lg:px-6 lg:py-5"
+            >
+              <span className="flex flex-col gap-1">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.17em] text-black/40 dark:text-white/[0.45]">
+                  Marketplace
+                </span>
+                <span className="text-sm font-semibold text-black/85 dark:text-white">
+                  Buy data
+                </span>
+              </span>
+              <ArrowUpRight
+                className="mb-0.5 h-4 w-4 shrink-0 text-black/50 transition-[color,transform] duration-300 group-hover/action:-translate-y-0.5 group-hover/action:translate-x-0.5 group-hover/action:text-black dark:text-white/65 dark:group-hover/action:text-white motion-reduce:transform-none"
+                aria-hidden="true"
+              />
+            </Link>
+
+            <Link
+              href={sellHref}
+              aria-label={`Sell ${name} data`}
+              className="group/action flex min-h-20 items-end justify-between gap-2 px-5 py-4 transition-colors duration-300 hover:bg-black/[0.035] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/70 dark:hover:bg-white/[0.065] dark:focus-visible:ring-white md:px-4 lg:min-h-24 lg:px-6 lg:py-5"
+            >
+              <span className="flex flex-col gap-1">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.17em] text-black/40 dark:text-white/[0.45]">
+                  Supply
+                </span>
+                <span className="text-sm font-semibold text-black/85 dark:text-white">
+                  Sell data
+                </span>
+              </span>
+              <ArrowUpRight
+                className="mb-0.5 h-4 w-4 shrink-0 text-black/50 transition-[color,transform] duration-300 group-hover/action:-translate-y-0.5 group-hover/action:translate-x-0.5 group-hover/action:text-black dark:text-white/65 dark:group-hover/action:text-white motion-reduce:transform-none"
+                aria-hidden="true"
+              />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="pointer-events-none absolute inset-0 rounded-[inherit] border border-black/0 transition-colors duration-500 group-hover:border-black/[0.13] group-focus-within:border-black/[0.13] dark:border-white/0 dark:group-hover:border-white/25 dark:group-focus-within:border-white/25"
+        aria-hidden="true"
+      />
+    </article>
   );
 }

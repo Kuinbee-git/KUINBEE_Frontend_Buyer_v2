@@ -556,6 +556,7 @@ export function DatasetDiscoveryV2() {
       environment: "environment",
       economics: "economic",
       realestate: "real estate",
+      voice: "speech",
     };
 
     const resolved = filters.categories.map((value) => {

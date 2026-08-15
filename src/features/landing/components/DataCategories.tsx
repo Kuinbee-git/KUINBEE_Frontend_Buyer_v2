@@ -1,153 +1,100 @@
-"use client";
+import { ArrowRight } from "lucide-react";
 
-import { useEffect, useRef, useState } from "react";
 import { Link } from "@/components/router/Link";
-import {
-  LayoutDashboard,
-  Leaf,
-  Brain,
-  Car,
-  Plane,
-  Headphones,
-  BarChart3,
-  Zap,
-  Globe,
-  DollarSign,
-  Map,
-  HeartPulse,
-  ShieldCheck,
-  Factory,
-  Cross,
-  Scan,
-  Sun,
-  Mic,
-  Signal,
-  Database,
-  ArrowRight
-} from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { CategoryCard } from "./category-card";
 
-export const categoryIcons: Record<string, React.ElementType> = {
-  "All Categories": LayoutDashboard,
-  "Agriculture and Food Security": Leaf,
-  "AI & ML": Brain,
-  "Automobile": Car,
-  "Aviation": Plane,
-  "Call Center": Headphones,
-  "Economics": BarChart3,
-  "Energy": Zap,
-  "Environment": Globe,
-  "Finance": DollarSign,
-  "Geospatial": Map,
-  "Healthcare": HeartPulse,
-  "Insurance": ShieldCheck,
-  "Manufacturing": Factory,
-  "Medical": Cross,
-  "Medical Imagery": Scan,
-  "Solar": Sun,
-  "Speech": Mic,
-  "Telecom": Signal
-};
+const categories = [
+  {
+    index: "01",
+    name: "Egocentric",
+    eyebrow: "Perspective systems",
+    description:
+      "First-person video and multimodal sensor data that captures how people see, move, and interact in real-world environments.",
+    imageLight: "/images/categories/egocentric-sketch-navy-v2.webp",
+    imageDark: "/images/categories/egocentric-sketch-navy-v2.webp",
+    imageAlt:
+      "Editorial sketch of a first-person view moving through an urban walkway",
+    buyHref: "/marketplace",
+    sellHref: "/data-request",
+  },
+  {
+    index: "02",
+    name: "Healthcare",
+    eyebrow: "Clinical systems",
+    description:
+      "Clinical, imaging, and outcomes data prepared for responsible research, model development, and real-world validation.",
+    imageLight: "/images/categories/healthcare-sketch-navy-v2.webp",
+    imageDark: "/images/categories/healthcare-sketch-navy-v2.webp",
+    imageAlt:
+      "Editorial sketch of a clinician reviewing anonymized medical scans",
+    buyHref: "/marketplace",
+    sellHref: "/data-request",
+  },
+  {
+    index: "03",
+    name: "Voice",
+    eyebrow: "Language systems",
+    description:
+      "Speech, language, and acoustic datasets spanning accents, environments, and natural conversational contexts.",
+    imageLight: "/images/categories/voice-sketch-navy-v2.webp",
+    imageDark: "/images/categories/voice-sketch-navy-v2.webp",
+    imageAlt:
+      "Editorial sketch of a speaker recording voice data with acoustic traces",
+    buyHref: "/marketplace",
+    sellHref: "/data-request",
+  },
+] as const;
 
-export type CategoryItem = {
-  id: string;
-  name: string;
-};
-
-interface DataCategoriesProps {
-  categories?: CategoryItem[];
-}
-
-function getIconForCategory(name: string) {
-  return categoryIcons[name] || Database;
-}
-
-export function DataCategories({ categories = [] }: DataCategoriesProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
+export function DataCategories() {
   return (
     <section
-      ref={sectionRef}
       id="categories"
-      className={cn(
-        "relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-6 pb-16 md:pt-10 md:pb-24 transition-opacity duration-1000",
-        isVisible ? "opacity-100" : "opacity-0"
-      )}
+      aria-labelledby="category-section-title"
+      className="relative isolate overflow-hidden bg-background py-20 sm:py-24 lg:py-28"
     >
-      {/* Subtle pattern for light mode depth */}
-      <div
-        className="absolute inset-0 dark:hidden"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(26, 34, 64, 0.04) 1px, transparent 0)`,
-          backgroundSize: "32px 32px",
-        }}
-      />
-
-      <div className="mx-auto max-w-6xl px-6 relative z-20">
-        {/* Section header */}
-        <div className="mb-12 text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Registry Organization</span>
-            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="mb-12 sm:mb-14 lg:mb-16">
+          <div className="mb-7 flex items-center justify-between gap-6 border-b border-black/10 pb-4 dark:border-white/[0.12]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.23em] text-foreground/[0.55]">
+              Category index
+            </p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-foreground/40">
+              03 focused verticals
+            </p>
           </div>
-          <h2 className="mt-4 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl">
-            Datasets Classified by
-            <br />
-            <span className="text-muted-foreground">Industry Vertical</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-            Access verified datasets across regulated industries. Each domain
-            maintains compliance standards and quality verification.
-          </p>
-        </div>
 
-        {/* Categories Dense Grid Layout */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-          {categories.map((category) => {
-            const Icon = getIconForCategory(category.name);
-            return (
+          <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)] lg:gap-16">
+            <h2
+              id="category-section-title"
+              className="max-w-3xl text-4xl font-semibold tracking-[-0.045em] text-foreground sm:text-5xl lg:text-[3.65rem] lg:leading-[1.03]"
+            >
+              Choose the world your data belongs to.
+            </h2>
+
+            <div className="lg:pb-1">
+              <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-[17px] sm:leading-8">
+                Enter through first-person perception, clinical evidence, or
+                spoken language. Source what you need—or bring valuable data to
+                market.
+              </p>
               <Link
-                key={category.id}
-                href={`/datasets?category=${category.id}`}
-                className="group relative flex flex-col items-center justify-center gap-3 rounded-xl border border-primary/10 dark:border-white/10 bg-white/40 dark:bg-white/[0.02] p-5 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 dark:hover:border-white/20 hover:bg-white/80 dark:hover:bg-white/[0.06] hover:shadow-[0_8px_24px_-12px_rgba(26,34,64,0.15)] dark:hover:shadow-[0_8px_24px_-12px_rgba(255,255,255,0.1)]"
+                href="/datasets"
+                className="group/all mt-6 inline-flex items-center gap-2 border-b border-foreground/30 pb-1.5 text-sm font-semibold text-foreground transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/5 dark:bg-white/5 text-primary dark:text-white transition-all group-hover:bg-primary/10 dark:group-hover:bg-white/10 group-hover:scale-110 duration-500 ease-out">
-                  <Icon className="h-5 w-5 transition-transform group-hover:-rotate-3" />
-                </div>
-                <h3 className="line-clamp-2 text-sm font-medium text-primary dark:text-white px-1 leading-tight">
-                  {category.name}
-                </h3>
+                Browse the full marketplace
+                <ArrowRight
+                  className="h-4 w-4 transition-transform duration-300 group-hover/all:translate-x-1 motion-reduce:transform-none"
+                  aria-hidden="true"
+                />
               </Link>
-            );
-          })}
-          
-          {categories.length === 0 && (
-            <div className="col-span-full py-16 text-center text-sm text-muted-foreground bg-primary/5 dark:bg-white/5 rounded-xl border border-primary/10 dark:border-white/10">
-               Marketplace categories are actively synchronizing.
             </div>
-          )}
+          </div>
         </div>
 
-        {/* View all CTA */}
-        <div className="mt-12 text-center">
-          <Link
-            href="/datasets"
-            className="inline-flex items-center gap-2 text-sm text-secondary transition-colors hover:text-foreground group"
-          >
-            <span>Browse Global Marketplace</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+        <div className="grid gap-5 md:grid-cols-3 md:gap-4 lg:gap-6">
+          {categories.map((category) => (
+            <CategoryCard key={category.name} {...category} />
+          ))}
         </div>
       </div>
     </section>
