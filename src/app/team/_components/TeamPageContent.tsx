@@ -47,7 +47,7 @@ const advisors: TeamMember[] = [
   {
     name: "Ajay Deshpande",
     displayName: "Ajay Deshpande",
-    role: "Chief Advisor",
+    role: "Chief Strategy Advisor",
     initials: "AD",
     imageSrc: "/Ajay_2_large.jpg.jpeg",
     linkedinUrl: "https://www.linkedin.com/in/deshpandeajay",
