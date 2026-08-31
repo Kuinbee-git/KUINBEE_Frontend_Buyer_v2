@@ -72,14 +72,6 @@ const departmentHeads: TeamMember[] = [
     linkedinUrl: "https://www.linkedin.com/in/mayank-saxena-pune/",
   },
   {
-    name: "Pantho Bandyopadhyay",
-    displayName: "Pantho Bandyopadhyay",
-    role: "Operational Lead",
-    initials: "PB",
-    imageSrc: "/pantho.png",
-    linkedinUrl: "https://www.linkedin.com/in/pantho-bandyopadhyay/",
-  },
-  {
     name: "Mahalekshmi Vijayachandran",
     displayName: "Mahalekshmi Vijayachandran",
     role: "Data Operations Lead",

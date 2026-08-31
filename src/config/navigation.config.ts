@@ -207,6 +207,7 @@ export const NAVIGATION_CONFIG: Record<string, NavigationConfig> = {
 // Default fallback config (any non-home page without explicit config)
 export const DEFAULT_CONFIG: NavigationConfig = {
   showBack: false,
+  
   directLinks: NON_HOME_LINKS,
   dropdowns: ["resources"],
   showSearch: false,
