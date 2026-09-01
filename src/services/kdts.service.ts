@@ -16,14 +16,6 @@ export interface KdtsBreakdown {
 export interface DatasetKdtsResponse {
   currentScore: string | null;
   breakdown: KdtsBreakdown | null;
-  history: Array<{
-    id: string;
-    finalScore: string;
-    breakdown: KdtsBreakdown;
-    createdAt: string;
-    note: string;
-    admin: { id: string; name: string } | null;
-  }>;
   updatedAt: string | null;
 }
 

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getDatasetKdts, type DatasetKdtsResponse } from "@/services/kdts.service";
+import {
+  getDatasetKdts,
+  type DatasetKdtsResponse,
+} from "@/services/kdts.service";
 import { KdtsInfoModal } from "./KdtsInfoModal";
 
 interface DatasetKdtsCardProps {
@@ -9,25 +12,58 @@ interface DatasetKdtsCardProps {
 }
 
 const KDTS_DIMS = [
-  { key: "Q" as const, label: "Completeness", gradientFrom: "from-emerald-500", gradientTo: "to-emerald-600" },
-  { key: "L" as const, label: "Legitimacy",   gradientFrom: "from-blue-500",    gradientTo: "to-blue-600"    },
-  { key: "P" as const, label: "Precision",    gradientFrom: "from-purple-500",  gradientTo: "to-purple-600"  },
-  { key: "U" as const, label: "Usefulness",   gradientFrom: "from-amber-500",   gradientTo: "to-amber-600"   },
-  { key: "F" as const, label: "Freshness",    gradientFrom: "from-rose-500",    gradientTo: "to-rose-600"    },
+  {
+    key: "Q" as const,
+    label: "Quality",
+    gradientFrom: "from-emerald-500",
+    gradientTo: "to-emerald-600",
+  },
+  {
+    key: "L" as const,
+    label: "Legal",
+    gradientFrom: "from-blue-500",
+    gradientTo: "to-blue-600",
+  },
+  {
+    key: "P" as const,
+    label: "Provenance",
+    gradientFrom: "from-purple-500",
+    gradientTo: "to-purple-600",
+  },
+  {
+    key: "U" as const,
+    label: "Usability",
+    gradientFrom: "from-amber-500",
+    gradientTo: "to-amber-600",
+  },
+  {
+    key: "F" as const,
+    label: "Freshness",
+    gradientFrom: "from-rose-500",
+    gradientTo: "to-rose-600",
+  },
 ] as const;
 
 export function DatasetKdtsCard({ datasetId }: DatasetKdtsCardProps) {
-  const [data, setData] = useState<DatasetKdtsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState<{
+    datasetId: string;
+    data: DatasetKdtsResponse | null;
+  } | null>(null);
+  const loading = result?.datasetId !== datasetId;
+  const data = result?.datasetId === datasetId ? result.data : null;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     getDatasetKdts(datasetId)
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch(() => { /* silently ignore — KDTS is supplementary info */ })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((response) => {
+        if (!cancelled) setResult({ datasetId, data: response });
+      })
+      .catch(() => {
+        if (!cancelled) setResult({ datasetId, data: null });
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [datasetId]);
 
   return (
@@ -67,7 +103,9 @@ export function DatasetKdtsCard({ datasetId }: DatasetKdtsCardProps) {
               <span className="text-4xl font-bold text-foreground dark:text-white">
                 {parseFloat(data.currentScore).toFixed(1)}
               </span>
-              <span className="text-sm font-medium text-muted-foreground dark:text-white/60">/&nbsp;100</span>
+              <span className="text-sm font-medium text-muted-foreground dark:text-white/60">
+                /&nbsp;100
+              </span>
               <span className="ml-2 text-xs font-medium text-muted-foreground dark:text-white/60 uppercase tracking-wide">
                 overall
               </span>

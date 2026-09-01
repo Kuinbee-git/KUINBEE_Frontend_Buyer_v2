@@ -375,6 +375,20 @@ export function LandingHero() {
                       className: "dark:invert",
                     },
                     {
+                      src: "/fenon-logo.jpeg",
+                      alt: "Fenon trusted data supplier logo | Kuinbee",
+                      w: 86,
+                      h: 40,
+                      className: "rounded-sm dark:invert",
+                    },
+                    {
+                      src: "/manudata-ai-logo.jpeg",
+                      alt: "Manudata.ai trusted data supplier logo | Kuinbee",
+                      w: 40,
+                      h: 40,
+                      className: "rounded-full",
+                    },
+                    {
                       src: "/fao-logo.svg",
                       alt: "FAO trusted data source logo | Kuinbee",
                       w: 90,
