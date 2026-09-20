@@ -90,10 +90,10 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <a href="https://calendly.com/ceo-kuinbee/30min" target="_blank" rel="noopener noreferrer">
-                                    Book a Demo
+                                <Link href="/contact">
+                                    Contact Us
                                     <ArrowRight className="ml-2 h-5 w-5" />
-                                </a>
+                                </Link>
                             </Button>
                             <Button
                                 variant="outline"

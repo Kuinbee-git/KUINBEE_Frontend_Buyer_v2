@@ -467,13 +467,9 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                         asChild
                       >
-                        <a
-                          href="https://calendly.com/ceo-kuinbee/30min"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Book a Demo
-                        </a>
+                        <Link href="/contact">
+                          Contact Us
+                        </Link>
                       </Button>
                     ) : (
                       <>

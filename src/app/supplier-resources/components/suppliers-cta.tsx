@@ -54,10 +54,10 @@ export function SuppliersCTA() {
                 {/* CTAs */}
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button size="lg" className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90" asChild>
-                        <a href="https://calendly.com/ceo-kuinbee/30min" target="_blank" rel="noopener noreferrer">
-                            Book a Demo
+                        <Link href="/contact">
+                            Contact Us
                             <ArrowRight className="ml-2 h-4 w-4" />
-                        </a>
+                        </Link>
                     </Button>
                 </div>
 
