@@ -5,19 +5,20 @@ import Image from "next/image";
 import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function SuppliersHero() {
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
-        const isDarkMode = document.documentElement.classList.contains("dark");
-        setIsDark(isDarkMode);
+        const frame = requestAnimationFrame(() => {
+            setIsDark(document.documentElement.classList.contains("dark"));
+        });
         const observer = new MutationObserver(() => {
             setIsDark(document.documentElement.classList.contains("dark"));
         });
         observer.observe(document.documentElement, { attributes: true });
-        return () => observer.disconnect();
+        return () => { cancelAnimationFrame(frame); observer.disconnect(); };
     }, []);
 
 
@@ -90,8 +91,8 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <Link href="/contact">
-                                    Contact Us
+                                <Link href="#supplier-enquiry">
+                                    Tell us about your data
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
