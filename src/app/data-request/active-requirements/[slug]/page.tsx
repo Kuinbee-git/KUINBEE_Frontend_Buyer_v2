@@ -164,7 +164,7 @@ export default async function ActiveRequirementDetailPage({ params }: Props) {
                     </p>
                   </div>
                   <Link
-                    href={`/supplier-resources?requirement=${encodeURIComponent(requirement.referenceCode)}#supplier-enquiry`}
+                    href={`/contact?source=supplier&requirement=${encodeURIComponent(requirement.referenceCode)}`}
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                   >
                     Be a supplier

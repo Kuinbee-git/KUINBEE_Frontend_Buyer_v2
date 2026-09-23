@@ -467,7 +467,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                         asChild
                       >
-                        <Link href="/contact">
+                        <Link href="/contact?source=supplier">
                           Contact Us
                         </Link>
                       </Button>

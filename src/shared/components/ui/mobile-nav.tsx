@@ -138,7 +138,7 @@ export function MobileNav() {
                   className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                   asChild
                 >
-                  <Link href="/contact" onClick={closeNav}>
+                  <Link href="/contact?source=supplier" onClick={closeNav}>
                     Contact Us
                   </Link>
                 </Button>

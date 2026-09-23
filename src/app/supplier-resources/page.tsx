@@ -11,7 +11,6 @@ import { SuppliersTraction } from "./components/suppliers-traction";
 import { SuppliersTestimonials } from "./components/suppliers-testimonials";
 import { SuppliersFAQ } from "./components/suppliers-faq";
 import { SuppliersCTA } from "./components/suppliers-cta";
-import { SupplierEnquiryForm } from "./components/supplier-enquiry-form";
 
 export const metadata: Metadata = genMeta({
   title: "Supplier Resources",
@@ -41,7 +40,6 @@ export default function SupplierResourcePage() {
       <SuppliersTestimonials />
       <SuppliersFAQ />
       <SuppliersCTA />
-      <SupplierEnquiryForm />
       <LandingFooter />
     </main>
   );

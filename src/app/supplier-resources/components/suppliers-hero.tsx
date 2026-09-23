@@ -91,7 +91,7 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <Link href="#supplier-enquiry">
+                                <Link href="/contact?source=supplier">
                                     Tell us about your data
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
