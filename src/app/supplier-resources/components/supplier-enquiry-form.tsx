@@ -59,8 +59,8 @@ export function SupplierEnquiryForm() {
     } catch (err) {
       const code = err && typeof err === "object" && "code" in err ? err.code : "";
       setError(code === "RATE_LIMITED"
-        ? "You’ve submitted several enquiries. Please try again later or email ceo@kuinbee.com."
-        : "We couldn’t submit your enquiry. Please try again or email ceo@kuinbee.com.");
+        ? "You’ve submitted several enquiries. Please try again later or email partnerships@kuinbee.com."
+        : "We couldn’t submit your enquiry. Please try again or email partnerships@kuinbee.com.");
     } finally {
       submitting.current = false;
       setPending(false);
