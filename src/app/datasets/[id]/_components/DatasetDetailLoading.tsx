@@ -1,3 +1,5 @@
+// Kept as a reusable skeleton, not a route loading boundary: unknown datasets
+// must be resolved before response streaming so they return a real HTTP 404.
 export default function DatasetDetailLoading() {
     return (
         <div className="min-h-screen bg-background">

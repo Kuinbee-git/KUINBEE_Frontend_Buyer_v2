@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/analytics",
+        destination: "/strotas",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [
           {

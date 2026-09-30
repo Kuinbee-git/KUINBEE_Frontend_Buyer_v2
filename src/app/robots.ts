@@ -1,10 +1,8 @@
 import { MetadataRoute } from "next";
+import { siteConfig } from "@/core/config/seo.config";
 
 export default function robots(): MetadataRoute.Robots {
-  let canonicalUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
-  if (canonicalUrl.includes("vercel.app") || canonicalUrl.includes("marketplace.kuinbee.com")) {
-    canonicalUrl = "https://www.kuinbee.com";
-  }
+  const canonicalUrl = siteConfig.url;
 
   return {
     rules: [

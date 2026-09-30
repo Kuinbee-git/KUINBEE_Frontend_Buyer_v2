@@ -11,7 +11,9 @@ export function ProductHuntBadge({ className }: { className?: string }) {
           alt="Kuinbee - The Data OS | Product Hunt"
           width="250"
           height="54"
-          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1129943&theme=neutral&t=1777380437923"
+          src="/product-hunt-badge.svg"
+          loading="lazy"
+          decoding="async"
           className="h-10 w-auto object-contain sm:h-[54px]"
         />
       </a>

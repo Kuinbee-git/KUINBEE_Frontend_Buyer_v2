@@ -1,90 +1,100 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
+  siteConfig,
 } from "@/core/config";
+import {
+  getPublicDataset,
+  datasetDescription,
+  PublicCatalogueError,
+} from "@/services/public-catalogue.service";
 import { DatasetDetailPageContent } from "./_components/DatasetDetailPageContent";
 
-// ISR: cache the server-rendered page for 1 hour at the CDN edge.
 export const revalidate = 3600;
+type Props = { params: Promise<{ id: string }> };
 
-// Dynamically generate static pages for top datasets at build time
-export async function generateStaticParams() {
+async function loadDataset(id: string) {
   try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-    const res = await fetch(
-      `${apiUrl}/api/v1/marketplace/datasets?limit=20&sort=viewCount:desc`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      const datasets = data.data?.datasets || [];
-      return datasets.map((d: { datasetUniqueId?: string; id?: string }) => ({
-        id: d.datasetUniqueId || d.id,
-      }));
-    }
+    return await getPublicDataset(id);
   } catch (error) {
-    console.error("Failed to fetch datasets for static generation:", error);
+    if (
+      error instanceof PublicCatalogueError &&
+      [404, 410].includes(error.status)
+    )
+      notFound();
+    throw error;
   }
+}
+
+export function generateStaticParams() {
+  // Generate on the first real visit, not during builds. The existing detail
+  // API records analytics views even for GET requests.
   return [];
 }
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const data = await loadDataset(id);
   return genMeta({
-    title: "Dataset Details",
-    description:
-      "View detailed information about this dataset including samples, schema, pricing, quality metrics, and access conditions on Kuinbee Marketplace.",
-    keywords: [
-      "dataset details",
-      "buy dataset",
-      "dataset marketplace",
-      "data download",
-      "dataset schema",
-      "dataset quality",
-    ],
-    path: `/datasets/${id}`,
+    title: `${data.dataset.title} | Kuinbee`,
+    description: datasetDescription(data).slice(0, 160),
+    keywords: [data.primaryCategory.name, ...data.tags],
+    path: `/datasets/${data.dataset.id}`,
   });
 }
 
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
-
-  // Breadcrumb: Home > Datasets > [Category] > [Dataset Title]
-  const breadcrumbItems = [
+  const data = await loadDataset(id);
+  const dataset = data.dataset;
+  const client = new QueryClient();
+  client.setQueryData(["datasets", id, "details"], data);
+  const breadcrumbs = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
-    { name: `Dataset ${id}`, url: `/datasets/${id}` },
-  ];
-
-  const breadcrumbJsonLd = generateBreadcrumbSchema(breadcrumbItems);
-
-  const datasetJsonLd = {
+    { name: dataset.title, url: `/datasets/${dataset.id}` },
+  ]);
+  const schema = {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    identifier: id,
-    url: `https://www.kuinbee.com/datasets/${id}`,
-    name: `Dataset ${id}`,
-    description: "Dataset detail page on Kuinbee Marketplace",
+    name: dataset.title,
+    description: datasetDescription(data),
+    identifier: dataset.datasetUniqueId || dataset.id,
+    url: `${siteConfig.url}/datasets/${dataset.id}`,
+    datePublished: dataset.createdAt,
+    dateModified: dataset.updatedAt,
+    keywords: data.tags,
+    ...(data.source?.name && {
+      creator: { "@type": "Organization", name: data.source.name },
+    }),
+    ...(dataset.license &&
+      /^https?:\/\//.test(dataset.license) && { license: dataset.license }),
+    ...(data.locationInfo?.coverage && {
+      spatialCoverage: data.locationInfo.coverage,
+    }),
   };
-
+  const json = (value: object) =>
+    JSON.stringify(value).replace(/</g, "\\u003c");
   return (
     <>
-      {/* Breadcrumb Schema */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: json(breadcrumbs) }}
       />
-      {/* Dataset Schema — enables Google Dataset Search indexing */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: json(schema) }}
       />
-      <DatasetDetailPageContent />
+      <HydrationBoundary state={dehydrate(client)}>
+        <DatasetDetailPageContent />
+      </HydrationBoundary>
     </>
   );
 }

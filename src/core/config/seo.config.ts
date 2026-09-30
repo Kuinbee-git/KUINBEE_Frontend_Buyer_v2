@@ -8,10 +8,7 @@ export const siteConfig = {
   name: "Kuinbee",
   description:
     "Discover and purchase premium datasets for AI, ML, and data science projects. Browse curated, high-quality datasets across multiple categories.",
-  url: (() => {
-    const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
-    return defaultUrl.includes("vercel.app") ? "https://www.kuinbee.com" : defaultUrl;
-  })(),
+  url: "https://www.kuinbee.com",
   ogImage: "/og-image.png",
   links: {
     twitter: "https://twitter.com/kuinbee",
@@ -54,6 +51,7 @@ export function generateMetadata({
     : siteConfig.url;
 
   return {
+    metadataBase: new URL(siteConfig.url),
     title: metaTitle,
     description: metaDescription,
     keywords: metaKeywords,
@@ -90,10 +88,9 @@ export function generateMetadata({
       creator: "@kuinbee",
     },
     alternates: {
-      canonical: canonicalUrl,
-      types: {
-        "application/rss+xml": `${siteConfig.url}/feed.xml`,
-      },
+      // Layout metadata must not make every child canonical to the homepage.
+      ...(path !== undefined && { canonical: canonicalUrl }),
+      types: { "application/rss+xml": `${siteConfig.url}/feed.xml` },
     },
   };
 }
@@ -148,7 +145,9 @@ export function generateOrganizationSchema() {
 /**
  * Generate JSON-LD structured data for breadcrumbs
  */
-export function generateBreadcrumbSchema(items: { name: string; url: string }[]) {
+export function generateBreadcrumbSchema(
+  items: { name: string; url: string }[]
+) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

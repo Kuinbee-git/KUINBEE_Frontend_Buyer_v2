@@ -67,8 +67,6 @@ export function MarketplaceSearch({
             }}
             placeholder={placeholder}
             aria-label={ariaLabel}
-            aria-expanded={suggestionsOpen && debouncedValue.length >= 2}
-            aria-autocomplete="list"
             className="h-11 rounded-xl border-[#1a2240]/20 bg-white/95 pl-11 pr-10 text-base text-[#1a2240] shadow-sm placeholder:text-sm placeholder:text-[#4e5a7e]/60 focus-visible:ring-[#1a2240]/30 dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/40 dark:focus-visible:ring-white/30"
           />
           {value && (

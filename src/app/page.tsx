@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { generateMetadata as genMeta } from "@/core/config";
+import { DatasetCategoryDirectory } from "@/features/datasets/components/DatasetCategoryDirectory";
 import {
   LandingHeader,
   LandingHero,
@@ -37,6 +38,7 @@ export default function HomePage() {
       </div>
       <LandingHero />
       <DataCategories />
+      <DatasetCategoryDirectory />
       <HowItWorksSection />
       <GovernanceValue />
       <CustomerTestimonialsSection />

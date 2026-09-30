@@ -58,7 +58,7 @@ export function DataCategories() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.23em] text-foreground/[0.55]">
               Category index
             </p>
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-foreground/40">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               03 focused verticals
             </p>
           </div>

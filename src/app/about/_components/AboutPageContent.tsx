@@ -126,7 +126,7 @@ export function AboutPageContent() {
               className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6"
             >
               <Button asChild size="lg" className="w-full sm:w-auto group">
-                <Link href="/pricing">
+                <Link href="/contact">
                   Get Started
                   <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
                 </Link>

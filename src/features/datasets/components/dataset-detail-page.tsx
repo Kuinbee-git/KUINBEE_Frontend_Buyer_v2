@@ -1066,7 +1066,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
           </div>
 
           {/* ZONE 3: DEEP DETAIL & ASSURANCE — Bottom, Trust Reinforcement */}
-          <LazySection minHeight={900}>
+          <section aria-label="Dataset details and governance">
             <div className="space-y-10">
               {/* KDTS Breakdown Card — deferred to Zone 3, total score badge stays in header */}
               <Suspense
@@ -1131,7 +1131,7 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
                 </Suspense>
               </LazySection>
             </div>
-          </LazySection>
+          </section>
         </div>
       </div>
 

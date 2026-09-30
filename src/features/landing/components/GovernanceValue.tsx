@@ -130,9 +130,9 @@ export function GovernanceValue() {
                 </p>
               </div>
               <div className="p-5">
-                <h4 className="text-sm font-semibold text-foreground dark:text-white mb-2">
+                <h3 className="text-sm font-semibold text-foreground dark:text-white mb-2">
                   {item.solution}
-                </h4>
+                </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>

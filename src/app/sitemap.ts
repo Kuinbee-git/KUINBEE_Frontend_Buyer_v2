@@ -1,198 +1,104 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { siteConfig } from "@/core/config/seo.config";
 import { blogPostsMeta } from "@/features/blog/blog-posts";
 import { listPublicDataRequirements } from "@/services/public-data-requirement.service";
+import {
+  categorySlug,
+  listAllPublished,
+  listPublicCategories,
+  listPublicCollectionServices,
+  listPublicDatasets,
+} from "@/services/public-catalogue.service";
+
+// Refresh the sitemap itself as well as the API fetches inside it.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Primary canonical domain for public marketing routes
-  let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.kuinbee.com";
-  if (baseUrl.includes("vercel.app")) {
-    baseUrl = "https://www.kuinbee.com";
-  }
-
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/datasets`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/team`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/supplier-resources`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/community`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/strotas`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/careers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/support`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/data-request`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/data-request/active-requirements`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/data-request/submit-requirement`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/data-request/submit-requirement`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/project-siddhi`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/terms-and-conditions`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/legal-compliance`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/data-processing-addendum`,
-      lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
+  const baseUrl = siteConfig.url;
+  const staticPaths = [
+    "",
+    "/datasets",
+    "/datasets/categories",
+    "/marketplace",
+    "/blog",
+    "/about",
+    "/contact",
+    "/team",
+    "/supplier-resources",
+    "/community",
+    "/strotas",
+    "/careers",
+    "/support",
+    "/data-request",
+    "/data-request/services",
+    "/data-request/active-requirements",
+    "/data-request/submit-requirement",
+    "/project-siddhi",
+    "/terms-and-conditions",
+    "/legal-compliance",
+    "/data-processing-addendum",
   ];
-
-  const blogPages: MetadataRoute.Sitemap = blogPostsMeta.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.publishedAt),
-    changeFrequency: "weekly",
-    priority: 0.7,
+  const urls: MetadataRoute.Sitemap = staticPaths.map((path) => ({
+    url: baseUrl + path,
   }));
+  urls.push(
+    ...blogPostsMeta.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.publishedAt),
+    }))
+  );
 
-  const requirementPages: MetadataRoute.Sitemap = [];
-  try {
-    let page = 1;
-    let total = 0;
-    do {
-      const result = await listPublicDataRequirements({ page, pageSize: 48 });
-      total = result.total;
-      requirementPages.push(
-        ...result.items.map((requirement) => ({
-          url: `${baseUrl}/data-request/active-requirements/${requirement.slug}`,
-          lastModified: new Date(requirement.publishedAt),
-          changeFrequency: "weekly" as const,
-          priority: 0.6,
-        }))
-      );
-      page += 1;
-    } while (requirementPages.length < total && page <= 20);
-  } catch (error) {
-    console.error("Failed to fetch data requirements for sitemap:", error);
-  }
-
-  // Fetch dynamic dataset pages
-  try {
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-
-    // Fetch datasets from the marketplace endpoint
-    // Using a high limit to get all relevant datasets for the sitemap
-    const res = await fetch(
-      `${apiUrl}/api/v1/marketplace/datasets?limit=1000`,
-      {
-        next: { revalidate: 3600 }, // Revalidate every hour
-      }
+  const sources = await Promise.allSettled([
+    listAllPublished((page) => listPublicDatasets({ page, pageSize: 100 })),
+    listAllPublished((page) =>
+      listPublicCollectionServices({ page, pageSize: 100 })
+    ),
+    listAllPublished((page) =>
+      listPublicDataRequirements({ page, pageSize: 48 })
+    ),
+    listPublicCategories(),
+  ]);
+  const [datasets, services, requirements, categories] = sources;
+  if (datasets.status === "fulfilled")
+    urls.push(
+      ...datasets.value.map((dataset) => ({
+        // Existing public API and card links use id, not datasetUniqueId.
+        url: `${baseUrl}/datasets/${dataset.id}`,
+        lastModified: new Date(dataset.updatedAt),
+      }))
     );
-
-    if (res.ok) {
-      const data = await res.json();
-      const datasets: Array<{
-        datasetUniqueId?: string;
-        id: string;
-        updatedAt?: string;
-      }> = data?.data?.datasets || [];
-
-      const datasetPages: MetadataRoute.Sitemap = datasets.map((d) => ({
-        url: `${baseUrl}/datasets/${d.datasetUniqueId || d.id}`,
-        lastModified: d.updatedAt ? new Date(d.updatedAt) : new Date(),
-        changeFrequency: "weekly" as const,
-        priority: 0.7,
-      }));
-
-      return [
-        ...staticPages,
-        ...blogPages,
-        ...requirementPages,
-        ...datasetPages,
-      ];
-    }
-  } catch (error) {
-    console.error("Failed to fetch datasets for sitemap:", error);
-  }
-
-  return [...staticPages, ...blogPages, ...requirementPages];
+  if (services.status === "fulfilled")
+    urls.push(
+      ...services.value.map((service) => ({
+        url: `${baseUrl}/data-request/services/${service.slug}`,
+        lastModified: new Date(
+          service.publishedRevision.publishedAt ||
+            service.publishedAt ||
+            service.updatedAt
+        ),
+      }))
+    );
+  if (requirements.status === "fulfilled")
+    urls.push(
+      ...requirements.value.map((requirement) => ({
+        url: `${baseUrl}/data-request/active-requirements/${requirement.slug}`,
+        lastModified: new Date(requirement.publishedAt),
+      }))
+    );
+  if (categories.status === "fulfilled")
+    urls.push(
+      ...categories.value.items
+        .filter((category) => (category.datasetCount ?? 0) > 0)
+        .map((category) => ({
+          url: `${baseUrl}/datasets/categories/${categorySlug(category.name)}`,
+        }))
+    );
+  sources.forEach((source, index) => {
+    if (source.status === "rejected")
+      console.error(
+        `Sitemap catalogue source ${index} unavailable`,
+        source.reason
+      );
+  });
+  return [...new Map(urls.map((entry) => [entry.url, entry])).values()];
 }

@@ -51,7 +51,7 @@ export function SearchSuggestionDropdown({
         "origin-top overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 duration-150",
         className
       )}
-      role="listbox"
+      role="region"
       aria-label={`Suggestions for ${query}`}
     >
       {isLoading ? (

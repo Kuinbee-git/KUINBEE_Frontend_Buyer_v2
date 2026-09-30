@@ -21,26 +21,11 @@ import {
   X,
 } from "lucide-react";
 
-const searchPlaceholders = [
-  "Search verified datasets...",
-  "Energy consumption data...",
-  "Climate & weather datasets...",
-  "Financial market indicators...",
-  "Agricultural yield data...",
-  "Healthcare statistics...",
-  "Real estate analytics...",
-  "Transportation metrics...",
-];
-
 export function LandingHero() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [placeholderText, setPlaceholderText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [charIndex, setCharIndex] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -63,42 +48,6 @@ export function LandingHero() {
     []
   );
 
-  // Typewriter effect for placeholder
-  useEffect(() => {
-    const currentPhrase = searchPlaceholders[placeholderIndex];
-    const typingSpeed = isDeleting ? 20 : 40;
-    const pauseAfterComplete = 2000;
-    const pauseAfterDelete = 500;
-
-    if (!isDeleting && charIndex < currentPhrase.length) {
-      // Typing forward
-      const timeout = setTimeout(() => {
-        setPlaceholderText(currentPhrase.substring(0, charIndex + 1));
-        setCharIndex(charIndex + 1);
-      }, typingSpeed);
-      return () => clearTimeout(timeout);
-    } else if (!isDeleting && charIndex === currentPhrase.length) {
-      // Finished typing, pause then start deleting
-      const timeout = setTimeout(() => {
-        setIsDeleting(true);
-      }, pauseAfterComplete);
-      return () => clearTimeout(timeout);
-    } else if (isDeleting && charIndex > 0) {
-      // Deleting backward
-      const timeout = setTimeout(() => {
-        setPlaceholderText(currentPhrase.substring(0, charIndex - 1));
-        setCharIndex(charIndex - 1);
-      }, typingSpeed);
-      return () => clearTimeout(timeout);
-    } else if (isDeleting && charIndex === 0) {
-      // Finished deleting, move to next phrase
-      const timeout = setTimeout(() => {
-        setIsDeleting(false);
-        setPlaceholderIndex((prev) => (prev + 1) % searchPlaceholders.length);
-      }, pauseAfterDelete);
-      return () => clearTimeout(timeout);
-    }
-  }, [charIndex, isDeleting, placeholderIndex]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,18 +147,18 @@ export function LandingHero() {
 
           {/* Hero title */}
           <h1 className="text-center text-4xl font-semibold leading-tight tracking-tight text-primary dark:text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Governed Marketplace
+            Dataset Marketplace
             <br />
             <span className="text-primary/70 dark:text-white/80">
-              for All Datasets
+              for AI and Research
             </span>
           </h1>
 
           {/* Description */}
           <p className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0">
-            Find and buy datasets you can actually rely on. Every listing is
-            reviewed, priced upfront, and ready to use — across finance, energy,
-            environment,medicare, and more.
+            Find and buy datasets for AI training, research, and analytics.
+            Compare finance, healthcare, energy, and environmental data, with
+            licensing, samples, and access details on each listing.
           </p>
 
           {/* Search section with inline button */}
@@ -233,7 +182,7 @@ export function LandingHero() {
                 onFocus={() =>
                   searchQuery.trim().length >= 2 && setShowSuggestions(true)
                 }
-                placeholder={placeholderText}
+                placeholder="Search datasets and services"
                 className="h-12 rounded-xl border-[#1a2240]/20 bg-white/95 pr-11 pl-14 text-base text-[#1a2240] shadow-sm backdrop-blur-md placeholder:text-sm placeholder:text-[#4e5a7e]/60 focus-visible:ring-[#1a2240]/30 dark:border-white/20 dark:bg-white/10 dark:text-white dark:placeholder:text-white/40 dark:focus-visible:ring-white/30 md:h-14 md:pl-16"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -243,10 +192,6 @@ export function LandingHero() {
                   }
                 }}
                 aria-label="Search datasets and services"
-                aria-expanded={
-                  showSuggestions && debouncedQuery.trim().length >= 2
-                }
-                aria-autocomplete="list"
                 autoComplete="off"
               />
               {searchQuery && (
@@ -341,7 +286,7 @@ export function LandingHero() {
 
           {/* Mask edges */}
           <div
-            className="relative overflow-hidden py-2"
+            className="relative overflow-x-auto py-2 md:overflow-hidden"
             style={{
               maskImage:
                 "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
@@ -360,12 +305,15 @@ export function LandingHero() {
                 animation: marquee-ltr 35s linear infinite;
               }
               .animate-marquee:hover { animation-play-state: paused; }
+              @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+                .animate-marquee { animation: none; }
+              }
             `}</style>
 
             <div className="animate-marquee items-center">
               {/* Two identical sets for seamless loop */}
               {[...Array(2)].map((_, setIdx) => (
-                <div key={setIdx} className="flex items-center gap-10 pr-10">
+                <div key={setIdx} aria-hidden={setIdx === 1 ? true : undefined} className={`${setIdx === 1 ? "hidden md:flex" : "flex"} items-center gap-10 pr-10`}>
                   {[
                     {
                       src: "/dcp-light.png",
@@ -462,7 +410,7 @@ export function LandingHero() {
                       className: "dark:brightness-110",
                     },
                     { text: "Siom Technology" },
-                  ].map((logo) =>
+                  ].map((logo, logoIndex) =>
                     "text" in logo ? (
                       <span
                         key={`${setIdx}-${logo.text}`}
@@ -477,7 +425,7 @@ export function LandingHero() {
                         alt={logo.alt}
                         width={logo.w}
                         height={logo.h}
-                        loading="lazy"
+                        loading={setIdx === 0 && logoIndex < 3 ? "eager" : "lazy"}
                         className={`flex-shrink-0 object-contain hover:opacity-100 transition-opacity duration-300 filter mix-blend-multiply dark:mix-blend-normal ${logo.className ?? ""}`}
                       />
                     )
@@ -518,6 +466,7 @@ export function LandingHero() {
                   alt="Vaani customer logo (light) | Kuinbee"
                   width={220}
                   height={72}
+                  sizes="(max-width: 767px) 110px, 180px"
                   loading="lazy"
                   className="block dark:hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 md:h-full md:max-w-none"
                   style={{ width: "auto" }}
@@ -527,6 +476,7 @@ export function LandingHero() {
                   alt="Vaani customer logo (dark) | Kuinbee"
                   width={220}
                   height={72}
+                  sizes="(max-width: 767px) 110px, 180px"
                   loading="lazy"
                   className="hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-full md:max-w-none"
                   style={{ width: "auto" }}
@@ -539,6 +489,7 @@ export function LandingHero() {
                   alt="PolicySalah customer logo | Kuinbee"
                   width={196}
                   height={91}
+                  sizes="(max-width: 767px) 110px, 140px"
                   loading="lazy"
                   className="h-10 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-16 md:max-w-none"
                   style={{ width: "auto" }}
@@ -548,6 +499,7 @@ export function LandingHero() {
                   alt="PolicySalah customer logo | Kuinbee"
                   width={219}
                   height={50}
+                  sizes="(max-width: 767px) 110px, 180px"
                   loading="lazy"
                   className="hidden h-7 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-10 md:max-w-none"
                   style={{ width: "auto" }}

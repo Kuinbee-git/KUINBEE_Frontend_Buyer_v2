@@ -2,6 +2,17 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { generateMetadata as genMeta } from "@/core/config";
 import { CustomCollectionMarketplacePage } from "@/features/custom-collection/CustomCollectionMarketplacePage";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { listPublicCollectionServices } from "@/services/public-catalogue.service";
+import {
+  toUrlSearchParams,
+  type SearchParams,
+} from "@/features/datasets/discovery-query";
+import type { CustomCollectionListQuery } from "@/types";
 
 export const metadata: Metadata = genMeta({
   title: "Custom Data Collection Services | Kuinbee",
@@ -17,11 +28,41 @@ export const metadata: Metadata = genMeta({
   path: "/data-request/services",
 });
 
-export default function CustomCollectionServicesPage() {
+export default async function CustomCollectionServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = toUrlSearchParams(await searchParams);
+  const sort = params.get("sort");
+  const query: CustomCollectionListQuery = {
+    page: Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1),
+    pageSize: 9,
+    q: params.get("q") || undefined,
+    categoryId: params.get("categoryId") || undefined,
+    sort: sort === "TITLE_ASC" || sort === "TITLE_DESC" ? sort : "NEWEST",
+  };
+  for (const key of [
+    "collectionMethods",
+    "industries",
+    "geographies",
+    "supportedFormats",
+    "languages",
+  ] as const) {
+    const values = params.getAll(key);
+    if (values.length) query[key] = values;
+  }
+  const client = new QueryClient();
+  client.setQueryData(
+    ["custom-collection-services", "list", query],
+    await listPublicCollectionServices(query)
+  );
   return (
-    <Suspense fallback={<ServicesPageFallback />}>
-      <CustomCollectionMarketplacePage />
-    </Suspense>
+    <HydrationBoundary state={dehydrate(client)}>
+      <Suspense fallback={<ServicesPageFallback />}>
+        <CustomCollectionMarketplacePage />
+      </Suspense>
+    </HydrationBoundary>
   );
 }
 

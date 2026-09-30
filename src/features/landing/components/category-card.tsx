@@ -35,19 +35,19 @@ export function CategoryCard({
         src={imageLight}
         alt={imageAlt}
         fill
-        className="-z-20 object-cover object-top opacity-90 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.03] dark:hidden motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
-        sizes="(min-width: 768px) 33vw, 100vw"
-        quality={88}
+        className={`-z-20 object-cover object-top opacity-90 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.03] ${imageLight === imageDark ? "dark:opacity-80 dark:mix-blend-normal" : "dark:hidden"} motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover`}
+        sizes="(min-width: 1280px) 400px, (min-width: 768px) 33vw, calc(100vw - 40px)"
+        quality={75}
       />
 
-      <Image
+      {imageLight !== imageDark && <Image
         src={imageDark}
         alt={imageAlt}
         fill
         className="-z-20 hidden object-cover object-top opacity-80 transition-transform duration-500 group-hover:scale-[1.03] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
-        sizes="(min-width: 768px) 33vw, 100vw"
-        quality={88}
-      />
+        sizes="(min-width: 1280px) 400px, (min-width: 768px) 33vw, calc(100vw - 40px)"
+        quality={75}
+      />}
 
       <div
         className="pointer-events-none absolute inset-0 -z-10 dark:hidden"

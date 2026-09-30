@@ -4,11 +4,13 @@ import { Suspense } from "react";
 import "./globals.css";
 import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvider, NavigationProgress, SmoothScrollProvider } from "@/core/providers";
 import { generateMetadata, generateOrganizationSchema } from "@/core/config";
-import { AuthModals } from "@/features/auth";
+import { DeferredAuthModals } from "@/features/auth/components/deferred-auth-modals";
 
 const inter = Inter({
   subsets: ["latin"],
-  display: "swap",
+  // Keep text visible and stable on slow first visits rather than waiting
+  // for a late web-font swap. Fast/cached visits still use Inter.
+  display: "optional",
   variable: "--font-inter",
 });
 
@@ -58,7 +60,7 @@ export default function RootLayout({
                     <NavigationProgress />
                   </Suspense>
                   {children}
-                  <AuthModals />
+                  <DeferredAuthModals />
                   <ToastProvider />
                 </SmoothScrollProvider>
               </ModalProvider>

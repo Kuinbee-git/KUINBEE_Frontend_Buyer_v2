@@ -787,6 +787,9 @@ export function DatasetDiscoveryV2() {
                 ? "Loading…"
                 : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
             </p>
+            <Link href="/datasets/categories" className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 dark:text-white">
+              Browse datasets by category
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6 lg:gap-8">

@@ -334,7 +334,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const internalLinks = [
     { href: "/datasets", label: "Explore verified datasets" },
-    { href: "/pricing", label: "View enterprise pricing" },
+    { href: "/contact", label: "Discuss your dataset requirements" },
     { href: "/about", label: "Learn about Kuinbee governance" },
   ];
 
