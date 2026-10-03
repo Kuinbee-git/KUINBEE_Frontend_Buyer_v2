@@ -1,0 +1,37 @@
+{
+  "industry": "voice",
+  "illustrative": true,
+  "datasetFootage": false,
+  "inputs": [
+    {
+      "path": "public/images/industries/voice/voice-hero-reading-light-v2.webp",
+      "sha256": "d25bfd3e4e492506b1011f7c0ce9c27b044b029890195d99308c2c712284d243"
+    },
+    {
+      "path": "public/images/industries/voice/voice-hero-headset-light-v2.webp",
+      "sha256": "7532bb5cc8b248d2ede4c9d43399e91abe6c390a9a3e27be5349cd1779b7b77c"
+    },
+    {
+      "path": "public/images/industries/voice/voice-hero-courtyard-light-v2.webp",
+      "sha256": "b3548d89cf3a8809be0ecd5449c688a78c6445ce09137b2849c9a0a82e20351d"
+    }
+  ],
+  "variant": "desktop",
+  "sourceFormat": "21:10 panoramic",
+  "width": 2520,
+  "height": 1200,
+  "fps": 60,
+  "frames": 720,
+  "seconds": 12,
+  "holdSeconds": 3.2,
+  "dissolveSeconds": 0.8,
+  "easing": "cosine",
+  "audio": false,
+  "framing": "fixed complete-source export with proportional scaling and neutral white padding; no source crop, camera transform, or baked edge fade",
+  "displayFraming": "edge-to-edge CSS cover on an unscaled viewport plane; responsive crop depends on viewport aspect ratio",
+  "output": "public/images/industries/voice/voice-hero-film-v2.mp4",
+  "poster": "public/images/industries/voice/voice-hero-film-v2-poster.webp",
+  "videoSha256": "2f5d3824917c7bb6eaf24c485cf17ea12886fa0c7227bfa3cd3cec8ac7f90d73",
+  "posterSha256": "3321ce2fc621c53b8e0ec2f60dc2a30886b16fd2a3c24d1d9d3e1d4cf7b74b35",
+  "rendererSha256": "88fa6d7c7bd94227b798a2675710e114f3f16db92d8ae546fc33b58ec2f4167f"
+}

@@ -15,6 +15,7 @@ import { Button } from "./button";
 import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/shared/utils/cn";
 import type { StagedDataset } from "./purchase-staging-panel";
+import styles from "./notch-navigation.module.css";
 
 const NotchNotificationBell = dynamic(
   () =>
@@ -88,6 +89,11 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   const { user, logout } = useAuth();
   const navConfig = useNavigationConfig();
   const pathname = usePathname();
+  const isIndustryOpening = [
+    "/industries/egocentric",
+    "/industries/healthcare",
+    "/industries/voice",
+  ].includes(pathname);
   const isMarketplaceListing =
     pathname === "/datasets" || pathname === "/data-request/services";
   const shouldShowNavSearch =
@@ -199,7 +205,18 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50">
+    <header
+      className={cn(
+        "absolute top-0 left-0 right-0 z-50",
+        isIndustryOpening && styles.industryInk
+      )}
+      data-egocentric-navigation={
+        pathname === "/industries/egocentric" ? "true" : undefined
+      }
+      data-industry-navigation={
+        isIndustryOpening ? pathname.split("/").at(-1) : undefined
+      }
+    >
       <div className="flex justify-center px-6">
         {/* Notch container */}
         <div
@@ -341,7 +358,8 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                 {pathname !== "/" && (
                   <div
                     className={cn(
-                      "relative hidden shrink-0 overflow-visible lg:block",
+                      "relative hidden shrink-0 overflow-visible",
+                      isIndustryOpening ? "xl:block" : "lg:block",
                       "origin-right transition-[width,opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
                       shouldShowNavSearch
                         ? "w-56 translate-x-0 scale-100 opacity-100"
@@ -467,9 +485,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                         asChild
                       >
-                        <Link href="/contact?source=supplier">
-                          Contact Us
-                        </Link>
+                        <Link href="/contact?source=supplier">Contact Us</Link>
                       </Button>
                     ) : (
                       <>
@@ -483,7 +499,10 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         </Button>
                         <Button
                           size="sm"
-                          className="relative bg-gradient-to-b from-black/5 to-transparent dark:!bg-none dark:bg-white/[0.04] backdrop-blur-md border border-black/10 dark:border-white/10 text-[#1a2240] dark:text-white/90 shadow-sm hover:shadow-md hover:bg-gradient-to-r hover:from-[#1a2240] hover:to-[#2d3a5f] hover:text-white dark:hover:!bg-none dark:hover:bg-white/[0.08] hover:border-[#1a2240]/30 dark:hover:border-white/20 transition-all duration-300"
+                          className={cn(
+                            "relative bg-gradient-to-b from-black/5 to-transparent dark:!bg-none dark:bg-white/[0.04] backdrop-blur-md border border-black/10 dark:border-white/10 text-[#1a2240] dark:text-white/90 shadow-sm hover:shadow-md hover:bg-gradient-to-r hover:from-[#1a2240] hover:to-[#2d3a5f] hover:text-white dark:hover:!bg-none dark:hover:bg-white/[0.08] hover:border-[#1a2240]/30 dark:hover:border-white/20 transition-all duration-300",
+                            styles.inkSignup
+                          )}
                           onClick={() => openModal("signup")}
                         >
                           Sign Up

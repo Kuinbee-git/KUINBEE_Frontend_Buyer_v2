@@ -11,6 +11,8 @@ interface CategoryCardProps {
   imageLight: string;
   imageDark: string;
   imageAlt: string;
+  exploreHref?: string;
+  exploreLabel?: string;
   buyHref: string;
   sellHref: string;
 }
@@ -26,6 +28,8 @@ export function CategoryCard({
   imageLight,
   imageDark,
   imageAlt,
+  exploreHref,
+  exploreLabel,
   buyHref,
   sellHref,
 }: CategoryCardProps) {
@@ -40,14 +44,16 @@ export function CategoryCard({
         quality={75}
       />
 
-      {imageLight !== imageDark && <Image
-        src={imageDark}
-        alt={imageAlt}
-        fill
-        className="-z-20 hidden object-cover object-top opacity-80 transition-transform duration-500 group-hover:scale-[1.03] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
-        sizes="(min-width: 1280px) 400px, (min-width: 768px) 33vw, calc(100vw - 40px)"
-        quality={75}
-      />}
+      {imageLight !== imageDark && (
+        <Image
+          src={imageDark}
+          alt={imageAlt}
+          fill
+          className="-z-20 hidden object-cover object-top opacity-80 transition-transform duration-500 group-hover:scale-[1.03] dark:block motion-reduce:transform-none motion-reduce:transition-none md:object-contain lg:object-cover"
+          sizes="(min-width: 1280px) 400px, (min-width: 768px) 33vw, calc(100vw - 40px)"
+          quality={75}
+        />
+      )}
 
       <div
         className="pointer-events-none absolute inset-0 -z-10 dark:hidden"
@@ -69,9 +75,7 @@ export function CategoryCard({
 
       <div className="flex min-h-full w-full flex-1 flex-col">
         <div className="flex items-center gap-3 px-6 pt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/[0.65] md:px-5 lg:px-7 lg:pt-7">
-          <span className="tabular-nums text-white">
-            {index}
-          </span>
+          <span className="tabular-nums text-white">{index}</span>
           <span className="h-px w-7 shrink-0 bg-white/45" />
           <span>{eyebrow}</span>
         </div>
@@ -89,6 +93,26 @@ export function CategoryCard({
               {description}
             </p>
           </div>
+
+          {exploreHref && exploreLabel && (
+            <Link
+              href={exploreHref}
+              className="group/explore flex min-h-16 items-center justify-between gap-4 border-t border-black/[0.1] bg-black/[0.025] px-6 py-4 transition-colors duration-300 hover:bg-black/[0.05] focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black/70 dark:border-white/[0.12] dark:bg-white/[0.045] dark:hover:bg-white/[0.075] dark:focus-visible:ring-white md:px-5 lg:px-7"
+            >
+              <span className="flex flex-col gap-1">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.17em] text-black/40 dark:text-white/[0.45]">
+                  Industry page
+                </span>
+                <span className="text-sm font-semibold text-black/85 dark:text-white">
+                  {exploreLabel}
+                </span>
+              </span>
+              <ArrowUpRight
+                className="h-4 w-4 shrink-0 text-black/50 transition-[color,transform] duration-300 group-hover/explore:-translate-y-0.5 group-hover/explore:translate-x-0.5 group-hover/explore:text-black dark:text-white/65 dark:group-hover/explore:text-white motion-reduce:transform-none"
+                aria-hidden="true"
+              />
+            </Link>
+          )}
 
           <div className="grid grid-cols-2 border-t border-black/[0.1] dark:border-white/[0.12]">
             <Link

@@ -1,0 +1,37 @@
+{
+  "industry": "healthcare",
+  "illustrative": true,
+  "datasetFootage": false,
+  "inputs": [
+    {
+      "path": "public/images/industries/healthcare/healthcare-hero-radiology-light-v2.webp",
+      "sha256": "d3c9cace2803311e8e162298ba2caa09075c1438bf903158c0a5e3b436f18319"
+    },
+    {
+      "path": "public/images/industries/healthcare/healthcare-hero-laboratory-light-v2.webp",
+      "sha256": "1da39d9496964e376ee7aa22a751efd570472ca19c037e0fb069f12437748e0e"
+    },
+    {
+      "path": "public/images/industries/healthcare/healthcare-hero-wearable-light-v2.webp",
+      "sha256": "dd17a3b9634a5b9808298bcf31fc227979f47ea5ef51a29bebebb1caf043cd0c"
+    }
+  ],
+  "variant": "desktop",
+  "sourceFormat": "21:10 panoramic",
+  "width": 2520,
+  "height": 1200,
+  "fps": 60,
+  "frames": 720,
+  "seconds": 12,
+  "holdSeconds": 3.2,
+  "dissolveSeconds": 0.8,
+  "easing": "cosine",
+  "audio": false,
+  "framing": "fixed complete-source export with proportional scaling and neutral white padding; no source crop, camera transform, or baked edge fade",
+  "displayFraming": "edge-to-edge CSS cover on an unscaled viewport plane; responsive crop depends on viewport aspect ratio",
+  "output": "public/images/industries/healthcare/healthcare-hero-film-v2.mp4",
+  "poster": "public/images/industries/healthcare/healthcare-hero-film-v2-poster.webp",
+  "videoSha256": "de183a1bce72506768caf288ee1a7a194d33d3995e4ed25b604a09883e34882c",
+  "posterSha256": "e47ac6cace4103186a14b965943bf263f1541c4456f0441f352ea318c0649807",
+  "rendererSha256": "88fa6d7c7bd94227b798a2675710e114f3f16db92d8ae546fc33b58ec2f4167f"
+}

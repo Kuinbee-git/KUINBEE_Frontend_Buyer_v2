@@ -1,0 +1,15 @@
+:global(html:not(.dark)) .industryInk {
+  --foreground: #000;
+  --muted-foreground: #000;
+  color: #000;
+}
+
+:global(html:not(.dark)) .industryInk button {
+  color: #000;
+}
+
+@media (hover: hover) {
+  :global(html:not(.dark)) .industryInk .inkSignup:hover {
+    color: #fff;
+  }
+}

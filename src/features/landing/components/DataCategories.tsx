@@ -14,6 +14,8 @@ const categories = [
     imageDark: "/images/categories/egocentric-sketch-navy-v2.webp",
     imageAlt:
       "Editorial sketch of a first-person view moving through an urban walkway",
+    exploreHref: "/industries/egocentric",
+    exploreLabel: "Explore Egocentric",
     buyHref: "/marketplace",
     sellHref: "/data-request",
   },
@@ -27,6 +29,8 @@ const categories = [
     imageDark: "/images/categories/healthcare-sketch-navy-v2.webp",
     imageAlt:
       "Editorial sketch of a clinician reviewing anonymized medical scans",
+    exploreHref: "/industries/healthcare",
+    exploreLabel: "Explore Healthcare",
     buyHref: "/marketplace",
     sellHref: "/data-request",
   },
@@ -40,6 +44,8 @@ const categories = [
     imageDark: "/images/categories/voice-sketch-navy-v2.webp",
     imageAlt:
       "Editorial sketch of a speaker recording voice data with acoustic traces",
+    exploreHref: "/industries/voice",
+    exploreLabel: "Explore Voice",
     buyHref: "/marketplace",
     sellHref: "/data-request",
   },
