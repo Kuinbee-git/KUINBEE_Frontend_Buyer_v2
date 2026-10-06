@@ -8,7 +8,6 @@ import {
   HowItWorksSection,
   GovernanceValue,
   CustomerTestimonialsSection,
-  DataRequestSection,
   SecuritySection,
   SupplierSection,
   FAQSection,
@@ -42,7 +41,6 @@ export default function HomePage() {
       <HowItWorksSection />
       <GovernanceValue />
       <CustomerTestimonialsSection />
-      <DataRequestSection />
       <SupplierSection />
       <SecuritySection />
       <FAQSection />
