@@ -1,145 +1,250 @@
-"use client";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Check,
+  Database,
+  FileCheck2,
+  FileText,
+  Fingerprint,
+  FolderLock,
+  HelpCircle,
+  ScanLine,
+  ShieldCheck,
+  Tag,
+} from "lucide-react";
+import styles from "./GovernanceValue.module.css";
 
-import { useEffect, useRef, useState } from "react";
-import { Shield } from "lucide-react";
-import { CTABox } from "./cta-box";
-
-const problems = [
+const controls = [
   {
-    problem: "Unverified data sources create compliance risk.",
-    solution: "Supplier Verification Framework",
-    description:
-      "All suppliers undergo identity verification, capability assessment, and ongoing compliance monitoring.",
+    id: "supplier",
+    label: "Supplier identity",
+    icon: Fingerprint,
+    question: "Who supplies it?",
+    answer: "Identity verified",
   },
   {
-    problem: "Unclear data provenance undermines trust.",
-    solution: "Complete Audit Trail",
-    description:
-      "Full chain-of-custody tracking from source to delivery with immutable transaction records.",
+    id: "source",
+    label: "Dataset source",
+    icon: Database,
+    question: "Where is it from?",
+    answer: "Source details listed",
   },
   {
-    problem: "Opaque pricing and negotiation processes.",
-    solution: "Fixed, Published Pricing",
-    description:
-      "All dataset prices are publicly listed. No negotiations, no hidden fees, no preferential treatment.",
+    id: "pricing",
+    label: "Upfront pricing",
+    icon: Tag,
+    question: "What will it cost?",
+    answer: "Price shown upfront",
   },
   {
-    problem: "No quality assurance or validation.",
-    solution: "Mandatory Quality Metrics",
-    description:
-      "Standardized quality scores, freshness indicators, and validation reports for every dataset.",
+    id: "review",
+    label: "Dataset review",
+    icon: FileCheck2,
+    question: "Has it been reviewed?",
+    answer: "Reviewed before publication",
   },
   {
-    problem: "Fragmented access and inconsistent delivery.",
-    solution: "Controlled Access Protocol",
-    description:
-      "Standardized delivery mechanisms with version control, access logging, and usage tracking.",
+    id: "license",
+    label: "Usage terms",
+    icon: FileText,
+    question: "How can I use it?",
+    answer: "License terms on the listing",
   },
   {
-    problem: "Regulatory uncertainty in data transactions.",
-    solution: "Compliance-First Architecture",
-    description:
-      "Built-in regulatory compliance, license management, and jurisdiction-aware delivery.",
+    id: "access",
+    label: "Managed access",
+    icon: FolderLock,
+    question: "Where is my data?",
+    answer: "Purchased data in your library",
   },
-];
+] as const;
 
 export function GovernanceValue() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section
-      ref={sectionRef}
-      className={`relative py-16 md:py-24 overflow-hidden transition-opacity duration-1000 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      id="governance"
+      aria-labelledby="governance-title"
+      className={styles.section}
     >
-      {/* Background - Consistent with other sections */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(26,34,64,0.04),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.02),transparent_50%)]" />
-        {/* Subtle dot pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.02] dark:opacity-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(26, 34, 64, 0.3) 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-      </div>
-
-      <div className="mx-auto max-w-6xl px-6 relative z-10">
-        {/* Section header */}
-        <div className="mb-16">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Marketplace Governance</span>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>
+              <span aria-hidden="true" />
+              Marketplace governance
+            </p>
+            <h2 id="governance-title" className={styles.title}>
+              Know the data.
+              <br />
+              <span>Before you buy.</span>
+            </h2>
           </div>
-          <h2 className="mt-4 text-3xl font-medium tracking-tight text-primary sm:text-4xl md:text-5xl">
-            Controlled Process
-            <br />
-            <span className="text-muted-foreground">Reduces Risk</span>
-          </h2>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            Unregulated data marketplaces create compliance exposure and
-            operational risk. Kuinbee enforces governance at every transaction
-            point.
+          <p className={styles.intro}>
+            A file is only the starting point.
+            <span>
+              Kuinbee brings the supplier, source, price, review, terms, and
+              access into the picture.
+            </span>
           </p>
         </div>
 
-        {/* Problems/Solutions table */}
-        <div className="overflow-hidden rounded-lg border border-border/80 shadow-lg bg-card/50 dark:bg-card/30 backdrop-blur-sm">
-          {/* Header */}
-          <div className="grid grid-cols-1 border-b border-border bg-gradient-to-r from-[#1a2240]/95 via-[#242f52]/90 to-[#2d3a5f]/95 dark:from-white/15 dark:via-white/10 dark:to-white/5 md:grid-cols-2">
-            <div className="border-b border-white/10 dark:border-white/10 p-5 text-sm font-semibold uppercase tracking-wider text-white dark:text-white md:border-b-0 md:border-r md:border-white/10 dark:md:border-white/10">
-              Market Risk
+        <div className={styles.comparison}>
+          <article
+            className={styles.unresolved}
+            aria-labelledby="governance-file-title"
+            data-governance-view="unresolved"
+          >
+            <div className={styles.panelHeader}>
+              <p className={styles.panelEyebrow}>
+                <span className={styles.openDot} aria-hidden="true" />A file on
+                its own
+              </p>
+              <h3 id="governance-file-title">
+                The data.
+                <span>Without the details.</span>
+              </h3>
             </div>
-            <div className="p-5 text-sm font-semibold uppercase tracking-wider text-white dark:text-white">
-              Kuinbee Control
+
+            <div className={styles.looseScene}>
+              <svg
+                className={styles.brokenConnections}
+                viewBox="0 0 440 332"
+                fill="none"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path d="M118 48 L158 64 L196 127" />
+                <path d="M322 65 L285 79 L245 127" />
+                <path d="M118 158 L169 167" />
+                <path d="M322 181 L270 170" />
+                <path d="M120 290 L160 275 L195 205" />
+                <path d="M322 303 L282 281 L245 208" />
+              </svg>
+
+              <div className={styles.looseFile} aria-hidden="true">
+                <FileText size={37} strokeWidth={1.15} />
+                <span>dataset.zip</span>
+                <div className={styles.fileLines}>
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <span className={styles.fileQuestion}>?</span>
+              </div>
+
+              <dl className={styles.questions}>
+                {controls.map((control) => (
+                  <div
+                    key={control.id}
+                    className={styles.uncertainty}
+                    data-control={control.id}
+                  >
+                    <dt>{control.label}</dt>
+                    <dd>
+                      <HelpCircle size={12} aria-hidden="true" />
+                      {control.question}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
+
+            <div className={styles.unresolvedFooter}>
+              <HelpCircle size={20} strokeWidth={1.5} aria-hidden="true" />
+              <p>
+                <strong>Six questions still open.</strong>
+                <span>The context is yours to piece together.</span>
+              </p>
+            </div>
+          </article>
+
+          <div className={styles.bridge} aria-hidden="true">
+            <ArrowRight size={23} strokeWidth={1.6} />
           </div>
 
-          {/* Rows */}
-          {problems.map((item, index) => (
-            <div
-              key={item.solution}
-              className={`grid grid-cols-1 md:grid-cols-2 bg-card dark:bg-card/50 ${
-                index !== problems.length - 1 ? "border-b border-border/60" : ""
-              }`}
-            >
-              <div className="border-b border-border/60 p-5 md:border-b-0 md:border-r md:border-border/60">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {item.problem}
-                </p>
-              </div>
-              <div className="p-5">
-                <h3 className="text-sm font-semibold text-foreground dark:text-white mb-2">
-                  {item.solution}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
+          <article
+            className={styles.resolved}
+            aria-labelledby="governance-kuinbee-title"
+            data-governance-view="kuinbee"
+          >
+            <div className={styles.panelHeader}>
+              <p className={styles.panelEyebrow}>
+                <ShieldCheck size={15} aria-hidden="true" />
+                With Kuinbee
+              </p>
+              <h3 id="governance-kuinbee-title">
+                The data.
+                <span>And the details.</span>
+              </h3>
+              <ShieldCheck
+                className={styles.brandSeal}
+                size={64}
+                strokeWidth={1}
+                aria-hidden="true"
+              />
             </div>
-          ))}
+
+            <div className={styles.governedListing}>
+              <div className={styles.listingHeader}>
+                <span>
+                  <Database size={15} aria-hidden="true" />
+                  Marketplace controls
+                </span>
+                <span>
+                  <BadgeCheck size={14} aria-hidden="true" />
+                  In place
+                </span>
+              </div>
+              <dl className={styles.answers}>
+                {controls.map((control) => {
+                  const Icon = control.icon;
+
+                  return (
+                    <div
+                      key={control.id}
+                      className={styles.answer}
+                      data-control={control.id}
+                    >
+                      <dt>
+                        <span className={styles.answerIcon} aria-hidden="true">
+                          <Icon size={18} strokeWidth={1.5} />
+                        </span>
+                        <span>{control.label}</span>
+                        <Check
+                          className={styles.answerCheck}
+                          size={12}
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                      </dt>
+                      <dd>{control.answer}</dd>
+                    </div>
+                  );
+                })}
+              </dl>
+            </div>
+
+            <div className={styles.resolvedFooter}>
+              <span>
+                <FileCheck2 size={17} aria-hidden="true" />
+                Review
+              </span>
+              <ArrowRight size={13} aria-hidden="true" />
+              <span>
+                <ScanLine size={17} aria-hidden="true" />
+                Evaluate
+              </span>
+              <ArrowRight size={13} aria-hidden="true" />
+              <span>
+                <FolderLock size={17} aria-hidden="true" />
+                Access
+              </span>
+            </div>
+          </article>
         </div>
+        <p className={styles.caption}>
+          An illustrative view of the context around a dataset.
+        </p>
       </div>
     </section>
   );

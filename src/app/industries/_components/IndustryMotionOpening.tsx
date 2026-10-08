@@ -13,6 +13,7 @@ import { ArrowDown, ArrowUpRight } from "lucide-react";
 
 import { Link } from "@/components/router/Link";
 import { IndustryGraphiteTone } from "./IndustryGraphiteTone";
+import { IndustryLink } from "./IndustryPageTransition";
 import styles from "./IndustryMotionOpening.module.css";
 
 export interface IndustryMotionOpeningProps {
@@ -290,14 +291,14 @@ export function IndustryMotionOpening({
           </div>
           <nav className={styles.industryNav} aria-label="Industry pages">
             {industryPages.map((page) => (
-              <Link
+              <IndustryLink
                 key={page.industry}
                 href={`/industries/${page.industry}`}
                 className={styles.industryLink}
                 aria-current={page.industry === industry ? "page" : undefined}
               >
                 {page.label}
-              </Link>
+              </IndustryLink>
             ))}
           </nav>
         </div>

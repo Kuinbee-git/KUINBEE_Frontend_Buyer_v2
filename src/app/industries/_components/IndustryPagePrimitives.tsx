@@ -43,6 +43,7 @@ export function IndustryPageFrame({
         <LandingHeader />
       </div>
       <div
+        data-industry-content
         className={cn(
           "relative isolate",
           allowSticky ? "overflow-clip bg-background" : "overflow-hidden"

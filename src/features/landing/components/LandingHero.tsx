@@ -10,6 +10,7 @@ import { InstitutionalBackground } from "@/shared/components/ui/institutional-ba
 import { SearchSuggestionDropdown } from "@/shared/components/ui/search-suggestion-dropdown";
 import { useSearchSuggestions } from "@/hooks/api/useSearchSuggestions";
 import { TrustBadge } from "./trust-badge";
+import { HeroHeadline } from "./HeroHeadline";
 import {
   Search,
   ShieldCheck,
@@ -146,13 +147,7 @@ export function LandingHero() {
           </div>
 
           {/* Hero title */}
-          <h1 className="text-center text-4xl font-semibold leading-tight tracking-tight text-primary dark:text-white sm:text-5xl md:text-6xl lg:text-7xl">
-            Dataset Marketplace
-            <br />
-            <span className="text-primary/70 dark:text-white/80">
-              for AI and Research
-            </span>
-          </h1>
+          <HeroHeadline />
 
           {/* Description */}
           <p className="mt-4 md:mt-6 text-center mx-auto max-w-3xl text-base md:text-lg leading-relaxed text-muted-foreground dark:text-white/70 px-4 md:px-0">
