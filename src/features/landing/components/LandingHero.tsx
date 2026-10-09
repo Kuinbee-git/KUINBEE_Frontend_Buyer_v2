@@ -22,7 +22,11 @@ import {
   X,
 } from "lucide-react";
 
-export function LandingHero() {
+export function LandingHero({
+  showCustomerBand = true,
+}: {
+  showCustomerBand?: boolean;
+}) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -48,7 +52,6 @@ export function LandingHero() {
     },
     []
   );
-
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -308,7 +311,11 @@ export function LandingHero() {
             <div className="animate-marquee items-center">
               {/* Two identical sets for seamless loop */}
               {[...Array(2)].map((_, setIdx) => (
-                <div key={setIdx} aria-hidden={setIdx === 1 ? true : undefined} className={`${setIdx === 1 ? "hidden md:flex" : "flex"} items-center gap-10 pr-10`}>
+                <div
+                  key={setIdx}
+                  aria-hidden={setIdx === 1 ? true : undefined}
+                  className={`${setIdx === 1 ? "hidden md:flex" : "flex"} items-center gap-10 pr-10`}
+                >
                   {[
                     {
                       src: "/dcp-light.png",
@@ -420,7 +427,9 @@ export function LandingHero() {
                         alt={logo.alt}
                         width={logo.w}
                         height={logo.h}
-                        loading={setIdx === 0 && logoIndex < 3 ? "eager" : "lazy"}
+                        loading={
+                          setIdx === 0 && logoIndex < 3 ? "eager" : "lazy"
+                        }
                         className={`flex-shrink-0 object-contain hover:opacity-100 transition-opacity duration-300 filter mix-blend-multiply dark:mix-blend-normal ${logo.className ?? ""}`}
                       />
                     )
@@ -442,77 +451,79 @@ export function LandingHero() {
         </div>
 
         {/* Customer band */}
-        <div className="mt-12 md:mt-16 w-full">
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
-            Trusted by Data Teams
-          </p>
+        {showCustomerBand && (
+          <div className="mt-12 md:mt-16 w-full">
+            <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70 dark:text-white/35 mb-8">
+              Trusted by Data Teams
+            </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-y-7 md:gap-x-16">
-            <div className="grid w-full max-w-[22rem] grid-cols-3 items-center gap-2 md:flex md:h-14 md:w-auto md:max-w-none md:gap-10">
-              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
-                <span className="whitespace-nowrap text-[17px] font-semibold leading-none tracking-normal text-black dark:text-white md:text-3xl md:tracking-tight">
-                  OneClarity
-                </span>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-y-7 md:gap-x-16">
+              <div className="grid w-full max-w-[22rem] grid-cols-3 items-center gap-2 md:flex md:h-14 md:w-auto md:max-w-none md:gap-10">
+                <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
+                  <span className="whitespace-nowrap text-[17px] font-semibold leading-none tracking-normal text-black dark:text-white md:text-3xl md:tracking-tight">
+                    OneClarity
+                  </span>
+                </div>
 
-              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
-                <Image
-                  src="/vaani-light.png"
-                  alt="Vaani customer logo (light) | Kuinbee"
-                  width={220}
-                  height={72}
-                  sizes="(max-width: 767px) 110px, 180px"
-                  loading="lazy"
-                  className="block dark:hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 md:h-full md:max-w-none"
-                  style={{ width: "auto" }}
-                />
-                <Image
-                  src="/vaani.png"
-                  alt="Vaani customer logo (dark) | Kuinbee"
-                  width={220}
-                  height={72}
-                  sizes="(max-width: 767px) 110px, 180px"
-                  loading="lazy"
-                  className="hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-full md:max-w-none"
-                  style={{ width: "auto" }}
-                />
-              </div>
+                <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
+                  <Image
+                    src="/vaani-light.png"
+                    alt="Vaani customer logo (light) | Kuinbee"
+                    width={220}
+                    height={72}
+                    sizes="(max-width: 767px) 110px, 180px"
+                    loading="lazy"
+                    className="block dark:hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 md:h-full md:max-w-none"
+                    style={{ width: "auto" }}
+                  />
+                  <Image
+                    src="/vaani.png"
+                    alt="Vaani customer logo (dark) | Kuinbee"
+                    width={220}
+                    height={72}
+                    sizes="(max-width: 767px) 110px, 180px"
+                    loading="lazy"
+                    className="hidden h-8 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-full md:max-w-none"
+                    style={{ width: "auto" }}
+                  />
+                </div>
 
-              <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
-                <Image
-                  src="/policysalah.avif"
-                  alt="PolicySalah customer logo | Kuinbee"
-                  width={196}
-                  height={91}
-                  sizes="(max-width: 767px) 110px, 140px"
-                  loading="lazy"
-                  className="h-10 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-16 md:max-w-none"
-                  style={{ width: "auto" }}
-                />
-                <Image
-                  src="/policysalah-dark-tight.png"
-                  alt="PolicySalah customer logo | Kuinbee"
-                  width={219}
-                  height={50}
-                  sizes="(max-width: 767px) 110px, 180px"
-                  loading="lazy"
-                  className="hidden h-7 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-10 md:max-w-none"
-                  style={{ width: "auto" }}
-                />
+                <div className="flex h-10 min-w-0 items-center justify-center md:h-full">
+                  <Image
+                    src="/policysalah.avif"
+                    alt="PolicySalah customer logo | Kuinbee"
+                    width={196}
+                    height={91}
+                    sizes="(max-width: 767px) 110px, 140px"
+                    loading="lazy"
+                    className="h-10 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:hidden md:h-16 md:max-w-none"
+                    style={{ width: "auto" }}
+                  />
+                  <Image
+                    src="/policysalah-dark-tight.png"
+                    alt="PolicySalah customer logo | Kuinbee"
+                    width={219}
+                    height={50}
+                    sizes="(max-width: 767px) 110px, 180px"
+                    loading="lazy"
+                    className="hidden h-7 max-w-full flex-shrink-0 object-contain opacity-95 transition-opacity duration-300 hover:opacity-100 dark:block md:h-10 md:max-w-none"
+                    style={{ width: "auto" }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 text-center">
-            <a
-              href="#client-testimonials"
-              className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/75 dark:text-white dark:hover:text-white/75"
-            >
-              Read client testimonials
-              <ArrowRight className="h-4 w-4" />
-            </a>
+            <div className="mt-6 text-center">
+              <a
+                href="#client-testimonials"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary/75 dark:text-white dark:hover:text-white/75"
+              >
+                Read client testimonials
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

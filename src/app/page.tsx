@@ -35,7 +35,7 @@ export default function HomePage() {
       <div className="sticky top-0 z-50">
         <LandingHeader />
       </div>
-      <LandingHero />
+      <LandingHero showCustomerBand={process.env.VERCEL_ENV !== "production"} />
       <DataCategories />
       <DatasetCategoryDirectory />
       <HowItWorksSection />
