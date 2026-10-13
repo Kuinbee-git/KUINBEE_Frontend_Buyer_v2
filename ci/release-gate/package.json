@@ -1,0 +1,7 @@
+{
+  "name": "release-gate-verification",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
