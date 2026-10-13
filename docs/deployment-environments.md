@@ -86,3 +86,26 @@ and 2 CSP browser checks, plus its transfer/queue unit contracts.
 These are local results against fixture APIs. GitHub Actions, Vercel check
 integration, staged-domain acceptance and the final live data/traffic handoff
 are separate release checkpoints; public promotion remains held.
+
+## Hosted qualification — 2026-10-13
+
+The buyer [Actions run 38378755143](https://github.com/Kuinbee-git/KUINBEE_Frontend_Buyer_v2/actions/runs/38378755143)
+passed, and Vercel built the same `4e391204cb815333743f38af2948b984e9e57bce`
+revision successfully after verifying that run. Protected preview browser checks
+passed for rendered staging identification, noindex headers, compiled API routing
+and an intercepted login-error response. These checks do not qualify live OAuth,
+same-site cookies, real API CORS or provider operations.
+
+An isolated verification branch deliberately failed its quality check. The native
+production check held alias assignment, and the explicit prebuild check stopped
+the failing Preview build. The corresponding passing test then built successfully
+and received its test alias. The temporary verification project has been removed
+after preserving the results; it must not be recreated as a second deployment
+controller for the buyer application. Its earlier failed check on the migration
+branch came from a missing fixture directory, not the buyer application build.
+
+Two additional failures came from the temporary static fixture's configuration:
+it first inherited the application build, then used an incorrect output directory.
+Both were corrected before the positive release test passed. The verification
+branch is test evidence only and must never be merged into application branches.
+Public domains remain on their previous deployments until the coordinated handoff.
