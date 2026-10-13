@@ -13,13 +13,14 @@
     "type-check": "tsc --noEmit",
     "check:environment": "node scripts/deployment-environment.mjs",
     "test:environment": "node --test scripts/deployment-environment.test.mjs",
-    "prebuild": "npm run check:environment",
+    "prebuild": "npm run check:environment && node scripts/check-github-release.mjs",
     "test:rss": "node scripts/check-rss-feed.mjs",
     "test:release": "node scripts/check-release.mjs",
     "test:errors": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test scripts/test-error-details.mjs",
     "test:components": "node scripts/test-components-browser.mjs && node scripts/test-state-lifecycle-browser.mjs",
-    "test:contracts": "node scripts/verify-gate-fixture.mjs && npm run test:environment && npm run test:errors && npm run test:rss",
-    "audit:runtime": "npm audit --omit=dev --audit-level=high"
+    "test:contracts": "node scripts/verify-gate-fixture.mjs && npm run test:release-gate && npm run test:environment && npm run test:errors && npm run test:rss",
+    "audit:runtime": "npm audit --omit=dev --audit-level=high",
+    "test:release-gate": "node --test scripts/check-github-release.test.mjs"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",
