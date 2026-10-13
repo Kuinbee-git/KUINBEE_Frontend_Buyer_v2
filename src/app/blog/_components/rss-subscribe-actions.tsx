@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, Copy, ExternalLink, Rss } from "lucide-react";
 
 interface RssSubscribeActionsProps {
@@ -8,14 +8,8 @@ interface RssSubscribeActionsProps {
 }
 
 export function RssSubscribeActions({ fallbackUrl }: RssSubscribeActionsProps) {
-  const [localRssUrl, setLocalRssUrl] = useState(fallbackUrl);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLocalRssUrl(`${window.location.origin}/feed.xml`);
-    }
-  }, []);
 
   // Always use fallbackUrl (production) for Feedly since it can't reach localhost
   const feedlyUrl = useMemo(
@@ -25,7 +19,7 @@ export function RssSubscribeActions({ fallbackUrl }: RssSubscribeActionsProps) {
 
   const copyRssLink = async () => {
     try {
-      await navigator.clipboard.writeText(localRssUrl);
+      await navigator.clipboard.writeText(`${window.location.origin}/feed.xml`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {

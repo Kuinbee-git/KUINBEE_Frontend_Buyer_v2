@@ -1,6 +1,10 @@
+import { deploymentEnvironment } from './scripts/deployment-environment.mjs';
 import type { NextConfig } from "next";
 
+const deployment = deploymentEnvironment();
+
 const nextConfig: NextConfig = {
+  agentRules: false,
   images: {
     qualities: [75, 92],
     remotePatterns: [
@@ -15,6 +19,7 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
+          ...(deployment.isStaging ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] : []),
           {
             key: "X-Frame-Options",
             value: "DENY",
@@ -67,6 +72,7 @@ const nextConfig: NextConfig = {
     ];
   },
   experimental: {
+    ...(process.env.CI ? { cpus: 2 } : {}),
     optimizePackageImports: ["lucide-react"],
   },
 };

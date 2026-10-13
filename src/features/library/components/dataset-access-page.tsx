@@ -4,19 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import {
-  Shield,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  ArrowLeft,
-  Download,
-  Copy,
-  ChevronDown,
-  FileText,
-  Calendar,
-  Building2,
-} from "lucide-react";
+import { Shield, CheckCircle2, AlertCircle, Clock, ArrowLeft, Download, ChevronDown, FileText, Calendar, Building2 } from "lucide-react";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -49,18 +37,12 @@ interface DatasetAccess {
   expiresAt?: string;
 }
 
-interface DownloadLink {
-  url: string;
-  expiresAt: string;
-  generatedAt: string;
-}
-
 interface DatasetAccessPageProps {
   datasetId?: string;
   initialDatasetDetails?: DatasetDetailsResponse;
 }
 
-export function DatasetAccessPage({ datasetId, initialDatasetDetails }: DatasetAccessPageProps) {
+export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   // Fetch dataset access details
   const {
     data: libraryItemResponse,
@@ -207,11 +189,6 @@ export function DatasetAccessPage({ datasetId, initialDatasetDetails }: DatasetA
     }, 100);
   };
 
-  const handleCopyLink = () => {
-    if (downloadUrlResponse?.url) {
-      navigator.clipboard.writeText(downloadUrlResponse.url);
-    }
-  };
 
   const formatDate = (isoDate: string) => {
     return new Date(isoDate).toLocaleString("en-US", {
@@ -686,7 +663,7 @@ export function DatasetAccessPage({ datasetId, initialDatasetDetails }: DatasetA
                             </h4>
                             <p className="text-xs text-blue-800 dark:text-blue-400 leading-relaxed">
                               Download links are time-limited and expire after 24 hours for security.
-                              Generate a new link when you're ready to download.
+                              Generate a new link when you&apos;re ready to download.
                             </p>
                           </div>
                         </div>

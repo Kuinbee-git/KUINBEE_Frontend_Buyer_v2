@@ -26,18 +26,6 @@ export function LibraryPage() {
   // Get sidebar sections
   const sidebarSections = LIBRARY_SIDEBAR_SECTIONS;
 
-  // Get page title based on active tab
-  const getPageTitle = () => {
-    switch (activeTab) {
-      case "datasets":
-        return "My Datasets";
-      case "wishlist":
-        return "My Wishlist";
-      default:
-        return "Library";
-    }
-  };
-
   return (
     <div className="min-h-screen relative">
       {/* Navigation */}

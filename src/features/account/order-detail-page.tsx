@@ -111,7 +111,7 @@ function formatDate(iso: string) {
 
 export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
   // Poll the order — will stop once status is terminal
-  const { data, isLoading, error, refetch } = usePaymentOrder(orderId, true);
+  const { data, isLoading, error } = usePaymentOrder(orderId, true);
 
   // ── Loading state ──
   if (isLoading) {

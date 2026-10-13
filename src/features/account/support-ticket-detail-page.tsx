@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Separator } from "@/shared/components/ui/separator";
@@ -8,7 +8,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section-sidebar";
-import { MessageSquare, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
+import { MessageSquare, ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTicket } from "@/hooks/api/useSupport";

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useBrowserSearch } from "@/shared/hooks/use-browser-search";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
@@ -110,12 +111,18 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   // Search bar state
   const [navSearchQuery, setNavSearchQuery] = React.useState("");
 
-  // Keep search input synced from URL (e.g. direct link /datasets?q=...)
-  React.useEffect(() => {
-    if (typeof window === "undefined") return;
-    const query = new URLSearchParams(window.location.search).get("q") || "";
-    setNavSearchQuery(query);
-  }, [pathname]);
+  const browserSearch = useBrowserSearch();
+  const urlQuery = new URLSearchParams(browserSearch).get("q") || "";
+  const [searchContext, setSearchContext] = React.useState({ pathname, urlQuery });
+  if (searchContext.pathname !== pathname || searchContext.urlQuery !== urlQuery) {
+    setSearchContext({ pathname, urlQuery });
+    setNavSearchQuery(urlQuery);
+  }
+  const [searchPage, setSearchPage] = React.useState(pathname);
+  if (searchPage !== pathname) {
+    setSearchPage(pathname);
+    setMarketplaceSearchPassed(false);
+  }
 
   // Handle scroll state
   React.useEffect(() => {
@@ -133,10 +140,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
   // On marketplace listings, reveal the compact search only after the
   // full-size page search has passed beneath the sticky navigation.
   React.useEffect(() => {
-    if (!isMarketplaceListing) {
-      setMarketplaceSearchPassed(false);
-      return;
-    }
+    if (!isMarketplaceListing) return;
 
     let frameId = 0;
     const pageSearch = document.querySelector<HTMLElement>(

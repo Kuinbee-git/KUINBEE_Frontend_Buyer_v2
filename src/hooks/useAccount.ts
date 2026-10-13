@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+// Legacy demo fixtures use a fixed clock so rendering is deterministic.
 interface Notification {
   id: string;
   title: string;
@@ -15,21 +16,21 @@ export function useNotifications() {
       id: "1",
       title: "Dataset Update Available",
       message: "US Treasury Bond Yields 2024 has been updated with new data.",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.parse("2026-02-08T12:00:00Z") - 2 * 60 * 60 * 1000).toISOString(),
       status: "NEW",
     },
     {
       id: "2",
       title: "Purchase Confirmed",
       message: "Your purchase of India Crop Production Statistics has been confirmed.",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.parse("2026-02-08T12:00:00Z") - 24 * 60 * 60 * 1000).toISOString(),
       status: "NEW",
     },
     {
       id: "3",
       title: "Access Granted",
       message: "You now have access to Global Carbon Emissions - Q4 2024.",
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      timestamp: new Date(Date.parse("2026-02-08T12:00:00Z") - 3 * 24 * 60 * 60 * 1000).toISOString(),
       status: "READ",
     },
   ]);
@@ -64,7 +65,7 @@ export function useWishlist() {
       title: "European Energy Grid Analytics",
       category: "Energy & Utilities",
       pricingType: "PAID",
-      addedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      addedAt: new Date(Date.parse("2026-02-08T12:00:00Z") - 5 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       id: "2",
@@ -72,7 +73,7 @@ export function useWishlist() {
       title: "Asia-Pacific Trade Routes 2024",
       category: "Economics & Trade",
       pricingType: "PAID",
-      addedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      addedAt: new Date(Date.parse("2026-02-08T12:00:00Z") - 10 * 24 * 60 * 60 * 1000).toISOString(),
     },
   ]);
 
@@ -101,7 +102,7 @@ interface Ticket {
 }
 
 export function useTickets() {
-  const [tickets, setTickets] = useState<Ticket[]>([
+  const [tickets] = useState<Ticket[]>([
     {
       ticketNumber: "TCK-2026-0142",
       subject: "Unable to download dataset",

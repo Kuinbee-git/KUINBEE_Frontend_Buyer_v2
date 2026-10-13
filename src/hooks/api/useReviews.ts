@@ -51,7 +51,6 @@ export const useUpdateReview = () => {
 
   return useMutation({
     mutationFn: ({
-      datasetId,
       reviewId,
       data,
     }: {
@@ -74,7 +73,6 @@ export const useDeleteReview = () => {
 
   return useMutation({
     mutationFn: ({
-      datasetId,
       reviewId,
     }: {
       datasetId: string;

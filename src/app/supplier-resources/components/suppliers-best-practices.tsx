@@ -85,7 +85,7 @@ export function SuppliersBestPractices() {
                         <span className="text-muted-foreground">Into Sales</span>
                     </h2>
                     <p className="mt-6 text-lg text-muted-foreground dark:text-white/70">
-                        Approved datasets get discovered, but meticulously documented datasets get purchased. Here's how top suppliers optimize their listings for conversion.
+                        Approved datasets get discovered, but meticulously documented datasets get purchased. Here&apos;s how top suppliers optimize their listings for conversion.
                     </p>
                 </div>
 

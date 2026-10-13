@@ -1,26 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 import { useModal } from "@/core/providers/ModalProvider";
 import { useSendEmailVerification } from "@/hooks/api/useAuth";
 import type { ApiError } from "@/types";
 
+function readPendingEmail() {
+  try { return sessionStorage.getItem("pending_verification_email") || ""; }
+  catch { return ""; }
+}
+
+function subscribeStorage(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
 export function VerifyEmailModalContent() {
   const { openModal } = useModal();
   const sendVerificationMutation = useSendEmailVerification();
   const [resendSuccess, setResendSuccess] = useState(false);
-  const [email, setEmail] = useState("");
+  const email = useSyncExternalStore(subscribeStorage, readPendingEmail, () => "");
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Get email from sessionStorage (set by login modal or signup modal)
-    const pendingEmail = sessionStorage.getItem("pending_verification_email");
-    if (pendingEmail) {
-      setEmail(pendingEmail);
-    }
-  }, []);
 
   const handleResend = async () => {
     setResendSuccess(false);
@@ -55,7 +58,7 @@ export function VerifyEmailModalContent() {
           Check your email
         </h1>
         <p className="text-sm text-white/70">
-          We've sent you a verification link
+          We&apos;ve sent you a verification link
         </p>
       </div>
 

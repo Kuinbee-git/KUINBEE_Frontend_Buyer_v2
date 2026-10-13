@@ -3,15 +3,7 @@
  */
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
-import type {
-  Dataset,
-  DatasetDetailsResponse,
-  DatasetListQuery,
-  Category,
-  CategoryListQuery,
-  PaginatedResponse,
-  ApiResponse,
-} from "@/types";
+import type { Dataset, DatasetDetailsResponse, DatasetListQuery, Category, CategoryListQuery, PaginatedResponse } from "@/types";
 
 export const marketplaceService = {
   // Datasets

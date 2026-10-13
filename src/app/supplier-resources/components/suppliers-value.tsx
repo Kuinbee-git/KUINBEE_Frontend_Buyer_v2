@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Users, Search, DollarSign, Shield, BadgeCheck, FileText, Settings, CheckCircle2 } from "lucide-react";
+import { Search, DollarSign, Shield, BadgeCheck, FileText, Settings, CheckCircle2 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 
 export function SuppliersValue() {

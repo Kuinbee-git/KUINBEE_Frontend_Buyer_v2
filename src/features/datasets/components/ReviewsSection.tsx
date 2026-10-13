@@ -104,7 +104,7 @@ const ReviewsSectionInner = ({ datasetId, isLoggedIn, onSignIn }: ReviewsSection
     }
   };
 
-  const handleEditReview = (review: any) => {
+  const handleEditReview = (review: (typeof reviews)[number]) => {
     setEditingReviewId(review.id);
     setReviewRating(review.rating);
     setReviewComment(review.comment || "");

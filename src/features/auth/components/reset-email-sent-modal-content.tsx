@@ -36,7 +36,7 @@ export function ResetEmailSentModalContent() {
           Check your email
         </h1>
         <p className="text-sm text-white/70">
-          We've sent you a password reset link
+          We&apos;ve sent you a password reset link
         </p>
       </div>
 

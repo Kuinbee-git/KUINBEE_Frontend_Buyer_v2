@@ -63,7 +63,7 @@ export const useConfirmPayment = () => {
   return useMutation({
     mutationFn: (body: RazorpayConfirmBody) =>
       paymentService.confirmPayment(body),
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       // Invalidate any cached order queries so the poll picks up the new state
       queryClient.invalidateQueries({
         queryKey: ["payment", "order"],

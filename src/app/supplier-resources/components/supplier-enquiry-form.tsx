@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
+import { useBrowserSearch } from "@/shared/hooks/use-browser-search";
 import { apiClient } from "@/core/api/client";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -16,11 +17,10 @@ export function SupplierEnquiryForm() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [supplierType, setSupplierType] = useState("ORGANIZATION");
-  const [requirementRef, setRequirementRef] = useState("");
-
-  useEffect(() => {
-    setRequirementRef(new URLSearchParams(window.location.search).get("requirement")?.slice(0, 160) ?? "");
-  }, []);
+  const query = useBrowserSearch();
+  const queryRequirement = new URLSearchParams(query).get("requirement")?.slice(0, 160) ?? "";
+  const [editedRequirement, setRequirementRef] = useState<string | null>(null);
+  const requirementRef = editedRequirement ?? queryRequirement;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

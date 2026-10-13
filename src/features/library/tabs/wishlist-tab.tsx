@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+
 import { Button } from "@/shared/components/ui/button";
 import { Heart, Trash2, Eye, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -116,7 +116,7 @@ export function WishlistTab() {
     try {
       await removeFromWishlistMutation.mutateAsync(datasetId);
       toast.success("Removed from wishlist");
-    } catch (err) {
+    } catch {
       toast.error("Failed to remove from wishlist");
     }
   };
@@ -207,7 +207,7 @@ export function WishlistTab() {
           </h2>
         </div>
         <p className="text-sm text-[#4e5a7e] dark:text-white/60">
-          {wishlistItems.length} item{wishlistItems.length !== 1 ? "s" : ""} you're interested in purchasing
+          {wishlistItems.length} item{wishlistItems.length !== 1 ? "s" : ""} you&apos;re interested in purchasing
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -18,18 +18,12 @@ export function ResetPasswordModalContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    email: "",
-    token: "",
     password: "",
     confirmPassword: "",
   });
 
-  useEffect(() => {
-    // Get token and email from URL params
-    const token = searchParams.get("token") || "";
-    const email = searchParams.get("email") || "";
-    setFormData((prev) => ({ ...prev, token, email }));
-  }, [searchParams]);
+  const email = searchParams.get("email") || "";
+  const token = searchParams.get("token") || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +42,8 @@ export function ResetPasswordModalContent() {
 
     try {
       await resetMutation.mutateAsync({
-        email: formData.email,
-        token: formData.token,
+        email,
+        token,
         newPassword: formData.password,
       });
       openModal("reset-password-success");

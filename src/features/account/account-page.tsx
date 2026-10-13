@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
-import { SectionSidebar, ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section-sidebar";
+import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section-sidebar";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import Link from "next/link";

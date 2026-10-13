@@ -21,6 +21,8 @@
 
 "use client";
 
+import { getErrorDetails } from "@/shared/utils/error-details";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Dialog,
@@ -55,7 +57,6 @@ import { addOrderId } from "@/lib/orderHistory";
 import type {
   RazorpayCheckoutInfo,
   RazorpaySuccessResponse,
-  OrderStatus,
   PaymentAttemptStatus,
 } from "@/types";
 
@@ -154,9 +155,6 @@ export function RazorpayCheckoutFlow({
   const pollStartRef = useRef<number | null>(null);
 
   const finalizeSuccessfulCheckout = useCallback((resolvedOrderId: string) => {
-    setStep("completed");
-    setPollEnabled(false);
-
     if (completedRef.current) return;
     completedRef.current = true;
 
@@ -206,27 +204,27 @@ export function RazorpayCheckoutFlow({
     return () => clearTimeout(timer);
   }, [step]);
 
-  // ── Watch order status during polling ──
-  useEffect(() => {
-    if (!orderData) return;
-
-    const status: OrderStatus = orderData.order.status;
-    const hasSuccessfulAttempt = orderData.paymentAttempts?.some((attempt) =>
-      SUCCESSFUL_ATTEMPT_STATUSES.includes(attempt.status)
-    );
-
-    if (status === "COMPLETED" || hasSuccessfulAttempt) {
-      finalizeSuccessfulCheckout(orderData.order.id);
-    } else if (status === "FAILED") {
-      setStep("failed");
-      setPollEnabled(false);
-      setErrorMessage("Payment failed. Please try again.");
-    } else if (status === "REFUNDED") {
-      setStep("failed");
-      setPollEnabled(false);
-      setErrorMessage("Payment was refunded.");
+  const successfulOrder = orderData?.order.id === orderId &&
+    (orderData.order.status === "COMPLETED" || orderData.paymentAttempts?.some(
+      attempt => SUCCESSFUL_ATTEMPT_STATUSES.includes(attempt.status)
+    ));
+  const [handledOrderData, setHandledOrderData] = useState(orderData);
+  if (handledOrderData !== orderData) {
+    setHandledOrderData(orderData);
+    if (orderData && orderData.order.id === orderId) {
+      if (successfulOrder) {
+        setStep("completed");
+        setPollEnabled(false);
+      } else if (orderData.order.status === "FAILED" || orderData.order.status === "REFUNDED") {
+        setStep("failed");
+        setPollEnabled(false);
+        setErrorMessage(orderData.order.status === "REFUNDED" ? "Payment was refunded." : "Payment failed. Please try again.");
+      }
     }
-  }, [finalizeSuccessfulCheckout, orderData]);
+  }
+  useEffect(() => {
+    if (successfulOrder && orderId) finalizeSuccessfulCheckout(orderId);
+  }, [successfulOrder, orderId, finalizeSuccessfulCheckout]);
 
   // ── Start the checkout flow ──
   const handleStartCheckout = useCallback(async () => {
@@ -285,7 +283,8 @@ export function RazorpayCheckoutFlow({
             // 5. Start polling for webhook confirmation
             setStep("polling");
             setPollEnabled(true);
-          } catch (err: any) {
+          } catch (caught: unknown) {
+      const err = getErrorDetails(caught);
             setStep("failed");
             setErrorMessage(
               err?.message || "Failed to confirm payment. Contact support if money was deducted."
@@ -315,7 +314,8 @@ export function RazorpayCheckoutFlow({
       });
 
       rzp.open();
-    } catch (err: any) {
+    } catch (caught: unknown) {
+      const err = getErrorDetails(caught);
       setStep("failed");
       setErrorMessage(err?.message || "Could not initiate checkout. Please try again.");
     }
@@ -549,7 +549,7 @@ export function RazorpayCheckoutFlow({
                   onClick={() => {
                     onOpenChange(false);
                     if (orderId) {
-                      window.location.href = `/order/${orderId}`;
+                      router.push(`/order/${orderId}`);
                     }
                   }}
                 >
