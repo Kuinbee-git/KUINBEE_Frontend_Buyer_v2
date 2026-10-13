@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Phone, Clock, MessageSquare, HelpCircle, Users } from "lucide-react";
+import { Mail, Phone, Clock, Users } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";

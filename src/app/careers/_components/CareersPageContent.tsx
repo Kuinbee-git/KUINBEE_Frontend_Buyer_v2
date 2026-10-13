@@ -215,7 +215,7 @@ export function CareersPageContent() {
                                 <div className="flex items-center justify-center gap-3 mb-6">
                                     <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                                     <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                                        We're Hiring
+                                        We&apos;re Hiring
                                     </span>
                                     <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
                                 </div>

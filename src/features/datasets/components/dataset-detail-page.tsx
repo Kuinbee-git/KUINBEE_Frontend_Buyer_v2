@@ -653,7 +653,7 @@ const AccessPricingPanel = React.memo(function AccessPricingPanel({
   primaryAction,
   onDownloadSampleFile,
   isDownloadingSampleFile,
-  onInquireSampleDataset,
+
   isInWishlist,
   isWishlistPending,
   isAuthenticated,
@@ -914,9 +914,6 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
   onDownloadSampleFile,
   isDownloadingSampleFile = false,
   onInquireSampleDataset,
-  onLogin,
-  onBack,
-  currentUserId,
 }: DatasetDetailPageProps) {
   const isPaid = dataset.pricing.type === "paid";
   const isOwned = accessState === "owned";

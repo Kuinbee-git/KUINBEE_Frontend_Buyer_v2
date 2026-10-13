@@ -1,5 +1,7 @@
 "use client";
 
+import { useSessionDraft } from "@/shared/hooks/use-session-draft";
+
 import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useAuth, useModal } from "@/core/providers";
@@ -70,32 +72,22 @@ export function DataRequirementSubmissionForm() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const fallback = { ...emptyForm(), clientRequestId: crypto.randomUUID() };
-    try {
-      const raw = sessionStorage.getItem(DRAFT_KEY);
-      if (!raw) {
-        setForm(fallback);
-      } else {
-        const saved = JSON.parse(raw) as { version: number; savedAt: number; data: FormState };
-        setForm(
-          saved.version === 1 && Date.now() - saved.savedAt < DRAFT_TTL
-            ? { ...fallback, ...saved.data }
-            : fallback
-        );
-      }
-    } catch {
-      setForm(fallback);
-    }
+  const restoredDraft = useSessionDraft(DRAFT_KEY, DRAFT_TTL, emptyForm);
+  if (!hydrated && restoredDraft) {
+    setForm(restoredDraft.data);
     setHydrated(true);
-  }, []);
+  }
 
   useEffect(() => {
     if (!hydrated || receipt) return;
-    sessionStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ version: 1, savedAt: Date.now(), data: form })
-    );
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ version: 1, savedAt: Date.now(), data: form })
+      );
+    } catch {
+      // A blocked or full browser store must not prevent submitting the form.
+    }
   }, [form, hydrated, receipt]);
 
   const update = (key: keyof FormState, value: string) => {
@@ -153,7 +145,11 @@ export function DataRequirementSubmissionForm() {
         licensingCompliance: optional(form.licensingCompliance),
         notes: optional(form.notes),
       });
-      sessionStorage.removeItem(DRAFT_KEY);
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch {
+        // A successful server submission remains successful if storage is blocked.
+      }
       setReceipt(result);
     } catch (caught) {
       const apiError = caught as ApiError;

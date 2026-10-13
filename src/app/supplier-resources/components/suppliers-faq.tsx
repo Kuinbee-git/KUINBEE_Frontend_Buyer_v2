@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { HelpCircle } from "lucide-react";
+
 import {
     Accordion,
     AccordionContent,

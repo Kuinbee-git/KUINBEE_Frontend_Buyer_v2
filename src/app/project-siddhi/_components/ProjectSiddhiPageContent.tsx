@@ -1,21 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-    Heart,
-    Users,
-    Shield,
-    Lightbulb,
-    MessageCircle,
-    Globe,
-    Target,
-    Zap,
-    Phone,
-    ExternalLink,
-    CheckCircle,
-    ArrowRight,
-    Sparkles,
-} from "lucide-react";
+import { Heart, Users, Shield, Lightbulb, MessageCircle, Globe, Target, Zap, Phone, ExternalLink, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
@@ -544,7 +530,7 @@ export function ProjectSiddhiPageContent() {
                         <p className="text-sm text-muted-foreground dark:text-white/60 mb-2">
                             Text{" "}
                             <span className="font-medium text-primary dark:text-white">
-                                "HELLO"
+                                &quot;HELLO&quot;
                             </span>{" "}
                             to
                         </p>
@@ -603,11 +589,11 @@ export function ProjectSiddhiPageContent() {
                         className="bg-card rounded-2xl border border-border p-8 md:p-10 text-center shadow-sm"
                     >
                         <p className="text-lg md:text-xl text-foreground dark:text-white/90 italic leading-relaxed">
-                            "Mental health is not a destination, but a process. It's
-                            about how you drive, not where you're going."
+                            &quot;Mental health is not a destination, but a process. It&apos;s
+                            about how you drive, not where you&apos;re going.&quot;
                         </p>
                         <p className="text-sm text-muted-foreground dark:text-white/50 mt-4">
-                            It's okay to not be okay. Seeking help is brave.
+                            It&apos;s okay to not be okay. Seeking help is brave.
                         </p>
                     </motion.div>
                 </div>

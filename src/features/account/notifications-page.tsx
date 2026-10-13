@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { Bell, CheckCircle2, Trash2, Settings, Loader2, AlertCircle } from "lucide-react";
+import { Bell, CheckCircle2, Settings, Loader2, AlertCircle } from "lucide-react";
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/api/useNotifications";
 import { useNotificationStore } from "@/core/store/notification.store";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export function NotificationsPage() {
     try {
       await markReadMutation.mutateAsync(id);
       decrementUnread();
-    } catch (err) {
+    } catch {
       toast.error("Failed to mark as read");
     }
   };
@@ -45,7 +45,7 @@ export function NotificationsPage() {
       await markAllReadMutation.mutateAsync();
       clearUnread();
       toast.success("All notifications marked as read");
-    } catch (err) {
+    } catch {
       toast.error("Failed to mark all as read");
     }
   };

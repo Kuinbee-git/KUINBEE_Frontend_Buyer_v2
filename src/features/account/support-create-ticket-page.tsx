@@ -50,7 +50,7 @@ export function SupportCreateTicketPage() {
       
       toast.success("Support ticket created successfully");
       router.push("/account/support/tickets");
-    } catch (err) {
+    } catch {
       toast.error("Failed to create ticket");
     }
   };

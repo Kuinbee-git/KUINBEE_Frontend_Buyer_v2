@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState, useCallback } from "react";
 import { Link } from "@/components/router/Link";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
@@ -20,7 +20,7 @@ export function AuthModal({ children, onClose }: AuthModalProps) {
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsVisible(false);
     setTimeout(() => {
       if (onClose) {
@@ -29,7 +29,7 @@ export function AuthModal({ children, onClose }: AuthModalProps) {
         router.push("/");
       }
     }, 200); // Match animation duration
-  };
+  }, [onClose, router]);
 
   // Animate in on mount
   useEffect(() => {
@@ -48,7 +48,7 @@ export function AuthModal({ children, onClose }: AuthModalProps) {
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
+  }, [handleClose]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {

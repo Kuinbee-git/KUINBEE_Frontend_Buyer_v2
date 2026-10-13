@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // Notifications Hook
 export function useNotifications() {
@@ -64,7 +64,7 @@ export function useWishlist() {
 
 // Support Tickets Hook
 export function useTickets() {
-  const [tickets, setTickets] = useState([
+  const [tickets] = useState([
     {
       id: "TKT-001234",
       subject: "Unable to download dataset",
@@ -86,7 +86,7 @@ export function useTickets() {
 
 // Single Ticket Hook
 export function useTicket(ticketId: string) {
-  const [ticket, setTicket] = useState({
+  const [ticket] = useState({
     id: `TKT-001${ticketId}`,
     subject: "Unable to download dataset",
     status: "open",

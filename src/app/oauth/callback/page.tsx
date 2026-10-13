@@ -130,7 +130,7 @@ function OAuthCallbackContent() {
         setTimeout(() => {
           router.push(redirectUrl);
         }, 1500);
-      } catch (err) {
+      } catch {
         setStatus("error");
         setErrorCode("UNKNOWN");
         setMessage("Failed to complete authentication. Please try again.");

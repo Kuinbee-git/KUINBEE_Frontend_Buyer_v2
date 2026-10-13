@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -12,15 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/shared/components/ui/dialog";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,29 +71,30 @@ export function ProfileTab({ section = "personal" }: ProfileTabProps) {
   const changePasswordMutation = useChangePassword();
 
   // Profile form state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [organization, setOrganization] = useState("");
+  const [firstName, setFirstName] = useState(profile?.personalInfo?.firstName || "");
+  const [lastName, setLastName] = useState(profile?.personalInfo?.lastName || "");
+  const [phone, setPhone] = useState(profile?.user.phone || "");
+  const [organization, setOrganization] = useState(profile?.organization || "");
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
   // Dialog states
-  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   // Load profile data into form
-  useEffect(() => {
+  const [previousData, setPreviousData] = useState(profile);
+  if (previousData !== profile) {
+    setPreviousData(profile);
     if (profile) {
       setFirstName(profile.personalInfo?.firstName || "");
       setLastName(profile.personalInfo?.lastName || "");
       setPhone(profile.user.phone || "");
       setOrganization(profile.organization || "");
     }
-  }, [profile]);
+  }
 
   // Password form state
   const [passwordData, setPasswordData] = useState({
@@ -212,12 +205,10 @@ export function ProfileTab({ section = "personal" }: ProfileTabProps) {
     const mode = encodeURIComponent("link");
 
     // Use the OAuth start endpoint (same as login, but with mode=link parameter)
-    window.location.assign(
-      `${API_BASE_URL}/api/v1/user/auth/oauth/${provider}/start` +
-        `?redirectTo=${redirectUrl}&mode=${mode}`
-    );
+    const startUrl = new URL(`/api/v1/user/auth/oauth/${provider}/start`, API_BASE_URL);
+    startUrl.search = `redirectTo=${redirectUrl}&mode=${mode}`;
+    window.location.assign(startUrl.href);
 
-    setLinkDialogOpen(false);
   };
 
   const handleDeleteAccount = async () => {

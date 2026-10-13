@@ -1,5 +1,7 @@
 "use client";
 
+import { getErrorDetails } from "@/shared/utils/error-details";
+
 import React, {
   useState,
   useEffect,
@@ -150,21 +152,23 @@ export function DatasetDetailPageContent() {
   const [inquirySubject, setInquirySubject] = useState("");
   const [inquiryMessage, setInquiryMessage] = useState("");
 
-  // Download URL
-  const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
-  const {
-    data: downloadUrlResponse,
-    isLoading: isGeneratingDownload,
-    error: downloadError,
-  } = useDownloadUrl(id, isAuthenticated && shouldFetchDownload && !!id);
-
-  const [shouldFetchSampleDownload, setShouldFetchSampleDownload] =
-    useState(false);
-  const {
-    data: sampleDownloadUrlResponse,
-    isLoading: isGeneratingSampleDownload,
-    error: sampleDownloadError,
-  } = useDatasetSampleDownloadUrl(id, shouldFetchSampleDownload && !!id);
+  // Keep both URL queries disabled until the corresponding click requests a fresh link.
+  const { refetch: fetchDownload, isFetching: isGeneratingDownload } = useDownloadUrl(id, false);
+  const { refetch: fetchSampleDownload, isFetching: isGeneratingSampleDownload } = useDatasetSampleDownloadUrl(id, false);
+  const downloadFile = useCallback(async (sample: boolean) => {
+    try {
+      const { data, error } = await (sample ? fetchSampleDownload : fetchDownload)({ cancelRefetch: false });
+      if (error || !data?.url) throw error || new Error("Missing download URL");
+      const anchor = document.createElement("a");
+      anchor.href = data.url;
+      anchor.download = "";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    } catch {
+      toast.error(sample ? "Failed to generate sample download link. Please try again." : "Failed to generate download link. Please try again.");
+    }
+  }, [fetchDownload, fetchSampleDownload]);
 
   // KDTS score is now fetched only by the lazy-loaded DatasetKdtsCard component
   // to avoid a duplicate API call on mount.
@@ -176,61 +180,22 @@ export function DatasetDetailPageContent() {
 
   // Listen for "proceedToCheckout" events from the NotchNavigation staging panel
   useEffect(() => {
-    const handleProceedEvent = (e: CustomEvent) => {
+    const handleProceedEvent = (e: Event) => {
+      if (!(e instanceof CustomEvent)) return;
       // Only open if the staged dataset matches this page
-      const staged = e.detail;
-      if (staged && (staged.id === id || staged.datasetUniqueId === id)) {
+      const staged: unknown = e.detail;
+      if (staged && typeof staged === "object" && (("id" in staged && staged.id === id) || ("datasetUniqueId" in staged && staged.datasetUniqueId === id))) {
         setShowCheckout(true);
       }
     };
 
-    window.addEventListener("proceedToCheckout" as any, handleProceedEvent);
+    window.addEventListener("proceedToCheckout", handleProceedEvent);
     return () =>
       window.removeEventListener(
-        "proceedToCheckout" as any,
+        "proceedToCheckout",
         handleProceedEvent
       );
   }, [id]);
-
-  // Trigger download as soon as URL arrives
-  useEffect(() => {
-    if (downloadUrlResponse?.url) {
-      const a = document.createElement("a");
-      a.href = downloadUrlResponse.url;
-      a.download = "";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setShouldFetchDownload(false);
-    }
-  }, [downloadUrlResponse]);
-
-  useEffect(() => {
-    if (sampleDownloadUrlResponse?.url) {
-      const a = document.createElement("a");
-      a.href = sampleDownloadUrlResponse.url;
-      a.download = "";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setShouldFetchSampleDownload(false);
-    }
-  }, [sampleDownloadUrlResponse]);
-
-  // Surface download errors
-  useEffect(() => {
-    if (downloadError && shouldFetchDownload) {
-      toast.error("Failed to generate download link. Please try again.");
-      setShouldFetchDownload(false);
-    }
-  }, [downloadError, shouldFetchDownload]);
-
-  useEffect(() => {
-    if (sampleDownloadError && shouldFetchSampleDownload) {
-      toast.error("Failed to generate sample download link. Please try again.");
-      setShouldFetchSampleDownload(false);
-    }
-  }, [sampleDownloadError, shouldFetchSampleDownload]);
 
   // Memoize access state so stable reference is passed to DatasetDetailPage
   const accessState = useMemo(():
@@ -257,7 +222,8 @@ export function DatasetDetailPageContent() {
         duration: 8000,
       });
       setShowFeedbackModal(true);
-    } catch (err: any) {
+    } catch (caught: unknown) {
+      const err = getErrorDetails(caught);
       const errorMessage = err?.message || "Failed to claim dataset";
       if (errorMessage.includes("NOT_FREE")) {
         toast.error("This dataset is not free");
@@ -319,7 +285,7 @@ export function DatasetDetailPageContent() {
         setIsSubmittingFeedback(false);
       }
     },
-    [id, user?.email]
+    [id, user]
   );
 
   // Handle login — stable callback keeps DatasetDetailPage memo intact
@@ -334,8 +300,8 @@ export function DatasetDetailPageContent() {
       return;
     }
     if (isGeneratingDownload) return;
-    setShouldFetchDownload(true);
-  }, [isAuthenticated, router, id, isGeneratingDownload]);
+    void downloadFile(false);
+  }, [isAuthenticated, router, id, isGeneratingDownload, downloadFile]);
 
   const handleDownloadSampleFile = useCallback(async () => {
     if (isGeneratingSampleDownload || claimMutation.isPending) return;
@@ -352,7 +318,8 @@ export function DatasetDetailPageContent() {
       if (!entitlementCheck?.entitled) {
         try {
           await claimMutation.mutateAsync(id);
-        } catch (err: any) {
+        } catch (caught: unknown) {
+      const err = getErrorDetails(caught);
           const errorMessage = err?.message || "Failed to claim sample dataset";
           if (errorMessage.includes("ALREADY_OWNED")) {
             // Continue to download flow if backend already has entitlement.
@@ -366,13 +333,14 @@ export function DatasetDetailPageContent() {
         }
       }
 
-      setShouldFetchDownload(true);
+      void downloadFile(false);
       return;
     }
 
-    setShouldFetchSampleDownload(true);
+    void downloadFile(true);
   }, [
     isGeneratingSampleDownload,
+    downloadFile,
     claimMutation,
     response?.dataset?.isSample,
     isAuthenticated,
@@ -420,7 +388,8 @@ export function DatasetDetailPageContent() {
       setInquirySubject("");
       setInquiryMessage("");
       setInquiryOpen(false);
-    } catch (error: any) {
+    } catch (caught: unknown) {
+      const error = getErrorDetails(caught);
       if (error?.code === "FORBIDDEN") {
         toast.error("Please verify your email before submitting an inquiry.");
         return;
@@ -482,7 +451,7 @@ export function DatasetDetailPageContent() {
     setShowCheckout(true);
   }, [isAuthenticated, router, id, dataset]);
 
-  const handleCheckoutComplete = useCallback((_orderId: string) => {
+  const handleCheckoutComplete = useCallback(() => {
     // Checkout dialog handles its own success UI;
     // user can navigate to order from there or we can refresh entitlement
   }, []);

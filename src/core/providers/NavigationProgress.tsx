@@ -115,10 +115,12 @@ export function NavigationProgress() {
     }
 
     if (currentUrl !== previousUrl) {
-      if (isNavigating) {
-        completeProgress();
-      }
       prevUrlRef.current = currentUrl;
+      if (isNavigating) {
+        // Finish the visual transition on the next animation frame.
+        const frame = requestAnimationFrame(completeProgress);
+        return () => cancelAnimationFrame(frame);
+      }
     }
   }, [getCurrentUrl, isNavigating, completeProgress]);
 

@@ -293,7 +293,7 @@ function CustomerContent() {
       </SectionCard>
 
       <SectionCard id="c-disclaimer" number={11} title="Disclaimer of Warranties" badge="Legal" badgeColor="bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400">
-        <p>The Platform and all Datasets are provided <strong className="text-foreground dark:text-white">"as is"</strong> and <strong className="text-foreground dark:text-white">"as available"</strong>.</p>
+        <p>The Platform and all Datasets are provided <strong className="text-foreground dark:text-white">&quot;as is&quot;</strong> and <strong className="text-foreground dark:text-white">&quot;as available&quot;</strong>.</p>
         <p>Kuinbee expressly disclaims all warranties, including warranties of:</p>
         <BulletList items={[
           "Accuracy and completeness",
@@ -471,7 +471,7 @@ function SupplierContent() {
       </SectionCard>
 
       <SectionCard id="s-disclaimer" number={10} title="Disclaimer of Warranties" badge="Legal" badgeColor="bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400">
-        <p>The Platform is provided <strong className="text-foreground dark:text-white">"as is"</strong> and <strong className="text-foreground dark:text-white">"as available"</strong>. Kuinbee disclaims all warranties regarding Platform uptime, discoverability, or commercial outcomes for Suppliers. Kuinbee does not guarantee dataset sales or earnings.</p>
+        <p>The Platform is provided <strong className="text-foreground dark:text-white">&quot;as is&quot;</strong> and <strong className="text-foreground dark:text-white">&quot;as available&quot;</strong>. Kuinbee disclaims all warranties regarding Platform uptime, discoverability, or commercial outcomes for Suppliers. Kuinbee does not guarantee dataset sales or earnings.</p>
       </SectionCard>
 
       <SectionCard id="s-liability" number={11} title="Limitation of Liability" badge="Legal" badgeColor="bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400">
@@ -781,18 +781,18 @@ export function TermsPageContent() {
                       {activeTab === "customer" ? (
                         <>
                           <p>
-                            These terms apply to any entity or individual purchasing or licensing Datasets on the Kuinbee Platform ("Buyer"). By placing an order or downloading a Dataset, you acknowledge you have read, understood, and agreed to be bound by these terms.
+                            These terms apply to any entity or individual purchasing or licensing Datasets on the Kuinbee Platform (&quot;Buyer&quot;). By placing an order or downloading a Dataset, you acknowledge you have read, understood, and agreed to be bound by these terms.
                           </p>
                           <div className="p-3 bg-background/50 dark:bg-white/5 rounded-xl border border-border dark:border-white/10">
                             <p className="text-sm">
-                              <strong className="text-foreground dark:text-white">⚠️ Important:</strong> Kuinbee is a marketplace intermediary. Datasets are supplied by independent third parties. Kuinbee's screening (DCC/KDTS) is not a warranty or certification of accuracy.
+                              <strong className="text-foreground dark:text-white">⚠️ Important:</strong> Kuinbee is a marketplace intermediary. Datasets are supplied by independent third parties. Kuinbee&apos;s screening (DCC/KDTS) is not a warranty or certification of accuracy.
                             </p>
                           </div>
                         </>
                       ) : (
                         <>
                           <p>
-                            These terms apply to any entity or individual listing Datasets on the Kuinbee Platform ("Supplier"). By submitting a Dataset for listing, you acknowledge you have read, understood, and agreed to be bound by these terms.
+                            These terms apply to any entity or individual listing Datasets on the Kuinbee Platform (&quot;Supplier&quot;). By submitting a Dataset for listing, you acknowledge you have read, understood, and agreed to be bound by these terms.
                           </p>
                           <div className="p-3 bg-background/50 dark:bg-white/5 rounded-xl border border-border dark:border-white/10">
                             <p className="text-sm">

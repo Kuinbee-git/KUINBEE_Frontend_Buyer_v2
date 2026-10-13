@@ -5,24 +5,7 @@ import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { motion } from "framer-motion";
-import {
-    FileText,
-    AlertCircle,
-    Calendar,
-    Mail,
-    ArrowLeft,
-    Shield,
-    Users,
-    BookOpen,
-    Lock,
-    Scale,
-    Globe,
-    ChevronRight,
-    Server,
-    Eye,
-    Database,
-    Settings,
-} from "lucide-react";
+import { FileText, Calendar, Mail, ArrowLeft, Shield, Scale, Globe, ChevronRight } from "lucide-react";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function BulletList({ items }: { items: string[] }) {
@@ -372,7 +355,7 @@ export function DPAPageContent() {
                                         </div>
                                         <div className="space-y-3 text-sm md:text-base text-muted-foreground dark:text-white/70 leading-relaxed">
                                             <p>
-                                                This Data Processing Addendum forms part of the Terms and Conditions and any applicable Marketplace Agreement between <strong className="text-foreground dark:text-white">Kuinbee Information Services Private Limited</strong> ("Processor") and the entity accessing or using Kuinbee's platform services ("Controller").
+                                                This Data Processing Addendum forms part of the Terms and Conditions and any applicable Marketplace Agreement between <strong className="text-foreground dark:text-white">Kuinbee Information Services Private Limited</strong> (&quot;Processor&quot;) and the entity accessing or using Kuinbee&apos;s platform services (&quot;Controller&quot;).
                                             </p>
                                             <div className="p-3 bg-background/50 dark:bg-white/5 rounded-xl border border-border dark:border-white/10">
                                                 <p className="text-sm">
@@ -422,7 +405,7 @@ export function DPAPageContent() {
                             <div className="space-y-6">
 
                                 <SectionCard id="s1" number={1} title="Definitions" badge="Overview" badgeColor="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                    <p className="font-medium text-foreground dark:text-white">"Applicable Data Protection Laws"</p>
+                                    <p className="font-medium text-foreground dark:text-white">&quot;Applicable Data Protection Laws&quot;</p>
                                     <p>All laws applicable to the processing of Personal Data, including but not limited to:</p>
                                     <BulletList items={[
                                         "Digital Personal Data Protection Act, India (DPDP)",
@@ -552,7 +535,7 @@ export function DPAPageContent() {
                                 </SectionCard>
 
                                 <SectionCard id="s12" number={12} title="Liability" badge="Legal" badgeColor="bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400">
-                                    <p>Each Party's liability under this DPA shall be subject to the liability limitations set out in the main Agreement. Nothing in this DPA limits liability where such limitation is prohibited by Applicable Data Protection Laws.</p>
+                                    <p>Each Party&apos;s liability under this DPA shall be subject to the liability limitations set out in the main Agreement. Nothing in this DPA limits liability where such limitation is prohibited by Applicable Data Protection Laws.</p>
                                 </SectionCard>
 
                                 <SectionCard id="s13" number={13} title="Supplier Data Disclaimer" badge="Legal" badgeColor="bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400">

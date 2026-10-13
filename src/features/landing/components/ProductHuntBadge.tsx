@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function ProductHuntBadge({ className }: { className?: string }) {
   return (
     <div className={`flex justify-center ${className || 'py-6'}`}>
@@ -7,10 +9,10 @@ export function ProductHuntBadge({ className }: { className?: string }) {
         rel="noopener noreferrer"
         className="transition-transform hover:scale-105"
       >
-        <img
+        <Image
           alt="Kuinbee - The Data OS | Product Hunt"
-          width="250"
-          height="54"
+          width={250}
+          height={54}
           src="/product-hunt-badge.svg"
           loading="lazy"
           decoding="async"

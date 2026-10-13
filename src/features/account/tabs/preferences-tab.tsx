@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
 import { Switch } from "@/shared/components/ui/switch";
@@ -23,22 +23,24 @@ export function PreferencesTab() {
   const preferences = preferencesResponse?.preferences;
 
   // Form state
-  const [currency, setCurrency] = useState<Currency>("USD");
-  const [marketingEmails, setMarketingEmails] = useState(false);
-  const [productEmails, setProductEmails] = useState(false);
+  const [currency, setCurrency] = useState<Currency>(preferences?.currency ?? "USD");
+  const [marketingEmails, setMarketingEmails] = useState(preferences?.marketingEmails ?? false);
+  const [productEmails, setProductEmails] = useState(preferences?.productEmails ?? false);
 
   // Feedback state
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load initial values
-  useEffect(() => {
+  const [previousData, setPreviousData] = useState(preferences);
+  if (previousData !== preferences) {
+    setPreviousData(preferences);
     if (preferences) {
       setCurrency(preferences.currency);
       setMarketingEmails(preferences.marketingEmails);
       setProductEmails(preferences.productEmails);
     }
-  }, [preferences]);
+  }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

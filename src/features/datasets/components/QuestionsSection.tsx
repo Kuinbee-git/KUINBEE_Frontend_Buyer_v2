@@ -172,7 +172,7 @@ const QuestionsSectionInner = ({ datasetId, isLoggedIn, onSignIn }: QuestionsSec
       {/* Individual Questions */}
       {!questionsLoading && questions.length > 0 && (
         <div className="space-y-4">
-          {questions.map((q: any) => (
+          {questions.map((q) => (
             <div
               key={q.id}
               className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-6"
@@ -203,7 +203,7 @@ const QuestionsSectionInner = ({ datasetId, isLoggedIn, onSignIn }: QuestionsSec
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                      {(q as any).answer || "Awaiting response from supplier..."}
+                      {("answer" in q && typeof q.answer === "string" ? q.answer : null) || "Awaiting response from supplier..."}
                     </p>
                   </div>
                 </div>

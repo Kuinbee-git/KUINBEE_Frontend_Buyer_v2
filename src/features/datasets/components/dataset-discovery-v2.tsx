@@ -385,30 +385,21 @@ export function DatasetDiscoveryV2() {
       router.replace(`/datasets${query ? `?${query}` : ""}`, { scroll: false });
     }, 400); // 400ms debounce
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, router]);
 
-  // Sync filters.search when URL ?q= changes externally (e.g. from nav bar search)
-  useEffect(() => {
-    const urlSearch = searchParams.get("q") || "";
-    if (urlSearch !== filters.search) {
-      setFilters((prev) => ({ ...prev, search: urlSearch, page: 1 }));
+  const urlSearch = searchParams.get("q") || "";
+  const urlCategoriesKey = JSON.stringify(getCategoriesFromSearchParams());
+  const [urlFilterContext, setUrlFilterContext] = useState({ urlSearch, urlCategoriesKey });
+  if (urlFilterContext.urlSearch !== urlSearch || urlFilterContext.urlCategoriesKey !== urlCategoriesKey) {
+    const searchChanged = urlFilterContext.urlSearch !== urlSearch;
+    const categoriesChanged = urlFilterContext.urlCategoriesKey !== urlCategoriesKey;
+    setUrlFilterContext({ urlSearch, urlCategoriesKey });
+    const categories = categoriesChanged ? getCategoriesFromSearchParams() : filters.categories;
+    const search = searchChanged ? urlSearch : filters.search;
+    if (search !== filters.search || categories.length !== filters.categories.length || categories.some(value => !filters.categories.includes(value))) {
+      setFilters({ ...filters, search, categories, page: 1 });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.get("q")]);
-
-  // Sync filters.categories when URL ?category= changes externally (e.g. from nav bar links)
-  useEffect(() => {
-    const urlCategories = getCategoriesFromSearchParams();
-    const sameLength = urlCategories.length === filters.categories.length;
-    const sameValues =
-      sameLength &&
-      urlCategories.every((value) => filters.categories.includes(value));
-    if (!sameValues) {
-      setFilters((prev) => ({ ...prev, categories: urlCategories, page: 1 }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getCategoriesFromSearchParams]);
+  }
 
   // Debounce search to avoid hammering the API on every keystroke
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
@@ -545,9 +536,8 @@ export function DatasetDiscoveryV2() {
     return map;
   }, [categoriesResponse]);
 
-  // Resolve category slugs to UUIDs (for navbar / landing page links)
-  useEffect(() => {
-    if (!categoriesResponse?.items || filters.categories.length === 0) return;
+  // Resolve category slugs as category metadata becomes available.
+  if (categoriesResponse?.items && filters.categories.length > 0) {
 
     const searchTerms: Record<string, string> = {
       finance: "finance",
@@ -577,7 +567,7 @@ export function DatasetDiscoveryV2() {
     if (changed) {
       setFilters((prev) => ({ ...prev, categories: deduped, page: 1 }));
     }
-  }, [filters.categories, categoriesResponse, categoryMap]);
+  }
 
   // Get category items for display (exclude test categories)
   const categoryItems = useMemo(() => {

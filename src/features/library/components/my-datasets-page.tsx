@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OwnedDatasetCard, type OwnedDataset } from "./owned-dataset-card";
 import { Button } from "@/shared/components/ui/button";
 import { ChevronLeft, ChevronRight, Database, RefreshCw } from "lucide-react";
 import { useLibrary } from "@/hooks/api/useLibrary";
-import { Card, CardContent } from "@/shared/components/ui/card";
+
 
 type ViewState = "loading" | "empty" | "error" | "data";
 
 export function MyDatasetsPage() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchQuery = "";
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
   
@@ -28,11 +28,10 @@ export function MyDatasetsPage() {
   const hasPreviousPage = currentPage > 1;
   const hasNextPage = currentPage < totalPages;
 
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  // Do not reset the requested page while its response is still loading.
+  if (libraryResponse && !isLoading && !error && currentPage > totalPages) {
+    setCurrentPage(totalPages);
+  }
 
   // Map API response to OwnedDataset format
   const datasets: OwnedDataset[] = libraryResponse?.items?.map(item => ({
@@ -96,7 +95,7 @@ export function MyDatasetsPage() {
           <Database className="w-10 h-10 text-[#4e5a7e] dark:text-white/40" />
         </div>
         <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-3 text-center">
-          You don't have access to any datasets yet.
+          You don&apos;t have access to any datasets yet.
         </h2>
         <p className="text-[#4e5a7e] dark:text-white/60 text-center mb-8 max-w-md leading-relaxed">
           Purchased or claimed datasets will appear here once access is granted.
@@ -113,7 +112,7 @@ export function MyDatasetsPage() {
           <Database className="w-10 h-10 text-red-600 dark:text-red-400" />
         </div>
         <h2 className="text-xl font-semibold text-[#1a2240] dark:text-white mb-3 text-center">
-          We couldn't load your datasets right now.
+          We couldn&apos;t load your datasets right now.
         </h2>
         <p className="text-[#4e5a7e] dark:text-white/60 text-center mb-8 max-w-md leading-relaxed">
           There was an issue retrieving your dataset library. Please try again.

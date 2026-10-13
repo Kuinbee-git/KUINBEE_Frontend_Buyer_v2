@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Star } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -31,12 +31,14 @@ export function WebsiteFeedbackModal({
   const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState<string>("");
 
-  useEffect(() => {
+  const [previousOpen, setPreviousOpen] = useState(open);
+  if (previousOpen !== open) {
+    setPreviousOpen(open);
     if (!open) {
       setRating(0);
       setReview("");
     }
-  }, [open]);
+  }
 
   const handleSubmit = async () => {
     if (rating < 1) return;

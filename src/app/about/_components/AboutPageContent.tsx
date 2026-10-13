@@ -1,39 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { Link } from "@/components/router/Link";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { motion } from "framer-motion";
-import {
-  Target,
-  Globe,
-  Database,
-  Zap,
-  Users,
-  Award,
-  TrendingUp,
-  CheckCircle,
-  ArrowRight,
-} from "lucide-react";
+import { Target, Globe, Database, Zap, Users, Award, TrendingUp, CheckCircle } from "lucide-react";
 import { Button } from "@/shared/components/ui";
 
+function readDarkTheme() {
+  return document.documentElement.classList.contains("dark");
+}
+
+function subscribeTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
+
 export function AboutPageContent() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    setIsDark(isDarkMode);
-
-    const observer = new MutationObserver(() => {
-      const isDarkMode = document.documentElement.classList.contains('dark');
-      setIsDark(isDarkMode);
-    });
-
-    observer.observe(document.documentElement, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
+  const isDark = useSyncExternalStore(subscribeTheme, readDarkTheme, () => false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -114,7 +101,7 @@ export function AboutPageContent() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-lg md:text-xl text-muted-foreground max-w-3xl leading-relaxed"
             >
-              When we looked at the way data was being accessed and used, we saw bottlenecks everywhere. That's why we
+              When we looked at the way data was being accessed and used, we saw bottlenecks everywhere. That&apos;s why we
               founded Kuinbee - to deliver trusted, ready-to-use data instantly while giving users the flexibility to
               request exactly what they need.
             </motion.p>
@@ -398,7 +385,7 @@ export function AboutPageContent() {
             <div className="flex items-center justify-center gap-3 mb-6">
               <span className="h-px w-8 bg-primary-foreground/25 dark:bg-white/20" />
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                Where we're going
+                Where we&apos;re going
               </span>
               <span className="h-px w-8 bg-primary-foreground/25 dark:bg-white/20" />
             </div>
@@ -468,7 +455,7 @@ export function AboutPageContent() {
                   <div className="text-2xl md:text-3xl lg:text-4xl font-light text-primary-foreground">Mission-driven engineering</div>
                   <div className="w-full h-px bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent"></div>
                   <p className="text-primary-foreground/90 leading-relaxed text-base md:text-lg">
-                    We're builders, not theorists. Our team blends expertise in data engineering, analytics, automation,
+                    We&apos;re builders, not theorists. Our team blends expertise in data engineering, analytics, automation,
                     and product design with a relentless commitment to accuracy, speed, and usability.
                   </p>
                 </div>

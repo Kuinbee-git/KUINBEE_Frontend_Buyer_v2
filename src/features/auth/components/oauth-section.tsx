@@ -26,9 +26,9 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
     }
 
     saveReturnUrl();
-    window.location.href =
-      `${API_BASE_URL}/api/v1/user/auth/oauth/google/start` +
-      `?redirectTo=${encodeURIComponent("/oauth/callback")}`;
+    const startUrl = new URL("/api/v1/user/auth/oauth/google/start", API_BASE_URL);
+    startUrl.searchParams.set("redirectTo", "/oauth/callback");
+    window.location.assign(startUrl.href);
   };
 
   const handleGitHubClick = () => {
@@ -38,9 +38,9 @@ export function OAuthSection({ onGoogleClick, onGitHubClick }: OAuthSectionProps
     }
 
     saveReturnUrl();
-    window.location.href =
-      `${API_BASE_URL}/api/v1/user/auth/oauth/github/start` +
-      `?redirectTo=${encodeURIComponent("/oauth/callback")}`;
+    const startUrl = new URL("/api/v1/user/auth/oauth/github/start", API_BASE_URL);
+    startUrl.searchParams.set("redirectTo", "/oauth/callback");
+    window.location.assign(startUrl.href);
   };
   return (
     <div className="space-y-4 mt-8">

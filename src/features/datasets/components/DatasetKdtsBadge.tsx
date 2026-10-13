@@ -9,20 +9,18 @@ interface DatasetKdtsBadgeProps {
 }
 
 export function DatasetKdtsBadge({ datasetId }: DatasetKdtsBadgeProps) {
-  const [data, setData] = useState<DatasetKdtsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState<{ datasetId: string; data: DatasetKdtsResponse | null } | null>(null);
+  const data = result?.datasetId === datasetId ? result.data : null;
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     getDatasetKdts(datasetId)
-      .then((res) => { if (!cancelled) setData(res); })
-      .catch(() => { /* silently ignore */ })
-      .finally(() => { if (!cancelled) setLoading(false); });
+      .then((data) => { if (!cancelled) setResult({ datasetId, data }); })
+      .catch(() => { if (!cancelled) setResult({ datasetId, data: null }); });
     return () => { cancelled = true; };
   }, [datasetId]);
 
-  if (loading || !data?.currentScore) {
+  if (!data?.currentScore) {
     return null;
   }
 

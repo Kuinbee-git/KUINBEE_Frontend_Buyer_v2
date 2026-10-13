@@ -6,6 +6,8 @@ import { QueryProvider, ThemeProvider, ToastProvider, AuthProvider, ModalProvide
 import { generateMetadata, generateOrganizationSchema } from "@/core/config";
 import { DeferredAuthModals } from "@/features/auth/components/deferred-auth-modals";
 
+const isStaging = process.env.NEXT_PUBLIC_APP_ENV === 'staging';
+
 const inter = Inter({
   subsets: ["latin"],
   // Keep text visible and stable on slow first visits rather than waiting
@@ -67,6 +69,11 @@ export default function RootLayout({
             </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
+        {isStaging && (
+          <div role="status" data-environment="staging" className="pointer-events-none fixed bottom-2 right-2 z-[9999] rounded bg-amber-200 px-3 py-1 text-xs font-semibold text-amber-950 shadow">
+            Staging · Test environment
+          </div>
+        )}
       </body>
     </html>
   );

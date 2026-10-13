@@ -3,13 +3,7 @@
  */
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
-import type {
-  Notification,
-  NotificationListQuery,
-  PaginatedResponse,
-  SuccessResponse,
-  ApiResponse,
-} from "@/types";
+import type { Notification, NotificationListQuery, PaginatedResponse, SuccessResponse } from "@/types";
 
 export const notificationService = {
   // List notifications

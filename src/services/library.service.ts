@@ -3,17 +3,7 @@
  */
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
-import type {
-  LibraryItem,
-  LibraryItemDetailsResponse,
-  LibraryListQuery,
-  DownloadUrlResponse,
-  EntitlementsResponse,
-  EntitlementCheckResponse,
-  PaginatedResponse,
-  SuccessResponse,
-  ApiResponse,
-} from "@/types";
+import type { LibraryItem, LibraryItemDetailsResponse, LibraryListQuery, DownloadUrlResponse, EntitlementsResponse, EntitlementCheckResponse, PaginatedResponse, SuccessResponse } from "@/types";
 
 export const libraryService = {
   // Library

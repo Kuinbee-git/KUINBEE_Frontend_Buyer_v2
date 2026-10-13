@@ -5,26 +5,7 @@ import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { motion } from "framer-motion";
-import {
-  FileText,
-  AlertCircle,
-  Calendar,
-  Mail,
-  ArrowLeft,
-  Shield,
-  Building2,
-  Users,
-  BookOpen,
-  Lock,
-  Scale,
-  Globe,
-  ChevronRight,
-  CreditCard,
-  Zap,
-  Eye,
-  Download,
-  Server,
-} from "lucide-react";
+import { FileText, Calendar, Mail, ArrowLeft, Shield, Scale, Globe, ChevronRight } from "lucide-react";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function BulletList({ items }: { items: string[] }) {
@@ -233,7 +214,7 @@ export function LegalCompliancePageContent() {
               className="max-w-2xl mx-auto"
             >
               <p className="text-lg md:text-xl text-muted-foreground dark:text-white/70 leading-relaxed font-light">
-                Kuinbee's legal position, regulatory posture, risk allocation architecture, and compliance standards — built for enterprise trust at global scale.
+                Kuinbee&apos;s legal position, regulatory posture, risk allocation architecture, and compliance standards — built for enterprise trust at global scale.
               </p>
             </motion.div>
 
@@ -330,7 +311,7 @@ export function LegalCompliancePageContent() {
                     </div>
                     <div className="space-y-3 text-sm md:text-base text-muted-foreground dark:text-white/70 leading-relaxed">
                       <p>
-                        Kuinbee Information Services Private Limited operates a technology-enabled global data marketplace and AI data infrastructure platform via kuinbee.com. This framework explains Kuinbee's legal position, regulatory posture, risk allocation architecture, and compliance standards.
+                        Kuinbee Information Services Private Limited operates a technology-enabled global data marketplace and AI data infrastructure platform via kuinbee.com. This framework explains Kuinbee&apos;s legal position, regulatory posture, risk allocation architecture, and compliance standards.
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
                         {[

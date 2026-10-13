@@ -15,7 +15,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { ACCOUNT_SIDEBAR_SECTIONS } from "@/shared/components/navigation/section-sidebar";
-import { MessageSquare, Search, Plus, ArrowRight, Loader2, RefreshCw } from "lucide-react";
+import { MessageSquare, Search, Plus, ArrowRight, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTickets } from "@/hooks/api/useSupport";

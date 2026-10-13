@@ -3,14 +3,7 @@
  */
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
-import type {
-  Question,
-  QuestionResponse,
-  CreateQuestionRequest,
-  QuestionListQuery,
-  PaginatedResponse,
-  ApiResponse,
-} from "@/types";
+import type { Question, QuestionResponse, CreateQuestionRequest, QuestionListQuery, PaginatedResponse } from "@/types";
 
 export const questionService = {
   // List questions for a dataset

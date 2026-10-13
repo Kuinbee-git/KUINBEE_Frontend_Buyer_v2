@@ -3,15 +3,7 @@
  */
 
 import { apiClient, API_ENDPOINTS } from "@/core/api";
-import type {
-  SupportTicket,
-  CreateTicketRequest,
-  CreateTicketResponse,
-  TicketDetailsResponse,
-  TicketListQuery,
-  PaginatedResponse,
-  ApiResponse,
-} from "@/types";
+import type { SupportTicket, CreateTicketRequest, CreateTicketResponse, TicketDetailsResponse, TicketListQuery, PaginatedResponse } from "@/types";
 
 export const supportService = {
   // Create ticket

@@ -19,7 +19,7 @@ export function ActivityTab() {
     try {
       await markReadMutation.mutateAsync(id);
       decrementUnread();
-    } catch (err) {
+    } catch {
       toast.error("Failed to mark as read");
     }
   };
@@ -29,7 +29,7 @@ export function ActivityTab() {
       await markAllReadMutation.mutateAsync();
       clearUnread();
       toast.success("All notifications marked as read");
-    } catch (err) {
+    } catch {
       toast.error("Failed to mark all as read");
     }
   };

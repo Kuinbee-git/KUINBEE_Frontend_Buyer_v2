@@ -1,35 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-    TrendingUp,
-    BarChart3,
-    Users,
-    MessageSquare,
-    Building2,
-    Clock,
-    Search,
-    FileText,
-    Home,
-    Wheat,
-    Shield,
-    Eye,
-    ShoppingCart,
-    IndianRupee,
-    RefreshCcw,
-    Upload,
-    CheckCircle2,
-    Globe,
-    Lock,
-    Gauge,
-    Award,
-    Sparkles,
-    Star,
-    Zap,
-    Target,
-    Ban,
-} from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { TrendingUp, BarChart3, Users, MessageSquare, Building2, Clock, Search, FileText, Home, Wheat, Shield, Eye, ShoppingCart, IndianRupee, RefreshCcw, Upload, CheckCircle2, Award, Sparkles, Star, Zap, Target, Ban } from "lucide-react";
+
 
 /* ─────────────────── Data ─────────────────── */
 
