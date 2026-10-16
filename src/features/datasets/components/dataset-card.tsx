@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import { Star, Heart, Loader2, ShieldCheck, Award } from "lucide-react";
 import { Dataset, DatasetSourceUI } from "./types";
+import { ContentDatasetCard } from "../content/ContentDatasetCard";
+import type { ContentListing } from "../content/content-description";
 import {
   useAddToWishlist,
   useRemoveFromWishlist,
@@ -21,13 +23,14 @@ import {
 
 // ── Pure utility functions (module scope to avoid re-allocation inside memo) ──
 
-const formatRecords = (count: number) => {
+const formatRecords = (count: number | null) => {
+  if (count === null) return "Unknown";
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
   if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
   return count.toLocaleString();
 };
 
-const formatFileSize = (sizeStr?: string) => {
+const formatFileSize = (sizeStr?: string | null) => {
   if (!sizeStr) return null;
   const bytes = parseInt(sizeStr);
   if (isNaN(bytes)) return sizeStr;
@@ -137,7 +140,22 @@ interface DatasetCardProps {
   onViewDetails?: (dataset: Dataset) => void;
 }
 
-export const DatasetCard = memo(function DatasetCard({
+export const DatasetCard = memo(function DatasetCard(
+  props: Omit<DatasetCardProps, "dataset"> & {
+    dataset: Dataset | ContentListing;
+  }
+) {
+  if ("representation" in props.dataset)
+    return (
+      <ContentDatasetCard
+        item={props.dataset.item}
+        isInWishlist={props.isInWishlist}
+      />
+    );
+  return <LegacyDatasetCard {...props} dataset={props.dataset} />;
+});
+
+const LegacyDatasetCard = memo(function LegacyDatasetCard({
   dataset,
   isInWishlist = false,
   onViewDetails,

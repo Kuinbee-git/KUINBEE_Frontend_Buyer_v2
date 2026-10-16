@@ -4,7 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { Shield, CheckCircle2, AlertCircle, Clock, ArrowLeft, Download, ChevronDown, FileText, Calendar, Building2 } from "lucide-react";
+import {
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ArrowLeft,
+  Download,
+  ChevronDown,
+  FileText,
+  Calendar,
+  Building2,
+} from "lucide-react";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { MainSectionTabs } from "@/shared/components/ui/main-section-tabs";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
@@ -12,6 +23,8 @@ import { LIBRARY_SIDEBAR_SECTIONS } from "@/constants/library-sidebar.constants"
 import { useLibraryItem, useDownloadUrl } from "@/hooks/api/useLibrary";
 import { useDatasetDetails } from "@/hooks/api/useMarketplace";
 import type { DatasetDetailsResponse } from "@/types";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+import { ContentLibraryAccess } from "./ContentLibrary";
 
 // Access states
 type AccessStatus = "active" | "expired" | "revoked" | "not-entitled";
@@ -43,11 +56,19 @@ interface DatasetAccessPageProps {
 }
 
 export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
+  return DATASET_CONTENT_BUYER_ENABLED ? (
+    <ContentLibraryAccess datasetId={datasetId ?? ""} />
+  ) : (
+    <LegacyDatasetAccessPage datasetId={datasetId} />
+  );
+}
+
+function LegacyDatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   // Fetch dataset access details
   const {
     data: libraryItemResponse,
     isLoading: isLoadingItem,
-    error: itemError
+    error: itemError,
   } = useLibraryItem(datasetId || "");
 
   const [shouldFetchDownload, setShouldFetchDownload] = useState(false);
@@ -57,7 +78,7 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
     data: downloadUrlResponse,
     isLoading: isGenerating,
     error: downloadError,
-    refetch: regenerateLink
+    refetch: regenerateLink,
   } = useDownloadUrl(datasetId || "", shouldFetchDownload);
 
   const libraryItem = libraryItemResponse?.item;
@@ -65,13 +86,8 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   const resolvedDatasetId = libraryItem?.datasetId || datasetId || "";
 
   // Fetch dataset metadata to enrich the access view
-  const {
-    data: datasetDetailsResponse,
-    isLoading: isLoadingDatasetDetails,
-  } = useDatasetDetails(
-    resolvedDatasetId,
-    !!resolvedDatasetId
-  );
+  const { data: datasetDetailsResponse, isLoading: isLoadingDatasetDetails } =
+    useDatasetDetails(resolvedDatasetId, !!resolvedDatasetId);
 
   const datasetDetails = datasetDetailsResponse?.dataset;
   const datasetPrimaryCategory = datasetDetailsResponse?.primaryCategory?.name;
@@ -90,24 +106,31 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
     : "Free";
 
   // Map API response to component format
-  const datasetAccess: DatasetAccess | null = libraryItem ? {
-    id: libraryItem.datasetId,
-    datasetUniqueId: datasetDetails?.datasetUniqueId || libraryItem.datasetId,
-    title: datasetDetails?.title || "Dataset",
-    category: datasetPrimaryCategory || "Uncategorized",
-    supplierName: datasetSourceName || "Unknown Supplier",
-    description: datasetDetails?.description || datasetDetailsResponse?.aboutDatasetInfo?.overview || "Dataset metadata is available in this access record.",
-    accessType: libraryItem.accessType === "FREE_CLAIM" ? "free" : "purchased",
-    grantedAt: libraryItem.grantedAt,
-    license: datasetDetails?.license || "Unknown",
-    location: datasetLocation || "Global",
-    dataFormat: datasetFormat || "Unknown",
-    records: typeof datasetRows === "number" ? datasetRows : null,
-    tags: datasetTags,
-    lastUpdated: datasetDetails?.updatedAt || libraryItem.grantedAt,
-    priceLabel,
-    status: "active", // Assume active if we can fetch it
-  } : null;
+  const datasetAccess: DatasetAccess | null = libraryItem
+    ? {
+        id: libraryItem.datasetId,
+        datasetUniqueId:
+          datasetDetails?.datasetUniqueId || libraryItem.datasetId,
+        title: datasetDetails?.title || "Dataset",
+        category: datasetPrimaryCategory || "Uncategorized",
+        supplierName: datasetSourceName || "Unknown Supplier",
+        description:
+          datasetDetails?.description ||
+          datasetDetailsResponse?.aboutDatasetInfo?.overview ||
+          "Dataset metadata is available in this access record.",
+        accessType:
+          libraryItem.accessType === "FREE_CLAIM" ? "free" : "purchased",
+        grantedAt: libraryItem.grantedAt,
+        license: datasetDetails?.license || "Unknown",
+        location: datasetLocation || "Global",
+        dataFormat: datasetFormat || "Unknown",
+        records: typeof datasetRows === "number" ? datasetRows : null,
+        tags: datasetTags,
+        lastUpdated: datasetDetails?.updatedAt || libraryItem.grantedAt,
+        priceLabel,
+        status: "active", // Assume active if we can fetch it
+      }
+    : null;
 
   // Loading state
   if (isLoadingItem) {
@@ -127,7 +150,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-                <p className="text-sm text-muted-foreground">Loading dataset access...</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading dataset access...
+                </p>
               </div>
             </div>
           </div>
@@ -154,9 +179,13 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
                 <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <p className="text-lg font-medium mb-2">Unable to load dataset access</p>
+                <p className="text-lg font-medium mb-2">
+                  Unable to load dataset access
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  {itemError instanceof Error ? itemError.message : "Dataset not found or you don't have access"}
+                  {itemError instanceof Error
+                    ? itemError.message
+                    : "Dataset not found or you don't have access"}
                 </p>
               </div>
             </div>
@@ -167,10 +196,11 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
   }
 
   // Derive download state
-  const downloadState: DownloadState =
-    downloadError ? "error" :
-      downloadUrlResponse ? "link-generated" :
-        "no-link";
+  const downloadState: DownloadState = downloadError
+    ? "error"
+    : downloadUrlResponse
+      ? "link-generated"
+      : "no-link";
 
   const handleGenerateLink = () => {
     setShouldFetchDownload(true);
@@ -188,7 +218,6 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
       regenerateLink();
     }, 100);
   };
-
 
   const formatDate = (isoDate: string) => {
     return new Date(isoDate).toLocaleString("en-US", {
@@ -252,7 +281,10 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
               <aside className="space-y-6 relative">
                 <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 dark:via-white/10 to-transparent hidden lg:block" />
                 {LIBRARY_SIDEBAR_SECTIONS.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="rounded-xl overflow-hidden">
+                  <div
+                    key={sectionIndex}
+                    className="rounded-xl overflow-hidden"
+                  >
                     {section.title && (
                       <div className="px-3 pt-4 pb-2 lg:px-4 lg:pt-5 lg:pb-2">
                         <h3 className="text-xs font-semibold text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider">
@@ -291,7 +323,8 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                     You do not currently have access to this dataset.
                   </h2>
                   <p className="text-[#4e5a7e] dark:text-white/60 text-center mb-8 max-w-md leading-relaxed">
-                    Access may have been revoked or not yet granted. Please verify your entitlements or contact support.
+                    Access may have been revoked or not yet granted. Please
+                    verify your entitlements or contact support.
                   </p>
                   <Link href="/datasets">
                     <Button className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] hover:from-[#2d3a5f] hover:to-[#1a2240] dark:hover:from-white/95 dark:hover:to-white/90 font-semibold">
@@ -326,7 +359,10 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
               <aside className="space-y-6 relative">
                 <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 dark:via-white/10 to-transparent hidden lg:block" />
                 {LIBRARY_SIDEBAR_SECTIONS.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="rounded-xl overflow-hidden">
+                  <div
+                    key={sectionIndex}
+                    className="rounded-xl overflow-hidden"
+                  >
                     {section.title && (
                       <div className="px-3 pt-4 pb-2 lg:px-4 lg:pt-5 lg:pb-2">
                         <h3 className="text-xs font-semibold text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider">
@@ -365,13 +401,21 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                     Your access to this dataset has expired.
                   </h2>
                   <p className="text-[#4e5a7e] dark:text-white/60 text-center mb-2 max-w-md leading-relaxed">
-                    Access expired on {datasetAccess.expiresAt ? formatDate(datasetAccess.expiresAt) : "N/A"}.
+                    Access expired on{" "}
+                    {datasetAccess.expiresAt
+                      ? formatDate(datasetAccess.expiresAt)
+                      : "N/A"}
+                    .
                   </p>
                   <p className="text-sm text-[#4e5a7e] dark:text-white/60 text-center mb-8 max-w-md leading-relaxed">
-                    Please contact support or return to the marketplace for renewal options.
+                    Please contact support or return to the marketplace for
+                    renewal options.
                   </p>
                   <Link href="/library">
-                    <Button variant="outline" className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10">
+                    <Button
+                      variant="outline"
+                      className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10"
+                    >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Back to My Datasets
                     </Button>
@@ -403,7 +447,10 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
               <aside className="space-y-6 relative">
                 <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 dark:via-white/10 to-transparent hidden lg:block" />
                 {LIBRARY_SIDEBAR_SECTIONS.map((section, sectionIndex) => (
-                  <div key={sectionIndex} className="rounded-xl overflow-hidden">
+                  <div
+                    key={sectionIndex}
+                    className="rounded-xl overflow-hidden"
+                  >
                     {section.title && (
                       <div className="px-3 pt-4 pb-2 lg:px-4 lg:pt-5 lg:pb-2">
                         <h3 className="text-xs font-semibold text-[#4e5a7e]/70 dark:text-white/40 uppercase tracking-wider">
@@ -442,9 +489,13 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                     Access has been revoked.
                   </h2>
                   <p className="text-[#4e5a7e] dark:text-white/60 text-center mb-8 max-w-md leading-relaxed">
-                    Your access to this dataset has been revoked. Please contact support for clarification and further assistance.
+                    Your access to this dataset has been revoked. Please contact
+                    support for clarification and further assistance.
                   </p>
-                  <Button variant="outline" className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10">
+                  <Button
+                    variant="outline"
+                    className="border-[#1a2240]/30 dark:border-white/20 text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10"
+                  >
                     Contact Support
                   </Button>
                 </div>
@@ -511,7 +562,10 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
             <div>
               <div className="mb-6">
                 <Link href="/library">
-                  <Button variant="ghost" className="text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 -ml-4 mb-2">
+                  <Button
+                    variant="ghost"
+                    className="text-[#4e5a7e] dark:text-white/80 hover:bg-[#1a2240]/5 dark:hover:bg-white/10 -ml-4 mb-2"
+                  >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to My Datasets
                   </Button>
@@ -523,7 +577,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                   Access details and download controls for this dataset.
                 </p>
                 {isLoadingDatasetDetails && (
-                  <p className="mt-2 text-xs text-[#4e5a7e]/70 dark:text-white/60">Loading additional dataset metadata...</p>
+                  <p className="mt-2 text-xs text-[#4e5a7e]/70 dark:text-white/60">
+                    Loading additional dataset metadata...
+                  </p>
                 )}
               </div>
 
@@ -577,7 +633,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         Access Type
                       </div>
                       <div className="text-sm text-[#1a2240] dark:text-white font-medium">
-                        {datasetAccess.accessType === "purchased" ? "Purchased" : "Free"}
+                        {datasetAccess.accessType === "purchased"
+                          ? "Purchased"
+                          : "Free"}
                       </div>
                     </div>
                     <div>
@@ -618,7 +676,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         Rows
                       </div>
                       <div className="text-sm text-[#1a2240] dark:text-white font-medium">
-                        {datasetAccess.records ? datasetAccess.records.toLocaleString() : "N/A"}
+                        {datasetAccess.records
+                          ? datasetAccess.records.toLocaleString()
+                          : "N/A"}
                       </div>
                     </div>
                     <div className="sm:col-span-2">
@@ -634,12 +694,19 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         Tags
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {datasetAccess.tags.length > 0 ? datasetAccess.tags.slice(0, 8).map((tag) => (
-                          <Badge key={tag} className="bg-[#1a2240]/5 dark:bg-white/10 text-[#1a2240] dark:text-white/80 border border-[#1a2240]/10 dark:border-white/20">
-                            {tag}
-                          </Badge>
-                        )) : (
-                          <span className="text-sm text-[#4e5a7e] dark:text-white/60">No tags available</span>
+                        {datasetAccess.tags.length > 0 ? (
+                          datasetAccess.tags.slice(0, 8).map((tag) => (
+                            <Badge
+                              key={tag}
+                              className="bg-[#1a2240]/5 dark:bg-white/10 text-[#1a2240] dark:text-white/80 border border-[#1a2240]/10 dark:border-white/20"
+                            >
+                              {tag}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-sm text-[#4e5a7e] dark:text-white/60">
+                            No tags available
+                          </span>
                         )}
                       </div>
                     </div>
@@ -662,8 +729,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                               Secure Download System
                             </h4>
                             <p className="text-xs text-blue-800 dark:text-blue-400 leading-relaxed">
-                              Download links are time-limited and expire after 24 hours for security.
-                              Generate a new link when you&apos;re ready to download.
+                              Download links are time-limited and expire after
+                              24 hours for security. Generate a new link when
+                              you&apos;re ready to download.
                             </p>
                           </div>
                         </div>
@@ -673,58 +741,70 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                         disabled={isGenerating}
                         className="w-full bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] hover:from-[#2d3a5f] hover:to-[#1a2240] dark:hover:from-white/95 dark:hover:to-white/90 font-semibold h-11"
                       >
-                        {isGenerating ? "Generating..." : "Generate Download Link"}
+                        {isGenerating
+                          ? "Generating..."
+                          : "Generate Download Link"}
                       </Button>
                     </div>
                   )}
 
-                  {downloadState === "link-generated" && downloadUrlResponse && (
-                    <div className="space-y-4">
-                      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
-                        <div className="flex items-start gap-3 mb-3">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5" />
-                          <div className="flex-1">
-                            <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300 mb-1">
-                              Download Link Generated
-                            </h4>
-                            <p className="text-xs text-emerald-800 dark:text-emerald-400">
-                              Your secure download link is ready. This link will expire in 24 hours.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                              <span className="text-[#4e5a7e]/70 dark:text-white/60">Generated:</span>{" "}
-                              <span className="text-[#1a2240] dark:text-white">
-                                {new Date().toLocaleTimeString()}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-[#4e5a7e]/70 dark:text-white/60">Expires:</span>{" "}
-                              <span className="text-[#1a2240] dark:text-white">
-                                {downloadUrlResponse?.expiresAt ? new Date(downloadUrlResponse.expiresAt).toLocaleString() : "N/A"}
-                              </span>
+                  {downloadState === "link-generated" &&
+                    downloadUrlResponse && (
+                      <div className="space-y-4">
+                        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
+                          <div className="flex items-start gap-3 mb-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+                            <div className="flex-1">
+                              <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300 mb-1">
+                                Download Link Generated
+                              </h4>
+                              <p className="text-xs text-emerald-800 dark:text-emerald-400">
+                                Your secure download link is ready. This link
+                                will expire in 24 hours.
+                              </p>
                             </div>
                           </div>
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-[#4e5a7e]/70 dark:text-white/60">
+                                  Generated:
+                                </span>{" "}
+                                <span className="text-[#1a2240] dark:text-white">
+                                  {new Date().toLocaleTimeString()}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[#4e5a7e]/70 dark:text-white/60">
+                                  Expires:
+                                </span>{" "}
+                                <span className="text-[#1a2240] dark:text-white">
+                                  {downloadUrlResponse?.expiresAt
+                                    ? new Date(
+                                        downloadUrlResponse.expiresAt
+                                      ).toLocaleString()
+                                    : "N/A"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
+                        <Button
+                          onClick={handleDownload}
+                          className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 font-semibold h-11"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Dataset
+                        </Button>
+                        <Button
+                          onClick={handleRegenerateLink}
+                          variant="ghost"
+                          className="w-full text-[#4e5a7e] dark:text-white/70 hover:text-[#1a2240] dark:hover:text-white text-sm"
+                        >
+                          Generate New Link
+                        </Button>
                       </div>
-                      <Button
-                        onClick={handleDownload}
-                        className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white hover:from-emerald-700 hover:to-emerald-800 font-semibold h-11"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Dataset
-                      </Button>
-                      <Button
-                        onClick={handleRegenerateLink}
-                        variant="ghost"
-                        className="w-full text-[#4e5a7e] dark:text-white/70 hover:text-[#1a2240] dark:hover:text-white text-sm"
-                      >
-                        Generate New Link
-                      </Button>
-                    </div>
-                  )}
+                    )}
 
                   {downloadState === "error" && (
                     <div className="space-y-4">
@@ -736,7 +816,9 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                               Failed to Generate Link
                             </h4>
                             <p className="text-xs text-red-800 dark:text-red-400 leading-relaxed">
-                              There was an error generating your download link. Please try again or contact support if the issue persists.
+                              There was an error generating your download link.
+                              Please try again or contact support if the issue
+                              persists.
                             </p>
                           </div>
                         </div>
@@ -764,9 +846,17 @@ export function DatasetAccessPage({ datasetId }: DatasetAccessPageProps) {
                       </div>
                     </summary>
                     <div className="mt-4 space-y-2 text-sm text-[#4e5a7e] dark:text-white/70 leading-relaxed">
-                      <p>• All downloads are logged and auditable for compliance purposes</p>
-                      <p>• Dataset may not be redistributed without explicit authorization</p>
-                      <p>• Usage is subject to the license terms displayed above</p>
+                      <p>
+                        • All downloads are logged and auditable for compliance
+                        purposes
+                      </p>
+                      <p>
+                        • Dataset may not be redistributed without explicit
+                        authorization
+                      </p>
+                      <p>
+                        • Usage is subject to the license terms displayed above
+                      </p>
                       <p>• Access can be revoked if terms are violated</p>
                     </div>
                   </details>

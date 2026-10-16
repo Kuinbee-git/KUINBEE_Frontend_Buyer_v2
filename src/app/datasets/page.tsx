@@ -14,6 +14,7 @@ import {
   type SearchParams,
 } from "@/features/datasets/discovery-query";
 import { listPublicDatasets } from "@/services/public-catalogue.service";
+import { buyerCatalogueKeys } from "@/lib/buyer-catalogue-keys";
 
 export const metadata: Metadata = genMeta({
   title: "Buy Verified Datasets for AI, ML & Research | Kuinbee",
@@ -38,7 +39,7 @@ export default async function DatasetsPage({
   const query = discoveryQuery(toUrlSearchParams(await searchParams));
   const client = new QueryClient();
   const data = await listPublicDatasets(query);
-  client.setQueryData(["datasets", query], data);
+  client.setQueryData(buyerCatalogueKeys.list(query), data);
   return (
     <HydrationBoundary state={dehydrate(client)}>
       <Suspense fallback={<DatasetsLoading />}>

@@ -1,5 +1,13 @@
 import { cache } from "react";
 import { API_BASE_URL } from "@/core/api/endpoints";
+import { buyerDatasetApi } from "./dataset-content.service";
+import {
+  legacyCatalogueCard,
+  legacyCatalogueDetail,
+  type BuyerDatasetCardView,
+  type BuyerDatasetDetailView,
+} from "./buyer-catalogue.service";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
 import type {
   Category,
   Dataset,
@@ -29,7 +37,10 @@ async function publicGet<T>(path: string, query?: object): Promise<T> {
     }
   }
   const response = await fetch(url, {
-    next: { revalidate: 3600 },
+    ...(DATASET_CONTENT_BUYER_ENABLED &&
+    path === "/api/v1/marketplace/categories"
+      ? { cache: "no-store" as const }
+      : { next: { revalidate: 3600 } }),
     signal: AbortSignal.timeout(12_000),
   });
   const payload = await response.json().catch(() => null);
@@ -42,13 +53,80 @@ async function publicGet<T>(path: string, query?: object): Promise<T> {
   return payload.data as T;
 }
 
-export const listPublicDatasets = (query: DatasetListQuery = {}) =>
-  publicGet<PaginatedResponse<Dataset>>("/api/v1/marketplace/datasets", query);
+export const listPublicDatasets = async (query: DatasetListQuery = {}) => {
+  if (!DATASET_CONTENT_BUYER_ENABLED) {
+    const result = await publicGet<PaginatedResponse<Dataset>>(
+      "/api/v1/marketplace/datasets",
+      query
+    );
+    return {
+      ...result,
+      items: result.items.map((legacy) => ({
+        representation: "LEGACY" as const,
+        legacy,
+      })),
+    };
+  }
+  try {
+    const result = await buyerDatasetApi.catalogue(query);
+    return {
+      ...result,
+      items: result.items.map(
+        (row): BuyerDatasetCardView =>
+          row.representation === "CONTENT"
+            ? row
+            : {
+                representation: "LEGACY",
+                legacy: legacyCatalogueCard(row.legacy),
+              }
+      ),
+    };
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "status" in error &&
+      typeof error.status === "number"
+    )
+      throw new PublicCatalogueError(
+        error.status,
+        "Public Dataset catalogue unavailable"
+      );
+    throw error;
+  }
+};
 
-export const getPublicDataset = cache((id: string) =>
-  publicGet<DatasetDetailsResponse>(
-    `/api/v1/marketplace/datasets/${encodeURIComponent(id)}`
-  )
+export const getPublicDataset = cache(
+  async (id: string): Promise<BuyerDatasetDetailView> => {
+    if (!DATASET_CONTENT_BUYER_ENABLED)
+      return {
+        representation: "LEGACY",
+        legacy: await publicGet<DatasetDetailsResponse>(
+          `/api/v1/marketplace/datasets/${encodeURIComponent(id)}`
+        ),
+      };
+    try {
+      const result = await buyerDatasetApi.detail(id);
+      return result.representation === "CONTENT"
+        ? result
+        : {
+            representation: "LEGACY",
+            legacy: legacyCatalogueDetail(result.legacy),
+          };
+    } catch (error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        typeof error.status === "number"
+      )
+        throw new PublicCatalogueError(
+          error.status,
+          "Public Dataset unavailable"
+        );
+      throw error;
+    }
+  }
 );
 
 export const listPublicCollectionServices = (
@@ -97,7 +175,13 @@ export async function listAllPublished<T>(
   }
 }
 
-export function datasetDescription(data: DatasetDetailsResponse): string {
+export function datasetDescription(result: BuyerDatasetDetailView): string {
+  if (result.representation === "CONTENT")
+    return result.description.description
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const data = result.legacy;
   return (
     data.dataset.description ||
     data.aboutDatasetInfo?.overview ||

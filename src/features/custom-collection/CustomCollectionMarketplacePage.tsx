@@ -17,7 +17,8 @@ import {
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
-import { useCategories, useDatasets } from "@/hooks/api/useMarketplace";
+import { useCategories } from "@/hooks/api/useMarketplace";
+import { useBuyerDatasetList as useDatasets } from "@/hooks/api/useBuyerCatalogue";
 import { MarketplaceSearch } from "@/shared/components/ui/marketplace-search";
 import {
   COLLECTION_METHODS,

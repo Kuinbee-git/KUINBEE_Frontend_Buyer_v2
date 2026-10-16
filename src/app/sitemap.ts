@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/core/config/seo.config";
 import { blogPostsMeta } from "@/features/blog/blog-posts";
+import { catalogueCardIdentity } from "@/services/buyer-catalogue.service";
 import { listPublicDataRequirements } from "@/services/public-data-requirement.service";
 import {
   categorySlug,
@@ -52,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const sources = await Promise.allSettled([
-    listAllPublished((page) => listPublicDatasets({ page, pageSize: 100 })),
+    listAllPublished((page) => listPublicDatasets({ page, pageSize: 50 })),
     listAllPublished((page) =>
       listPublicCollectionServices({ page, pageSize: 100 })
     ),
@@ -64,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [datasets, services, requirements, categories] = sources;
   if (datasets.status === "fulfilled")
     urls.push(
-      ...datasets.value.map((dataset) => ({
+      ...datasets.value.map(catalogueCardIdentity).map((dataset) => ({
         // Existing public API and card links use id, not datasetUniqueId.
         url: `${baseUrl}/datasets/${dataset.id}`,
         lastModified: new Date(dataset.updatedAt),

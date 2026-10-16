@@ -56,17 +56,13 @@ const FilterSidebar = dynamic(
     ),
   }
 );
+import { Dataset, FilterState, SortOption } from "./types";
+import { useCategories } from "@/hooks/api/useMarketplace";
 import {
-  Dataset,
-  DatasetPriceSurfaceUI,
-  FilterState,
-  SortOption,
-} from "./types";
-import {
-  useDatasets,
-  useCategories,
-  prefetchDatasets,
-} from "@/hooks/api/useMarketplace";
+  useBuyerDatasetList as useDatasets,
+  prefetchBuyerDatasets as prefetchDatasets,
+} from "@/hooks/api/useBuyerCatalogue";
+import type { ContentListing } from "../content/content-description";
 import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
 import { useWishlist } from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
@@ -91,70 +87,10 @@ const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
   return mapping[sort];
 };
 
-type DatasetApiItem = {
-  id: string;
-  datasetUniqueId: string;
-  title: string;
-  owner?: { id?: string; name?: string; logoUrl?: string | null };
-  category?: { name?: string };
-  source?: {
-    id?: string;
-    name?: string;
-    description?: string | null;
-    websiteUrl?: string | null;
-    isVerified?: boolean;
-    logoUrl?: string | null;
-  } | null;
-  sources?: Array<{
-    id?: string;
-    name?: string;
-    description?: string | null;
-    websiteUrl?: string | null;
-    isVerified?: boolean;
-    logoUrl?: string | null;
-  }>;
+type DatasetApiItem = import("@/types").Dataset & {
+  source?: import("./types").DatasetSourceUI | null;
+  sources?: import("./types").DatasetSourceUI[];
   isPlatformDataset?: boolean;
-  license?: string;
-  isPaid?: boolean;
-  price?: string | number | null;
-  currency?: string;
-  accessFlow?: Dataset["accessFlow"];
-  commercialFlow?: Dataset["commercialFlow"];
-  accessPrice?: DatasetPriceSurfaceUI | null;
-  commercialPrice?: DatasetPriceSurfaceUI | null;
-  updatedAt?: string;
-  createdAt?: string;
-  status?: string;
-  location?: {
-    country?: string;
-    state?: string;
-    city?: string;
-  };
-  dataFormatInfo?: {
-    fileFormat?: string;
-    rows?: number;
-    cols?: number;
-    fileSize?: string;
-  };
-  tags?: string[];
-  downloadCount?: number;
-  viewCount?: number;
-  rating?: number | null;
-  reviewCount?: number;
-  kdtsScore?: number | null;
-  searchScore?: number | null;
-  isSample?: boolean;
-  sampleFileAvailable?: boolean;
-  sampleNotes?: {
-    whySample?: string | null;
-    actualDataSize?: string | null;
-    completeness?: string | null;
-    deliveryMechanism?: string | null;
-    deliveryMechanismNotes?: string | null;
-  } | null;
-  actualPrice?: string | number | null;
-  actualPriceCurrency?: string | null;
-  buyInPartsAvailable?: boolean;
 };
 
 const toNullableNumber = (
@@ -224,16 +160,16 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
     status: apiDataset.status?.toLowerCase() || "published",
     description: apiDataset.title,
     coverage: apiDataset.location?.country || "N/A",
-    records: apiDataset.dataFormatInfo?.rows || 0,
+    records: apiDataset.dataFormatInfo?.rows ?? null,
     aboutDataset: null,
     dataFormat: apiDataset.dataFormatInfo
       ? {
           fileFormat: apiDataset.dataFormatInfo.fileFormat ?? "UNKNOWN",
-          rows: apiDataset.dataFormatInfo.rows ?? 0,
-          cols: apiDataset.dataFormatInfo.cols ?? 0,
+          rows: apiDataset.dataFormatInfo.rows,
+          cols: apiDataset.dataFormatInfo.cols,
           fileSize: apiDataset.dataFormatInfo.fileSize ?? "N/A",
-          compressionType: "NONE",
-          encoding: "UTF-8",
+          compressionType: null,
+          encoding: null,
           updatedAt:
             apiDataset.updatedAt ??
             apiDataset.createdAt ??
@@ -271,8 +207,8 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
       freshness: 0,
     },
     verification: {
-      supplierVerified: true,
-      datasetReviewed: true,
+      supplierVerified: false,
+      datasetReviewed: false,
       published: apiDataset.status === "PUBLISHED",
     },
     reviewCount: apiDataset.reviewCount || 0,
@@ -349,8 +285,17 @@ export function DatasetDiscoveryV2() {
     tags: searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [],
     minKdtsScore: searchParams.get("minKdtsScore") || "",
     sortOrder: (searchParams.get("sort") as SortOption) || "relevance",
-    page: parseInt(searchParams.get("page") || "1", 10),
-    pageSize: parseInt(searchParams.get("pageSize") || "10", 10),
+    page: Math.min(
+      10000,
+      Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1)
+    ),
+    pageSize: Math.min(
+      50,
+      Math.max(
+        1,
+        Number.parseInt(searchParams.get("pageSize") || "10", 10) || 10
+      )
+    ),
   }));
 
   // Sync filter state to URL so browser back/forward restores the view
@@ -389,14 +334,27 @@ export function DatasetDiscoveryV2() {
 
   const urlSearch = searchParams.get("q") || "";
   const urlCategoriesKey = JSON.stringify(getCategoriesFromSearchParams());
-  const [urlFilterContext, setUrlFilterContext] = useState({ urlSearch, urlCategoriesKey });
-  if (urlFilterContext.urlSearch !== urlSearch || urlFilterContext.urlCategoriesKey !== urlCategoriesKey) {
+  const [urlFilterContext, setUrlFilterContext] = useState({
+    urlSearch,
+    urlCategoriesKey,
+  });
+  if (
+    urlFilterContext.urlSearch !== urlSearch ||
+    urlFilterContext.urlCategoriesKey !== urlCategoriesKey
+  ) {
     const searchChanged = urlFilterContext.urlSearch !== urlSearch;
-    const categoriesChanged = urlFilterContext.urlCategoriesKey !== urlCategoriesKey;
+    const categoriesChanged =
+      urlFilterContext.urlCategoriesKey !== urlCategoriesKey;
     setUrlFilterContext({ urlSearch, urlCategoriesKey });
-    const categories = categoriesChanged ? getCategoriesFromSearchParams() : filters.categories;
+    const categories = categoriesChanged
+      ? getCategoriesFromSearchParams()
+      : filters.categories;
     const search = searchChanged ? urlSearch : filters.search;
-    if (search !== filters.search || categories.length !== filters.categories.length || categories.some(value => !filters.categories.includes(value))) {
+    if (
+      search !== filters.search ||
+      categories.length !== filters.categories.length ||
+      categories.some((value) => !filters.categories.includes(value))
+    ) {
       setFilters({ ...filters, search, categories, page: 1 });
     }
   }
@@ -538,7 +496,6 @@ export function DatasetDiscoveryV2() {
 
   // Resolve category slugs as category metadata becomes available.
   if (categoriesResponse?.items && filters.categories.length > 0) {
-
     const searchTerms: Record<string, string> = {
       finance: "finance",
       energy: "energy",
@@ -577,10 +534,17 @@ export function DatasetDiscoveryV2() {
   }, [categoryMap]);
 
   // Map API response to UI format
-  const allDatasets: Dataset[] = useMemo(() => {
+  const allDatasets: Array<Dataset | ContentListing> = useMemo(() => {
     if (!apiResponse?.items) return [];
-    return (apiResponse.items as unknown as DatasetApiItem[]).map(
-      mapDatasetToUI
+    return apiResponse.items.map((row) =>
+      row.representation === "CONTENT"
+        ? {
+            representation: "CONTENT" as const,
+            id: row.item.id,
+            searchScore: row.item.searchScore,
+            item: row.item,
+          }
+        : mapDatasetToUI(row.legacy)
     );
   }, [apiResponse]);
 
@@ -777,7 +741,10 @@ export function DatasetDiscoveryV2() {
                 ? "Loading…"
                 : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
             </p>
-            <Link href="/datasets/categories" className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 dark:text-white">
+            <Link
+              href="/datasets/categories"
+              className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 dark:text-white"
+            >
               Browse datasets by category
             </Link>
           </div>

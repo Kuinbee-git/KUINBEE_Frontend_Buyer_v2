@@ -23,7 +23,13 @@
 
 import { getErrorDetails } from "@/shared/utils/error-details";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Dialog,
   DialogContent,
@@ -54,17 +60,17 @@ import {
 } from "@/hooks/api/usePayments";
 import { useQueryClient } from "@tanstack/react-query";
 import { addOrderId } from "@/lib/orderHistory";
-import type {
-  RazorpayCheckoutInfo,
-  RazorpaySuccessResponse,
-  PaymentAttemptStatus,
-} from "@/types";
+import {
+  assertContentCheckout,
+  contentCheckoutItem,
+} from "@/services/dataset-content.service";
+import type { DatasetAcquisitionTarget } from "@kuinbee/dataset-preparation-contracts";
+import type { RazorpayCheckoutInfo, RazorpaySuccessResponse } from "@/types";
 
 // ─── Razorpay script loader ─────────────────────────────────────────
 
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 let razorpayScriptPromise: Promise<void> | null = null;
-const SUCCESSFUL_ATTEMPT_STATUSES: PaymentAttemptStatus[] = ["CLIENT_CONFIRMED", "CAPTURED"];
 
 function loadRazorpayScript(): Promise<void> {
   if (razorpayScriptPromise) return razorpayScriptPromise;
@@ -106,6 +112,8 @@ type CheckoutStep =
 interface RazorpayCheckoutFlowProps {
   /** The dataset id to purchase */
   datasetId: string;
+  expectedTarget?: DatasetAcquisitionTarget;
+  expectedActorId?: string;
   /** Human-readable dataset title (for display inside the dialog) */
   datasetTitle: string;
   /** Display price (e.g. 199) */
@@ -123,6 +131,8 @@ interface RazorpayCheckoutFlowProps {
 
 export function RazorpayCheckoutFlow({
   datasetId,
+  expectedTarget,
+  expectedActorId,
   datasetTitle,
   amount,
   currency = "INR",
@@ -131,13 +141,31 @@ export function RazorpayCheckoutFlow({
   onComplete,
 }: RazorpayCheckoutFlowProps) {
   const { user } = useAuth();
+  const liveActor = useRef<{ active: boolean; id: string | undefined }>({
+    active: false,
+    id: undefined,
+  });
+  const orderActor = useRef<string | undefined>(undefined);
+  const contentSdk = useRef<{ close(): void } | null>(null);
+  useLayoutEffect(() => {
+    liveActor.current = { active: open, id: user?.id };
+    return () => {
+      liveActor.current = { active: false, id: undefined };
+      if (expectedTarget) {
+        contentSdk.current?.close();
+        contentSdk.current = null;
+      }
+    };
+  }, [open, user?.id, expectedTarget]);
   const router = useRouter();
   const queryClient = useQueryClient();
 
   // ── Local state ──
   const [step, setStep] = useState<CheckoutStep>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [checkoutInfo, setCheckoutInfo] = useState<RazorpayCheckoutInfo | null>(null);
+  const [checkoutInfo, setCheckoutInfo] = useState<RazorpayCheckoutInfo | null>(
+    null
+  );
   const [orderId, setOrderId] = useState<string | null>(null);
   const [pollEnabled, setPollEnabled] = useState(false);
 
@@ -154,26 +182,31 @@ export function RazorpayCheckoutFlow({
   // Track polling start time for timeout
   const pollStartRef = useRef<number | null>(null);
 
-  const finalizeSuccessfulCheckout = useCallback((resolvedOrderId: string) => {
-    if (completedRef.current) return;
-    completedRef.current = true;
+  const finalizeSuccessfulCheckout = useCallback(
+    (resolvedOrderId: string) => {
+      if (
+        expectedTarget &&
+        (!liveActor.current.active ||
+          liveActor.current.id !== orderActor.current ||
+          orderActor.current !== expectedActorId)
+      )
+        return;
+      if (completedRef.current) return;
+      completedRef.current = true;
 
-    toast.success("Payment successful! Dataset access granted.");
-    addOrderId(resolvedOrderId);
+      toast.success(
+        "Payment completed. View your recorded access in your library."
+      );
+      addOrderId(resolvedOrderId);
 
-    queryClient.setQueryData(["entitlements", datasetId, "check"], (previous: unknown) => {
-      if (previous && typeof previous === "object") {
-        return { ...(previous as Record<string, unknown>), entitled: true };
-      }
-      return { entitled: true };
-    });
+      queryClient.invalidateQueries({ queryKey: ["entitlements"] });
+      queryClient.invalidateQueries({ queryKey: ["library"] });
+      queryClient.invalidateQueries({ queryKey: ["datasets"] });
 
-    queryClient.invalidateQueries({ queryKey: ["entitlements"] });
-    queryClient.invalidateQueries({ queryKey: ["library"] });
-    queryClient.invalidateQueries({ queryKey: ["datasets"] });
-
-    onComplete?.(resolvedOrderId);
-  }, [datasetId, onComplete, queryClient]);
+      onComplete?.(resolvedOrderId);
+    },
+    [expectedTarget, expectedActorId, onComplete, queryClient]
+  );
 
   // ── Reset state when dialog closes ──
   useEffect(() => {
@@ -204,10 +237,10 @@ export function RazorpayCheckoutFlow({
     return () => clearTimeout(timer);
   }, [step]);
 
-  const successfulOrder = orderData?.order.id === orderId &&
-    (orderData.order.status === "COMPLETED" || orderData.paymentAttempts?.some(
-      attempt => SUCCESSFUL_ATTEMPT_STATUSES.includes(attempt.status)
-    ));
+  // Provider/client confirmation is not a recorded Dataset grant. Existing
+  // backend order completion follows fulfillment; access queries still reread it.
+  const successfulOrder =
+    orderData?.order.id === orderId && orderData.order.status === "COMPLETED";
   const [handledOrderData, setHandledOrderData] = useState(orderData);
   if (handledOrderData !== orderData) {
     setHandledOrderData(orderData);
@@ -215,10 +248,17 @@ export function RazorpayCheckoutFlow({
       if (successfulOrder) {
         setStep("completed");
         setPollEnabled(false);
-      } else if (orderData.order.status === "FAILED" || orderData.order.status === "REFUNDED") {
+      } else if (
+        orderData.order.status === "FAILED" ||
+        orderData.order.status === "REFUNDED"
+      ) {
         setStep("failed");
         setPollEnabled(false);
-        setErrorMessage(orderData.order.status === "REFUNDED" ? "Payment was refunded." : "Payment failed. Please try again.");
+        setErrorMessage(
+          orderData.order.status === "REFUNDED"
+            ? "Payment was refunded."
+            : "Payment failed. Please try again."
+        );
       }
     }
   }
@@ -229,18 +269,38 @@ export function RazorpayCheckoutFlow({
   // ── Start the checkout flow ──
   const handleStartCheckout = useCallback(async () => {
     try {
+      const assertActor = () => {
+        if (
+          expectedTarget &&
+          (!expectedActorId ||
+            !liveActor.current.active ||
+            liveActor.current.id !== expectedActorId)
+        )
+          throw new Error(
+            "Sign in to the account that reviewed this offer before starting checkout."
+          );
+      };
+      assertActor();
+      if (expectedTarget) orderActor.current = expectedActorId;
       setStep("creating");
       setErrorMessage(null);
 
       // 1. Load Razorpay script
       await loadRazorpayScript();
+      assertActor();
 
       // 2. Create checkout on backend
       const response = await createCheckout.mutateAsync({
-        items: [{ datasetId }],
+        items: [
+          expectedTarget
+            ? contentCheckoutItem(datasetId, expectedTarget)
+            : { datasetId },
+        ],
       });
 
       const checkout = response.checkout;
+      assertActor();
+      if (expectedTarget) assertContentCheckout(expectedTarget, checkout);
       setCheckoutInfo(checkout);
       setOrderId(checkout.orderId);
 
@@ -261,6 +321,7 @@ export function RazorpayCheckoutFlow({
         handler: async (response: RazorpaySuccessResponse) => {
           // 4. Confirm with backend
           try {
+            assertActor();
             setStep("confirming");
 
             await confirmPayment.mutateAsync({
@@ -269,13 +330,8 @@ export function RazorpayCheckoutFlow({
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
             });
+            assertActor();
 
-            queryClient.setQueryData(["entitlements", datasetId, "check"], (previous: unknown) => {
-              if (previous && typeof previous === "object") {
-                return { ...(previous as Record<string, unknown>), entitled: true };
-              }
-              return { entitled: true };
-            });
             queryClient.invalidateQueries({ queryKey: ["entitlements"] });
             queryClient.invalidateQueries({ queryKey: ["library"] });
             queryClient.invalidateQueries({ queryKey: ["datasets"] });
@@ -284,10 +340,11 @@ export function RazorpayCheckoutFlow({
             setStep("polling");
             setPollEnabled(true);
           } catch (caught: unknown) {
-      const err = getErrorDetails(caught);
+            const err = getErrorDetails(caught);
             setStep("failed");
             setErrorMessage(
-              err?.message || "Failed to confirm payment. Contact support if money was deducted."
+              err?.message ||
+                "Failed to confirm payment. Contact support if money was deducted."
             );
           }
         },
@@ -307,19 +364,33 @@ export function RazorpayCheckoutFlow({
           confirm_close: true,
         },
       });
+      if (expectedTarget) contentSdk.current = rzp;
 
       rzp.on("payment.failed", () => {
         setStep("failed");
-        setErrorMessage("Payment failed. Please try again with a different payment method.");
+        setErrorMessage(
+          "Payment failed. Please try again with a different payment method."
+        );
       });
 
       rzp.open();
     } catch (caught: unknown) {
       const err = getErrorDetails(caught);
       setStep("failed");
-      setErrorMessage(err?.message || "Could not initiate checkout. Please try again.");
+      setErrorMessage(
+        err?.message || "Could not initiate checkout. Please try again."
+      );
     }
-  }, [datasetId, datasetTitle, user, createCheckout, confirmPayment, queryClient]);
+  }, [
+    datasetId,
+    datasetTitle,
+    expectedTarget,
+    expectedActorId,
+    user,
+    createCheckout,
+    confirmPayment,
+    queryClient,
+  ]);
 
   // ── Retry ──
   const handleRetry = () => {
@@ -334,11 +405,16 @@ export function RazorpayCheckoutFlow({
   // ── Currency symbol helper ──
   const getCurrencySymbol = (c: string) => {
     switch (c) {
-      case "INR": return "₹";
-      case "USD": return "$";
-      case "EUR": return "€";
-      case "GBP": return "£";
-      default: return c;
+      case "INR":
+        return "₹";
+      case "USD":
+        return "$";
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      default:
+        return c;
     }
   };
 
@@ -367,7 +443,7 @@ export function RazorpayCheckoutFlow({
           </DialogTitle>
           <DialogDescription className="text-[#4e5a7e] dark:text-white/60">
             {step === "completed"
-              ? "Your access has been granted"
+              ? "View your recorded access in your library"
               : "Secure payment via Razorpay"}
           </DialogDescription>
         </DialogHeader>
@@ -401,7 +477,9 @@ export function RazorpayCheckoutFlow({
               {/* Security badges */}
               <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-white/60">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>256-bit encrypted &middot; Instant access after payment</span>
+                <span>
+                  Access follows payment confirmation and current file checks
+                </span>
               </div>
 
               {/* CTA */}
@@ -409,7 +487,10 @@ export function RazorpayCheckoutFlow({
                 className="w-full bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white dark:to-white/95 text-white dark:text-[#1a2240] h-11"
                 onClick={handleStartCheckout}
               >
-                Pay {amount != null ? `${getCurrencySymbol(currency)}${amount.toLocaleString()}` : ""}
+                Pay{" "}
+                {amount != null
+                  ? `${getCurrencySymbol(currency)}${amount.toLocaleString()}`
+                  : ""}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </>
@@ -458,7 +539,7 @@ export function RazorpayCheckoutFlow({
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-foreground dark:text-white">
-                  Payment received
+                  Waiting for payment confirmation
                 </p>
                 <p className="text-xs text-muted-foreground dark:text-white/60 mt-1">
                   Confirming your access — this usually takes a few seconds…
@@ -483,12 +564,11 @@ export function RazorpayCheckoutFlow({
               </div>
               <div className="text-center">
                 <p className="text-lg font-semibold text-foreground dark:text-white">
-                  Payment Received
+                  Payment confirmation pending
                 </p>
                 <p className="text-sm text-muted-foreground dark:text-white/60 mt-1 max-w-xs">
-                  Your payment was successful, but access confirmation is taking
-                  longer than usual. This may take a minute — check your order
-                  page for updates.
+                  Payment confirmation is taking longer than usual. Check your
+                  order page for the latest payment and access status.
                 </p>
               </div>
               {orderId && (
@@ -577,7 +657,10 @@ export function RazorpayCheckoutFlow({
               {checkoutInfo && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  <span>If money was deducted, it will be refunded within 5-7 business days.</span>
+                  <span>
+                    If money was deducted, it will be refunded within 5-7
+                    business days.
+                  </span>
                 </div>
               )}
               <div className="flex gap-3 w-full">
@@ -588,10 +671,7 @@ export function RazorpayCheckoutFlow({
                 >
                   Cancel
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleRetry}
-                >
+                <Button className="flex-1" onClick={handleRetry}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
                 </Button>
