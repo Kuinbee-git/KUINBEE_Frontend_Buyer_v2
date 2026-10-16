@@ -573,6 +573,15 @@ try {
     "PASS anonymous samples require sign-in; exact format observations, security refusal and fresh 60-second download intents stay separate"
   );
   const free = add("FULL_ONLY", ["AUDIO"]);
+  free.description.geographicCoverage = {
+    state: "KNOWN",
+    description: "Grant A declared region",
+  };
+  free.description.collectionPeriod = {
+    state: "KNOWN",
+    start: { precision: "YEAR", value: "2019" },
+    end: { precision: "MONTH", value: "2020-04" },
+  };
   await open(page, free);
   await ready(button(page, "Review full dataset access"));
   await button(page, "Review full dataset access").click();
@@ -590,6 +599,11 @@ try {
   newer.description.title = newer.item.title;
   newer.item.license = "CC0-1.0";
   newer.description.license = "CC0-1.0";
+  newer.description.geographicCoverage = {
+    state: "KNOWN",
+    description: "Current B declared region",
+  };
+  newer.description.collectionPeriod = { state: "UNKNOWN" };
   models.set(free.item.id, newer);
   flags.lostClaim = false;
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -604,6 +618,19 @@ try {
       exact: true,
     })
     .waitFor();
+  const historicalDescription = page.locator("[data-content-description]");
+  await historicalDescription
+    .getByText("Grant A declared region", { exact: true })
+    .waitFor();
+  await historicalDescription
+    .getByText("2019 (year) to 2020-04 (month)", { exact: true })
+    .waitFor();
+  assert.equal(
+    await historicalDescription
+      .getByText("Current B declared region", { exact: true })
+      .count(),
+    0
+  );
   assert.equal(
     requests.filter((request) => request.path.endsWith(free.item.id + "/claim"))
       .length,

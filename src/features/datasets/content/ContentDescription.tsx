@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
-import type { DatasetPublicDescription } from "@kuinbee/dataset-preparation-contracts";
+import {
+  formatDatasetGeographicCoverage,
+  formatDatasetCollectionPeriod,
+  type DatasetPublicDescription,
+} from "@kuinbee/dataset-preparation-contracts";
 import {
   contentChoiceLabel,
   contentModalityLabels,
@@ -72,6 +76,14 @@ export function ContentDescription({
             contentModalityLabels(description.modalities).join(", "),
           ],
           ["Collection boundary", description.collectionBoundary],
+          [
+            "Geographic coverage · supplier declared",
+            formatDatasetGeographicCoverage(description.geographicCoverage),
+          ],
+          [
+            "Collection or capture period · supplier declared",
+            formatDatasetCollectionPeriod(description.collectionPeriod),
+          ],
           ["Overview", description.overview],
           ["Description", description.description],
           ["Quality statement", description.dataQuality],
