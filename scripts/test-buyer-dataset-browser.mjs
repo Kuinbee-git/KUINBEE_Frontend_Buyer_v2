@@ -537,6 +537,95 @@ try {
   console.log(
     "PASS all 21 modality/composition-by-choice details render scoped descriptions and unknown values; sample-only has no claim, checkout or inquiry"
   );
+  const scopedProfiles = add("FULL_AND_SAMPLE", [
+    "AUDIO",
+    "VIDEO",
+    "TEXT",
+    "SENSOR",
+  ]);
+  scopedProfiles.description.profiles = {
+    audio: {
+      content: "NON_SPEECH",
+      languages: ["Retained speech language"],
+      transcriptAvailability: "ABSENT",
+      transcriptMeaning: "Retained transcript meaning",
+      transcriptTiming: "TIMED",
+      alignmentNotes: "Retained transcript alignment",
+    },
+    video: {
+      content: "Silent activity clips",
+      annotationAvailability: "PRESENT",
+      annotationMeaning: "Whole-clip labels",
+      annotationReferences: "WHOLE_ITEM",
+      timingConvention: "Retained frame claim",
+    },
+    text: {
+      recordUnit: "One code record",
+      languageContent: "NON_LANGUAGE",
+      languages: ["Retained text language"],
+      annotationAvailability: "ABSENT",
+      recordConvention: "Retained offset claim",
+    },
+    sensors: {
+      channelNotes: "Untimed readings",
+      synchronization: "NO_CLAIM",
+      synchronizationNotes: "Retained synchronized claim",
+      calibrationAvailability: "ABSENT",
+      calibrationMeaning: "Retained calibration claim",
+    },
+  };
+  await open(page, scopedProfiles);
+  for (const name of [
+    "Audio details · supplier declared",
+    "Video details · supplier declared",
+    "Text details · supplier declared",
+    "Sensors details · supplier declared",
+  ])
+    await page.getByText(name, { exact: true }).click();
+  await page.getByText("Whole clips or items", { exact: true }).waitFor();
+  await page
+    .getByText("Other content, such as codes or numbers", { exact: true })
+    .waitFor();
+  for (const value of [
+    "Retained speech language",
+    "Retained transcript meaning",
+    "Retained transcript alignment",
+    "Retained frame claim",
+    "Retained text language",
+    "Retained offset claim",
+    "Retained synchronized claim",
+    "Retained calibration claim",
+  ])
+    assert.equal(await page.getByText(value, { exact: true }).count(), 0);
+  scopedProfiles.description.profiles.audio = {
+    content: "SPEECH",
+    languages: ["Marathi"],
+    transcriptAvailability: "PRESENT",
+    transcriptTiming: "UNKNOWN",
+    alignmentNotes: "Retained unassessed audio time claim",
+  };
+  scopedProfiles.description.profiles.video.annotationReferences = "UNKNOWN";
+  await open(page, scopedProfiles);
+  for (const name of [
+    "Audio details · supplier declared",
+    "Video details · supplier declared",
+  ])
+    await page.getByText(name, { exact: true }).click();
+  await page.getByText("Timing not assessed", { exact: true }).waitFor();
+  await page.getByText("References not assessed", { exact: true }).waitFor();
+  assert.equal(
+    await page
+      .getByText("Retained unassessed audio time claim", { exact: true })
+      .count(),
+    0
+  );
+  assert.equal(
+    await page.getByText("Retained frame claim", { exact: true }).count(),
+    0
+  );
+  console.log(
+    "PASS applicable frozen profile display hides retained speech, annotation, timing and calibration claims without inventing languages or timing for non-language, whole-clip or unassessed material"
+  );
   const sample = add("SAMPLE_ONLY", ["AUDIO"]);
   await open(page, sample, true);
   await button(page, "Sign in to view sample files").click();
@@ -582,6 +671,13 @@ try {
     start: { precision: "YEAR", value: "2019" },
     end: { precision: "MONTH", value: "2020-04" },
   };
+  free.description.profiles.audio = {
+    content: "SPEECH",
+    languages: ["Marathi"],
+    transcriptAvailability: "PRESENT",
+    transcriptTiming: "UNTIMED",
+    transcriptMeaning: "Grant A punctuation conventions",
+  };
   await open(page, free);
   await ready(button(page, "Review full dataset access"));
   await button(page, "Review full dataset access").click();
@@ -604,6 +700,10 @@ try {
     description: "Current B declared region",
   };
   newer.description.collectionPeriod = { state: "UNKNOWN" };
+  newer.description.profiles.audio = {
+    content: "NON_SPEECH",
+    transcriptAvailability: "ABSENT",
+  };
   models.set(free.item.id, newer);
   flags.lostClaim = false;
   await page.reload({ waitUntil: "domcontentloaded" });
@@ -631,6 +731,16 @@ try {
       .count(),
     0
   );
+  await historicalDescription
+    .getByText("Audio details · supplier declared", { exact: true })
+    .click();
+  await historicalDescription.getByText("Marathi", { exact: true }).waitFor();
+  await historicalDescription
+    .getByText("Untimed transcripts", { exact: true })
+    .waitFor();
+  await historicalDescription
+    .getByText("Grant A punctuation conventions", { exact: true })
+    .waitFor();
   assert.equal(
     requests.filter((request) => request.path.endsWith(free.item.id + "/claim"))
       .length,

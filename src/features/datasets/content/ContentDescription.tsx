@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 import {
   formatDatasetGeographicCoverage,
   formatDatasetCollectionPeriod,
+  isDatasetPreparationProfileFieldApplicable,
   type DatasetPublicDescription,
+  type DatasetPreparationProfiles,
 } from "@kuinbee/dataset-preparation-contracts";
 import {
   contentChoiceLabel,
@@ -36,10 +38,42 @@ const label = (key: string) =>
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replaceAll("_", " ")
     .replace(/^./, (char) => char.toUpperCase());
-function DescribedValues({ value }: { value: unknown }) {
+const profileEnumLabels: Record<string, Record<string, string>> = {
+  "audio.transcriptTiming": {
+    UNTIMED: "Untimed transcripts",
+    TIMED: "Timed transcripts",
+    UNKNOWN: "Timing not assessed",
+  },
+  "video.annotationReferences": {
+    WHOLE_ITEM: "Whole clips or items",
+    TIME_OR_FRAME: "Times or frames within a video",
+    UNKNOWN: "References not assessed",
+  },
+  "text.languageContent": {
+    HUMAN_LANGUAGE: "Human language",
+    NON_LANGUAGE: "Other content, such as codes or numbers",
+    MIXED: "Human language and other content",
+    UNKNOWN: "Unknown",
+  },
+};
+function DescribedValues({
+  value,
+  profile,
+  field,
+}: {
+  value: unknown;
+  profile?: string;
+  field?: string;
+}) {
   if (value === null || value === undefined) return <span>Not specified</span>;
   if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
-  if (typeof value !== "object") return <span>{String(value)}</span>;
+  if (typeof value !== "object") {
+    const options = profileEnumLabels[`${profile}.${field}`],
+      raw = String(value);
+    return (
+      <span>{options && Object.hasOwn(options, raw) ? options[raw] : raw}</span>
+    );
+  }
   if (Array.isArray(value))
     return value.length ? (
       <ul className="space-y-2">
@@ -56,7 +90,12 @@ function DescribedValues({ value }: { value: unknown }) {
     <ContentFacts
       rows={Object.entries(value).map(([key, child]) => [
         label(key),
-        <DescribedValues key={key} value={child} />,
+        <DescribedValues
+          key={key}
+          value={child}
+          profile={profile}
+          field={key}
+        />,
       ])}
     />
   );
@@ -192,7 +231,18 @@ export function ContentDescription({
             {label(name)} details · supplier declared
           </summary>
           <div className="mt-4">
-            <DescribedValues value={profile} />
+            <DescribedValues
+              profile={name}
+              value={Object.fromEntries(
+                Object.entries(profile).filter(([field]) =>
+                  isDatasetPreparationProfileFieldApplicable(
+                    name as keyof DatasetPreparationProfiles,
+                    field,
+                    profile
+                  )
+                )
+              )}
+            />
           </div>
         </details>
       ))}
