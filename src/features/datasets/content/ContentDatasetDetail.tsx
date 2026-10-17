@@ -24,6 +24,7 @@ import { getErrorMessage } from "@/shared/utils/error.utils";
 import { ContentDescription, ContentFacts } from "./ContentDescription";
 import { BuyerFilePanel } from "./BuyerFilePanel";
 import { TableMetadataPanel } from "./TableMetadataPanel";
+import { ReferenceViews } from "./ReferenceViews";
 import { contentPriceLabel } from "./content-description";
 import { QuestionsSection } from "../components/QuestionsSection";
 import { ReviewsSection } from "../components/ReviewsSection";
@@ -96,6 +97,25 @@ export function ContentDatasetDetail({
                   ])}
                   load={(filters, signal) =>
                     buyerDatasetApi.publicTables(
+                      data.item.id,
+                      {
+                        ...filters,
+                        publicationId: data.item.publication.id,
+                        contentId: data.item.publication.contentId,
+                      },
+                      signal
+                    )
+                  }
+                />
+                <ReferenceViews
+                  includeDictionary={false}
+                  sourceKey={JSON.stringify([
+                    data.item.id,
+                    data.item.publication.id,
+                    data.item.publication.contentId,
+                  ])}
+                  load={(filters, signal) =>
+                    buyerDatasetApi.publicReferences(
                       data.item.id,
                       {
                         ...filters,

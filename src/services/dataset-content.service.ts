@@ -6,6 +6,9 @@ import {
   DatasetPublicTableMetadataQuerySchema,
   DatasetPublicTableMetadataResponseSchema,
   type DatasetPublicTableMetadataQuery,
+  DatasetPublicTableReferenceViewsQuerySchema,
+  DatasetPublicTableReferenceViewsResponseSchema,
+  type DatasetPublicTableReferenceViewsQuery,
   DatasetCatalogueListResponseSchema,
   DatasetCatalogueDetailResponseSchema,
   DatasetReaderIdParamsSchema,
@@ -318,6 +321,32 @@ function checkOrdered(
 // Public catalogue metadata never authorizes files. Private reads/writes always
 // use their own backend checks; no method retries, retargets a grant or caches URLs.
 export const buyerDatasetApi = {
+  async publicReferences(
+    datasetId: string,
+    input: DatasetPublicTableReferenceViewsQuery,
+    signal?: AbortSignal
+  ) {
+    const query = DatasetPublicTableReferenceViewsQuerySchema.parse(input);
+    const result = await request(
+      `/api/v2/marketplace/datasets/${encodedId(datasetId)}/table-references`,
+      DatasetPublicTableReferenceViewsResponseSchema,
+      { query, signal }
+    );
+    if (
+      result.datasetId !== datasetId ||
+      result.publicationId !== query.publicationId ||
+      result.page.contentId !== query.contentId ||
+      (query.contentGeneration !== undefined &&
+        result.page.contentGeneration !== query.contentGeneration) ||
+      result.page.component !== (query.component ?? null) ||
+      result.page.tableId !== (query.tableId ?? null) ||
+      result.page.items.length > query.limit ||
+      (result.page.nextCursor && result.page.nextCursor.limit !== query.limit)
+    )
+      incompatible();
+    checkOrdered(result.page.items, query.afterId, query.limit);
+    return result;
+  },
   async publicTables(
     datasetId: string,
     input: DatasetPublicTableMetadataQuery,
