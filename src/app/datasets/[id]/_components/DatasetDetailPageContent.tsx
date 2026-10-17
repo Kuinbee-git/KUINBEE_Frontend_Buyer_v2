@@ -15,8 +15,9 @@ import { DatasetDetailPage } from "@/features/datasets/components/dataset-detail
 import { Dataset as UIDataset } from "@/features/datasets/components/types";
 import { getDatasetAccessPriceDisplay } from "@/features/datasets/components/price-display";
 import type { DatasetDetailsResponse } from "@/types/dataset.types";
+import { useBuyerDatasetDetail } from "@/hooks/api/useBuyerCatalogue";
+import { ContentDatasetDetail } from "@/features/datasets/content/ContentDatasetDetail";
 import {
-  useDatasetDetails,
   useDatasetSampleDownloadUrl,
   useInquireDataset,
 } from "@/hooks/api/useMarketplace";
@@ -128,11 +129,47 @@ const mapToUIDataset = (response: DatasetDetailsResponse): UIDataset => {
 
 export function DatasetDetailPageContent() {
   const params = useParams();
+  const id = params?.id as string;
+  const query = useBuyerDatasetDetail(id, Boolean(id));
+  if (query.isPending)
+    return (
+      <p role="status" className="p-6 pt-32">
+        Loading Dataset…
+      </p>
+    );
+  if (query.isError)
+    return (
+      <div className="p-6 pt-32 space-y-4">
+        <p role="alert">
+          {getErrorDetails(query.error).message ||
+            "This Dataset could not be loaded."}
+        </p>
+        <Button variant="outline" onClick={() => void query.refetch()}>
+          Retry Dataset
+        </Button>
+      </div>
+    );
+  return query.data.representation === "CONTENT" ? (
+    <ContentDatasetDetail
+      key={query.data.item.id + query.data.item.publication.id}
+      data={query.data}
+      onRefresh={() => void query.refetch()}
+    />
+  ) : (
+    <LegacyDatasetDetailPageContent response={query.data.legacy} />
+  );
+}
+
+function LegacyDatasetDetailPageContent({
+  response,
+}: {
+  response: DatasetDetailsResponse;
+}) {
+  const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
 
   // Fetch dataset details from API
-  const { data: response, isLoading, error } = useDatasetDetails(id, !!id);
 
   // Check authentication status
   const { user, isAuthenticated } = useAuth();
@@ -153,22 +190,36 @@ export function DatasetDetailPageContent() {
   const [inquiryMessage, setInquiryMessage] = useState("");
 
   // Keep both URL queries disabled until the corresponding click requests a fresh link.
-  const { refetch: fetchDownload, isFetching: isGeneratingDownload } = useDownloadUrl(id, false);
-  const { refetch: fetchSampleDownload, isFetching: isGeneratingSampleDownload } = useDatasetSampleDownloadUrl(id, false);
-  const downloadFile = useCallback(async (sample: boolean) => {
-    try {
-      const { data, error } = await (sample ? fetchSampleDownload : fetchDownload)({ cancelRefetch: false });
-      if (error || !data?.url) throw error || new Error("Missing download URL");
-      const anchor = document.createElement("a");
-      anchor.href = data.url;
-      anchor.download = "";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-    } catch {
-      toast.error(sample ? "Failed to generate sample download link. Please try again." : "Failed to generate download link. Please try again.");
-    }
-  }, [fetchDownload, fetchSampleDownload]);
+  const { refetch: fetchDownload, isFetching: isGeneratingDownload } =
+    useDownloadUrl(id, false);
+  const {
+    refetch: fetchSampleDownload,
+    isFetching: isGeneratingSampleDownload,
+  } = useDatasetSampleDownloadUrl(id, false);
+  const downloadFile = useCallback(
+    async (sample: boolean) => {
+      try {
+        const { data, error } = await (
+          sample ? fetchSampleDownload : fetchDownload
+        )({ cancelRefetch: false });
+        if (error || !data?.url)
+          throw error || new Error("Missing download URL");
+        const anchor = document.createElement("a");
+        anchor.href = data.url;
+        anchor.download = "";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      } catch {
+        toast.error(
+          sample
+            ? "Failed to generate sample download link. Please try again."
+            : "Failed to generate download link. Please try again."
+        );
+      }
+    },
+    [fetchDownload, fetchSampleDownload]
+  );
 
   // KDTS score is now fetched only by the lazy-loaded DatasetKdtsCard component
   // to avoid a duplicate API call on mount.
@@ -184,17 +235,19 @@ export function DatasetDetailPageContent() {
       if (!(e instanceof CustomEvent)) return;
       // Only open if the staged dataset matches this page
       const staged: unknown = e.detail;
-      if (staged && typeof staged === "object" && (("id" in staged && staged.id === id) || ("datasetUniqueId" in staged && staged.datasetUniqueId === id))) {
+      if (
+        staged &&
+        typeof staged === "object" &&
+        (("id" in staged && staged.id === id) ||
+          ("datasetUniqueId" in staged && staged.datasetUniqueId === id))
+      ) {
         setShowCheckout(true);
       }
     };
 
     window.addEventListener("proceedToCheckout", handleProceedEvent);
     return () =>
-      window.removeEventListener(
-        "proceedToCheckout",
-        handleProceedEvent
-      );
+      window.removeEventListener("proceedToCheckout", handleProceedEvent);
   }, [id]);
 
   // Memoize access state so stable reference is passed to DatasetDetailPage
@@ -319,7 +372,7 @@ export function DatasetDetailPageContent() {
         try {
           await claimMutation.mutateAsync(id);
         } catch (caught: unknown) {
-      const err = getErrorDetails(caught);
+          const err = getErrorDetails(caught);
           const errorMessage = err?.message || "Failed to claim sample dataset";
           if (errorMessage.includes("ALREADY_OWNED")) {
             // Continue to download flow if backend already has entitlement.
@@ -456,22 +509,8 @@ export function DatasetDetailPageContent() {
     // user can navigate to order from there or we can refresh entitlement
   }, []);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">
-            Loading dataset details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Error state
-  if (error || !dataset) {
+  if (!dataset) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-md mx-auto px-6">
@@ -482,9 +521,7 @@ export function DatasetDetailPageContent() {
             Dataset Not Found
           </h1>
           <p className="text-muted-foreground dark:text-white/70 mb-6">
-            {error instanceof Error
-              ? error.message
-              : "This dataset doesn't exist or is not published."}
+            This dataset does not exist or is not published.
           </p>
           <button
             onClick={() => router.push("/datasets")}

@@ -51,9 +51,12 @@ export function discoveryQuery(params: URLSearchParams): DatasetListQuery {
     tags: params.get("tags")?.split(","),
     minKdtsScore: params.get("minKdtsScore") || undefined,
     sort: sorts[params.get("sort") || "relevance"] || "relevance",
-    page: Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1),
+    page: Math.min(
+      10000,
+      Math.max(1, Number.parseInt(params.get("page") || "1", 10) || 1)
+    ),
     pageSize: Math.min(
-      100,
+      50,
       Math.max(1, Number.parseInt(params.get("pageSize") || "10", 10) || 10)
     ),
   };

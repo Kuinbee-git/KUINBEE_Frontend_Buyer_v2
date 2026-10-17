@@ -3,9 +3,11 @@ import { generateMetadata as genMeta } from "@/core/config";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import {
-  categorySlug,
+  categoryHref,
   listPublicCategories,
 } from "@/services/public-catalogue.service";
+import { connection } from "next/server";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
 
 export const revalidate = 3600;
 export const metadata = genMeta({
@@ -16,6 +18,7 @@ export const metadata = genMeta({
 });
 
 export default async function DatasetCategoriesPage() {
+  if (DATASET_CONTENT_BUYER_ENABLED) await connection();
   const { items } = await listPublicCategories();
   const categories = items.filter(
     (category) => (category.datasetCount ?? 0) > 0
@@ -46,10 +49,7 @@ export default async function DatasetCategoriesPage() {
               className="rounded-xl border border-border bg-card p-6"
             >
               <h2 className="text-xl font-semibold">
-                <Link
-                  href={`/datasets/categories/${categorySlug(category.name)}`}
-                  className="hover:underline"
-                >
+                <Link href={categoryHref(category)} className="hover:underline">
                   {category.name} datasets
                 </Link>
               </h2>

@@ -6,18 +6,32 @@ import { OwnedDatasetCard, type OwnedDataset } from "./owned-dataset-card";
 import { Button } from "@/shared/components/ui/button";
 import { ChevronLeft, ChevronRight, Database, RefreshCw } from "lucide-react";
 import { useLibrary } from "@/hooks/api/useLibrary";
-
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+import { ContentMyDatasets } from "./ContentLibrary";
 
 type ViewState = "loading" | "empty" | "error" | "data";
 
 export function MyDatasetsPage() {
+  return DATASET_CONTENT_BUYER_ENABLED ? (
+    <ContentMyDatasets />
+  ) : (
+    <LegacyMyDatasetsPage />
+  );
+}
+
+function LegacyMyDatasetsPage() {
   const router = useRouter();
   const searchQuery = "";
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
-  
+
   // Use real API hook
-  const { data: libraryResponse, isLoading, error, refetch } = useLibrary({ 
+  const {
+    data: libraryResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useLibrary({
     q: searchQuery || undefined,
     page: currentPage,
     pageSize,
@@ -34,22 +48,29 @@ export function MyDatasetsPage() {
   }
 
   // Map API response to OwnedDataset format
-  const datasets: OwnedDataset[] = libraryResponse?.items?.map(item => ({
-    id: item.datasetId,
-    datasetUniqueId: item.datasetUniqueId,
-    title: item.title,
-    category: "Unknown",
-    license: "Unknown",
-    grantedAt: item.grantedAt.split('T')[0],
-    accessType: item.accessType === "FREE_CLAIM" ? "free" : "purchased",
-    verification: {
-      supplierVerified: true,
-      datasetReviewed: true,
-    },
-    status: "active" as const,
-  })) || [];
+  const datasets: OwnedDataset[] =
+    libraryResponse?.items?.map((item) => ({
+      id: item.datasetId,
+      datasetUniqueId: item.datasetUniqueId,
+      title: item.title,
+      category: "Unknown",
+      license: "Unknown",
+      grantedAt: item.grantedAt.split("T")[0],
+      accessType: item.accessType === "FREE_CLAIM" ? "free" : "purchased",
+      verification: {
+        supplierVerified: true,
+        datasetReviewed: true,
+      },
+      status: "active" as const,
+    })) || [];
 
-  const viewState: ViewState = isLoading ? "loading" : error ? "error" : totalItems === 0 ? "empty" : "data";
+  const viewState: ViewState = isLoading
+    ? "loading"
+    : error
+      ? "error"
+      : totalItems === 0
+        ? "empty"
+        : "data";
 
   const handleRetry = () => {
     refetch();

@@ -5,6 +5,8 @@ import { chromium } from "playwright";
 
 // Bundle the real components; only network/framework boundaries are fixtures.
 const mocks = {
+  "@/shared/components/ui/notch-navigation": `export const NotchNavigation = () => null;`,
+  "@/shared/components/ui/institutional-background": `export const InstitutionalBackground = () => null;`,
   "@/core/providers/AuthProvider": `export const useAuth = () => ({user:{email:'buyer@example.test'}});`,
   "@/hooks/api/usePayments": `
     export const useCreateCheckout = () => ({mutateAsync: async body => {window.calls.push(['checkout',body]);return {checkout:{orderId:window.fixture.paymentId,orderNumber:'TEST-ORDER',paymentAttemptId:'attempt',amountPaise:100,currency:'INR',razorpay:{keyId:'fixture',orderId:'rzp-fixture'}}};}});
@@ -68,7 +70,14 @@ const result = await build({
   write: false,
   format: "iife",
   jsx: "automatic",
-  define: { "process.env.NODE_ENV": '"development"' },
+  outdir: "/tmp/kuinbee-component-browser-bundle",
+  define: {
+    "process.env": JSON.stringify({
+      NODE_ENV: "development",
+      NEXT_PUBLIC_APP_ENV: "production",
+      NEXT_PUBLIC_API_BASE_URL: "http://127.0.0.1",
+    }),
+  },
   plugins: [
     {
       name: "fixture-boundaries",
@@ -280,7 +289,8 @@ try {
   console.log(
     "PASS Escape uses the current callback and feedback is reset between openings"
   );
-  for (const status of ["COMPLETED", "FAILED", "REFUNDED"]) {
+  for (const status of ["COMPLETED", "FAILED", "REFUNDED", "TIMEOUT"]) {
+    if (status === "TIMEOUT") await page.clock.install();
     const paymentId = `fixture-${status.toLowerCase()}`;
     await page.evaluate(
       ({ paymentId }) =>
@@ -290,6 +300,12 @@ try {
           orderData: undefined,
         }),
       { paymentId }
+    );
+    await page.evaluate(() =>
+      window.queryClient.setQueryData(
+        ["entitlements", "dataset-fixture", "check"],
+        { entitled: false }
+      )
     );
     await page.getByRole("button", { name: "Pay ₹1", exact: true }).click();
     await page.waitForFunction(() => window.paymentOptions);
@@ -301,6 +317,64 @@ try {
       })
     );
     await page.waitForFunction(() => window.paymentPolling.enabled);
+    await page.evaluate(
+      ({ paymentId }) =>
+        window.renderFixture({
+          orderData: {
+            order: { id: paymentId, status: "PENDING" },
+            paymentAttempts: [{ status: "CLIENT_CONFIRMED" }],
+          },
+        }),
+      { paymentId }
+    );
+    assert.equal(
+      await page.getByText("Payment Complete", { exact: true }).count(),
+      0
+    );
+    assert.equal(
+      await page.evaluate(
+        () =>
+          window.queryClient.getQueryData([
+            "entitlements",
+            "dataset-fixture",
+            "check",
+          ]).entitled
+      ),
+      false
+    );
+    assert.equal(
+      await page.evaluate(() => window.paymentPolling.enabled),
+      true
+    );
+    if (status === "TIMEOUT") {
+      await page.clock.fastForward(46_000);
+      await page
+        .getByText("Payment confirmation pending", { exact: true })
+        .waitFor();
+      assert.equal(
+        await page.getByText("Payment Received", { exact: true }).count(),
+        0
+      );
+      assert.equal(
+        await page.getByText("Payment Complete", { exact: true }).count(),
+        0
+      );
+      assert.equal(
+        await page.evaluate(() => window.paymentPolling.enabled),
+        false
+      );
+      assert.equal(
+        await page.evaluate(
+          (id) =>
+            window.calls.filter(
+              (c) => c[0] === "payment-complete" && c[1] === id
+            ).length,
+          paymentId
+        ),
+        0
+      );
+      continue;
+    }
     // Ignore stale data for a different order.
     await page.evaluate(() =>
       window.renderFixture({
@@ -348,7 +422,7 @@ try {
               "check",
             ]).entitled
         ),
-        true
+        false
       );
     } else {
       await page
@@ -376,7 +450,7 @@ try {
     );
   }
   console.log(
-    "PASS checkout ignores stale orders, completes once, stops polling, updates entitlement, and displays failed/refunded outcomes without real payments"
+    "PASS checkout ignores stale orders and client-only confirmation, completes once, invalidates recorded access without fabricating entitlement, and displays failed/refunded outcomes without real payments"
   );
   assert.deepEqual(external, [], "No external API or provider calls permitted");
   assert.deepEqual(errors, [], "No browser exceptions permitted");

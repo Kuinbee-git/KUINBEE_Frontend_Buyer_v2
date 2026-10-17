@@ -1,18 +1,36 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 
 import { Button } from "@/shared/components/ui/button";
 import { Heart, Trash2, Eye, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/api/useWishlist";
-import { useDatasetDetails } from "@/hooks/api/useMarketplace";
+import { useBuyerDatasetDetail as useDatasetDetails } from "@/hooks/api/useBuyerCatalogue";
+import { ContentDatasetCard } from "@/features/datasets/content/ContentDatasetCard";
 import { toast } from "sonner";
 
 // Component to render individual wishlist item with dataset details
-function WishlistItemCard({ datasetId, createdAt, onRemove }: { datasetId: string; createdAt: string; onRemove: (id: string) => void }) {
+function WishlistItemCard({
+  datasetId,
+  createdAt,
+  onRemove,
+}: {
+  datasetId: string;
+  createdAt: string;
+  onRemove: (id: string) => void;
+}) {
   const { data: datasetResponse, isLoading } = useDatasetDetails(datasetId);
-  const dataset = datasetResponse?.dataset;
+  const dataset =
+    datasetResponse?.representation === "LEGACY"
+      ? datasetResponse.legacy.dataset
+      : null;
 
   if (isLoading) {
     return (
@@ -26,11 +44,16 @@ function WishlistItemCard({ datasetId, createdAt, onRemove }: { datasetId: strin
     );
   }
 
+  if (datasetResponse?.representation === "CONTENT")
+    return <ContentDatasetCard item={datasetResponse.item} isInWishlist />;
+
   if (!dataset) {
     return null;
   }
 
-  const price = dataset.isPaid ? `${dataset.currency} ${dataset.price}` : "Free";
+  const price = dataset.isPaid
+    ? `${dataset.currency} ${dataset.price}`
+    : "Free";
   const addedDate = new Date(createdAt).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -128,7 +151,10 @@ export function WishlistTab() {
     return (
       <div className="space-y-4 lg:space-y-6">
         {[...Array(3)].map((_, i) => (
-          <Card key={i} className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border-border/50 dark:border-white/10 animate-pulse">
+          <Card
+            key={i}
+            className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border-border/50 dark:border-white/10 animate-pulse"
+          >
             <CardContent className="py-8">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-4">
@@ -157,7 +183,9 @@ export function WishlistTab() {
               Failed to Load Wishlist
             </h3>
             <p className="text-[#4e5a7e] dark:text-white/60 mb-6">
-              {error instanceof Error ? error.message : "An error occurred while loading your wishlist."}
+              {error instanceof Error
+                ? error.message
+                : "An error occurred while loading your wishlist."}
             </p>
             <Button
               onClick={() => window.location.reload()}
@@ -207,7 +235,8 @@ export function WishlistTab() {
           </h2>
         </div>
         <p className="text-sm text-[#4e5a7e] dark:text-white/60">
-          {wishlistItems.length} item{wishlistItems.length !== 1 ? "s" : ""} you&apos;re interested in purchasing
+          {wishlistItems.length} item{wishlistItems.length !== 1 ? "s" : ""}{" "}
+          you&apos;re interested in purchasing
         </p>
       </div>
 

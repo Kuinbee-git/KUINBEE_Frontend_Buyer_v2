@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+import {
+  datasetCategoryApi,
+  DatasetCategoryError,
+} from "@/services/dataset-category.service";
 import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
 } from "@/core/config";
+import { catalogueCardIdentity } from "@/services/buyer-catalogue.service";
+import {
+  contentChoiceLabel,
+  contentModalityLabels,
+} from "@/features/datasets/content/content-description";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import {
@@ -37,13 +48,29 @@ const introductions: Record<string, string> = {
     "Explore telecommunications datasets for research and analytics. Review content, language or geographic coverage, source, and licensing for each listing.",
 };
 
-const getCategory = cache(async (slug: string) => {
+const getCategory = cache(async (slug: string, page: number) => {
+  if (DATASET_CONTENT_BUYER_ENABLED) {
+    await connection();
+    const result = await datasetCategoryApi.resolve(slug).catch((error) => {
+      if (
+        error instanceof DatasetCategoryError &&
+        [400, 404].includes(error.status)
+      )
+        notFound();
+      throw error;
+    });
+    if (result.redirect)
+      redirect(
+        `/datasets/categories/${result.category.routeKey}${page > 1 ? `?page=${page}` : ""}`
+      );
+    return { ...result.category, directoryRevision: result.revision };
+  }
   const { items } = await listPublicCategories();
   const category = items.find(
     (item) => categorySlug(item.name) === slug && (item.datasetCount ?? 0) > 0
   );
   if (!category) notFound();
-  return category;
+  return { ...category, directoryRevision: undefined };
 });
 
 type Props = {
@@ -56,15 +83,15 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategory(slug);
   const page = Math.max(
     1,
     Number.parseInt((await searchParams).page || "1", 10) || 1
   );
+  const category = await getCategory(slug, page);
   return genMeta({
     title: `${category.name} Datasets${page > 1 ? ` — Page ${page}` : ""} | Kuinbee`,
     description:
-      introductions[slug] ||
+      introductions[categorySlug(category.name)] ||
       `Browse ${category.name.toLowerCase()} datasets on Kuinbee. Compare published listings, formats, coverage, licensing, and access conditions.`,
     path: `/datasets/categories/${slug}${page > 1 ? `?page=${page}` : ""}`,
   });
@@ -72,13 +99,14 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const category = await getCategory(slug);
   const page = Math.max(
     1,
     Number.parseInt((await searchParams).page || "1", 10) || 1
   );
+  const category = await getCategory(slug, page);
   const result = await listPublicDatasets({
     categoryId: category.id,
+    expectedCategoryRevision: category.directoryRevision,
     page,
     pageSize: 20,
   });
@@ -110,58 +138,80 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {category.name} datasets
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-8 text-muted-foreground">
-          {introductions[slug] ||
+          {introductions[categorySlug(category.name)] ||
             `Compare published ${category.name.toLowerCase()} datasets for research, analytics, and AI projects. Review each listing's source, coverage, format, and licensing before selecting data.`}
         </p>
         <p className="mt-5 text-sm text-muted-foreground">
           {result.total} listings · Page {page} of {totalPages || 1}
         </p>
         <ul className="mt-8 grid gap-5 md:grid-cols-2">
-          {result.items.map((dataset) => (
-            <li
-              key={dataset.id}
-              className="rounded-xl border border-border bg-card p-6"
-            >
-              <h2 className="text-xl font-semibold leading-7">
-                <Link
-                  href={`/datasets/${dataset.id}`}
-                  className="hover:underline"
-                >
-                  {dataset.title}
-                </Link>
-              </h2>
-              <dl className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <div>
-                  <dt className="inline font-medium text-foreground">
-                    Supplier:{" "}
-                  </dt>
-                  <dd className="inline">{dataset.owner.name}</dd>
-                </div>
-                {dataset.dataFormatInfo && (
+          {result.items.map((row) => {
+            const dataset = catalogueCardIdentity(row);
+            return (
+              <li
+                key={dataset.id}
+                className="rounded-xl border border-border bg-card p-6"
+              >
+                <h2 className="text-xl font-semibold leading-7">
+                  <Link
+                    href={`/datasets/${dataset.id}`}
+                    className="hover:underline"
+                  >
+                    {dataset.title}
+                  </Link>
+                </h2>
+                <dl className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <div>
                     <dt className="inline font-medium text-foreground">
-                      Format:{" "}
+                      Supplier:{" "}
                     </dt>
-                    <dd className="inline">
-                      {dataset.dataFormatInfo.fileFormat}
-                    </dd>
+                    <dd className="inline">{dataset.owner.name}</dd>
                   </div>
-                )}
-                {dataset.location?.country && (
-                  <div>
-                    <dt className="inline font-medium text-foreground">
-                      Country:{" "}
-                    </dt>
-                    <dd className="inline">{dataset.location.country}</dd>
-                  </div>
-                )}
-              </dl>
-              <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                Open the listing for its description, available sample,
-                licensing, and full-data access conditions.
-              </p>
-            </li>
-          ))}
+                  {row.representation === "LEGACY" &&
+                    row.legacy.dataFormatInfo && (
+                      <div>
+                        <dt className="inline font-medium text-foreground">
+                          Format:{" "}
+                        </dt>
+                        <dd className="inline">
+                          {row.representation === "LEGACY"
+                            ? row.legacy.dataFormatInfo?.fileFormat
+                            : null}
+                        </dd>
+                      </div>
+                    )}
+                  {row.representation === "LEGACY" &&
+                    row.legacy.location?.country && (
+                      <div>
+                        <dt className="inline font-medium text-foreground">
+                          Country:{" "}
+                        </dt>
+                        <dd className="inline">
+                          {row.representation === "LEGACY"
+                            ? row.legacy.location?.country
+                            : null}
+                        </dd>
+                      </div>
+                    )}
+                  {row.representation === "CONTENT" && (
+                    <div>
+                      <dt className="inline font-medium text-foreground">
+                        Material:{" "}
+                      </dt>
+                      <dd className="inline">
+                        {contentChoiceLabel(row.item.uploadChoice)} ·{" "}
+                        {contentModalityLabels(row.item.modalities).join(", ")}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                  Open the listing for its description, available sample,
+                  licensing, and full-data access conditions.
+                </p>
+              </li>
+            );
+          })}
         </ul>
         <nav
           aria-label="Category pagination"

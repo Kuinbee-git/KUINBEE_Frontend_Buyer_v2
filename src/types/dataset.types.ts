@@ -52,6 +52,7 @@ export type DatasetSortOption =
   | "kdtsScore:desc";
 
 export interface DatasetOwner {
+  logoUrl?: string | null;
   id: string;
   name: string;
 }
@@ -67,13 +68,14 @@ export interface DatasetListLocation {
 }
 
 export interface DatasetListFormatInfo {
-  fileFormat: string;
-  rows: number;
-  cols: number;
-  fileSize: string;
+  fileFormat: string | null;
+  rows: number | null;
+  cols: number | null;
+  fileSize: string | null;
 }
 
 export interface Dataset {
+  searchScore?: number | null;
   id: string;
   datasetUniqueId: string;
   title: string;
@@ -133,7 +135,7 @@ export interface DatasetDetails {
   viewCount: number;
   rating: number | null;
   reviews?: number;
-  kdtsScore: string | null;
+  kdtsScore?: string | null;
   isSample?: boolean;
   sampleFileAvailable?: boolean;
   sampleNotes?: {
@@ -160,30 +162,30 @@ export interface DatasetSecondaryCategory {
 }
 
 export interface AboutDatasetInfo {
-  overview: string;
-  description: string;
-  dataQuality: string;
-  useCases: string;
-  limitations: string;
-  methodology: string;
-  updatedAt: string;
+  overview: string | null;
+  description: string | null;
+  dataQuality: string | null;
+  useCases: string | null;
+  limitations: string | null;
+  methodology: string | null;
+  updatedAt: string | null;
 }
 
 export interface DataFormatInfo {
-  fileFormat: string;
-  rows: number;
-  cols: number;
-  fileSize: string;
-  compressionType: string;
-  encoding: string;
-  updatedAt: string;
+  fileFormat: string | null;
+  rows: number | null;
+  cols: number | null;
+  fileSize: string | null;
+  compressionType: string | null;
+  encoding: string | null;
+  updatedAt: string | null;
 }
 
 export interface DatasetFeature {
   id: string;
   name: string;
   dataType: string;
-  description: string;
+  description: string | null;
   isNullable: boolean;
 }
 
@@ -217,6 +219,7 @@ export interface DatasetDetailsResponse {
 }
 
 export interface DatasetListQuery extends PaginationQuery {
+  expectedCategoryRevision?: string;
   q?: string;
   search?: string;
   categoryId?: string;

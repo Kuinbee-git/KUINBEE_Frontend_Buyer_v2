@@ -56,17 +56,14 @@ const FilterSidebar = dynamic(
     ),
   }
 );
+import { Dataset, FilterState, SortOption } from "./types";
+import { useDatasetCategories } from "../useDatasetCategories";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
 import {
-  Dataset,
-  DatasetPriceSurfaceUI,
-  FilterState,
-  SortOption,
-} from "./types";
-import {
-  useDatasets,
-  useCategories,
-  prefetchDatasets,
-} from "@/hooks/api/useMarketplace";
+  useBuyerDatasetList as useDatasets,
+  prefetchBuyerDatasets as prefetchDatasets,
+} from "@/hooks/api/useBuyerCatalogue";
+import type { ContentListing } from "../content/content-description";
 import { useCustomCollectionServices } from "@/hooks/api/useCustomCollection";
 import { useWishlist } from "@/hooks/api/useWishlist";
 import { useAuth } from "@/core/providers/AuthProvider";
@@ -91,70 +88,10 @@ const mapSortToAPI = (sort: SortOption): DatasetSortOption => {
   return mapping[sort];
 };
 
-type DatasetApiItem = {
-  id: string;
-  datasetUniqueId: string;
-  title: string;
-  owner?: { id?: string; name?: string; logoUrl?: string | null };
-  category?: { name?: string };
-  source?: {
-    id?: string;
-    name?: string;
-    description?: string | null;
-    websiteUrl?: string | null;
-    isVerified?: boolean;
-    logoUrl?: string | null;
-  } | null;
-  sources?: Array<{
-    id?: string;
-    name?: string;
-    description?: string | null;
-    websiteUrl?: string | null;
-    isVerified?: boolean;
-    logoUrl?: string | null;
-  }>;
+type DatasetApiItem = import("@/types").Dataset & {
+  source?: import("./types").DatasetSourceUI | null;
+  sources?: import("./types").DatasetSourceUI[];
   isPlatformDataset?: boolean;
-  license?: string;
-  isPaid?: boolean;
-  price?: string | number | null;
-  currency?: string;
-  accessFlow?: Dataset["accessFlow"];
-  commercialFlow?: Dataset["commercialFlow"];
-  accessPrice?: DatasetPriceSurfaceUI | null;
-  commercialPrice?: DatasetPriceSurfaceUI | null;
-  updatedAt?: string;
-  createdAt?: string;
-  status?: string;
-  location?: {
-    country?: string;
-    state?: string;
-    city?: string;
-  };
-  dataFormatInfo?: {
-    fileFormat?: string;
-    rows?: number;
-    cols?: number;
-    fileSize?: string;
-  };
-  tags?: string[];
-  downloadCount?: number;
-  viewCount?: number;
-  rating?: number | null;
-  reviewCount?: number;
-  kdtsScore?: number | null;
-  searchScore?: number | null;
-  isSample?: boolean;
-  sampleFileAvailable?: boolean;
-  sampleNotes?: {
-    whySample?: string | null;
-    actualDataSize?: string | null;
-    completeness?: string | null;
-    deliveryMechanism?: string | null;
-    deliveryMechanismNotes?: string | null;
-  } | null;
-  actualPrice?: string | number | null;
-  actualPriceCurrency?: string | null;
-  buyInPartsAvailable?: boolean;
 };
 
 const toNullableNumber = (
@@ -224,16 +161,16 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
     status: apiDataset.status?.toLowerCase() || "published",
     description: apiDataset.title,
     coverage: apiDataset.location?.country || "N/A",
-    records: apiDataset.dataFormatInfo?.rows || 0,
+    records: apiDataset.dataFormatInfo?.rows ?? null,
     aboutDataset: null,
     dataFormat: apiDataset.dataFormatInfo
       ? {
           fileFormat: apiDataset.dataFormatInfo.fileFormat ?? "UNKNOWN",
-          rows: apiDataset.dataFormatInfo.rows ?? 0,
-          cols: apiDataset.dataFormatInfo.cols ?? 0,
+          rows: apiDataset.dataFormatInfo.rows,
+          cols: apiDataset.dataFormatInfo.cols,
           fileSize: apiDataset.dataFormatInfo.fileSize ?? "N/A",
-          compressionType: "NONE",
-          encoding: "UTF-8",
+          compressionType: null,
+          encoding: null,
           updatedAt:
             apiDataset.updatedAt ??
             apiDataset.createdAt ??
@@ -271,8 +208,8 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
       freshness: 0,
     },
     verification: {
-      supplierVerified: true,
-      datasetReviewed: true,
+      supplierVerified: false,
+      datasetReviewed: false,
       published: apiDataset.status === "PUBLISHED",
     },
     reviewCount: apiDataset.reviewCount || 0,
@@ -349,8 +286,17 @@ export function DatasetDiscoveryV2() {
     tags: searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [],
     minKdtsScore: searchParams.get("minKdtsScore") || "",
     sortOrder: (searchParams.get("sort") as SortOption) || "relevance",
-    page: parseInt(searchParams.get("page") || "1", 10),
-    pageSize: parseInt(searchParams.get("pageSize") || "10", 10),
+    page: Math.min(
+      10000,
+      Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1)
+    ),
+    pageSize: Math.min(
+      50,
+      Math.max(
+        1,
+        Number.parseInt(searchParams.get("pageSize") || "10", 10) || 10
+      )
+    ),
   }));
 
   // Sync filter state to URL so browser back/forward restores the view
@@ -389,14 +335,27 @@ export function DatasetDiscoveryV2() {
 
   const urlSearch = searchParams.get("q") || "";
   const urlCategoriesKey = JSON.stringify(getCategoriesFromSearchParams());
-  const [urlFilterContext, setUrlFilterContext] = useState({ urlSearch, urlCategoriesKey });
-  if (urlFilterContext.urlSearch !== urlSearch || urlFilterContext.urlCategoriesKey !== urlCategoriesKey) {
+  const [urlFilterContext, setUrlFilterContext] = useState({
+    urlSearch,
+    urlCategoriesKey,
+  });
+  if (
+    urlFilterContext.urlSearch !== urlSearch ||
+    urlFilterContext.urlCategoriesKey !== urlCategoriesKey
+  ) {
     const searchChanged = urlFilterContext.urlSearch !== urlSearch;
-    const categoriesChanged = urlFilterContext.urlCategoriesKey !== urlCategoriesKey;
+    const categoriesChanged =
+      urlFilterContext.urlCategoriesKey !== urlCategoriesKey;
     setUrlFilterContext({ urlSearch, urlCategoriesKey });
-    const categories = categoriesChanged ? getCategoriesFromSearchParams() : filters.categories;
+    const categories = categoriesChanged
+      ? getCategoriesFromSearchParams()
+      : filters.categories;
     const search = searchChanged ? urlSearch : filters.search;
-    if (search !== filters.search || categories.length !== filters.categories.length || categories.some(value => !filters.categories.includes(value))) {
+    if (
+      search !== filters.search ||
+      categories.length !== filters.categories.length ||
+      categories.some((value) => !filters.categories.includes(value))
+    ) {
       setFilters({ ...filters, search, categories, page: 1 });
     }
   }
@@ -408,15 +367,36 @@ export function DatasetDiscoveryV2() {
     return () => clearTimeout(timer);
   }, [filters.search]);
 
+  const categorySelection = useDatasetCategories(filters.categories);
+  const categoriesResponse = categorySelection.directory.data;
+  const categoryReady =
+    categorySelection.ready &&
+    (!DATASET_CONTENT_BUYER_ENABLED || categorySelection.directory.isSuccess);
+  const selectedCategoryKey = JSON.stringify(filters.categories),
+    resolvedCategoryKey = JSON.stringify(categorySelection.ids);
+  // Resolve this component's own filter state before committing a mismatched
+  // category control/result pair. The exact token comparison makes this finite.
+  if (
+    DATASET_CONTENT_BUYER_ENABLED &&
+    categorySelection.ready &&
+    !categorySelection.error &&
+    selectedCategoryKey !== resolvedCategoryKey
+  ) {
+    setFilters({ ...filters, categories: categorySelection.ids, page: 1 });
+  }
+
   // Build API query from filter state - memoized to stabilize object identity
   // so downstream useEffects (prefetching) don't fire on every render.
   const apiQuery = useMemo<DatasetListQuery>(() => {
     // Only send categoryIds if they look like IDs (CUIDs are typically 25 chars, ObjectIDs 24, UUIDs 36).
-    const validCategoryIds = filters.categories.filter(
-      (value) => value.length >= 20
-    );
+    const validCategoryIds = DATASET_CONTENT_BUYER_ENABLED
+      ? categorySelection.ids
+      : filters.categories.filter((value) => value.length >= 20);
 
     return {
+      expectedCategoryRevision: DATASET_CONTENT_BUYER_ENABLED
+        ? categoriesResponse?.revision
+        : undefined,
       q: debouncedSearch || undefined,
       categoryIds: validCategoryIds.length > 0 ? validCategoryIds : undefined,
       ...(filters.pricingType !== "all" && {
@@ -446,6 +426,8 @@ export function DatasetDiscoveryV2() {
   }, [
     debouncedSearch,
     filters.categories,
+    categorySelection.ids,
+    categoriesResponse?.revision,
     filters.pricingType,
     filters.currency,
     filters.priceRange.min,
@@ -462,11 +444,30 @@ export function DatasetDiscoveryV2() {
 
   // Fetch datasets from API
   const {
-    data: apiResponse,
-    isLoading,
+    data: catalogueResponse,
+    isLoading: catalogueLoading,
     isFetching,
-    error,
-  } = useDatasets(apiQuery);
+    error: catalogueError,
+  } = useDatasets(apiQuery, categoryReady && !categorySelection.error);
+  const apiResponse =
+    categoryReady && !categorySelection.error ? catalogueResponse : undefined;
+  const error =
+    categorySelection.error ??
+    (DATASET_CONTENT_BUYER_ENABLED
+      ? categorySelection.directory.error
+      : null) ??
+    catalogueError;
+  const isLoading = catalogueLoading || (!categoryReady && !error);
+  const refreshCategories = categorySelection.directory.refetch;
+  useEffect(() => {
+    if (
+      DATASET_CONTENT_BUYER_ENABLED &&
+      catalogueError &&
+      "code" in catalogueError &&
+      catalogueError.code === "CATEGORY_DIRECTORY_CHANGED"
+    )
+      void refreshCategories();
+  }, [catalogueError, refreshCategories]);
 
   // Lightweight services count for the toggle pill — only fires when there's an active search
   const { data: serviceCountData } = useCustomCollectionServices(
@@ -518,9 +519,6 @@ export function DatasetDiscoveryV2() {
     }
   }, [filters.page, scrollToDatasetList]);
 
-  // Fetch categories from API
-  const { data: categoriesResponse } = useCategories({ pageSize: 100 });
-
   // Create category mapping (id -> name) and list
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -537,8 +535,11 @@ export function DatasetDiscoveryV2() {
   }, [categoriesResponse]);
 
   // Resolve category slugs as category metadata becomes available.
-  if (categoriesResponse?.items && filters.categories.length > 0) {
-
+  if (
+    !DATASET_CONTENT_BUYER_ENABLED &&
+    categoriesResponse?.items &&
+    filters.categories.length > 0
+  ) {
     const searchTerms: Record<string, string> = {
       finance: "finance",
       energy: "energy",
@@ -573,14 +574,24 @@ export function DatasetDiscoveryV2() {
   const categoryItems = useMemo(() => {
     return Array.from(categoryMap.entries())
       .map(([id, name]) => ({ id, name }))
-      .filter(({ name }) => !name.toLowerCase().includes("test"));
+      .filter(
+        ({ name }) =>
+          DATASET_CONTENT_BUYER_ENABLED || !name.toLowerCase().includes("test")
+      );
   }, [categoryMap]);
 
   // Map API response to UI format
-  const allDatasets: Dataset[] = useMemo(() => {
+  const allDatasets: Array<Dataset | ContentListing> = useMemo(() => {
     if (!apiResponse?.items) return [];
-    return (apiResponse.items as unknown as DatasetApiItem[]).map(
-      mapDatasetToUI
+    return apiResponse.items.map((row) =>
+      row.representation === "CONTENT"
+        ? {
+            representation: "CONTENT" as const,
+            id: row.item.id,
+            searchScore: row.item.searchScore,
+            item: row.item,
+          }
+        : mapDatasetToUI(row.legacy)
     );
   }, [apiResponse]);
 
@@ -665,7 +676,11 @@ export function DatasetDiscoveryV2() {
     filters.tags.length > 0 ||
     filters.minKdtsScore !== "";
 
-  const isUpdatingResults = isFetching || isFilterPending;
+  // Canonical queries never borrow another filter/page's placeholder data.
+  // Keep this exact hydrated result visible while its background refresh runs.
+  const isUpdatingResults =
+    isFilterPending ||
+    (isFetching && (!DATASET_CONTENT_BUYER_ENABLED || !apiResponse));
 
   // Clear all filters — useCallback prevents FilterSidebar re-render on unrelated state changes
   const clearFilters = useCallback(() => {
@@ -777,9 +792,25 @@ export function DatasetDiscoveryV2() {
                 ? "Loading…"
                 : `${totalCount} dataset${totalCount !== 1 ? "s" : ""} available`}
             </p>
-            <Link href="/datasets/categories" className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 dark:text-white">
+            <Link
+              href="/datasets/categories"
+              className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 dark:text-white"
+            >
               Browse datasets by category
             </Link>
+            {DATASET_CONTENT_BUYER_ENABLED &&
+              categorySelection.directory.isError && (
+                <p role="alert" className="mt-3 text-sm text-destructive">
+                  Category filters could not be loaded.{" "}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => void categorySelection.directory.refetch()}
+                  >
+                    Refresh categories
+                  </button>
+                </p>
+              )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6 lg:gap-8">
@@ -845,6 +876,30 @@ export function DatasetDiscoveryV2() {
                     <p className="text-sm text-[#4e5a7e] dark:text-white/70">
                       {getErrorMessage(error)}
                     </p>
+                    {categorySelection.error && (
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          className="text-sm underline"
+                          onClick={() => window.location.reload()}
+                        >
+                          Retry category link
+                        </button>
+                        <button
+                          type="button"
+                          className="text-sm underline"
+                          onClick={() =>
+                            setFilters((previous) => ({
+                              ...previous,
+                              categories: [],
+                              page: 1,
+                            }))
+                          }
+                        >
+                          Clear category filter
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : paginatedDatasets.length > 0 ? (
                   isUpdatingResults ? (

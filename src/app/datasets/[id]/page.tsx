@@ -16,8 +16,12 @@ import {
   PublicCatalogueError,
 } from "@/services/public-catalogue.service";
 import { DatasetDetailPageContent } from "./_components/DatasetDetailPageContent";
+import { catalogueDetailIdentity } from "@/services/buyer-catalogue.service";
+import { buyerCatalogueKeys } from "@/lib/buyer-catalogue-keys";
 
-export const revalidate = 3600;
+// Current visibility and canonical publication metadata cannot be served from
+// a prior ISR generation. React cache still deduplicates this request's reads.
+export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
 
 async function loadDataset(id: string) {
@@ -33,29 +37,27 @@ async function loadDataset(id: string) {
   }
 }
 
-export function generateStaticParams() {
-  // Generate on the first real visit, not during builds. The existing detail
-  // API records analytics views even for GET requests.
-  return [];
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await loadDataset(id);
+  const dataset = catalogueDetailIdentity(data);
   return genMeta({
-    title: `${data.dataset.title} | Kuinbee`,
+    title: `${dataset.title} | Kuinbee`,
     description: datasetDescription(data).slice(0, 160),
-    keywords: [data.primaryCategory.name, ...data.tags],
-    path: `/datasets/${data.dataset.id}`,
+    keywords:
+      data.representation === "CONTENT"
+        ? [data.item.category.name, ...data.item.tags]
+        : [data.legacy.primaryCategory.name, ...data.legacy.tags],
+    path: `/datasets/${dataset.id}`,
   });
 }
 
 export default async function DatasetDetailPage({ params }: Props) {
   const { id } = await params;
   const data = await loadDataset(id);
-  const dataset = data.dataset;
+  const dataset = catalogueDetailIdentity(data);
   const client = new QueryClient();
-  client.setQueryData(["datasets", id, "details"], data);
+  client.setQueryData(buyerCatalogueKeys.detail(id), data);
   const breadcrumbs = generateBreadcrumbSchema([
     { name: "Home", url: "/" },
     { name: "Datasets", url: "/datasets" },
@@ -68,17 +70,32 @@ export default async function DatasetDetailPage({ params }: Props) {
     description: datasetDescription(data),
     identifier: dataset.datasetUniqueId || dataset.id,
     url: `${siteConfig.url}/datasets/${dataset.id}`,
-    datePublished: dataset.createdAt,
+    datePublished:
+      data.representation === "CONTENT"
+        ? data.item.publication.publishedAt
+        : dataset.createdAt,
     dateModified: dataset.updatedAt,
-    keywords: data.tags,
-    ...(data.source?.name && {
-      creator: { "@type": "Organization", name: data.source.name },
+    keywords:
+      data.representation === "CONTENT"
+        ? data.description.tags
+        : data.legacy.tags,
+    ...((data.representation === "CONTENT"
+      ? data.description.sourceAtFreeze.name
+      : data.legacy.source?.name) && {
+      creator: {
+        "@type": "Organization",
+        name:
+          data.representation === "CONTENT"
+            ? data.description.sourceAtFreeze.name
+            : data.legacy.source!.name,
+      },
     }),
     ...(dataset.license &&
       /^https?:\/\//.test(dataset.license) && { license: dataset.license }),
-    ...(data.locationInfo?.coverage && {
-      spatialCoverage: data.locationInfo.coverage,
-    }),
+    ...(data.representation === "LEGACY" &&
+      data.legacy.locationInfo?.coverage && {
+        spatialCoverage: data.legacy.locationInfo.coverage,
+      }),
   };
   const json = (value: object) =>
     JSON.stringify(value).replace(/</g, "\\u003c");

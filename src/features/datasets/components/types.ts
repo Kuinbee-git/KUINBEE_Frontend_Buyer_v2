@@ -5,7 +5,7 @@ export interface DatasetFeatureUI {
   id: string;
   name: string;
   dataType: string;
-  description: string;
+  description: string | null;
   isNullable: boolean;
 }
 
@@ -28,23 +28,23 @@ export interface DatasetLocationUI {
 }
 
 export interface AboutDatasetUI {
-  overview: string;
-  description: string;
-  dataQuality: string;
-  useCases: string;
-  limitations: string;
-  methodology: string;
-  updatedAt: string;
+  overview: string | null;
+  description: string | null;
+  dataQuality: string | null;
+  useCases: string | null;
+  limitations: string | null;
+  methodology: string | null;
+  updatedAt: string | null;
 }
 
 export interface DataFormatUI {
-  fileFormat: string;
-  rows: number;
-  cols: number;
-  fileSize: string;
-  compressionType: string;
-  encoding: string;
-  updatedAt: string;
+  fileFormat: string | null;
+  rows: number | null;
+  cols: number | null;
+  fileSize: string | null;
+  compressionType: string | null;
+  encoding: string | null;
+  updatedAt: string | null;
 }
 
 export type DatasetDiscountTargetSurface =
@@ -130,7 +130,7 @@ export interface Dataset {
   searchScore?: number | null;
   // Legacy fields (kept for compatibility, derived from new data)
   coverage: string;
-  records: number;
+  records: number | null;
   quality: {
     quality: number;
     legal: number;

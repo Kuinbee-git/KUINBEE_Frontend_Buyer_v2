@@ -4,6 +4,17 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { chromium } from "playwright";
 import { app } from "./deployment-environment.mjs";
+import {
+  DatasetCategoryDirectoryQuerySchema,
+  DatasetCategoryDirectoryResponseSchema,
+  datasetCategoryRouteKey,
+} from "@kuinbee/dataset-preparation-contracts";
+import {
+  dataset as contentFixture,
+  legacyCard,
+} from "./buyer-dataset-fixtures.mjs";
+const sampleContent = contentFixture("SAMPLE_ONLY", ["AUDIO"]);
+const oldCard = legacyCard();
 
 const origin = "http://127.0.0.1:3020";
 let apiOrigin = "http://127.0.0.1";
@@ -34,6 +45,66 @@ const fixture = createServer((req, res) => {
     );
     return;
   }
+  if (url.pathname === "/api/v2/marketplace/dataset-categories") {
+    const query = DatasetCategoryDirectoryQuerySchema.parse(
+      Object.fromEntries(url.searchParams)
+    );
+    const id = "c000000000000000000000010",
+      name = "CI fixture subject";
+    const matches =
+      !query.q || name.toLowerCase().includes(query.q.toLowerCase());
+    const items =
+      matches && (!query.afterId || id > query.afterId)
+        ? [
+            {
+              id,
+              name,
+              routeKey: datasetCategoryRouteKey(id, name),
+              datasetCount: 1,
+            },
+          ]
+        : [];
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: DatasetCategoryDirectoryResponseSchema.parse({
+          revision: "1",
+          total: matches ? 1 : 0,
+          items,
+          nextCursor: null,
+        }),
+      })
+    );
+    return;
+  }
+  if (url.pathname === "/api/v2/marketplace/datasets") {
+    const page = Number(url.searchParams.get("page") || 1),
+      pageSize = Number(url.searchParams.get("pageSize") || 20);
+    const rows = [
+      { representation: "LEGACY", legacy: oldCard },
+      { representation: "CONTENT", item: sampleContent.item },
+    ];
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: {
+          items: rows.slice((page - 1) * pageSize, page * pageSize),
+          total: rows.length,
+          page,
+          pageSize,
+        },
+      })
+    );
+    return;
+  }
+  if (
+    url.pathname === "/api/v2/marketplace/datasets/" + sampleContent.item.id ||
+    url.pathname ===
+      "/api/v2/marketplace/datasets/" + sampleContent.item.id + "/metadata"
+  ) {
+    res.end(JSON.stringify({ success: true, data: sampleContent }));
+    return;
+  }
   const collections = [
     "datasets",
     "categories",
@@ -44,7 +115,13 @@ const fixture = createServer((req, res) => {
   if (req.method === "GET" && collections.includes(collection)) {
     const items =
       collection === "categories"
-        ? [{ id: "ci-category", name: "CI fixture subject", datasetCount: 1 }]
+        ? [
+            {
+              id: "c000000000000000000000010",
+              name: "CI fixture subject",
+              datasetCount: 1,
+            },
+          ]
         : [];
     res.end(
       JSON.stringify({
@@ -53,7 +130,10 @@ const fixture = createServer((req, res) => {
           items,
           total: items.length,
           page: Number(url.searchParams.get("page") || 1),
-          pageSize: 100,
+          pageSize:
+            url.pathname === "/api/v2/marketplace/datasets"
+              ? Number(url.searchParams.get("pageSize") || 20)
+              : 100,
         },
       })
     );
@@ -146,7 +226,9 @@ try {
       visible.includes("CI fixture subject"),
       "SSR must render fixture API data, not a fallback-only page"
     );
-    assert(requests.some((r) => r.path === "/api/v1/marketplace/categories"));
+    assert(
+      requests.some((r) => r.path === "/api/v2/marketplace/dataset-categories")
+    );
   }
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -194,6 +276,52 @@ try {
     apiCalls.some((r) => r.method === "POST" && r.path.includes("/auth/")),
     "Compiled frontend must send login to the configured API"
   );
+  if (app === "buyer") {
+    const catalogueResponse = await fetch(origin + "/datasets?pageSize=100");
+    assert.equal(catalogueResponse.status, 200);
+    const catalogueHtml = (await catalogueResponse.text()).replace(
+      /<script\b[^>]*>[\s\S]*?<\/script>/g,
+      ""
+    );
+    assert(
+      catalogueHtml.includes(oldCard.title) &&
+        catalogueHtml.includes(sampleContent.item.title),
+      "SSR renders both legacy and CONTENT listings"
+    );
+    await page.goto(origin + "/datasets?pageSize=100", {
+      waitUntil: "domcontentloaded",
+    });
+    await page
+      .locator(`[data-content-card="${sampleContent.item.id}"]`)
+      .waitFor();
+    await page
+      .getByRole("heading", { name: oldCard.title, exact: true })
+      .waitFor();
+    assert(
+      requests.some(
+        (request) => request.path === "/api/v2/marketplace/datasets"
+      ),
+      "Compiled catalogue uses the canonical mixed endpoint"
+    );
+    await page.goto(origin + "/datasets/" + sampleContent.item.id, {
+      waitUntil: "domcontentloaded",
+    });
+    await page
+      .getByRole("heading", { name: sampleContent.item.title, exact: true })
+      .waitFor();
+    assert.equal(
+      await page
+        .getByRole("button", {
+          name: "Review full dataset access",
+          exact: true,
+        })
+        .count(),
+      0
+    );
+    console.log(
+      "PASS compiled mixed catalogue SSR/hydration, bounded page size and display-only sample detail with actual shared layout"
+    );
+  }
   assert.deepEqual(wrongApi, []);
   assert.deepEqual(errors, []);
   console.log(

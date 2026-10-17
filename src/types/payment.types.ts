@@ -8,6 +8,7 @@
 
 export interface RazorpayCheckoutItem {
   datasetId: string;
+  expectedTarget?: import("@kuinbee/dataset-preparation-contracts").DatasetAcquisitionTarget;
 }
 
 export interface RazorpayCheckoutCreateBody {
@@ -50,11 +51,7 @@ export interface RazorpayConfirmResponse {
 
 // ─── Order ───────────────────────────────────────────────────────────
 
-export type OrderStatus =
-  | "PENDING"
-  | "COMPLETED"
-  | "FAILED"
-  | "REFUNDED";
+export type OrderStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 
 export type PaymentAttemptStatus =
   | "CREATED"

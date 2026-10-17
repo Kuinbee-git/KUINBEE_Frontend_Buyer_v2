@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  categorySlug,
+  categoryHref,
   listPublicCategories,
 } from "@/services/public-catalogue.service";
 
@@ -34,7 +34,7 @@ export async function DatasetCategoryDirectory() {
           {categories.map((category) => (
             <li key={category.id}>
               <Link
-                href={`/datasets/categories/${categorySlug(category.name)}`}
+                href={categoryHref(category)}
                 className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-5 py-4 font-medium transition-colors hover:bg-muted"
               >
                 <span>{category.name} datasets</span>
