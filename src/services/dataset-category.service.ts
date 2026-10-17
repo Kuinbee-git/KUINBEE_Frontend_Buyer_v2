@@ -8,6 +8,8 @@ import {
 } from "@kuinbee/dataset-preparation-contracts";
 import { API_BASE_URL } from "@/core/api/endpoints";
 import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+export const isDatasetCategoryId = (value: string) =>
+  /^c[a-z0-9]{20,31}$/.test(value);
 
 export class DatasetCategoryError extends Error {
   constructor(

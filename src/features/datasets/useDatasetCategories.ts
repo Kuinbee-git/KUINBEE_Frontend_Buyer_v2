@@ -5,17 +5,18 @@ import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment
 import {
   datasetCategoryApi,
   DatasetCategoryError,
+  isDatasetCategoryId,
 } from "@/services/dataset-category.service";
+import { buyerCategoryKeys } from "@/lib/buyer-catalogue-keys";
 import { marketplaceService } from "@/services/marketplace.service";
 import type { Category, PaginatedResponse } from "@/types";
 
-const cuid = /^c[a-z0-9]{20,31}$/;
 export function useDatasetCategories(tokens: readonly string[]) {
   const directory = useQuery<
     PaginatedResponse<Category> & { revision?: string }
   >({
     queryKey: DATASET_CONTENT_BUYER_ENABLED
-      ? ["dataset-category-directory-v1"]
+      ? buyerCategoryKeys.directory
       : ["categories", { pageSize: 100 }],
     queryFn: ({ signal }) =>
       DATASET_CONTENT_BUYER_ENABLED
@@ -32,9 +33,11 @@ export function useDatasetCategories(tokens: readonly string[]) {
         }
       : {}),
   });
-  const unknown = [...new Set(tokens.filter((token) => !cuid.test(token)))];
+  const unknown = [
+    ...new Set(tokens.filter((token) => !isDatasetCategoryId(token))),
+  ];
   const resolve = useQuery({
-    queryKey: ["dataset-category-link-resolution-v1", tokens],
+    queryKey: buyerCategoryKeys.resolution(tokens),
     enabled: DATASET_CONTENT_BUYER_ENABLED && unknown.length > 0,
     retry: false,
     gcTime: 0,
@@ -67,7 +70,7 @@ export function useDatasetCategories(tokens: readonly string[]) {
             ...new Set(
               tokens
                 .map((token) =>
-                  cuid.test(token) ? token : resolve.data?.[token]
+                  isDatasetCategoryId(token) ? token : resolve.data?.[token]
                 )
                 .filter((id): id is string => Boolean(id))
             ),

@@ -5,6 +5,11 @@ import { once } from "node:events";
 import { chromium } from "playwright";
 import { app } from "./deployment-environment.mjs";
 import {
+  DatasetCategoryDirectoryQuerySchema,
+  DatasetCategoryDirectoryResponseSchema,
+  datasetCategoryRouteKey,
+} from "@kuinbee/dataset-preparation-contracts";
+import {
   dataset as contentFixture,
   legacyCard,
 } from "./buyer-dataset-fixtures.mjs";
@@ -40,6 +45,38 @@ const fixture = createServer((req, res) => {
     );
     return;
   }
+  if (url.pathname === "/api/v2/marketplace/dataset-categories") {
+    const query = DatasetCategoryDirectoryQuerySchema.parse(
+      Object.fromEntries(url.searchParams)
+    );
+    const id = "c000000000000000000000010",
+      name = "CI fixture subject";
+    const matches =
+      !query.q || name.toLowerCase().includes(query.q.toLowerCase());
+    const items =
+      matches && (!query.afterId || id > query.afterId)
+        ? [
+            {
+              id,
+              name,
+              routeKey: datasetCategoryRouteKey(id, name),
+              datasetCount: 1,
+            },
+          ]
+        : [];
+    res.end(
+      JSON.stringify({
+        success: true,
+        data: DatasetCategoryDirectoryResponseSchema.parse({
+          revision: "1",
+          total: matches ? 1 : 0,
+          items,
+          nextCursor: null,
+        }),
+      })
+    );
+    return;
+  }
   if (url.pathname === "/api/v2/marketplace/datasets") {
     const page = Number(url.searchParams.get("page") || 1),
       pageSize = Number(url.searchParams.get("pageSize") || 20);
@@ -61,8 +98,9 @@ const fixture = createServer((req, res) => {
     return;
   }
   if (
+    url.pathname === "/api/v2/marketplace/datasets/" + sampleContent.item.id ||
     url.pathname ===
-    "/api/v2/marketplace/datasets/" + sampleContent.item.id
+      "/api/v2/marketplace/datasets/" + sampleContent.item.id + "/metadata"
   ) {
     res.end(JSON.stringify({ success: true, data: sampleContent }));
     return;
@@ -188,7 +226,9 @@ try {
       visible.includes("CI fixture subject"),
       "SSR must render fixture API data, not a fallback-only page"
     );
-    assert(requests.some((r) => r.path === "/api/v1/marketplace/categories"));
+    assert(
+      requests.some((r) => r.path === "/api/v2/marketplace/dataset-categories")
+    );
   }
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();

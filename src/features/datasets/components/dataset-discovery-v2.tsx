@@ -676,7 +676,11 @@ export function DatasetDiscoveryV2() {
     filters.tags.length > 0 ||
     filters.minKdtsScore !== "";
 
-  const isUpdatingResults = isFetching || isFilterPending;
+  // Canonical queries never borrow another filter/page's placeholder data.
+  // Keep this exact hydrated result visible while its background refresh runs.
+  const isUpdatingResults =
+    isFilterPending ||
+    (isFetching && (!DATASET_CONTENT_BUYER_ENABLED || !apiResponse));
 
   // Clear all filters — useCallback prevents FilterSidebar re-render on unrelated state changes
   const clearFilters = useCallback(() => {
