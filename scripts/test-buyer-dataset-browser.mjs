@@ -178,7 +178,10 @@ const server = createServer(async (req, res) => {
           })
         );
       }
-      const data = models.get(url.pathname.split("/").at(-1));
+      const metadata = url.pathname.match(
+        /^\/api\/v2\/marketplace\/datasets\/([^/]+)\/metadata$/
+      );
+      const data = metadata ? models.get(metadata[1]) : undefined;
       return data && !withdrawn.has(data.item.id)
         ? ok(res, data)
         : deny(res, "NOT_FOUND", 404);
