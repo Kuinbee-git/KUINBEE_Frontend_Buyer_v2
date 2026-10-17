@@ -4,17 +4,20 @@ import { blogPostsMeta } from "@/features/blog/blog-posts";
 import { catalogueCardIdentity } from "@/services/buyer-catalogue.service";
 import { listPublicDataRequirements } from "@/services/public-data-requirement.service";
 import {
-  categorySlug,
+  categoryHref,
   listAllPublished,
   listPublicCategories,
   listPublicCollectionServices,
   listPublicDatasets,
 } from "@/services/public-catalogue.service";
+import { connection } from "next/server";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
 
 // Refresh the sitemap itself as well as the API fetches inside it.
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (DATASET_CONTENT_BUYER_ENABLED) await connection();
   const baseUrl = siteConfig.url;
   const staticPaths = [
     "",
@@ -94,7 +97,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...categories.value.items
         .filter((category) => (category.datasetCount ?? 0) > 0)
         .map((category) => ({
-          url: `${baseUrl}/datasets/categories/${categorySlug(category.name)}`,
+          url: baseUrl + categoryHref(category),
         }))
     );
   sources.forEach((source, index) => {

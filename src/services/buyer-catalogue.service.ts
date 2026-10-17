@@ -59,6 +59,23 @@ export const buyerCatalogueService = {
       ),
     };
   },
+  async publicMetadata(
+    datasetId: string,
+    signal?: AbortSignal
+  ): Promise<BuyerDatasetDetailView> {
+    if (!DATASET_CONTENT_BUYER_ENABLED)
+      return {
+        representation: "LEGACY",
+        legacy: await marketplaceService.getDatasetDetails(datasetId),
+      };
+    const result = await buyerDatasetApi.publicMetadata(datasetId, signal);
+    return result.representation === "CONTENT"
+      ? result
+      : {
+          representation: "LEGACY",
+          legacy: legacyCatalogueDetail(result.legacy),
+        };
+  },
   async detail(
     datasetId: string,
     signal?: AbortSignal

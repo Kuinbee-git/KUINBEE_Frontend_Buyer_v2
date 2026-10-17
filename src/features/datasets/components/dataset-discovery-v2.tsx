@@ -57,7 +57,8 @@ const FilterSidebar = dynamic(
   }
 );
 import { Dataset, FilterState, SortOption } from "./types";
-import { useCategories } from "@/hooks/api/useMarketplace";
+import { useDatasetCategories } from "../useDatasetCategories";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
 import {
   useBuyerDatasetList as useDatasets,
   prefetchBuyerDatasets as prefetchDatasets,
@@ -366,15 +367,36 @@ export function DatasetDiscoveryV2() {
     return () => clearTimeout(timer);
   }, [filters.search]);
 
+  const categorySelection = useDatasetCategories(filters.categories);
+  const categoriesResponse = categorySelection.directory.data;
+  const categoryReady =
+    categorySelection.ready &&
+    (!DATASET_CONTENT_BUYER_ENABLED || categorySelection.directory.isSuccess);
+  const selectedCategoryKey = JSON.stringify(filters.categories),
+    resolvedCategoryKey = JSON.stringify(categorySelection.ids);
+  // Resolve this component's own filter state before committing a mismatched
+  // category control/result pair. The exact token comparison makes this finite.
+  if (
+    DATASET_CONTENT_BUYER_ENABLED &&
+    categorySelection.ready &&
+    !categorySelection.error &&
+    selectedCategoryKey !== resolvedCategoryKey
+  ) {
+    setFilters({ ...filters, categories: categorySelection.ids, page: 1 });
+  }
+
   // Build API query from filter state - memoized to stabilize object identity
   // so downstream useEffects (prefetching) don't fire on every render.
   const apiQuery = useMemo<DatasetListQuery>(() => {
     // Only send categoryIds if they look like IDs (CUIDs are typically 25 chars, ObjectIDs 24, UUIDs 36).
-    const validCategoryIds = filters.categories.filter(
-      (value) => value.length >= 20
-    );
+    const validCategoryIds = DATASET_CONTENT_BUYER_ENABLED
+      ? categorySelection.ids
+      : filters.categories.filter((value) => value.length >= 20);
 
     return {
+      expectedCategoryRevision: DATASET_CONTENT_BUYER_ENABLED
+        ? categoriesResponse?.revision
+        : undefined,
       q: debouncedSearch || undefined,
       categoryIds: validCategoryIds.length > 0 ? validCategoryIds : undefined,
       ...(filters.pricingType !== "all" && {
@@ -404,6 +426,8 @@ export function DatasetDiscoveryV2() {
   }, [
     debouncedSearch,
     filters.categories,
+    categorySelection.ids,
+    categoriesResponse?.revision,
     filters.pricingType,
     filters.currency,
     filters.priceRange.min,
@@ -420,11 +444,30 @@ export function DatasetDiscoveryV2() {
 
   // Fetch datasets from API
   const {
-    data: apiResponse,
-    isLoading,
+    data: catalogueResponse,
+    isLoading: catalogueLoading,
     isFetching,
-    error,
-  } = useDatasets(apiQuery);
+    error: catalogueError,
+  } = useDatasets(apiQuery, categoryReady && !categorySelection.error);
+  const apiResponse =
+    categoryReady && !categorySelection.error ? catalogueResponse : undefined;
+  const error =
+    categorySelection.error ??
+    (DATASET_CONTENT_BUYER_ENABLED
+      ? categorySelection.directory.error
+      : null) ??
+    catalogueError;
+  const isLoading = catalogueLoading || (!categoryReady && !error);
+  const refreshCategories = categorySelection.directory.refetch;
+  useEffect(() => {
+    if (
+      DATASET_CONTENT_BUYER_ENABLED &&
+      catalogueError &&
+      "code" in catalogueError &&
+      catalogueError.code === "CATEGORY_DIRECTORY_CHANGED"
+    )
+      void refreshCategories();
+  }, [catalogueError, refreshCategories]);
 
   // Lightweight services count for the toggle pill — only fires when there's an active search
   const { data: serviceCountData } = useCustomCollectionServices(
@@ -476,9 +519,6 @@ export function DatasetDiscoveryV2() {
     }
   }, [filters.page, scrollToDatasetList]);
 
-  // Fetch categories from API
-  const { data: categoriesResponse } = useCategories({ pageSize: 100 });
-
   // Create category mapping (id -> name) and list
   const categoryMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -495,7 +535,11 @@ export function DatasetDiscoveryV2() {
   }, [categoriesResponse]);
 
   // Resolve category slugs as category metadata becomes available.
-  if (categoriesResponse?.items && filters.categories.length > 0) {
+  if (
+    !DATASET_CONTENT_BUYER_ENABLED &&
+    categoriesResponse?.items &&
+    filters.categories.length > 0
+  ) {
     const searchTerms: Record<string, string> = {
       finance: "finance",
       energy: "energy",
@@ -530,7 +574,10 @@ export function DatasetDiscoveryV2() {
   const categoryItems = useMemo(() => {
     return Array.from(categoryMap.entries())
       .map(([id, name]) => ({ id, name }))
-      .filter(({ name }) => !name.toLowerCase().includes("test"));
+      .filter(
+        ({ name }) =>
+          DATASET_CONTENT_BUYER_ENABLED || !name.toLowerCase().includes("test")
+      );
   }, [categoryMap]);
 
   // Map API response to UI format
@@ -747,6 +794,19 @@ export function DatasetDiscoveryV2() {
             >
               Browse datasets by category
             </Link>
+            {DATASET_CONTENT_BUYER_ENABLED &&
+              categorySelection.directory.isError && (
+                <p role="alert" className="mt-3 text-sm text-destructive">
+                  Category filters could not be loaded.{" "}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => void categorySelection.directory.refetch()}
+                  >
+                    Refresh categories
+                  </button>
+                </p>
+              )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6 lg:gap-8">
@@ -812,6 +872,30 @@ export function DatasetDiscoveryV2() {
                     <p className="text-sm text-[#4e5a7e] dark:text-white/70">
                       {getErrorMessage(error)}
                     </p>
+                    {categorySelection.error && (
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          className="text-sm underline"
+                          onClick={() => window.location.reload()}
+                        >
+                          Retry category link
+                        </button>
+                        <button
+                          type="button"
+                          className="text-sm underline"
+                          onClick={() =>
+                            setFilters((previous) => ({
+                              ...previous,
+                              categories: [],
+                              page: 1,
+                            }))
+                          }
+                        >
+                          Clear category filter
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : paginatedDatasets.length > 0 ? (
                   isUpdatingResults ? (

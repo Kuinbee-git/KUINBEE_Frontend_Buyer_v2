@@ -8,6 +8,11 @@ import {
   type BuyerDatasetDetailView,
 } from "./buyer-catalogue.service";
 import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+import { datasetCategoryApi } from "./dataset-category.service";
+import {
+  datasetCategoryLegacySlug,
+  datasetCategoryRouteKey,
+} from "@kuinbee/dataset-preparation-contracts";
 import type {
   Category,
   Dataset,
@@ -145,18 +150,17 @@ export const getPublicCollectionService = cache(async (slug: string) => {
 });
 
 export const listPublicCategories = cache(() =>
-  publicGet<PaginatedResponse<Category>>("/api/v1/marketplace/categories", {
-    page: 1,
-    pageSize: 100,
-  })
+  DATASET_CONTENT_BUYER_ENABLED
+    ? datasetCategoryApi.all()
+    : publicGet<PaginatedResponse<Category>>("/api/v1/marketplace/categories", {
+        page: 1,
+        pageSize: 100,
+      })
 );
 
-export const categorySlug = (name: string) =>
-  name
-    .toLowerCase()
-    .replace(/&/g, " ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+export const categorySlug = datasetCategoryLegacySlug;
+export const categoryHref = (category: Category) =>
+  `/datasets/categories/${DATASET_CONTENT_BUYER_ENABLED ? datasetCategoryRouteKey(category.id, category.name) : categorySlug(category.name)}`;
 
 export async function listAllPublished<T>(
   load: (page: number) => Promise<PaginatedResponse<T>>

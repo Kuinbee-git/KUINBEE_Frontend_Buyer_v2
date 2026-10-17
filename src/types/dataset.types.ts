@@ -219,6 +219,7 @@ export interface DatasetDetailsResponse {
 }
 
 export interface DatasetListQuery extends PaginationQuery {
+  expectedCategoryRevision?: string;
   q?: string;
   search?: string;
   categoryId?: string;

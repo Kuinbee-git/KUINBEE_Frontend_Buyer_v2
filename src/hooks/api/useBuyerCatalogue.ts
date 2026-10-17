@@ -20,8 +20,9 @@ export function useBuyerDatasetList(query?: DatasetListQuery, enabled = true) {
       : keepPreviousData,
     queryFn: ({ signal }) => buyerCatalogueService.list(query, signal),
     // New filter/page/contract generations must never inherit another result.
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    staleTime: DATASET_CONTENT_BUYER_ENABLED ? 0 : undefined,
+    refetchOnWindowFocus: DATASET_CONTENT_BUYER_ENABLED ? "always" : false,
+    refetchOnReconnect: DATASET_CONTENT_BUYER_ENABLED ? "always" : false,
   });
 }
 export function useBuyerDatasetDetail(datasetId: string, enabled = true) {
@@ -30,9 +31,14 @@ export function useBuyerDatasetDetail(datasetId: string, enabled = true) {
     enabled: Boolean(datasetId) && enabled,
     retry: false,
     staleTime: DATASET_CONTENT_BUYER_ENABLED ? 0 : 60_000,
-    queryFn: ({ signal }) => buyerCatalogueService.detail(datasetId, signal),
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    queryFn: ({ signal }) =>
+      DATASET_CONTENT_BUYER_ENABLED
+        ? buyerCatalogueService.publicMetadata(datasetId, signal)
+        : buyerCatalogueService.detail(datasetId, signal),
+    refetchOnWindowFocus: DATASET_CONTENT_BUYER_ENABLED ? "always" : false,
+    refetchOnReconnect: DATASET_CONTENT_BUYER_ENABLED ? "always" : false,
+    refetchInterval: DATASET_CONTENT_BUYER_ENABLED ? 30_000 : false,
+    refetchIntervalInBackground: false,
   });
 }
 export function prefetchBuyerDatasets(

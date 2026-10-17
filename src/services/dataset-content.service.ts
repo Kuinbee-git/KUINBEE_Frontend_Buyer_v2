@@ -320,6 +320,28 @@ function checkOrdered(
 
 // Public catalogue metadata never authorizes files. Private reads/writes always
 // use their own backend checks; no method retries, retargets a grant or caches URLs.
+function exactPublicDetail(
+  result: BuyerCatalogueDetail,
+  datasetId: string
+): BuyerCatalogueDetail {
+  const selected =
+    result.representation === "CONTENT" ? result.item : result.legacy.dataset;
+  if (selected.id !== datasetId && selected.datasetUniqueId !== datasetId)
+    incompatible();
+  if (
+    result.representation === "CONTENT" &&
+    (result.description.title !== result.item.title ||
+      result.description.license !== result.item.license ||
+      result.description.uploadChoice !== result.item.uploadChoice ||
+      result.description.categoriesAtFreeze.primary.id !==
+        result.item.categoryAtFreeze.id ||
+      JSON.stringify(result.description.modalities) !==
+        JSON.stringify(result.item.modalities))
+  )
+    incompatible();
+  return result;
+}
+
 export const buyerDatasetApi = {
   async publicReferences(
     datasetId: string,
@@ -418,22 +440,15 @@ export const buyerDatasetApi = {
       DatasetCatalogueDetailResponseSchema,
       { signal }
     );
-    const selected =
-      result.representation === "CONTENT" ? result.item : result.legacy.dataset;
-    if (selected.id !== datasetId && selected.datasetUniqueId !== datasetId)
-      incompatible();
-    if (
-      result.representation === "CONTENT" &&
-      (result.description.title !== result.item.title ||
-        result.description.license !== result.item.license ||
-        result.description.uploadChoice !== result.item.uploadChoice ||
-        result.description.categoriesAtFreeze.primary.id !==
-          result.item.categoryAtFreeze.id ||
-        JSON.stringify(result.description.modalities) !==
-          JSON.stringify(result.item.modalities))
-    )
-      incompatible();
-    return result;
+    return exactPublicDetail(result, datasetId);
+  },
+  async publicMetadata(datasetId: string, signal?: AbortSignal) {
+    const result = await request(
+      `/api/v2/marketplace/datasets/${encodedId(datasetId)}/metadata`,
+      DatasetCatalogueDetailResponseSchema,
+      { signal }
+    );
+    return exactPublicDetail(result, datasetId);
   },
   async library(
     input: Partial<DatasetLibraryListQuery> = {},

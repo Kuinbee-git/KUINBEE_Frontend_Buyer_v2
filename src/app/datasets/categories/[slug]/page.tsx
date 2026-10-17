@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
+import { DATASET_CONTENT_BUYER_ENABLED } from "@/lib/dataset-content-environment";
+import {
+  datasetCategoryApi,
+  DatasetCategoryError,
+} from "@/services/dataset-category.service";
 import {
   generateMetadata as genMeta,
   generateBreadcrumbSchema,
@@ -42,13 +48,29 @@ const introductions: Record<string, string> = {
     "Explore telecommunications datasets for research and analytics. Review content, language or geographic coverage, source, and licensing for each listing.",
 };
 
-const getCategory = cache(async (slug: string) => {
+const getCategory = cache(async (slug: string, page: number) => {
+  if (DATASET_CONTENT_BUYER_ENABLED) {
+    await connection();
+    const result = await datasetCategoryApi.resolve(slug).catch((error) => {
+      if (
+        error instanceof DatasetCategoryError &&
+        [400, 404].includes(error.status)
+      )
+        notFound();
+      throw error;
+    });
+    if (result.redirect)
+      redirect(
+        `/datasets/categories/${result.category.routeKey}${page > 1 ? `?page=${page}` : ""}`
+      );
+    return { ...result.category, directoryRevision: result.revision };
+  }
   const { items } = await listPublicCategories();
   const category = items.find(
     (item) => categorySlug(item.name) === slug && (item.datasetCount ?? 0) > 0
   );
   if (!category) notFound();
-  return category;
+  return { ...category, directoryRevision: undefined };
 });
 
 type Props = {
@@ -61,15 +83,15 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategory(slug);
   const page = Math.max(
     1,
     Number.parseInt((await searchParams).page || "1", 10) || 1
   );
+  const category = await getCategory(slug, page);
   return genMeta({
     title: `${category.name} Datasets${page > 1 ? ` — Page ${page}` : ""} | Kuinbee`,
     description:
-      introductions[slug] ||
+      introductions[categorySlug(category.name)] ||
       `Browse ${category.name.toLowerCase()} datasets on Kuinbee. Compare published listings, formats, coverage, licensing, and access conditions.`,
     path: `/datasets/categories/${slug}${page > 1 ? `?page=${page}` : ""}`,
   });
@@ -77,13 +99,14 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const category = await getCategory(slug);
   const page = Math.max(
     1,
     Number.parseInt((await searchParams).page || "1", 10) || 1
   );
+  const category = await getCategory(slug, page);
   const result = await listPublicDatasets({
     categoryId: category.id,
+    expectedCategoryRevision: category.directoryRevision,
     page,
     pageSize: 20,
   });
@@ -115,7 +138,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {category.name} datasets
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-8 text-muted-foreground">
-          {introductions[slug] ||
+          {introductions[categorySlug(category.name)] ||
             `Compare published ${category.name.toLowerCase()} datasets for research, analytics, and AI projects. Review each listing's source, coverage, format, and licensing before selecting data.`}
         </p>
         <p className="mt-5 text-sm text-muted-foreground">
