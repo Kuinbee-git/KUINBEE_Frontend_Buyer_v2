@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { tableMetadataFixture } from "./table-metadata-fixtures.mjs";
 import { after, test } from "node:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -399,4 +400,112 @@ test("free-claim intent survives reload under its exact actor and target without
   );
   mod.clearContentClaim(intent);
   assert.equal(mod.readContentClaim(actorId, data.item.id), null);
+});
+
+test("public table listing rejects private targets, raw cells, inactive claims and a changed publication", async () => {
+  const data = dataset("FULL_AND_SAMPLE"),
+    context = fileContext(data, "SAMPLE"),
+    privateValue = tableMetadataFixture(context);
+  const value = {
+    datasetId: data.item.id,
+    publicationId: data.item.publication.id,
+    page: privateValue.page,
+  };
+  const query = {
+    publicationId: value.publicationId,
+    contentId: context.contentId,
+    contentGeneration: context.contentGeneration,
+    component: "SAMPLE",
+    limit: 20,
+  };
+  answer = value;
+  await api.publicTables(value.datasetId, query);
+  assert.equal(requests.at(-1).credentials, "omit");
+  assert.equal(requests.at(-1).cache, "no-store");
+  for (const mutate of [
+    (v) => (v.targets = privateValue.targets),
+    (v) => (v.page.items[0].rawCells = ["private"]),
+    (v) => (v.page.items[0].missingValues.value = "inactive claim"),
+    (v) => (v.publicationId = id(999)),
+    (v) => v.page.contentGeneration++,
+    (v) => (v.page.frozen = false),
+  ]) {
+    answer = structuredClone(value);
+    mutate(answer);
+    await assert.rejects(api.publicTables(value.datasetId, query), bad);
+  }
+});
+test("sample and historical grant table reads preserve exact targets and literal column headers", async () => {
+  for (const audience of ["SAMPLE", "LIBRARY"]) {
+    const data = dataset("FULL_AND_SAMPLE"),
+      context = fileContext(data, audience);
+    if (audience === "LIBRARY") context.contentId = id(7999);
+    const value = tableMetadataFixture(context, undefined, true),
+      query = {
+        scope: context.scope,
+        component: context.component,
+        contentId: context.contentId,
+        contentGeneration: context.contentGeneration,
+        ...(context.workflowRevision === null
+          ? {}
+          : { expectedWorkflowRevision: context.workflowRevision }),
+        memberId: value.memberId,
+        tableId: value.page.tableId,
+        limit: 20,
+      };
+    answer = value;
+    const received = await api.tableMetadata(audience, data.item.id, query);
+    assert.deepEqual(
+      received.page.items.map((row) => row.observedName),
+      [null, "", "value"]
+    );
+    assert.equal(requests.at(-1).credentials, "include");
+    for (const mutate of [
+      (v) => (v.context.contentId = data.item.publication.contentId),
+      (v) => v.page.items.reverse(),
+      (v) => (v.memberId = id(999)),
+      (v) => (v.targets[0].memberId = id(999)),
+      (v) => (v.page.items[0].meaning.value = "inactive private claim"),
+    ]) {
+      answer = structuredClone(value);
+      mutate(answer);
+      if (JSON.stringify(answer) === JSON.stringify(value)) continue;
+      await assert.rejects(
+        api.tableMetadata(audience, data.item.id, query),
+        bad
+      );
+    }
+  }
+});
+test("table metadata cannot bypass sample/full scope, workflow fences or production gates", async () => {
+  const data = dataset("FULL_ONLY"),
+    context = fileContext(data, "LIBRARY"),
+    query = {
+      scope: "GRANTED",
+      component: "FULL",
+      contentId: context.contentId,
+      contentGeneration: 1,
+      limit: 20,
+    };
+  const before = requests.length;
+  await assert.rejects(
+    api.tableMetadata("SAMPLE", data.item.id, query),
+    matches("INVALID_FILE_SCOPE")
+  );
+  await assert.rejects(
+    api.tableMetadata("LIBRARY", data.item.id, {
+      ...query,
+      expectedWorkflowRevision: 1,
+    }),
+    matches("INVALID_FILE_SCOPE")
+  );
+  await assert.rejects(
+    production.buyerDatasetApi.publicTables(data.item.id, {
+      publicationId: data.item.publication.id,
+      contentId: context.contentId,
+      limit: 20,
+    }),
+    matches("NOT_ENABLED")
+  );
+  assert.equal(requests.length, before);
 });

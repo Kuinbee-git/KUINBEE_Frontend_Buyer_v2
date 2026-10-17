@@ -6,12 +6,20 @@ import { resolve } from "node:path";
 import { build } from "esbuild";
 import { chromium } from "playwright";
 import {
+  tableMetadataFixture,
+  captureTableMetadataViews,
+} from "./table-metadata-fixtures.mjs";
+import {
   DatasetContentFreeClaimBodySchema,
   DatasetFileAccessPageQuerySchema,
   DatasetFileDownloadBodySchema,
   DatasetFileDownloadResponseSchema,
   DatasetFileObservationQuerySchema,
   DatasetFileObservationResponseSchema,
+  DatasetPrivateTableMetadataQuerySchema,
+  DatasetPrivateTableMetadataResponseSchema,
+  DatasetPublicTableMetadataQuerySchema,
+  DatasetPublicTableMetadataResponseSchema,
 } from "@kuinbee/dataset-preparation-contracts";
 import {
   dataset,
@@ -139,6 +147,37 @@ const server = createServer(async (req, res) => {
     });
     if (url.pathname.startsWith("/api/v2/marketplace/datasets/")) {
       assert.equal(actor, undefined, "Public metadata omits session cookies");
+      if (url.pathname.endsWith("/tables")) {
+        const data = models.get(url.pathname.split("/").at(-2));
+        if (!data || withdrawn.has(data.item.id))
+          return deny(res, "NOT_FOUND", 404);
+        const query = DatasetPublicTableMetadataQuerySchema.parse(
+          Object.fromEntries(url.searchParams)
+        );
+        if (
+          query.publicationId !== data.item.publication.id ||
+          query.contentId !== data.item.publication.contentId
+        )
+          return deny(res, "PUBLICATION_CHANGED");
+        const context = {
+          ...fileContext(data, "SAMPLE"),
+          component: query.component ?? "FULL",
+        };
+        const metadata = tableMetadataFixture(
+          context,
+          undefined,
+          Boolean(query.tableId)
+        );
+        metadata.page.component = query.component ?? null;
+        return ok(
+          res,
+          DatasetPublicTableMetadataResponseSchema.parse({
+            datasetId: data.item.id,
+            publicationId: data.item.publication.id,
+            page: metadata.page,
+          })
+        );
+      }
       const data = models.get(url.pathname.split("/").at(-1));
       return data && !withdrawn.has(data.item.id)
         ? ok(res, data)
@@ -210,7 +249,7 @@ const server = createServer(async (req, res) => {
       });
     }
     const files = url.pathname.match(
-      /^\/api\/v2\/(marketplace\/dataset-samples|user\/library-files)\/([^/]+)\/(context|inventory|observations|download-url)$/
+      /^\/api\/v2\/(marketplace\/dataset-samples|user\/library-files)\/([^/]+)\/(context|inventory|observations|tables|download-url)$/
     );
     if (files) {
       const [, kind, datasetId, action] = files,
@@ -240,7 +279,11 @@ const server = createServer(async (req, res) => {
             ? DatasetFileObservationQuerySchema.parse(
                 Object.fromEntries(url.searchParams)
               )
-            : DatasetFileDownloadBodySchema.parse(body);
+            : action === "tables"
+              ? DatasetPrivateTableMetadataQuerySchema.parse(
+                  Object.fromEntries(url.searchParams)
+                )
+              : DatasetFileDownloadBodySchema.parse(body);
       if (
         parsed.contentId !== context.contentId ||
         (parsed.expectedWorkflowRevision ?? null) !== context.workflowRevision
@@ -249,6 +292,19 @@ const server = createServer(async (req, res) => {
       assert.equal(parsed.component, context.component);
       assert.equal(parsed.scope, context.scope);
       const items = inventory(context, fileCounts.get(datasetId) ?? 1);
+      if (action === "tables") {
+        assert(items.some((member) => member.id === parsed.memberId));
+        return ok(
+          res,
+          DatasetPrivateTableMetadataResponseSchema.parse(
+            tableMetadataFixture(
+              context,
+              parsed.memberId,
+              Boolean(parsed.tableId)
+            )
+          )
+        );
+      }
       if (action === "inventory") {
         const remaining = items.filter(
             (member) => !parsed.afterId || member.id > parsed.afterId
@@ -537,6 +593,37 @@ try {
   console.log(
     "PASS all 21 modality/composition-by-choice details render scoped descriptions and unknown values; sample-only has no claim, checkout or inquiry"
   );
+  for (const choice of ["SAMPLE_ONLY", "FULL_ONLY", "FULL_AND_SAMPLE"]) {
+    const tableCollection = add(choice, ["TABULAR"]);
+    await open(page, tableCollection, true);
+    await button(page, "View table definitions").click();
+    await button(page, "View columns").click();
+    await page.getByText("Column 1: No header", { exact: true }).waitFor();
+    await page.getByText("Column 2: Blank header", { exact: true }).waitFor();
+    if (choice === "FULL_AND_SAMPLE")
+      await captureTableMetadataViews(
+        page,
+        artifacts,
+        "public-table",
+        page.getByText("Column 1: No header", { exact: true })
+      );
+    assert.equal(
+      await page
+        .getByText("In this file: private-session/events.csv", { exact: true })
+        .count(),
+      0
+    );
+    assert(
+      requests.some(
+        (request) =>
+          request.path.endsWith(tableCollection.item.id + "/tables") &&
+          request.actor === null
+      )
+    );
+  }
+  console.log(
+    "PASS anonymous approved table schema for all choices displays literal headers without raw cells, private paths or file authorization"
+  );
   const scopedProfiles = add("FULL_AND_SAMPLE", [
     "AUDIO",
     "VIDEO",
@@ -775,6 +862,20 @@ try {
   await page
     .getByRole("heading", { name: "Granted full material", exact: true })
     .waitFor();
+  await button(page, "View table definitions").click();
+  await button(page, "View columns").click();
+  await page.getByText("Column 1: No header", { exact: true }).waitFor();
+  await page
+    .getByText("In this file: private-session/events.csv", { exact: true })
+    .waitFor();
+  const historicalTables = requests.findLast(
+    (request) =>
+      request.path.includes("library-files/" + free.item.id) &&
+      request.path.endsWith("/tables")
+  );
+  assert.equal(historicalTables.query.contentId, oldContent);
+  assert.equal(historicalTables.query.scope, "GRANTED");
+  assert.equal(historicalTables.query.expectedWorkflowRevision, undefined);
   console.log(
     "PASS changing the signed-in actor removes private grant files and cannot restore another actor's recorded access"
   );

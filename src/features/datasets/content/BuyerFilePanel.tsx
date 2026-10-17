@@ -18,6 +18,7 @@ import { Button } from "@/shared/components/ui/button";
 import { getErrorMessage } from "@/shared/utils/error.utils";
 import { ContentFacts } from "./ContentDescription";
 import { physicalBytes } from "./content-description";
+import { TableMetadataPanel } from "./TableMetadataPanel";
 
 export function BuyerFilePanel({
   audience,
@@ -286,6 +287,18 @@ function ReaderFile({
           Download {audience === "SAMPLE" ? "sample" : "file"}
         </Button>
       </div>
+      <TableMetadataPanel
+        sourceKey={JSON.stringify([actorId, audience, context, member.id])}
+        enabled={isAuthenticated && user?.id === actorId}
+        load={(filters, signal) =>
+          buyerDatasetApi.tableMetadata(
+            audience,
+            context.datasetId,
+            { ...filters, ...exact, limit: filters.limit },
+            signal
+          )
+        }
+      />
       {error && <p role="alert">{error}</p>}
       <details>
         <summary className="cursor-pointer text-sm font-medium">

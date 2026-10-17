@@ -23,6 +23,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { getErrorMessage } from "@/shared/utils/error.utils";
 import { ContentDescription, ContentFacts } from "./ContentDescription";
 import { BuyerFilePanel } from "./BuyerFilePanel";
+import { TableMetadataPanel } from "./TableMetadataPanel";
 import { contentPriceLabel } from "./content-description";
 import { QuestionsSection } from "../components/QuestionsSection";
 import { ReviewsSection } from "../components/ReviewsSection";
@@ -86,6 +87,26 @@ export function ContentDatasetDetail({
                 About this collection
               </h2>
               <ContentDescription description={data.description} />
+              <div className="mt-5">
+                <TableMetadataPanel
+                  sourceKey={JSON.stringify([
+                    data.item.id,
+                    data.item.publication.id,
+                    data.item.publication.contentId,
+                  ])}
+                  load={(filters, signal) =>
+                    buyerDatasetApi.publicTables(
+                      data.item.id,
+                      {
+                        ...filters,
+                        publicationId: data.item.publication.id,
+                        contentId: data.item.publication.contentId,
+                      },
+                      signal
+                    )
+                  }
+                />
+              </div>
             </section>
             <aside className="min-w-0 p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 dark:border-white/10 space-y-5">
               <h2 className="text-xl font-semibold">Dataset access</h2>

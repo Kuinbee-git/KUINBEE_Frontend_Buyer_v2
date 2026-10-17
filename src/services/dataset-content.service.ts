@@ -1,5 +1,11 @@
 import {
   DatasetCatalogueListQuerySchema,
+  DatasetPrivateTableMetadataQuerySchema,
+  DatasetPrivateTableMetadataResponseSchema,
+  type DatasetPrivateTableMetadataQuery,
+  DatasetPublicTableMetadataQuerySchema,
+  DatasetPublicTableMetadataResponseSchema,
+  type DatasetPublicTableMetadataQuery,
   DatasetCatalogueListResponseSchema,
   DatasetCatalogueDetailResponseSchema,
   DatasetReaderIdParamsSchema,
@@ -312,6 +318,54 @@ function checkOrdered(
 // Public catalogue metadata never authorizes files. Private reads/writes always
 // use their own backend checks; no method retries, retargets a grant or caches URLs.
 export const buyerDatasetApi = {
+  async publicTables(
+    datasetId: string,
+    input: DatasetPublicTableMetadataQuery,
+    signal?: AbortSignal
+  ) {
+    const query = DatasetPublicTableMetadataQuerySchema.parse(input);
+    const result = await request(
+      `/api/v2/marketplace/datasets/${encodedId(datasetId)}/tables`,
+      DatasetPublicTableMetadataResponseSchema,
+      { query, signal }
+    );
+    if (
+      result.datasetId !== datasetId ||
+      result.publicationId !== query.publicationId ||
+      result.page.contentId !== query.contentId ||
+      (query.contentGeneration !== undefined &&
+        result.page.contentGeneration !== query.contentGeneration) ||
+      result.page.component !== (query.component ?? null) ||
+      result.page.tableId !== (query.tableId ?? null) ||
+      result.page.items.length > query.limit ||
+      (result.page.nextCursor && result.page.nextCursor.limit !== query.limit)
+    )
+      incompatible();
+    return result;
+  },
+  async tableMetadata(
+    audience: BuyerFileAudience,
+    datasetId: string,
+    input: DatasetPrivateTableMetadataQuery,
+    signal?: AbortSignal
+  ) {
+    const query = DatasetPrivateTableMetadataQuerySchema.parse(input);
+    checkExactScope(audience, query);
+    const result = await request(
+      `${fileBase(audience, datasetId)}/tables`,
+      DatasetPrivateTableMetadataResponseSchema,
+      { query, signal, authenticated: true }
+    );
+    checkContext(audience, datasetId, result.context, query);
+    if (
+      result.memberId !== (query.memberId ?? null) ||
+      result.page.tableId !== (query.tableId ?? null) ||
+      result.page.items.length > query.limit ||
+      (result.page.nextCursor && result.page.nextCursor.limit !== query.limit)
+    )
+      incompatible();
+    return result;
+  },
   async catalogue(
     input: Partial<DatasetCatalogueListQuery> = {},
     signal?: AbortSignal
