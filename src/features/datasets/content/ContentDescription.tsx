@@ -193,8 +193,8 @@ export function ContentDescription({
       <section className="border-t border-border pt-5 space-y-3">
         <h3 className="font-semibold">Collection and uploaded material</h3>
         <p className="text-sm text-muted-foreground">
-          Quantities below are supplier declarations. An inspected sample does
-          not establish that unseen full material was inspected.
+          Quantities below are supplier declarations. A displayed sample does
+          not establish the coverage of unseen full material.
         </p>
         {description.measurements.map((group) => (
           <div key={group.scope}>

@@ -730,11 +730,17 @@ try {
   await page
     .getByRole("heading", { name: "sample-1.wav", exact: true })
     .waitFor();
-  await page
-    .getByText("Format observations and file checks", { exact: true })
-    .click();
-  await button(page, "Recorded format observations").click();
-  await page.getByText("48000", { exact: true }).waitFor();
+  assert.equal(
+    await page
+      .getByText("Format observations and file checks", { exact: true })
+      .count(),
+    0
+  );
+  assert.equal(await button(page, "Recorded format observations").count(), 0);
+  assert.equal(
+    requests.filter((request) => request.path.endsWith("/observations")).length,
+    0
+  );
   flags.denyFiles = true;
   await button(page, "Download sample").click();
   await page
@@ -749,7 +755,7 @@ try {
   await wait(() => downloads.length === 2);
   assert.notEqual(downloads[0], downloads[1]);
   console.log(
-    "PASS anonymous samples require sign-in; exact format observations, security refusal and fresh 60-second download intents stay separate"
+    "PASS anonymous samples require sign-in; admin-only inspection details, access refusal and fresh 60-second download intents stay separate"
   );
   const free = add("FULL_ONLY", ["AUDIO"]);
   free.description.geographicCoverage = {

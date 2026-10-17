@@ -5,18 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import type {
   DatasetFileAccessContext,
   DatasetFileAccessPageQuery,
-  DatasetFileObservationQuery,
 } from "@kuinbee/dataset-preparation-contracts";
 import {
   buyerDatasetApi,
   type BuyerFileAudience,
   type BuyerFilePage,
-  type BuyerFileObservations,
 } from "@/services/dataset-content.service";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { Button } from "@/shared/components/ui/button";
 import { getErrorMessage } from "@/shared/utils/error.utils";
-import { ContentFacts } from "./ContentDescription";
 import { physicalBytes } from "./content-description";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 
@@ -204,10 +201,6 @@ function ReaderFile({
     inFlight = useRef(false);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<string | null>(null);
-  const [observed, setObserved] = useState<{
-    query: DatasetFileObservationQuery;
-    page: BuyerFileObservations;
-  } | null>(null);
   useLayoutEffect(() => {
     live.current = isAuthenticated && user?.id === actorId;
     return () => {
@@ -243,16 +236,6 @@ function ReaderFile({
       setBusy(false);
     }
   }
-  const inspect = (query: DatasetFileObservationQuery) =>
-    perform(async () => {
-      const page = await buyerDatasetApi.observations(
-        audience,
-        context.datasetId,
-        query
-      );
-      assertCurrent();
-      setObserved({ query, page });
-    });
   const download = () =>
     perform(async () => {
       const result = await buyerDatasetApi.download(
@@ -300,128 +283,6 @@ function ReaderFile({
         }
       />
       {error && <p role="alert">{error}</p>}
-      <details>
-        <summary className="cursor-pointer text-sm font-medium">
-          Format observations and file checks
-        </summary>
-        <div className="mt-4 space-y-3">
-          <ContentFacts
-            rows={[
-              ["Recorded file security", member.inspection.securityState],
-              ["Recorded check outcome", member.inspection.recordedOutcome],
-              [
-                "Recorded evidence is current",
-                member.inspection.current ? "Yes" : "No",
-              ],
-              ["Path", member.relativePath],
-            ]}
-          />
-          <p className="text-xs text-muted-foreground">
-            Recorded checks do not establish current download eligibility.
-            Format observations do not establish a domain, permitted use or
-            unseen collection coverage.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              disabled={busy}
-              onClick={() =>
-                inspect({
-                  ...exact,
-                  evidenceId: member.membershipEvidenceId,
-                  limit: 10,
-                })
-              }
-            >
-              Recorded format observations
-            </Button>
-            {member.inspection.currentEvidenceId &&
-              member.inspection.currentEvidenceId !==
-                member.membershipEvidenceId && (
-                <Button
-                  variant="outline"
-                  disabled={busy}
-                  onClick={() =>
-                    inspect({
-                      ...exact,
-                      evidenceId: member.inspection.currentEvidenceId!,
-                      limit: 10,
-                    })
-                  }
-                >
-                  Current format observations
-                </Button>
-              )}
-          </div>
-          {observed && (
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                {observed.page.total} observations · backend observed ·{" "}
-                {observed.page.evidenceRelationship
-                  .toLowerCase()
-                  .replaceAll("_", " ")}
-              </p>
-              <ul className="space-y-4">
-                {observed.page.items.map((item) => (
-                  <li key={item.id}>
-                    <ContentFacts
-                      rows={[
-                        ["Inspection profile", item.profileId],
-                        ["Inspection result", item.result],
-                        ["Observed scope", item.scope],
-                        [
-                          "Measured size",
-                          physicalBytes(item.measuredSizeBytes),
-                        ],
-                        ...Object.entries(item.facts).map(
-                          ([key, value]) =>
-                            [
-                              key,
-                              value === null ? "Not measured" : String(value),
-                            ] as const
-                        ),
-                        ...(item.source.kind === "LOGICAL_ENTRY"
-                          ? ([
-                              [
-                                "Archive entry identity",
-                                item.source.logicalEntryId,
-                              ],
-                              [
-                                "Archive entry locator",
-                                JSON.stringify(item.source.locator),
-                              ],
-                            ] as const)
-                          : []),
-                      ]}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  disabled={busy || !observed.query.afterId}
-                  onClick={() =>
-                    inspect({ ...observed.query, afterId: undefined })
-                  }
-                >
-                  First observation page
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={busy || !observed.page.nextCursor}
-                  onClick={() => {
-                    if (observed.page.nextCursor)
-                      void inspect(observed.page.nextCursor);
-                  }}
-                >
-                  Next observation page
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </details>
     </div>
   );
 }

@@ -209,9 +209,8 @@ export function ContentDatasetDetail({
           {discussion && (
             <div className="mt-5 space-y-6">
               <p className="text-sm text-muted-foreground">
-                Questions and customer reviews concern the Dataset listing. They
-                are separate from inspection evidence and assessment of exact
-                uploaded material.
+                Questions and customer reviews concern the Dataset listing and
+                the experience of using it.
               </p>
               <QuestionsSection
                 datasetId={data.item.id}
