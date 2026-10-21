@@ -27,6 +27,10 @@ import {
   DatasetFileObservationResponseSchema,
   DatasetFileDownloadBodySchema,
   DatasetFileDownloadResponseSchema,
+  DatasetFileBundleQuerySchema,
+  DatasetFileBundleManifestSchema,
+  DatasetPortableRelativePathSchema,
+  type DatasetFileBundleQuery,
   type DatasetCatalogueListQuery,
   type DatasetLibraryListQuery,
   type DatasetAcquisitionTarget,
@@ -620,6 +624,55 @@ export const buyerDatasetApi = {
         incompatible();
     }
     return result;
+  },
+  async bundle(
+    audience: BuyerFileAudience,
+    datasetId: string,
+    supplied: DatasetFileBundleQuery,
+    signal?: AbortSignal
+  ) {
+    const query = DatasetFileBundleQuerySchema.parse(supplied);
+    checkExactScope(audience, query);
+    const result = await request(
+      `${fileBase(audience, datasetId)}/bundle-manifest`,
+      DatasetFileBundleManifestSchema,
+      { query, signal, authenticated: true }
+    );
+    checkContext(audience, datasetId, result.context, query);
+    const paths = new Set<string>();
+    for (const file of result.files) {
+      if (!DatasetPortableRelativePathSchema.safeParse(file.path).success)
+        incompatible();
+      const key = file.path.toLowerCase();
+      if (
+        paths.has(key) ||
+        [...paths].some(
+          (path) => key.startsWith(path + "/") || path.startsWith(key + "/")
+        )
+      )
+        incompatible();
+      paths.add(key);
+    }
+    if (
+      result.downloadIntentId !== query.downloadIntentId ||
+      new Set(result.files.map((file) => file.memberId)).size !==
+        result.files.length ||
+      result.files.reduce(
+        (sum, file) => sum + BigInt(file.sizeBytes),
+        BigInt(0)
+      ) !== BigInt(result.totalBytes) ||
+      BigInt(result.totalBytes) > BigInt(5_000_000_000)
+    )
+      incompatible();
+    // Browser navigation streams to its download manager. No multi-GB Blob and
+    // no arbitrary server-supplied URL; this target is the configured API only.
+    const url = new URL(
+      API_BASE_URL.replace(/\/+$/, "") +
+        `${fileBase(audience, datasetId)}/bundle`
+    );
+    for (const [key, value] of Object.entries(query))
+      if (value !== undefined) url.searchParams.set(key, String(value));
+    return { ...result, url: url.href };
   },
   async download(
     audience: BuyerFileAudience,

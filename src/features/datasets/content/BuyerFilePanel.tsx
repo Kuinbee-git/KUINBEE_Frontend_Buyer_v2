@@ -132,10 +132,11 @@ function FileInventory({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Each download checks your current access and file security. ZIP entries
-        are inspected references inside one physical file; they are not separate
-        download rights.
+        Download all available{" "}
+        {audience === "SAMPLE" ? "sample" : "owned Dataset"} files together as a
+        ZIP, or choose an individual file. Folder paths are preserved.
       </p>
+      <BundleDownload audience={audience} context={context} actorId={actorId} />
       {page.isPending ? (
         <p role="status">Loading selected files…</p>
       ) : page.isError ? (
@@ -259,7 +260,9 @@ function ReaderFile({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h4 className="font-medium break-words">
-            {member.originalFileName ?? "File name not recorded"}
+            {member.relativePath ??
+              member.originalFileName ??
+              "File name not recorded"}
           </h4>
           <p className="text-sm text-muted-foreground">
             {member.role.toLowerCase().replaceAll("_", " ")} ·{" "}
@@ -267,7 +270,7 @@ function ReaderFile({
           </p>
         </div>
         <Button variant="outline" disabled={busy} onClick={download}>
-          Download {audience === "SAMPLE" ? "sample" : "file"}
+          Download file
         </Button>
       </div>
       <TableMetadataPanel
@@ -283,6 +286,82 @@ function ReaderFile({
         }
       />
       {error && <p role="alert">{error}</p>}
+    </div>
+  );
+}
+
+function BundleDownload({
+  audience,
+  context,
+  actorId,
+}: {
+  audience: BuyerFileAudience;
+  context: DatasetFileAccessContext;
+  actorId: string;
+}) {
+  const { user, isAuthenticated } = useAuth();
+  const current = useRef(false),
+    inFlight = useRef(false);
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  useLayoutEffect(() => {
+    current.current = isAuthenticated && user?.id === actorId;
+    return () => {
+      current.current = false;
+    };
+  }, [actorId, isAuthenticated, user?.id]);
+  async function download() {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      if (!current.current) throw Error("Sign in again before downloading.");
+      const bundle = await buyerDatasetApi.bundle(audience, context.datasetId, {
+        scope: context.scope,
+        component: context.component,
+        contentId: context.contentId,
+        contentGeneration: context.contentGeneration,
+        ...(context.workflowRevision === null
+          ? {}
+          : { expectedWorkflowRevision: context.workflowRevision }),
+        downloadIntentId: crypto.randomUUID(),
+      });
+      if (!current.current)
+        throw Error("Your account changed. Request the download again.");
+      const link = document.createElement("a");
+      link.href = bundle.url;
+      link.download = bundle.fileName;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (failure) {
+      setError(getErrorMessage(failure));
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="space-y-2">
+      <Button disabled={busy} onClick={() => void download()}>
+        {busy
+          ? "Preparing download…"
+          : audience === "SAMPLE"
+            ? "Download sample"
+            : "Download all files"}
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        Your browser shows download progress. If it is interrupted, retry the
+        download or choose individual files.
+      </p>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

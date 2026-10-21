@@ -14,6 +14,7 @@ import {
   DatasetFileAccessPageQuerySchema,
   DatasetFileDownloadBodySchema,
   DatasetFileDownloadResponseSchema,
+  DatasetFileBundleQuerySchema,
   DatasetFileObservationQuerySchema,
   DatasetFileObservationResponseSchema,
   DatasetPrivateTableMetadataQuerySchema,
@@ -59,6 +60,7 @@ const models = new Map(),
   requests = [],
   errors = [],
   browserErrors = [];
+const downloads = [];
 let wishIds = [];
 const flags = {
   lostClaim: false,
@@ -252,7 +254,7 @@ const server = createServer(async (req, res) => {
       });
     }
     const files = url.pathname.match(
-      /^\/api\/v2\/(marketplace\/dataset-samples|user\/library-files)\/([^/]+)\/(context|inventory|observations|tables|download-url)$/
+      /^\/api\/v2\/(marketplace\/dataset-samples|user\/library-files)\/([^/]+)\/(context|inventory|observations|tables|download-url|bundle-manifest|bundle)$/
     );
     if (files) {
       const [, kind, datasetId, action] = files,
@@ -286,7 +288,7 @@ const server = createServer(async (req, res) => {
               ? DatasetPrivateTableMetadataQuerySchema.parse(
                   Object.fromEntries(url.searchParams)
                 )
-              : DatasetFileDownloadBodySchema.parse(body);
+              : action.startsWith("bundle") ? DatasetFileBundleQuerySchema.parse(Object.fromEntries(url.searchParams)) : DatasetFileDownloadBodySchema.parse(body);
       if (
         parsed.contentId !== context.contentId ||
         (parsed.expectedWorkflowRevision ?? null) !== context.workflowRevision
@@ -295,6 +297,15 @@ const server = createServer(async (req, res) => {
       assert.equal(parsed.component, context.component);
       assert.equal(parsed.scope, context.scope);
       const items = inventory(context, fileCounts.get(datasetId) ?? 1);
+      if (action.startsWith("bundle")) {
+        if (flags.denyFiles) return deny(res, "OBJECT_NOT_ACCEPTED");
+        if (action === "bundle-manifest") return ok(res, { context, downloadIntentId: parsed.downloadIntentId, fileName: "dataset-sample.zip",
+          totalBytes: String(items.reduce((sum, item) => sum + BigInt(item.measuredSizeBytes), 0n)),
+          files: items.map(item => ({ memberId: item.id, path: item.relativePath ?? item.originalFileName, sizeBytes: item.measuredSizeBytes })) });
+        downloads.push(url.toString());
+        res.writeHead(200, { "content-type": "application/zip", "content-disposition": "attachment; filename=dataset-sample.zip" });
+        return res.end(Buffer.from("Synthetic browser download transport; ZIP correctness has separate native extraction tests"));
+      }
       if (action === "tables") {
         assert(items.some((member) => member.id === parsed.memberId));
         return ok(
@@ -552,7 +563,6 @@ try {
   page = await browser.newPage({ viewport: { width: 1366, height: 1000 } });
   page.setDefaultTimeout(15000);
   page.on("pageerror", (error) => browserErrors.push(error.message));
-  const downloads = [];
   await page.route("**/*", (route) => {
     const url = new URL(route.request().url());
     if (url.origin === origin) return route.continue();

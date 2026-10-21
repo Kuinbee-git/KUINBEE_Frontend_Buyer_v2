@@ -331,6 +331,30 @@ test("sample pagination pins workflow and publication; granted pagination remain
     await assert.rejects(api.files(audience, data.item.id, query), bad);
   }
 });
+test("complete sample bundle validates every path, identity and byte total and navigates only to the configured API", async () => {
+  const data = dataset("FULL_AND_SAMPLE"), context = fileContext(data, "SAMPLE"), member = fileMember(context);
+  const query = { scope: context.scope, component: context.component, contentId: context.contentId, contentGeneration: context.contentGeneration,
+    expectedWorkflowRevision: context.workflowRevision, downloadIntentId: "6ecc2724-5baf-43c0-9f73-7243c57efaa2" };
+  const manifest = { context, downloadIntentId: query.downloadIntentId, fileName: "dataset-sample.zip", totalBytes: "12",
+    files: [0, 1, 2, 3].map(index => ({ memberId: id(900 + index), path: `sample/folder-${index}/data.txt`, sizeBytes: "3" })) };
+  answer = manifest; const result = await api.bundle("SAMPLE", data.item.id, query);
+  assert.equal(result.files.length, 4); const url = new URL(result.url);
+  assert.equal(url.origin, "https://api.example.test"); assert(url.pathname.endsWith("/bundle"));
+  assert.equal(url.searchParams.get("downloadIntentId"), query.downloadIntentId);
+  assert.equal(requests.at(-1).credentials, "include"); assert.equal(requests.at(-1).method, "GET");
+  for (const mutation of [
+    { totalBytes: "11" }, { downloadIntentId: "7ecc2724-5baf-43c0-9f73-7243c57efaa2" },
+    { context: { ...context, component: "FULL" } },
+    { files: [...manifest.files, manifest.files[0]] },
+    { files: manifest.files.map((file, index) => index ? file : { ...file, path: "../outside.txt" }) },
+    { files: manifest.files.map((file, index) => index ? file : { ...file, path: manifest.files[1].path.toUpperCase() }) },
+  ]) { answer = { ...manifest, ...mutation }; await assert.rejects(() => api.bundle("SAMPLE", data.item.id, query), bad); }
+  answer = manifest;
+  await assert.rejects(() => api.bundle("SAMPLE", data.item.id, { ...query, component: "FULL", scope: "GRANTED" }));
+  await assert.rejects(() => production.buyerDatasetApi.bundle("SAMPLE", data.item.id, query), matches("NOT_ENABLED"));
+  assert(member.id);
+});
+
 test("every download is an explicit new POST; an archive locator never becomes a separately downloadable entitlement", async () => {
   const data = dataset(),
     context = fileContext(data, "SAMPLE"),
