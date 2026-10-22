@@ -93,7 +93,7 @@ export function SuppliersHero({ supplierQuery = "" }: { supplierQuery?: string }
                                 asChild
                             >
                                 <SupplierEntryLink query={supplierQuery}>
-                                    Tell us about your data
+                                    Start your supplier application
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </SupplierEntryLink>
                             </Button>
