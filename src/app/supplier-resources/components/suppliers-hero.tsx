@@ -1,8 +1,9 @@
 "use client";
 
+import { SupplierEntryLink } from "./supplier-entry-link";
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Link } from "@/components/router/Link";
 import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { ArrowRight } from "lucide-react";
@@ -91,10 +92,10 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <Link href="/contact?source=supplier">
+                                <SupplierEntryLink>
                                     Tell us about your data
                                     <ArrowRight className="ml-2 h-5 w-5" />
-                                </Link>
+                                </SupplierEntryLink>
                             </Button>
                             <Button
                                 variant="outline"
