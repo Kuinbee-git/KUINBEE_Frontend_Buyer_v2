@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useSyncExternalStore, type ComponentProps } from "react";
+import { type ComponentProps } from "react";
 
 function destination(search = "") {
   const environment = process.env.NEXT_PUBLIC_APP_ENV;
@@ -12,8 +12,7 @@ function destination(search = "") {
   url.search = params.toString();
   return url.toString();
 }
-export function SupplierEntryLink({children, ...props}: Omit<ComponentProps<typeof Link>, "href">) {
-  const search = useSyncExternalStore(() => () => {}, () => window.location.search, () => "");
-  const href = destination(search);
+export function SupplierEntryLink({children, query = "", ...props}: Omit<ComponentProps<typeof Link>, "href"> & { query?: string }) {
+  const href = destination(query);
   return <Link {...props} href={href}>{children}</Link>;
 }

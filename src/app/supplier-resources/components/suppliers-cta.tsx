@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/shared/components/ui";
 import { ArrowRight, Shield, DollarSign, Settings } from "lucide-react";
 
-export function SuppliersCTA() {
+export function SuppliersCTA({ supplierQuery = "" }: { supplierQuery?: string }) {
     const sectionRef = useRef<HTMLElement>(null);
     const [isVisible, setIsVisible] = useState(false);
 
@@ -54,7 +54,7 @@ export function SuppliersCTA() {
                 {/* CTAs */}
                 <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                     <Button size="lg" className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90" asChild>
-                        <SupplierEntryLink>
+                        <SupplierEntryLink query={supplierQuery}>
                             Send a supplier enquiry
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </SupplierEntryLink>

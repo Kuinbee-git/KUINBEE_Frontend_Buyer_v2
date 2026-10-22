@@ -8,7 +8,7 @@ import { Button } from "@/shared/components/ui";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { ArrowRight } from "lucide-react";
 
-export function SuppliersHero() {
+export function SuppliersHero({ supplierQuery = "" }: { supplierQuery?: string }) {
     const [isDark, setIsDark] = useState(false);
 
     useEffect(() => {
@@ -92,7 +92,7 @@ export function SuppliersHero() {
                                 className="bg-primary dark:bg-white px-8 text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                                 asChild
                             >
-                                <SupplierEntryLink>
+                                <SupplierEntryLink query={supplierQuery}>
                                     Tell us about your data
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </SupplierEntryLink>

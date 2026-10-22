@@ -26,20 +26,27 @@ export const metadata: Metadata = genMeta({
   path: "/supplier-resources",
 });
 
-export default function SupplierResourcePage() {
+export default async function SupplierResourcePage({ searchParams }: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) query.append(key, item);
+  }
+  const supplierQuery = query.toString();
   return (
     <main className="min-h-screen bg-background">
       <div className="sticky top-0 z-50">
         <LandingHeader />
       </div>
-      <SuppliersHero />
+      <SuppliersHero supplierQuery={supplierQuery} />
       <SuppliersValue />
       <SuppliersGuide />
       <SuppliersBestPractices />
       <SuppliersTraction />
       <SuppliersTestimonials />
       <SuppliersFAQ />
-      <SuppliersCTA />
+      <SuppliersCTA supplierQuery={supplierQuery} />
       <LandingFooter />
     </main>
   );
