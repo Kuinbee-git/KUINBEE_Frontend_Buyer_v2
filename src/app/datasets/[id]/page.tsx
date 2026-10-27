@@ -82,7 +82,9 @@ export default async function DatasetDetailPage({ params }: Props) {
     ...((data.representation === "CONTENT"
       ? data.description.sourceAtFreeze.name
       : data.legacy.source?.name) && {
-      creator: {
+      [data.representation === "CONTENT" && data.item.owner.type === "platform"
+        ? "provider"
+        : "creator"]: {
         "@type": "Organization",
         name:
           data.representation === "CONTENT"
