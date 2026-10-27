@@ -2,6 +2,7 @@
 
 import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/core/providers/AuthProvider";
 import { useModal } from "@/core/providers";
@@ -21,15 +22,50 @@ import { Button } from "@/shared/components/ui/button";
 import { InstitutionalBackground } from "@/shared/components/ui/institutional-background";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { getErrorMessage } from "@/shared/utils/error.utils";
-import { ContentDescription, ContentFacts } from "./ContentDescription";
+import { ContentFacts } from "./ContentDescription";
+import {
+  DatasetDetailSection,
+  MarketplaceContentDescription,
+  datasetPanelClass,
+} from "./MarketplaceContentDescription";
 import { BuyerFilePanel } from "./BuyerFilePanel";
 import { FullCollectionEnquiry } from "./FullCollectionEnquiry";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 import { ReferenceViews } from "./ReferenceViews";
-import { contentPriceLabel } from "./content-description";
+import {
+  contentChoiceLabel,
+  contentModalityLabels,
+  contentPriceLabel,
+  physicalBytes,
+} from "./content-description";
+import { Badge } from "@/shared/components/ui/badge";
+import { EntityLogo } from "../components/entity-logo";
+import {
+  Award,
+  ArrowLeft,
+  CheckCircle2,
+  Database,
+  Download,
+  Eye,
+  FileArchive,
+  Lock,
+  RefreshCw,
+  Star,
+  Tag,
+  type LucideIcon,
+} from "lucide-react";
 import { QuestionsSection } from "../components/QuestionsSection";
 import { ReviewsSection } from "../components/ReviewsSection";
-import { EnterpriseDatasetBadge } from "../components/enterprise-dataset-badge";
+import {
+  EnterpriseDatasetBadge,
+  isEnterpriseDataset,
+} from "../components/enterprise-dataset-badge";
+
+const LandingFooter = lazy(() =>
+  import("@/features/landing/components/LandingFooter").then((module) => ({
+    default: module.LandingFooter,
+  }))
+);
 
 const Checkout = lazy(() =>
   import("../components/razorpay-checkout-flow").then((module) => ({
@@ -50,70 +86,171 @@ export function ContentDatasetDetail({
 }) {
   const { user, isAuthenticated } = useAuth();
   const { openModal } = useModal();
+  const lenis = useLenis();
   const [discussion, setDiscussion] = useState(false);
   const actorId = isAuthenticated ? user?.id : undefined;
+  const item = data.item;
+  const hasSample = item.uploadChoice !== "FULL_ONLY";
+  const paid =
+    item.fullCollectionOffer?.mode === "PAID_ON_REQUEST" ||
+    item.purchase.mode === "PAID_CHECKOUT";
+  const sampleMaterial = item.materials.find(
+    (material) => material.component === "SAMPLE"
+  );
+  const fullMaterial = item.materials.find(
+    (material) => material.component === "FULL"
+  );
+  const measuredMaterial = sampleMaterial ?? fullMaterial!;
   return (
     <div className="min-h-screen relative">
       <div className="relative z-50">
-        <NotchNavigation />
+        <NotchNavigation lite />
       </div>
       <div className="fixed inset-0 -z-10">
         <InstitutionalBackground />
       </div>
-      <main className="relative mx-auto max-w-7xl px-6 pt-32 pb-16 space-y-6">
-        <Link
-          href="/datasets"
-          className="text-sm text-muted-foreground hover:underline"
-        >
-          Back to datasets
-        </Link>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="mb-2">
-              <EnterpriseDatasetBadge
-                categories={[
-                  data.item.category.name,
-                  ...(data.item.secondaryCategories ?? []).map(
-                    (category) => category.name
-                  ),
-                ]}
-              />
-            </div>
-            <h1 className="text-3xl font-semibold break-words">
-              {data.item.title}
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {data.item.owner.name} · {data.item.category.name}
-              {data.item.categoryNameOrigin === "CAPTURED_CATEGORY"
-                ? " (at submission)"
-                : ""}
-            </p>
-          </div>
-          <Button variant="outline" onClick={onRefresh}>
+      <main className="relative mx-auto max-w-7xl px-6 pt-32 pb-12">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href="/datasets"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary dark:hover:text-white"
+          >
+            <ArrowLeft className="size-4" />
+            Back to datasets
+          </Link>
+          <Button variant="ghost" size="sm" onClick={onRefresh}>
+            <RefreshCw className="size-3.5" />
             Refresh listing
           </Button>
         </div>
-        <div className="rounded-xl border border-border/50 dark:border-white/10 bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm overflow-hidden">
-          <div className="grid lg:grid-cols-[minmax(0,2fr)_minmax(16rem,1fr)]">
-            <section className="min-w-0 p-5 sm:p-6">
-              <h2 className="text-xl font-semibold mb-5">
-                About this collection
+        <header className="mb-10" data-content-identity>
+          <p className="font-mono text-sm text-muted-foreground dark:text-white/60 mb-3">
+            {item.datasetUniqueId}
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-primary dark:text-white mb-4 break-words">
+            {item.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <EnterpriseDatasetBadge
+              categories={[
+                item.category.name,
+                ...(item.secondaryCategories ?? []).map(
+                  (category) => category.name
+                ),
+              ]}
+            />
+            <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-3 py-1">
+              {item.category.name}
+            </Badge>
+            {(item.secondaryCategories ?? [])
+              .filter((category) => !isEnterpriseDataset([category.name]))
+              .map((category) => (
+                <Badge key={category.id} variant="outline">
+                  {category.name}
+                </Badge>
+              ))}
+            <Badge variant="success">
+              <CheckCircle2 className="size-3.5" />
+              Published
+            </Badge>
+            {paid && (
+              <Badge variant="warning">
+                <Lock className="size-3.5" />
+                Paid Dataset
+              </Badge>
+            )}
+            {hasSample && (
+              <Badge variant="success">
+                {item.fullCollectionOffer
+                  ? "Free Sample Available"
+                  : "Sample Available"}
+              </Badge>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground dark:text-white/60 mb-4">
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="size-4 text-amber-500" />
+              {item.stats.reviewCount > 0 && Number(item.stats.rating) > 0
+                ? `${Number(item.stats.rating).toFixed(1)} (${item.stats.reviewCount} reviews)`
+                : "No ratings"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Eye className="size-4" />
+              {item.stats.viewCount.toLocaleString()} views
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Download className="size-4" />
+              {item.stats.downloadCount.toLocaleString()} downloads
+            </span>
+          </div>
+          <p className="text-base text-muted-foreground dark:text-white/70 max-w-4xl leading-relaxed">
+            {item.overview}
+          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-4">
+            {item.tags.length > 0 && (
+              <Tag className="size-3.5 text-muted-foreground dark:text-white/50" />
+            )}
+            {item.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-xs bg-muted/60 dark:bg-white/10 text-muted-foreground dark:text-white/70 px-2.5 py-1 rounded-md"
+              >
+                {tag}
+              </span>
+            ))}
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-semibold text-amber-700 dark:text-amber-400">
+              <Award className="size-3.5" />
+              KDTS {Number(item.assessment.score).toFixed(1)}
+            </span>
+          </div>
+        </header>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-8 items-start">
+          <div className="min-w-0 space-y-8">
+            <section aria-label="Dataset metrics">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground dark:text-white/60 mb-4">
+                Dataset Metrics
               </h2>
-              <ContentDescription description={data.description} />
-              <div className="mt-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DatasetMetric
+                  icon={Database}
+                  label="Data Types"
+                  value={contentModalityLabels(item.modalities).join(", ")}
+                />
+                <DatasetMetric
+                  icon={FileArchive}
+                  label="Available Material"
+                  value={contentChoiceLabel(item.uploadChoice)}
+                />
+                <DatasetMetric
+                  icon={Download}
+                  label={
+                    sampleMaterial ? "Sample Download" : "Full Dataset Download"
+                  }
+                  value={`${physicalBytes(measuredMaterial.sizeBytes)} · ${measuredMaterial.fileCount} ${measuredMaterial.fileCount === 1 ? "file" : "files"}`}
+                />
+                <DatasetMetric
+                  icon={Lock}
+                  label="License"
+                  value={item.license}
+                />
+              </div>
+            </section>
+            <MarketplaceContentDescription description={data.description} />
+            {item.modalities.includes("TABULAR") && (
+              <DatasetDetailSection title="Data Structure">
                 <TableMetadataPanel
                   sourceKey={JSON.stringify([
-                    data.item.id,
-                    data.item.publication.id,
-                    data.item.publication.contentId,
+                    item.id,
+                    item.publication.id,
+                    item.publication.contentId,
                   ])}
                   load={(filters, signal) =>
                     buyerDatasetApi.publicTables(
-                      data.item.id,
+                      item.id,
                       {
                         ...filters,
-                        publicationId: data.item.publication.id,
-                        contentId: data.item.publication.contentId,
+                        publicationId: item.publication.id,
+                        contentId: item.publication.contentId,
                       },
                       signal
                     )
@@ -122,41 +259,45 @@ export function ContentDatasetDetail({
                 <ReferenceViews
                   includeDictionary={false}
                   sourceKey={JSON.stringify([
-                    data.item.id,
-                    data.item.publication.id,
-                    data.item.publication.contentId,
+                    item.id,
+                    item.publication.id,
+                    item.publication.contentId,
                   ])}
                   load={(filters, signal) =>
                     buyerDatasetApi.publicReferences(
-                      data.item.id,
+                      item.id,
                       {
                         ...filters,
-                        publicationId: data.item.publication.id,
-                        contentId: data.item.publication.contentId,
+                        publicationId: item.publication.id,
+                        contentId: item.publication.contentId,
                       },
                       signal
                     )
                   }
                 />
-              </div>
-            </section>
-            <aside className="min-w-0 p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 dark:border-white/10 space-y-5">
-              <h2 className="text-xl font-semibold">Dataset access</h2>
-              <p className="font-semibold">{contentPriceLabel(data.item)}</p>
-              <FullCollectionEnquiry item={data.item} />
-              <AcquisitionControls
-                key={actorId ?? "anonymous"}
-                data={data}
-                actorId={actorId}
-              />
-              <div className="border-t border-border pt-5 space-y-3">
-                <h3 className="font-medium">Recorded assessment</h3>
+              </DatasetDetailSection>
+            )}
+            {hasSample && (
+              <DatasetDetailSection
+                title="Sample files"
+                id="dataset-sample-files"
+              >
+                <BuyerFilePanel
+                  audience="SAMPLE"
+                  datasetId={item.id}
+                  contentId={item.publication.contentId}
+                  publicationId={item.publication.id}
+                />
+              </DatasetDetailSection>
+            )}
+            <DatasetDetailSection title="Governance and Review">
+              <div className="space-y-4">
                 <ContentFacts
                   rows={[
-                    ["KDTS score", data.item.assessment.score],
+                    ["KDTS score", Number(item.assessment.score).toFixed(1)],
                     [
                       "Assessed material",
-                      data.item.assessment.components
+                      item.assessment.components
                         .map((value) =>
                           value === "FULL"
                             ? "Uploaded full material"
@@ -166,79 +307,181 @@ export function ContentDatasetDetail({
                     ],
                   ]}
                 />
-                <p className="text-xs text-muted-foreground">
-                  This assessment concerns uploaded material. The represented
-                  collection remains provider declared. Licensing agreements and
-                  other terms are handled outside the platform.
+                <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
+                  The KDTS score covers the uploaded material. Collection scope
+                  and coverage are provider declarations. License terms are
+                  agreed with the provider.
                 </p>
+                <details className="border-t border-border/40 dark:border-white/10 pt-4">
+                  <summary className="cursor-pointer text-sm font-medium">
+                    Current category and source facts
+                  </summary>
+                  <div className="mt-4">
+                    <ContentFacts
+                      rows={[
+                        [
+                          "Current categories",
+                          data.currentCategoryFacts
+                            .map((category) => category.name)
+                            .join(", "),
+                        ],
+                        ["Current source", data.currentSourceFacts?.name],
+                        [
+                          "Current source verification",
+                          data.currentSourceFacts
+                            ? data.currentSourceFacts.isVerified
+                              ? "Recorded as verified"
+                              : "Not recorded as verified"
+                            : null,
+                        ],
+                      ]}
+                    />
+                  </div>
+                </details>
               </div>
-              <details className="border-t border-border pt-4">
-                <summary className="cursor-pointer text-sm font-medium">
-                  Current category and source facts
-                </summary>
-                <div className="mt-3">
-                  <ContentFacts
-                    rows={[
-                      [
-                        "Current categories",
-                        data.currentCategoryFacts
-                          .map((item) => item.name)
-                          .join(", "),
-                      ],
-                      ["Current source", data.currentSourceFacts?.name],
-                      [
-                        "Current source verification",
-                        data.currentSourceFacts
-                          ? data.currentSourceFacts.isVerified
-                            ? "Recorded as verified"
-                            : "Not recorded as verified"
-                          : null,
-                      ],
-                    ]}
+            </DatasetDetailSection>
+            <details
+              className={datasetPanelClass}
+              onToggle={(event) => setDiscussion(event.currentTarget.open)}
+            >
+              <summary className="cursor-pointer font-semibold">
+                Dataset questions and customer reviews
+              </summary>
+              {discussion && (
+                <div className="mt-5 space-y-6">
+                  <QuestionsSection
+                    datasetId={item.id}
+                    isLoggedIn={isAuthenticated}
+                    onSignIn={() => openModal("login")}
+                  />
+                  <ReviewsSection
+                    datasetId={item.id}
+                    isLoggedIn={isAuthenticated}
+                    onSignIn={() => openModal("login")}
                   />
                 </div>
-              </details>
-            </aside>
+              )}
+            </details>
           </div>
-          {data.item.uploadChoice !== "FULL_ONLY" && (
-            <section className="p-5 sm:p-6 border-t border-border/50 dark:border-white/10 space-y-4">
-              <h2 className="text-xl font-semibold">Sample files</h2>
-              <BuyerFilePanel
-                audience="SAMPLE"
-                datasetId={data.item.id}
-                contentId={data.item.publication.contentId}
-                publicationId={data.item.publication.id}
-              />
-            </section>
-          )}
-        </div>
-        <details
-          className="rounded-xl border border-border/50 dark:border-white/10 bg-white/90 dark:bg-[#1e2847]/80 p-5"
-          onToggle={(event) => setDiscussion(event.currentTarget.open)}
-        >
-          <summary className="cursor-pointer font-semibold">
-            Dataset questions and customer reviews
-          </summary>
-          {discussion && (
-            <div className="mt-5 space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Questions and customer reviews concern the Dataset listing and
-                the experience of using it.
+          <aside
+            className="order-first lg:order-last min-w-0 lg:sticky lg:top-24 space-y-6"
+            aria-label="Dataset access"
+            data-content-access
+          >
+            <div className={datasetPanelClass}>
+              <div className="flex items-center gap-2 text-sm font-semibold mb-5">
+                <Lock className="size-4" />
+                {paid ? "Paid Dataset" : "Dataset Access"}
+              </div>
+              <div className="border-b border-border/40 dark:border-white/10 pb-5 mb-5">
+                <p className="text-xs text-muted-foreground mb-2">
+                  {item.fullCollectionOffer
+                    ? "Full Collection"
+                    : "Dataset Access"}
+                </p>
+                <p className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
+                  {contentPriceLabel(item)}
+                </p>
+              </div>
+              <FullCollectionEnquiry item={item} />
+              <div className="mt-4">
+                <AcquisitionControls
+                  key={actorId ?? "anonymous"}
+                  data={data}
+                  actorId={actorId}
+                />
+              </div>
+              {hasSample && (
+                <Button
+                  variant="outline"
+                  className="w-full mt-4"
+                  onClick={() => {
+                    const target = document.getElementById(
+                      "dataset-sample-files"
+                    );
+                    if (!target) return;
+                    if (lenis) {
+                      lenis.resize();
+                      lenis.scrollTo(target, {
+                        offset: -112,
+                        immediate: true,
+                        force: true,
+                      });
+                    } else
+                      target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                  }}
+                >
+                  <Download className="size-4" />
+                  View{" "}
+                  {item.fullCollectionOffer ? "free sample" : "sample files"}
+                </Button>
+              )}
+              <p className="text-xs leading-relaxed text-muted-foreground mt-5">
+                {item.fullCollectionOffer
+                  ? "Discuss project coverage, delivery formats and licensing with the provider before arranging full-collection access."
+                  : "Review the dataset description, license and available material before requesting access."}
               </p>
-              <QuestionsSection
-                datasetId={data.item.id}
-                isLoggedIn={isAuthenticated}
-                onSignIn={() => openModal("login")}
-              />
-              <ReviewsSection
-                datasetId={data.item.id}
-                isLoggedIn={isAuthenticated}
-                onSignIn={() => openModal("login")}
-              />
             </div>
-          )}
-        </details>
+            <div className={datasetPanelClass}>
+              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground mb-4">
+                Provided By
+              </p>
+              <div className="flex items-start gap-3">
+                <EntityLogo
+                  name={item.owner.name}
+                  logoUrl={item.owner.logoUrl}
+                  ownerType={item.owner.type}
+                  className="size-12"
+                  imageClassName="p-1.5"
+                  sizes="48px"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold break-words">
+                    {item.owner.name}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {item.category.name}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </main>
+      <Suspense fallback={null}>
+        <LandingFooter />
+      </Suspense>
+    </div>
+  );
+}
+
+function DatasetMetric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-white/10">
+          <Icon className="size-4 text-primary dark:text-white" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground dark:text-white/60 mb-1">
+            {label}
+          </p>
+          <p className="text-sm font-semibold text-foreground dark:text-white break-words">
+            {value}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -51,6 +51,8 @@ const units: Record<DatasetDeclaredMeasurement["unit"], string> = {
 };
 export function declaredMeasurement(value: DatasetDeclaredMeasurement) {
   if (value.state === "UNKNOWN") return `${metrics[value.metric]} unknown`;
+  if (value.metric === "BYTE_SIZE" && value.unit === "BYTE")
+    return `${value.state === "ESTIMATED" ? "Estimated " : ""}${physicalBytes(value.value)}`;
   return `${value.state === "ESTIMATED" ? "Estimated " : ""}${value.value} ${units[value.unit] || metrics[value.metric]}${value.unit !== "COUNT" ? ` (${metrics[value.metric]})` : ""}`;
 }
 export function physicalBytes(value: string) {

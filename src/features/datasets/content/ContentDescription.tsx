@@ -56,7 +56,7 @@ const profileEnumLabels: Record<string, Record<string, string>> = {
     UNKNOWN: "Unknown",
   },
 };
-function DescribedValues({
+export function DescribedValues({
   value,
   profile,
   field,
@@ -70,8 +70,19 @@ function DescribedValues({
   if (typeof value !== "object") {
     const options = profileEnumLabels[`${profile}.${field}`],
       raw = String(value);
+    const displayLabels: Record<string, string> = {
+      UNKNOWN: "Unknown",
+      PRESENT: "Present",
+      ABSENT: "Absent",
+      DESCRIBED: "Described",
+      NOT_APPLICABLE: "Not applicable",
+    };
     return (
-      <span>{options && Object.hasOwn(options, raw) ? options[raw] : raw}</span>
+      <span>
+        {options && Object.hasOwn(options, raw)
+          ? options[raw]
+          : (displayLabels[raw] ?? raw)}
+      </span>
     );
   }
   if (Array.isArray(value))
