@@ -3,6 +3,7 @@
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
+import { SupplierEntryLink } from "@/app/supplier-resources/components/supplier-entry-link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { resources } from "@/config/navigation.config";
@@ -138,9 +139,7 @@ export function MobileNav() {
                   className="w-full bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                   asChild
                 >
-                  <Link href="/contact?source=supplier" onClick={closeNav}>
-                    Contact Us
-                  </Link>
+                  <SupplierEntryLink onClick={closeNav}>Apply</SupplierEntryLink>
                 </Button>
               ) : (
                 <>

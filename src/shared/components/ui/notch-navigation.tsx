@@ -6,6 +6,7 @@ import { useBrowserSearch } from "@/shared/hooks/use-browser-search";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { Link } from "@/components/router/Link";
+import { SupplierEntryLink } from "@/app/supplier-resources/components/supplier-entry-link";
 import { useModal, useAuth } from "@/core/providers";
 import { useNavigationConfig } from "@/hooks/useNavigationConfig";
 import { resources } from "@/config/navigation.config";
@@ -489,7 +490,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
                         asChild
                       >
-                        <Link href="/contact?source=supplier">Contact Us</Link>
+                        <SupplierEntryLink>Apply</SupplierEntryLink>
                       </Button>
                     ) : (
                       <>
