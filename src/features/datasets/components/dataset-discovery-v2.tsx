@@ -140,7 +140,8 @@ const mapDatasetToUI = (apiDataset: DatasetApiItem): Dataset => {
     isPlatformDataset:
       apiDataset.isPlatformDataset ?? isKnownPlatformProvider(provider),
     category: apiDataset.category?.name || "Uncategorized",
-    secondaryCategories: [],
+    secondaryCategories:
+      apiDataset.secondaryCategories?.map((category) => category.name) ?? [],
     license: apiDataset.license || "Unknown",
     pricing: {
       type: apiDataset.isPaid ? "paid" : "free",

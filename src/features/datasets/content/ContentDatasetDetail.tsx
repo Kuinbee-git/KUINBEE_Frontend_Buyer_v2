@@ -29,6 +29,7 @@ import { ReferenceViews } from "./ReferenceViews";
 import { contentPriceLabel } from "./content-description";
 import { QuestionsSection } from "../components/QuestionsSection";
 import { ReviewsSection } from "../components/ReviewsSection";
+import { EnterpriseDatasetBadge } from "../components/enterprise-dataset-badge";
 
 const Checkout = lazy(() =>
   import("../components/razorpay-checkout-flow").then((module) => ({
@@ -68,6 +69,16 @@ export function ContentDatasetDetail({
         </Link>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
+            <div className="mb-2">
+              <EnterpriseDatasetBadge
+                categories={[
+                  data.item.category.name,
+                  ...(data.item.secondaryCategories ?? []).map(
+                    (category) => category.name
+                  ),
+                ]}
+              />
+            </div>
             <h1 className="text-3xl font-semibold break-words">
               {data.item.title}
             </h1>

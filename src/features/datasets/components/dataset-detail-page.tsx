@@ -33,6 +33,10 @@ import {
 import { cn } from "@/shared/utils/cn";
 import { Dataset } from "./types";
 import {
+  EnterpriseDatasetBadge,
+  isEnterpriseDataset,
+} from "./enterprise-dataset-badge";
+import {
   useWishlist,
   useAddToWishlist,
   useRemoveFromWishlist,
@@ -171,19 +175,24 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
       </h1>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
+        <EnterpriseDatasetBadge
+          categories={[dataset.category, ...dataset.secondaryCategories]}
+        />
         <Badge className="bg-gradient-to-r from-[#1a2240] to-[#2d3a5f] dark:from-white/20 dark:to-white/15 text-white border-none px-3 py-1">
           {dataset.category}
         </Badge>
 
-        {dataset.secondaryCategories.map((cat) => (
-          <Badge
-            key={cat}
-            variant="outline"
-            className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1"
-          >
-            {cat}
-          </Badge>
-        ))}
+        {dataset.secondaryCategories
+          .filter((cat) => !isEnterpriseDataset([cat]))
+          .map((cat) => (
+            <Badge
+              key={cat}
+              variant="outline"
+              className="border-border/40 dark:border-white/20 text-muted-foreground dark:text-white/70 px-2.5 py-1"
+            >
+              {cat}
+            </Badge>
+          ))}
 
         {dataset.source?.isVerified && (
           <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-md text-xs font-medium border border-blue-200 dark:border-blue-800">

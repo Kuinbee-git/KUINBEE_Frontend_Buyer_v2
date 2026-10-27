@@ -84,6 +84,7 @@ export interface Dataset {
   license: string;
   owner: DatasetOwner;
   category: DatasetCategory;
+  secondaryCategories?: DatasetCategory[];
   location: DatasetListLocation | null;
   dataFormatInfo: DatasetListFormatInfo | null;
   tags: string[];

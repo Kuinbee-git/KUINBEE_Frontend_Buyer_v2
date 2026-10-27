@@ -15,6 +15,7 @@ import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
 import { EntityLogo } from "./entity-logo";
+import { EnterpriseDatasetBadge } from "./enterprise-dataset-badge";
 import {
   formatPriceAmount,
   getDatasetMarketplacePriceDisplay,
@@ -239,6 +240,9 @@ const LegacyDatasetCard = memo(function LegacyDatasetCard({
       {/* ── Row 1: Status Badges + Save ── */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 min-w-0 flex-wrap">
+          <EnterpriseDatasetBadge
+            categories={[dataset.category, ...dataset.secondaryCategories]}
+          />
           {statusBadge && (
             <Badge variant={statusBadge.variant}>
               {statusBadge.icon && <ShieldCheck className="w-3 h-3" />}

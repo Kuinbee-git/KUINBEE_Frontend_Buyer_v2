@@ -9,6 +9,7 @@ import {
 } from "@/hooks/api/useWishlist";
 import { toast } from "sonner";
 import { EntityLogo } from "../components/entity-logo";
+import { EnterpriseDatasetBadge } from "../components/enterprise-dataset-badge";
 import {
   contentChoiceLabel,
   contentModalityLabels,
@@ -50,10 +51,20 @@ export function ContentDatasetCard({
       data-content-card={item.id}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs text-[#4e5a7e] dark:text-white/70">
-          {contentChoiceLabel(item.uploadChoice)} ·{" "}
-          {contentModalityLabels(item.modalities).join(", ")}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <EnterpriseDatasetBadge
+            categories={[
+              item.category.name,
+              ...(item.secondaryCategories ?? []).map(
+                (category) => category.name
+              ),
+            ]}
+          />
+          <p className="text-xs text-[#4e5a7e] dark:text-white/70">
+            {contentChoiceLabel(item.uploadChoice)} ·{" "}
+            {contentModalityLabels(item.modalities).join(", ")}
+          </p>
+        </div>
         <button
           type="button"
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}

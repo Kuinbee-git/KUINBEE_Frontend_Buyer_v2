@@ -28,7 +28,7 @@
   "dependencies": {
     "@formspree/react": "^3.0.0",
     "@hookform/resolvers": "^5.2.2",
-    "@kuinbee/dataset-preparation-contracts": "file:vendor/kuinbee-dataset-preparation-contracts-0.41.0.tgz",
+    "@kuinbee/dataset-preparation-contracts": "file:vendor/kuinbee-dataset-preparation-contracts-0.42.0.tgz",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",

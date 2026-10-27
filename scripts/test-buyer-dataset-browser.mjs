@@ -621,6 +621,10 @@ try {
     for (const choice of ["SAMPLE_ONLY", "FULL_ONLY", "FULL_AND_SAMPLE"]) {
       const data = add(choice, modalities);
       await open(page, data);
+      assert.equal(
+        await page.locator("[data-enterprise-dataset-badge]").count(),
+        0
+      );
       await page
         .getByText("Unknown rows", { exact: true })
         .count()
@@ -654,6 +658,10 @@ try {
     mode: "PAID_ON_REQUEST",
     terms: "Paid full collection; free evaluation sample.",
   };
+  cad.item.secondaryCategories = [
+    { id: "enterprise", name: "Enterprise Dataset" },
+  ];
+  cad.description.categoriesAtFreeze.additional = cad.item.secondaryCategories;
   cad.description.fullCollectionOffer = cad.item.fullCollectionOffer;
   cad.description.profiles = {
     cad: {
@@ -664,6 +672,10 @@ try {
     },
   };
   await open(page, cad, true);
+  await page
+    .locator("[data-enterprise-dataset-badge]")
+    .getByText("Enterprise", { exact: true })
+    .waitFor();
   await page
     .getByText("Full dataset: price on request", { exact: true })
     .waitFor();
@@ -1297,10 +1309,18 @@ try {
     "PASS mixed historical library records use exact actor-scoped global counts and next-page requests without public enrichment"
   );
 
+  sample.item.secondaryCategories = [
+    { id: "enterprise", name: "Enterprise Dataset" },
+  ];
   for (const mode of ["wishlist", "wishlist-tab"]) {
     wishIds = [sample.item.id];
     await page.evaluate((mode) => window.mount("wishlist", mode), mode);
     await page.locator(`[data-content-card="${sample.item.id}"]`).waitFor();
+    await page
+      .locator(
+        `[data-content-card="${sample.item.id}"] [data-enterprise-dataset-badge]`
+      )
+      .waitFor();
     assert.equal(
       await page
         .getByRole("button", { name: "Claim Free", exact: true })
