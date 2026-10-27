@@ -17,6 +17,7 @@ import {
   contentChoiceLabel,
   contentModalityLabels,
 } from "@/features/datasets/content/content-description";
+import { EntityLogo } from "@/features/datasets/components/entity-logo";
 import { LandingHeader } from "@/features/landing/components/LandingHeader";
 import { LandingFooter } from "@/features/landing/components/LandingFooter";
 import {
@@ -160,13 +161,23 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                     {dataset.title}
                   </Link>
                 </h2>
+                <div className="mt-4 flex items-center gap-3">
+                  <EntityLogo
+                    name={dataset.owner.name}
+                    logoUrl={dataset.owner.logoUrl}
+                    ownerType={dataset.owner.type}
+                    className="h-10 w-10"
+                    imageClassName="p-1.5"
+                    sizes="40px"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {dataset.owner.type === "platform" ? "Provider" : "Supplier"}: {" "}
+                    </span>
+                    {dataset.owner.name}
+                  </p>
+                </div>
                 <dl className="mt-4 space-y-2 text-sm text-muted-foreground">
-                  <div>
-                    <dt className="inline font-medium text-foreground">
-                      Supplier:{" "}
-                    </dt>
-                    <dd className="inline">{dataset.owner.name}</dd>
-                  </div>
                   {row.representation === "LEGACY" &&
                     row.legacy.dataFormatInfo && (
                       <div>

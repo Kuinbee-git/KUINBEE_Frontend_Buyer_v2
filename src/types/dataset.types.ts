@@ -54,6 +54,7 @@ export type DatasetSortOption =
 export interface DatasetOwner {
   logoUrl?: string | null;
   id: string;
+  type?: "supplier" | "platform";
   name: string;
 }
 

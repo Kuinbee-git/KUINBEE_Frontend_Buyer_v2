@@ -8,6 +8,7 @@ import {
   useRemoveFromWishlist,
 } from "@/hooks/api/useWishlist";
 import { toast } from "sonner";
+import { EntityLogo } from "../components/entity-logo";
 import {
   contentChoiceLabel,
   contentModalityLabels,
@@ -67,15 +68,28 @@ export function ContentDatasetCard({
           />
         </button>
       </div>
-      <h3 className="text-lg font-semibold text-[#1a2240] dark:text-white break-words">
-        {item.title}
-      </h3>
-      <p className="mt-1 text-sm text-[#4e5a7e] dark:text-white/70">
-        {item.owner.name} · {item.category.name}
-        {item.categoryNameOrigin === "CAPTURED_CATEGORY"
-          ? " (at submission)"
-          : ""}
-      </p>
+      <div className="mt-3 flex items-start gap-3">
+        <EntityLogo
+          name={item.owner.name}
+          logoUrl={item.owner.logoUrl}
+          ownerType={item.owner.type}
+          className="h-12 w-12"
+          imageClassName="p-1.5"
+          fallbackClassName="text-sm"
+          sizes="48px"
+        />
+        <div className="min-w-0">
+          <h3 className="text-lg font-semibold text-[#1a2240] dark:text-white break-words">
+            {item.title}
+          </h3>
+          <p className="mt-1 text-sm text-[#4e5a7e] dark:text-white/70">
+            {item.owner.name} · {item.category.name}
+            {item.categoryNameOrigin === "CAPTURED_CATEGORY"
+              ? " (at submission)"
+              : ""}
+          </p>
+        </div>
+      </div>
       <p className="mt-3 text-sm text-[#4e5a7e] dark:text-white/70 line-clamp-2">
         {item.overview}
       </p>

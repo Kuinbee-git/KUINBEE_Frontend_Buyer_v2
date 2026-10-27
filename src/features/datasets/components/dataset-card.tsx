@@ -1,7 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/shared/components/ui/badge";
 import { Star, Heart, Loader2, ShieldCheck, Award } from "lucide-react";
@@ -15,6 +14,7 @@ import {
 import { useAuth } from "@/core/providers/AuthProvider";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
+import { EntityLogo } from "./entity-logo";
 import {
   formatPriceAmount,
   getDatasetMarketplacePriceDisplay,
@@ -39,68 +39,6 @@ const formatFileSize = (sizeStr?: string | null) => {
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${bytes} B`;
 };
-
-const getLogoInitials = (name: string) => {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "?";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return words
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase();
-};
-
-const isRenderableLogoUrl = (url?: string | null) => {
-  if (!url) return false;
-  return url.startsWith("https://") || url.startsWith("/");
-};
-
-function EntityLogo({
-  name,
-  logoUrl,
-  className,
-  imageClassName,
-  fallbackClassName,
-}: {
-  name: string;
-  logoUrl?: string | null;
-  className?: string;
-  imageClassName?: string;
-  fallbackClassName?: string;
-}) {
-  const canRenderLogo = isRenderableLogoUrl(logoUrl);
-
-  return (
-    <span
-      className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#1a2240]/10 bg-[#1a2240]/5 text-[#1a2240] dark:border-white/10 dark:bg-white/5 dark:text-white",
-        className
-      )}
-      title={name}
-      aria-label={`${name} logo`}
-    >
-      {canRenderLogo ? (
-        <Image
-          src={logoUrl ?? ""}
-          alt={`${name} logo`}
-          fill
-          sizes="72px"
-          className={cn("object-contain", imageClassName)}
-        />
-      ) : (
-        <span
-          className={cn(
-            "text-xs font-semibold tracking-normal",
-            fallbackClassName
-          )}
-        >
-          {getLogoInitials(name)}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function SourceLogoStrip({ sources }: { sources: DatasetSourceUI[] }) {
   if (sources.length === 0) return null;
@@ -350,6 +288,7 @@ const LegacyDatasetCard = memo(function LegacyDatasetCard({
           <EntityLogo
             name={dataset.provider}
             logoUrl={dataset.supplierLogoUrl}
+            ownerType={isPlatformDatasetProvider ? "platform" : "supplier"}
             className="h-[72px] w-[72px]"
             imageClassName="p-2"
             fallbackClassName="text-xl"
