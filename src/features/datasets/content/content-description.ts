@@ -64,6 +64,8 @@ export function physicalBytes(value: string) {
   return `${bytes} bytes`;
 }
 export function contentPriceLabel(item: ContentCatalogueCard) {
+  if (item.fullCollectionOffer?.mode === "PAID_ON_REQUEST")
+    return "Full dataset: price on request";
   if (item.purchase.mode === "DISPLAY_ONLY") return "Sample on display";
   if (item.purchase.mode === "UNAVAILABLE") return "Full access unavailable";
   if (item.purchase.mode === "FREE_CLAIM") return "Free full dataset";

@@ -99,7 +99,7 @@ export function ContentDatasetCard({
           .map((group) => (
             <div key={group.scope}>
               <dt className="inline font-medium">
-                {measurementScopeLabels[group.scope]} (supplier declared):{" "}
+                {measurementScopeLabels[group.scope]} (provider declared):{" "}
               </dt>
               <dd className="inline">
                 {group.values.slice(0, 2).map(declaredMeasurement).join(" · ")}

@@ -288,7 +288,11 @@ const server = createServer(async (req, res) => {
               ? DatasetPrivateTableMetadataQuerySchema.parse(
                   Object.fromEntries(url.searchParams)
                 )
-              : action.startsWith("bundle") ? DatasetFileBundleQuerySchema.parse(Object.fromEntries(url.searchParams)) : DatasetFileDownloadBodySchema.parse(body);
+              : action.startsWith("bundle")
+                ? DatasetFileBundleQuerySchema.parse(
+                    Object.fromEntries(url.searchParams)
+                  )
+                : DatasetFileDownloadBodySchema.parse(body);
       if (
         parsed.contentId !== context.contentId ||
         (parsed.expectedWorkflowRevision ?? null) !== context.workflowRevision
@@ -299,12 +303,33 @@ const server = createServer(async (req, res) => {
       const items = inventory(context, fileCounts.get(datasetId) ?? 1);
       if (action.startsWith("bundle")) {
         if (flags.denyFiles) return deny(res, "OBJECT_NOT_ACCEPTED");
-        if (action === "bundle-manifest") return ok(res, { context, downloadIntentId: parsed.downloadIntentId, fileName: "dataset-sample.zip",
-          totalBytes: String(items.reduce((sum, item) => sum + BigInt(item.measuredSizeBytes), 0n)),
-          files: items.map(item => ({ memberId: item.id, path: item.relativePath ?? item.originalFileName, sizeBytes: item.measuredSizeBytes })) });
+        if (action === "bundle-manifest")
+          return ok(res, {
+            context,
+            downloadIntentId: parsed.downloadIntentId,
+            fileName: "dataset-sample.zip",
+            totalBytes: String(
+              items.reduce(
+                (sum, item) => sum + BigInt(item.measuredSizeBytes),
+                0n
+              )
+            ),
+            files: items.map((item) => ({
+              memberId: item.id,
+              path: item.relativePath ?? item.originalFileName,
+              sizeBytes: item.measuredSizeBytes,
+            })),
+          });
         downloads.push(url.toString());
-        res.writeHead(200, { "content-type": "application/zip", "content-disposition": "attachment; filename=dataset-sample.zip" });
-        return res.end(Buffer.from("Synthetic browser download transport; ZIP correctness has separate native extraction tests"));
+        res.writeHead(200, {
+          "content-type": "application/zip",
+          "content-disposition": "attachment; filename=dataset-sample.zip",
+        });
+        return res.end(
+          Buffer.from(
+            "Synthetic browser download transport; ZIP correctness has separate native extraction tests"
+          )
+        );
       }
       if (action === "tables") {
         assert(items.some((member) => member.id === parsed.memberId));
@@ -454,6 +479,18 @@ const server = createServer(async (req, res) => {
       url.pathname.endsWith("/download-url")
     )
       return deny(res, "MATERIAL_TARGET_UNRESOLVED");
+    if (
+      /^\/api\/v1\/marketplace\/datasets\/[^/]+\/inquire$/.test(url.pathname)
+    ) {
+      const data = models.get(url.pathname.split("/").at(-2));
+      assert(actor, "Enquiry requires the fixture buyer session");
+      assert.equal(data?.item.fullCollectionOffer?.mode, "PAID_ON_REQUEST");
+      assert.equal(
+        body.message,
+        "CAD retrieval research; STEP assemblies required."
+      );
+      return ok(res, { success: true });
+    }
     if (url.pathname.includes("/wishlist")) {
       if (req.method === "DELETE")
         wishIds = wishIds.filter(
@@ -606,6 +643,61 @@ try {
   console.log(
     "PASS all 21 modality/composition-by-choice details render scoped descriptions and unknown values; sample-only has no claim, checkout or inquiry"
   );
+  const cad = add("SAMPLE_ONLY", ["CAD"]);
+  cad.item.owner = {
+    id: id(9),
+    type: "platform",
+    name: "Kuinbee",
+    logoUrl: null,
+  };
+  cad.item.fullCollectionOffer = {
+    mode: "PAID_ON_REQUEST",
+    terms: "Paid full collection; free evaluation sample.",
+  };
+  cad.description.fullCollectionOffer = cad.item.fullCollectionOffer;
+  cad.description.profiles = {
+    cad: {
+      modelScope: "100,000+ files and components; complex engineering projects",
+      formatNotes: "Sample contains STEP and IGES",
+      assemblyStructure: "Project-specific assemblies",
+      unitNotes: "Model-specific units",
+    },
+  };
+  await open(page, cad, true);
+  await page
+    .getByText("Full dataset: price on request", { exact: true })
+    .waitFor();
+  await button(page, "Enquire for full dataset price").click();
+  assert.equal(await page.evaluate(() => window.openedModal), "login");
+  assert.equal(
+    requests.filter(
+      (request) =>
+        request.path.includes(cad.item.id) && request.path.endsWith("/inquire")
+    ).length,
+    0
+  );
+  await open(page, cad);
+  await button(page, "Enquire for full dataset price").click();
+  await page
+    .getByLabel("Your requirements (optional)")
+    .fill("CAD retrieval research; STEP assemblies required.");
+  await button(page, "Send enquiry").click();
+  await page
+    .getByRole("status")
+    .filter({ hasText: "Your enquiry has been sent to Kuinbee." })
+    .waitFor();
+  assert.equal(await button(page, "Review full dataset access").count(), 0);
+  assert.equal(
+    requests.filter(
+      (request) =>
+        request.path.includes(cad.item.id) &&
+        /\/(offer|claim|checkout)$/.test(request.path)
+    ).length,
+    0
+  );
+  console.log(
+    "PASS platform CAD paid enquiry requires sign-in, submits requirements and never fabricates full-material checkout"
+  );
   for (const choice of ["SAMPLE_ONLY", "FULL_ONLY", "FULL_AND_SAMPLE"]) {
     const tableCollection = add(choice, ["TABULAR"]);
     await open(page, tableCollection, true);
@@ -676,10 +768,10 @@ try {
   };
   await open(page, scopedProfiles);
   for (const name of [
-    "Audio details · supplier declared",
-    "Video details · supplier declared",
-    "Text details · supplier declared",
-    "Sensors details · supplier declared",
+    "Audio details · provider declared",
+    "Video details · provider declared",
+    "Text details · provider declared",
+    "Sensors details · provider declared",
   ])
     await page.getByText(name, { exact: true }).click();
   await page.getByText("Whole clips or items", { exact: true }).waitFor();
@@ -707,8 +799,8 @@ try {
   scopedProfiles.description.profiles.video.annotationReferences = "UNKNOWN";
   await open(page, scopedProfiles);
   for (const name of [
-    "Audio details · supplier declared",
-    "Video details · supplier declared",
+    "Audio details · provider declared",
+    "Video details · provider declared",
   ])
     await page.getByText(name, { exact: true }).click();
   await page.getByText("Timing not assessed", { exact: true }).waitFor();
@@ -838,7 +930,7 @@ try {
     0
   );
   await historicalDescription
-    .getByText("Audio details · supplier declared", { exact: true })
+    .getByText("Audio details · provider declared", { exact: true })
     .click();
   await historicalDescription.getByText("Marathi", { exact: true }).waitFor();
   await historicalDescription

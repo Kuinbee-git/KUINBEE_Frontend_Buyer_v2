@@ -23,6 +23,7 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { getErrorMessage } from "@/shared/utils/error.utils";
 import { ContentDescription, ContentFacts } from "./ContentDescription";
 import { BuyerFilePanel } from "./BuyerFilePanel";
+import { FullCollectionEnquiry } from "./FullCollectionEnquiry";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 import { ReferenceViews } from "./ReferenceViews";
 import { contentPriceLabel } from "./content-description";
@@ -131,6 +132,7 @@ export function ContentDatasetDetail({
             <aside className="min-w-0 p-5 sm:p-6 border-t lg:border-t-0 lg:border-l border-border/50 dark:border-white/10 space-y-5">
               <h2 className="text-xl font-semibold">Dataset access</h2>
               <p className="font-semibold">{contentPriceLabel(data.item)}</p>
+              <FullCollectionEnquiry item={data.item} />
               <AcquisitionControls
                 key={actorId ?? "anonymous"}
                 data={data}
@@ -155,7 +157,7 @@ export function ContentDatasetDetail({
                 />
                 <p className="text-xs text-muted-foreground">
                   This assessment concerns uploaded material. The represented
-                  collection remains supplier declared. Licensing agreements and
+                  collection remains provider declared. Licensing agreements and
                   other terms are handled outside the platform.
                 </p>
               </div>
@@ -383,8 +385,9 @@ function AcquisitionControls({
     <div className="space-y-4">
       {!hasFull && (
         <p className="text-sm text-muted-foreground">
-          This listing displays a sample. No full dataset is available to claim
-          or purchase.
+          {data.item.fullCollectionOffer?.mode === "PAID_ON_REQUEST"
+            ? "Only the sample is hosted here. Enquire with Kuinbee to arrange access to the paid full collection."
+            : "This listing displays a sample. No full dataset is available to claim or purchase."}
         </p>
       )}
       {!actorId ? (

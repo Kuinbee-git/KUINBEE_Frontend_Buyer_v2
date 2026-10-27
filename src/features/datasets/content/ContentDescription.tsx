@@ -116,11 +116,11 @@ export function ContentDescription({
           ],
           ["Collection boundary", description.collectionBoundary],
           [
-            "Geographic coverage · supplier declared",
+            "Geographic coverage · provider declared",
             formatDatasetGeographicCoverage(description.geographicCoverage),
           ],
           [
-            "Collection or capture period · supplier declared",
+            "Collection or capture period · provider declared",
             formatDatasetCollectionPeriod(description.collectionPeriod),
           ],
           ["Overview", description.overview],
@@ -193,13 +193,13 @@ export function ContentDescription({
       <section className="border-t border-border pt-5 space-y-3">
         <h3 className="font-semibold">Collection and uploaded material</h3>
         <p className="text-sm text-muted-foreground">
-          Quantities below are supplier declarations. A displayed sample does
+          Quantities below are provider declarations. A displayed sample does
           not establish the coverage of unseen full material.
         </p>
         {description.measurements.map((group) => (
           <div key={group.scope}>
             <h4 className="text-sm font-medium">
-              {measurementScopeLabels[group.scope]} · supplier declared
+              {measurementScopeLabels[group.scope]} · provider declared
             </h4>
             <p className="text-sm text-muted-foreground">
               {group.values.length
@@ -228,7 +228,7 @@ export function ContentDescription({
       {Object.entries(description.profiles).map(([name, profile]) => (
         <details key={name} className="border-t border-border pt-4">
           <summary className="cursor-pointer font-medium">
-            {label(name)} details · supplier declared
+            {name === "cad" ? "CAD" : label(name)} details · provider declared
           </summary>
           <div className="mt-4">
             <DescribedValues
