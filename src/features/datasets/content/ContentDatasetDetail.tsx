@@ -41,7 +41,6 @@ import { FullCollectionEnquiry } from "./FullCollectionEnquiry";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 import { ReferenceViews } from "./ReferenceViews";
 import {
-  contentChoiceLabel,
   contentModalityLabels,
   contentPriceLabel,
   physicalBytes,
@@ -51,13 +50,11 @@ import { EntityLogo } from "../components/entity-logo";
 import {
   Award,
   ArrowLeft,
-  CheckCircle2,
   Database,
   Download,
   Eye,
   FileArchive,
   Lock,
-  RefreshCw,
   Star,
   Tag,
   type LucideIcon,
@@ -169,10 +166,6 @@ export function ContentDatasetDetail({
             <ArrowLeft className="size-4" />
             Back to datasets
           </Link>
-          <Button variant="ghost" size="sm" onClick={onRefresh}>
-            <RefreshCw className="size-3.5" />
-            Refresh listing
-          </Button>
         </div>
         <header className="mb-10" data-content-identity>
           <p className="font-mono text-sm text-muted-foreground dark:text-white/60 mb-3">
@@ -200,10 +193,7 @@ export function ContentDatasetDetail({
                   {category.name}
                 </Badge>
               ))}
-            <Badge variant="success">
-              <CheckCircle2 className="size-3.5" />
-              Published
-            </Badge>
+
             {paid && (
               <Badge variant="warning">
                 <Lock className="size-3.5" />
@@ -252,6 +242,10 @@ export function ContentDatasetDetail({
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-xs font-semibold text-amber-700 dark:text-amber-400">
               <Award className="size-3.5" />
               KDTS {Number(item.assessment.score).toFixed(1)}
+              {item.assessment.components.length === 1 &&
+              item.assessment.components[0] === "SAMPLE"
+                ? " · Sample"
+                : ""}
             </span>
           </div>
         </header>
@@ -270,7 +264,15 @@ export function ContentDatasetDetail({
                 <DatasetMetric
                   icon={FileArchive}
                   label="Available Material"
-                  value={contentChoiceLabel(item.uploadChoice)}
+                  value={
+                    item.uploadChoice === "SAMPLE_ONLY"
+                      ? item.fullCollectionOffer
+                        ? "Free evaluation sample"
+                        : "Evaluation sample"
+                      : item.uploadChoice === "FULL_ONLY"
+                        ? "Full dataset"
+                        : "Full dataset and sample"
+                  }
                 />
                 <DatasetMetric
                   icon={Download}
@@ -338,59 +340,11 @@ export function ContentDatasetDetail({
                   datasetId={item.id}
                   contentId={item.publication.contentId}
                   publicationId={item.publication.id}
+                  onReload={onRefresh}
+                  showTableMetadata={item.modalities.includes("TABULAR")}
                 />
               </DatasetDetailSection>
             )}
-            <DatasetDetailSection title="Governance and Review">
-              <div className="space-y-4">
-                <ContentFacts
-                  rows={[
-                    ["KDTS score", Number(item.assessment.score).toFixed(1)],
-                    [
-                      "Assessed material",
-                      item.assessment.components
-                        .map((value) =>
-                          value === "FULL"
-                            ? "Uploaded full material"
-                            : "Uploaded sample"
-                        )
-                        .join(" + "),
-                    ],
-                  ]}
-                />
-                <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed">
-                  The KDTS score covers the uploaded material. Collection scope
-                  and coverage are provider declarations. License terms are
-                  agreed with the provider.
-                </p>
-                <details className="border-t border-border/40 dark:border-white/10 pt-4">
-                  <summary className="cursor-pointer text-sm font-medium">
-                    Current category and source facts
-                  </summary>
-                  <div className="mt-4">
-                    <ContentFacts
-                      rows={[
-                        [
-                          "Current categories",
-                          data.currentCategoryFacts
-                            .map((category) => category.name)
-                            .join(", "),
-                        ],
-                        ["Current source", data.currentSourceFacts?.name],
-                        [
-                          "Current source verification",
-                          data.currentSourceFacts
-                            ? data.currentSourceFacts.isVerified
-                              ? "Recorded as verified"
-                              : "Not recorded as verified"
-                            : null,
-                        ],
-                      ]}
-                    />
-                  </div>
-                </details>
-              </div>
-            </DatasetDetailSection>
             <details
               className={datasetPanelClass}
               onToggle={(event) => setDiscussion(event.currentTarget.open)}
@@ -703,23 +657,21 @@ function AcquisitionControls({
           {owned.data && (
             <div className="space-y-2">
               <p className="text-sm">
-                Your library contains recorded access for this Dataset. Its
-                material can differ from the current listing.
+                You already have access to this dataset in your library.
               </p>
               <Link
                 className="text-sm underline"
                 href={`/library/access/${data.item.id}`}
               >
-                View your recorded access
+                View in your library
               </Link>
             </div>
           )}
           {hasFull && retained.data ? (
             <div className="space-y-3">
               <p className="text-sm">
-                A previous free claim is unconfirmed. Check your library and, if
-                absent, retry the same selected offer. No new offer is
-                substituted automatically.
+                Your previous request has not been confirmed. Check your library
+                before trying again.
               </p>
               <Button disabled={busy} onClick={claim}>
                 Check previous claim
@@ -753,9 +705,8 @@ function AcquisitionControls({
                   <div className="space-y-3">
                     {offerChanged && (
                       <p role="alert" className="text-sm">
-                        The available publication or price changed since this
-                        listing loaded. Review the current selected offer below
-                        before continuing.
+                        The dataset or price has changed. Review the updated
+                        offer before continuing.
                       </p>
                     )}
                     <ContentFacts
@@ -766,7 +717,7 @@ function AcquisitionControls({
                             ? "Free full dataset"
                             : `${offer.target.currency} ${offer.target.amount}`,
                         ],
-                        ["Selected material", "Uploaded full dataset"],
+                        ["Dataset", "Full dataset"],
                         [
                           "Current base amount",
                           `${offer.target.currency} ${offer.baseAmount}`,
@@ -780,8 +731,7 @@ function AcquisitionControls({
                       ]}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Access binds the selected publication and price.
-                      Availability is checked again when you confirm.
+                      Review the price and license before confirming access.
                     </p>
                     <Button
                       disabled={busy || !retained.isSuccess}

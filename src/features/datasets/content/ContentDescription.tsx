@@ -39,6 +39,12 @@ const label = (key: string) =>
     .replaceAll("_", " ")
     .replace(/^./, (char) => char.toUpperCase());
 const profileEnumLabels: Record<string, Record<string, string>> = {
+  "audio.content": {
+    SPEECH: "Speech",
+    NON_SPEECH: "Non-speech audio",
+    MIXED: "Speech and other audio",
+    UNKNOWN: "Not specified",
+  },
   "audio.transcriptTiming": {
     UNTIMED: "Untimed transcripts",
     TIMED: "Timed transcripts",

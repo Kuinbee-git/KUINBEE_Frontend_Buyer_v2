@@ -1,23 +1,14 @@
 import type { ReactNode } from "react";
-import {
-  Beaker,
-  CheckCircle2,
-  ExternalLink,
-  Lightbulb,
-  TriangleAlert,
-} from "lucide-react";
+import { Beaker, CheckCircle2, Lightbulb, TriangleAlert } from "lucide-react";
 import {
   formatDatasetGeographicCoverage,
   formatDatasetCollectionPeriod,
-  isDatasetPreparationProfileFieldApplicable,
   type DatasetPublicDescription,
   type DatasetPreparationProfiles,
 } from "@kuinbee/dataset-preparation-contracts";
 import { ContentFacts, DescribedValues } from "./ContentDescription";
-import {
-  declaredMeasurement,
-  measurementScopeLabels,
-} from "./content-description";
+import { buyerProfileFields } from "./buyer-profile-fields";
+import { declaredMeasurement } from "./content-description";
 
 export const datasetPanelClass =
   "bg-white/90 dark:bg-[#1e2847]/80 backdrop-blur-sm border border-border/40 dark:border-white/10 rounded-xl p-5 sm:p-6 shadow-sm";
@@ -41,16 +32,93 @@ export function DatasetDetailSection({
   );
 }
 
+const fieldLabels: Record<string, string> = {
+  formatNotes: "File formats",
+  unitNotes: "Units and scale",
+  assemblyStructure: "Assembly structure",
+  nativeSourceAvailability: "Native CAD files",
+  parametricHistoryAvailability: "Feature history",
+  annotationAvailability: "Annotations",
+  annotationMeaning: "Annotation details",
+  dictionaryAvailability: "Data dictionary",
+  columnMeaningNotes: "Column descriptions",
+  alignmentNotes: "Transcript alignment",
+  channelNotes: "Sensor readings",
+  calibrationAvailability: "Calibration",
+  calibrationMeaning: "Calibration details",
+  transcriptAvailability: "Transcripts",
+  transcriptMeaning: "Transcript details",
+};
 const profileLabel = (name: string) =>
-  name === "cad"
-    ? "CAD"
-    : name.replace(/^./, (character) => character.toUpperCase());
+  ({ cad: "CAD", images: "Image", sensors: "Sensor" })[
+    name as "cad" | "images" | "sensors"
+  ] ?? name.replace(/^./, (character) => character.toUpperCase());
 
 export function MarketplaceContentDescription({
   description,
 }: {
   description: DatasetPublicDescription;
 }) {
+  const profiles = Object.entries(description.profiles)
+    .map(([name, profile]) => ({
+      name,
+      values: buyerProfileFields(
+        name as keyof DatasetPreparationProfiles,
+        profile
+      ),
+    }))
+    .filter((profile) => Object.keys(profile.values).length > 0);
+  const coverageRows = [
+    ...(description.geographicCoverage?.state === "KNOWN"
+      ? [
+          [
+            "Geographic coverage",
+            formatDatasetGeographicCoverage(description.geographicCoverage),
+          ] as const,
+        ]
+      : []),
+    ...(description.collectionPeriod?.state === "KNOWN"
+      ? [
+          [
+            "Collection period",
+            formatDatasetCollectionPeriod(description.collectionPeriod),
+          ] as const,
+        ]
+      : []),
+    ...(description.contexts.length
+      ? [
+          [
+            "Data context",
+            description.contexts
+              .map((value) =>
+                value === "HEALTHCARE" ? "Healthcare" : "First-person capture"
+              )
+              .join(", "),
+          ] as const,
+        ]
+      : []),
+    ...(description.studyStructure
+      ? [
+          [
+            "Study structure",
+            description.studyStructure.toLowerCase().replaceAll("_", " "),
+          ] as const,
+        ]
+      : []),
+  ];
+  const measurements = description.measurements.filter((group) =>
+    group.values.some((value) => value.state !== "UNKNOWN")
+  );
+  const sampleRows = description.sample
+    ? [
+        ["Sample contents", description.sample.coverage],
+        ["Sample selection", description.sample.selectionMethod],
+        ["Not included", description.sample.omissionNotes],
+      ].filter(
+        (row): row is [string, string] =>
+          typeof row[1] === "string" && row[1].trim().length > 0
+      )
+    : [];
   return (
     <div className="space-y-8" data-content-description>
       <DatasetDetailSection title="About This Dataset">
@@ -102,41 +170,40 @@ export function MarketplaceContentDescription({
           )}
         </div>
       </DatasetDetailSection>
-      {Object.entries(description.profiles).map(([name, profile]) => (
+      {profiles.map(({ name, values }) => (
         <details key={name} open={name === "cad"} className={datasetPanelClass}>
           <summary className="cursor-pointer font-semibold text-foreground dark:text-white">
-            {profileLabel(name)} details · provider declared
+            {profileLabel(name)} specifications
           </summary>
           <div className="mt-5">
-            <DescribedValues
-              profile={name}
-              value={Object.fromEntries(
-                Object.entries(profile).filter(([field]) =>
-                  isDatasetPreparationProfileFieldApplicable(
-                    name as keyof DatasetPreparationProfiles,
-                    field,
-                    profile
-                  )
-                )
-              )}
+            <ContentFacts
+              rows={Object.entries(values).map(([field, value]) => [
+                fieldLabels[field] ??
+                  field
+                    .replace(/([a-z])([A-Z])/g, "$1 $2")
+                    .replace(/^./, (character) => character.toUpperCase()),
+                <DescribedValues
+                  key={field}
+                  profile={name}
+                  field={field}
+                  value={value}
+                />,
+              ])}
             />
           </div>
         </details>
       ))}
-      <DatasetDetailSection title="Collection and Sample Coverage">
-        <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed mb-5">
-          Collection quantities and coverage are provided by the supplier. The
-          sample is a subset of the collection.
-        </p>
-        <div className="space-y-5">
-          {description.measurements
-            .filter((group) =>
-              group.values.some((value) => value.state !== "UNKNOWN")
-            )
-            .map((group) => (
+      {(sampleRows.length > 0 || measurements.length > 0) && (
+        <DatasetDetailSection title="Sample and Coverage">
+          <div className="space-y-5">
+            {measurements.map((group) => (
               <div key={group.scope}>
                 <h3 className="text-sm font-semibold mb-1">
-                  {measurementScopeLabels[group.scope]}
+                  {group.scope === "REPRESENTED_COLLECTION"
+                    ? "Collection size"
+                    : group.scope === "SAMPLE_MATERIAL"
+                      ? "Sample size"
+                      : "Full dataset size"}
                 </h3>
                 <p className="text-sm text-muted-foreground dark:text-white/70">
                   {group.values
@@ -146,96 +213,15 @@ export function MarketplaceContentDescription({
                 </p>
               </div>
             ))}
-          {description.sample && (
-            <div className="border-t border-border/40 dark:border-white/10 pt-5">
-              <h3 className="text-sm font-semibold mb-4">
-                How the sample represents the collection
-              </h3>
-              <DescribedValues value={description.sample} />
-            </div>
-          )}
-          {description.fullCompleteness !== null && (
-            <p className="text-sm text-muted-foreground">
-              Full material declared complete for this collection:{" "}
-              {description.fullCompleteness ? "Yes" : "No"}
-            </p>
-          )}
-        </div>
-      </DatasetDetailSection>
-      <DatasetDetailSection title="Location and Coverage">
-        <ContentFacts
-          rows={[
-            [
-              "Geographic coverage",
-              formatDatasetGeographicCoverage(description.geographicCoverage),
-            ],
-            [
-              "Collection period",
-              formatDatasetCollectionPeriod(description.collectionPeriod),
-            ],
-            ...(description.contexts.length
-              ? [
-                  [
-                    "Capture and domain context",
-                    description.contexts
-                      .map((value) =>
-                        value === "HEALTHCARE"
-                          ? "Healthcare"
-                          : "First-person / egocentric capture"
-                      )
-                      .join(", "),
-                  ] as const,
-                ]
-              : []),
-            ...(description.studyStructure
-              ? [
-                  [
-                    "Statistical study structure",
-                    description.studyStructure,
-                  ] as const,
-                ]
-              : []),
-          ]}
-        />
-      </DatasetDetailSection>
-      <DatasetDetailSection title="Source and License">
-        <div className="space-y-5">
-          <div>
-            <h3 className="text-sm font-semibold mb-2">
-              {description.sourceAtFreeze.name}
-            </h3>
-            {description.sourceAtFreeze.description && (
-              <p className="text-sm text-muted-foreground dark:text-white/70 leading-relaxed whitespace-pre-wrap">
-                {description.sourceAtFreeze.description}
-              </p>
-            )}
-            {description.sourceAtFreeze.websiteUrl && (
-              <a
-                href={description.sourceAtFreeze.websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 mt-3 text-xs text-primary dark:text-blue-400 hover:underline"
-              >
-                <ExternalLink className="size-3.5" />
-                Visit Website
-              </a>
-            )}
+            {sampleRows.length > 0 && <ContentFacts rows={sampleRows} />}
           </div>
-          <div className="border-t border-border/40 dark:border-white/10 pt-5">
-            <ContentFacts
-              rows={[
-                ["License", description.license],
-                [
-                  "Source verification",
-                  description.sourceAtFreeze.isVerifiedAtFreeze
-                    ? "Recorded as verified"
-                    : "Not recorded as verified",
-                ],
-              ]}
-            />
-          </div>
-        </div>
-      </DatasetDetailSection>
+        </DatasetDetailSection>
+      )}
+      {coverageRows.length > 0 && (
+        <DatasetDetailSection title="Location and Coverage">
+          <ContentFacts rows={coverageRows} />
+        </DatasetDetailSection>
+      )}
     </div>
   );
 }

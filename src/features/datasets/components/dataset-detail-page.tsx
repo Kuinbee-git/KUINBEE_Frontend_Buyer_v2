@@ -8,7 +8,6 @@ import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
 import { LazySection } from "@/shared/components/ui/lazy-section";
 import {
   Shield,
-  CheckCircle2,
   Database,
   FileText,
   Download,
@@ -48,7 +47,6 @@ import { DatasetKdtsBadge } from "./DatasetKdtsBadge";
 import { DatasetAboutSection } from "./DatasetAboutSection";
 import { DatasetLocationSection } from "./DatasetLocationSection";
 import { DatasetSourceSection } from "./DatasetSourceSection";
-import { DatasetGovernanceSection } from "./DatasetGovernanceSection";
 import { DatasetUsageSection } from "./DatasetUsageSection";
 import {
   formatPriceAmount,
@@ -198,13 +196,6 @@ const DatasetIdentityHeader = React.memo(function DatasetIdentityHeader({
           <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-md text-xs font-medium border border-blue-200 dark:border-blue-800">
             <Shield className="w-3.5 h-3.5" />
             Verified Source
-          </div>
-        )}
-
-        {dataset.verification.published && (
-          <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-md text-xs font-medium border border-emerald-200 dark:border-emerald-800">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            Published
           </div>
         )}
 
@@ -1094,9 +1085,6 @@ export const DatasetDetailPage = React.memo(function DatasetDetailPage({
 
               {/* Source Information */}
               <DatasetSourceSection dataset={dataset} />
-
-              {/* Governance & Review */}
-              <DatasetGovernanceSection dataset={dataset} />
 
               {/* Usage & Restrictions */}
               <DatasetUsageSection dataset={dataset} />

@@ -8,6 +8,7 @@ import type {
 } from "@kuinbee/dataset-preparation-contracts";
 import {
   buyerDatasetApi,
+  BuyerDatasetError,
   type BuyerFileAudience,
   type BuyerFilePage,
 } from "@/services/dataset-content.service";
@@ -17,16 +18,59 @@ import { getErrorMessage } from "@/shared/utils/error.utils";
 import { physicalBytes } from "./content-description";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 
+const changedFileCodes = new Set([
+  "DRAFT_CHANGED",
+  "PUBLICATION_CHANGED",
+  "CONTENT_CHANGED",
+  "REVIEW_CHANGED",
+]);
+function fileErrorCode(error: unknown): string | undefined {
+  return error && typeof error === "object" && "code" in error
+    ? String(error.code)
+    : undefined;
+}
+function FileError({
+  error,
+  onReload,
+}: {
+  error: unknown;
+  onReload?: () => void;
+}) {
+  const code = fileErrorCode(error);
+  const changed = Boolean(code && changedFileCodes.has(code));
+  const message = changed
+    ? "The dataset has changed. Reload it before downloading."
+    : code === "OBJECT_NOT_ACCEPTED" || code === "INSPECTION_NOT_QUALIFIED"
+      ? "This file is temporarily unavailable. Please try again later."
+      : getErrorMessage(error);
+  return (
+    <div className="space-y-3">
+      <p role="alert" className="text-sm text-destructive">
+        {message}
+      </p>
+      {changed && onReload && (
+        <Button variant="outline" onClick={onReload}>
+          Reload dataset
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export function BuyerFilePanel({
   audience,
   datasetId,
   contentId,
   publicationId,
+  onReload,
+  showTableMetadata = true,
 }: {
   audience: BuyerFileAudience;
   datasetId: string;
   contentId: string;
   publicationId?: string;
+  onReload?: () => void;
+  showTableMetadata?: boolean;
 }) {
   const { user, isAuthenticated } = useAuth();
   const actorId = isAuthenticated ? user?.id : undefined;
@@ -59,8 +103,10 @@ export function BuyerFilePanel({
         result.contentId !== contentId ||
         (audience === "SAMPLE" && result.publicationId !== publicationId)
       )
-        throw new Error(
-          "This selected material changed. Refresh the listing or your recorded access before continuing."
+        throw new BuyerDatasetError(
+          "The dataset has changed. Reload it before downloading.",
+          "PUBLICATION_CHANGED",
+          409
         );
       return result;
     },
@@ -76,10 +122,12 @@ export function BuyerFilePanel({
   if (context.isError)
     return (
       <div className="space-y-3">
-        <p role="alert">{getErrorMessage(context.error)}</p>
-        <Button variant="outline" onClick={() => void context.refetch()}>
-          Refresh file access
-        </Button>
+        <FileError error={context.error} onReload={onReload} />
+        {!changedFileCodes.has(fileErrorCode(context.error) ?? "") && (
+          <Button variant="outline" onClick={() => void context.refetch()}>
+            Retry file access
+          </Button>
+        )}
       </div>
     );
   return (
@@ -88,6 +136,8 @@ export function BuyerFilePanel({
       audience={audience}
       context={context.data}
       actorId={actorId}
+      onReload={onReload}
+      showTableMetadata={showTableMetadata}
     />
   );
 }
@@ -95,10 +145,14 @@ function FileInventory({
   audience,
   context,
   actorId,
+  onReload,
+  showTableMetadata,
 }: {
   audience: BuyerFileAudience;
   context: DatasetFileAccessContext;
   actorId: string;
+  onReload?: () => void;
+  showTableMetadata: boolean;
 }) {
   const [cursors, setCursors] = useState<Array<string | undefined>>([
     undefined,
@@ -136,11 +190,16 @@ function FileInventory({
         {audience === "SAMPLE" ? "sample" : "owned Dataset"} files together as a
         ZIP, or choose an individual file. Folder paths are preserved.
       </p>
-      <BundleDownload audience={audience} context={context} actorId={actorId} />
+      <BundleDownload
+        audience={audience}
+        context={context}
+        actorId={actorId}
+        onReload={onReload}
+      />
       {page.isPending ? (
         <p role="status">Loading selected files…</p>
       ) : page.isError ? (
-        <p role="alert">{getErrorMessage(page.error)}</p>
+        <FileError error={page.error} onReload={onReload} />
       ) : (
         <>
           <p className="text-sm">
@@ -156,6 +215,8 @@ function FileInventory({
                   actorId={actorId}
                   context={context}
                   member={member}
+                  onReload={onReload}
+                  showTableMetadata={showTableMetadata}
                 />
               </li>
             ))}
@@ -191,17 +252,21 @@ function ReaderFile({
   actorId,
   context,
   member,
+  onReload,
+  showTableMetadata,
 }: {
   audience: BuyerFileAudience;
   actorId: string;
   context: DatasetFileAccessContext;
   member: BuyerFilePage["items"][number];
+  onReload?: () => void;
+  showTableMetadata: boolean;
 }) {
   const { user, isAuthenticated } = useAuth();
   const live = useRef(false),
     inFlight = useRef(false);
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState<string | null>(null);
+    [error, setError] = useState<unknown>(null);
   useLayoutEffect(() => {
     live.current = isAuthenticated && user?.id === actorId;
     return () => {
@@ -231,7 +296,7 @@ function ReaderFile({
       assertCurrent();
       await task();
     } catch (problem) {
-      setError(getErrorMessage(problem));
+      setError(problem);
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -265,7 +330,6 @@ function ReaderFile({
               "File name not recorded"}
           </h4>
           <p className="text-sm text-muted-foreground">
-            {member.role.toLowerCase().replaceAll("_", " ")} ·{" "}
             {physicalBytes(member.measuredSizeBytes)}
           </p>
         </div>
@@ -273,19 +337,21 @@ function ReaderFile({
           Download file
         </Button>
       </div>
-      <TableMetadataPanel
-        sourceKey={JSON.stringify([actorId, audience, context, member.id])}
-        enabled={isAuthenticated && user?.id === actorId}
-        load={(filters, signal) =>
-          buyerDatasetApi.tableMetadata(
-            audience,
-            context.datasetId,
-            { ...filters, ...exact, limit: filters.limit },
-            signal
-          )
-        }
-      />
-      {error && <p role="alert">{error}</p>}
+      {showTableMetadata && (
+        <TableMetadataPanel
+          sourceKey={JSON.stringify([actorId, audience, context, member.id])}
+          enabled={isAuthenticated && user?.id === actorId}
+          load={(filters, signal) =>
+            buyerDatasetApi.tableMetadata(
+              audience,
+              context.datasetId,
+              { ...filters, ...exact, limit: filters.limit },
+              signal
+            )
+          }
+        />
+      )}
+      {error ? <FileError error={error} onReload={onReload} /> : null}
     </div>
   );
 }
@@ -294,16 +360,18 @@ function BundleDownload({
   audience,
   context,
   actorId,
+  onReload,
 }: {
   audience: BuyerFileAudience;
   context: DatasetFileAccessContext;
   actorId: string;
+  onReload?: () => void;
 }) {
   const { user, isAuthenticated } = useAuth();
   const current = useRef(false),
     inFlight = useRef(false);
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
+    [error, setError] = useState<unknown>(null);
   useLayoutEffect(() => {
     current.current = isAuthenticated && user?.id === actorId;
     return () => {
@@ -314,7 +382,7 @@ function BundleDownload({
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
-    setError("");
+    setError(null);
     try {
       if (!current.current) throw Error("Sign in again before downloading.");
       const bundle = await buyerDatasetApi.bundle(audience, context.datasetId, {
@@ -338,7 +406,7 @@ function BundleDownload({
       link.click();
       link.remove();
     } catch (failure) {
-      setError(getErrorMessage(failure));
+      setError(failure);
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -357,11 +425,7 @@ function BundleDownload({
         Your browser shows download progress. If it is interrupted, retry the
         download or choose individual files.
       </p>
-      {error && (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
+      {error ? <FileError error={error} onReload={onReload} /> : null}
     </div>
   );
 }

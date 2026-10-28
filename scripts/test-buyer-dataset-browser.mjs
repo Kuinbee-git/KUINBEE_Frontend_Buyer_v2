@@ -671,13 +671,36 @@ try {
       unitNotes: "Model-specific units",
     },
   };
+  cad.description.sample.transformationNotes = "INTERNAL_ARCHIVE_HASH_NOTE";
+  cad.description.sample.transformations = "DESCRIBED";
   await open(page, cad, true);
+  assert.equal(
+    await page.getByText("INTERNAL_ARCHIVE_HASH_NOTE", { exact: true }).count(),
+    0
+  );
+
   await page
     .locator("[data-enterprise-dataset-badge]")
     .getByText("Enterprise", { exact: true })
     .waitFor();
   await page.getByText("Price on request", { exact: true }).waitFor();
   const cadPanel = page.locator("[data-content-access]");
+  assert.equal(await button(page, "Refresh listing").count(), 0);
+  for (const label of [
+    "Governance and Review",
+    "Current category and source facts",
+    "Source verification",
+    "Location and Coverage",
+    "Published",
+  ])
+    assert.equal(await page.getByText(label, { exact: true }).count(), 0);
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Reload dataset", exact: true })
+      .count(),
+    0
+  );
+
   assert.deepEqual(
     (await cadPanel.getByRole("button").allTextContents()).map((text) =>
       text.trim()
@@ -816,10 +839,10 @@ try {
   };
   await open(page, scopedProfiles);
   for (const name of [
-    "Audio details · provider declared",
-    "Video details · provider declared",
-    "Text details · provider declared",
-    "Sensors details · provider declared",
+    "Audio specifications",
+    "Video specifications",
+    "Text specifications",
+    "Sensor specifications",
   ])
     await page.getByText(name, { exact: true }).click();
   await page.getByText("Whole clips or items", { exact: true }).waitFor();
@@ -846,10 +869,7 @@ try {
   };
   scopedProfiles.description.profiles.video.annotationReferences = "UNKNOWN";
   await open(page, scopedProfiles);
-  for (const name of [
-    "Audio details · provider declared",
-    "Video details · provider declared",
-  ])
+  for (const name of ["Audio specifications", "Video specifications"])
     await page.getByText(name, { exact: true }).click();
   await page.getByText("Timing not assessed", { exact: true }).waitFor();
   await page.getByText("References not assessed", { exact: true }).waitFor();
@@ -895,7 +915,7 @@ try {
   await button(page, "Download sample").click();
   await page
     .getByRole("alert")
-    .filter({ hasText: "OBJECT_NOT_ACCEPTED" })
+    .filter({ hasText: "This file is temporarily unavailable" })
     .waitFor();
   assert.equal(downloads.length, 0);
   flags.denyFiles = false;
@@ -1093,9 +1113,12 @@ try {
   models.set(paged.item.id, changedSample);
   const downloadsBeforeChange = downloads.length;
   await button(page, "Download sample").click();
-  await page.getByRole("alert").filter({ hasText: "DRAFT_CHANGED" }).waitFor();
+  await page
+    .getByRole("alert")
+    .filter({ hasText: "The dataset has changed" })
+    .waitFor();
   assert.equal(downloads.length, downloadsBeforeChange);
-  await button(page, "Refresh listing").click();
+  await button(page, "Reload dataset").click();
   await page
     .getByRole("heading", { name: "sample-1.wav", exact: true })
     .waitFor();
