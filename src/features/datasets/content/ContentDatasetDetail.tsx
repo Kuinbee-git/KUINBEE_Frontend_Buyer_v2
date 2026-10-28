@@ -444,7 +444,7 @@ export function ContentDatasetDetail({
               {hasSample && (
                 <Button
                   variant="outline"
-                  className="w-full mt-4"
+                  className="w-full mt-4 border-emerald-400/40 bg-emerald-500/5 text-emerald-700 hover:bg-emerald-500/10 dark:border-emerald-400/35 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/15"
                   onClick={viewSample}
                 >
                   <Download className="size-4" />
