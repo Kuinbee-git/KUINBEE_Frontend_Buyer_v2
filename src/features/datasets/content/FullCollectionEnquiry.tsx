@@ -41,11 +41,10 @@ export function FullCollectionEnquiry({
   return (
     <div className="space-y-3" data-full-collection-enquiry>
       <p className="text-sm text-muted-foreground">
-        The sample is free. Full-collection access is paid; price and license
-        terms are available on enquiry.
+        The full dataset is paid. The sample is free.
       </p>
       <Button className="w-full" onClick={start}>
-        Enquire for full dataset price
+        Enquire for pricing
       </Button>
       {sent && (
         <p role="status" className="text-sm">
@@ -60,7 +59,7 @@ export function FullCollectionEnquiry({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enquire for full dataset price</DialogTitle>
+            <DialogTitle>Enquire for pricing</DialogTitle>
             <DialogDescription>{item.title}</DialogDescription>
           </DialogHeader>
           <form

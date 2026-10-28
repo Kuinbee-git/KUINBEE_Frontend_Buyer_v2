@@ -676,10 +676,46 @@ try {
     .locator("[data-enterprise-dataset-badge]")
     .getByText("Enterprise", { exact: true })
     .waitFor();
+  await page.getByText("Price on request", { exact: true }).waitFor();
+  const cadPanel = page.locator("[data-content-access]");
+  assert.deepEqual(
+    (await cadPanel.getByRole("button").allTextContents()).map((text) =>
+      text.trim()
+    ),
+    ["Enquire for pricing", "View free sample"]
+  );
+  assert.equal(
+    await cadPanel
+      .getByText("The full dataset is paid. The sample is free.", {
+        exact: true,
+      })
+      .count(),
+    1
+  );
+  await button(page, "View free sample").click();
+  assert.equal(await page.evaluate(() => window.openedModal), "login");
+  assert.equal(
+    requests.filter((request) =>
+      request.path.includes("dataset-samples/" + cad.item.id)
+    ).length,
+    0
+  );
+  await page.evaluate((actor) => window.setActor(actor), actorId);
   await page
-    .getByText("Full dataset: price on request", { exact: true })
+    .getByRole("heading", { name: "sample-1.wav", exact: true })
     .waitFor();
-  await button(page, "Enquire for full dataset price").click();
+  await wait(async () => {
+    const box = await page.locator("#dataset-sample-files").boundingBox();
+    return box && box.y >= 0 && box.y < 300;
+  });
+  assert.deepEqual(
+    (await cadPanel.getByRole("button").allTextContents()).map((text) =>
+      text.trim()
+    ),
+    ["Enquire for pricing", "View free sample"]
+  );
+  await open(page, cad, true);
+  await button(page, "Enquire for pricing").click();
   assert.equal(await page.evaluate(() => window.openedModal), "login");
   assert.equal(
     requests.filter(
@@ -689,7 +725,7 @@ try {
     0
   );
   await open(page, cad);
-  await button(page, "Enquire for full dataset price").click();
+  await button(page, "Enquire for pricing").click();
   await page
     .getByLabel("Your requirements (optional)")
     .fill("CAD retrieval research; STEP assemblies required.");
@@ -832,7 +868,7 @@ try {
   );
   const sample = add("SAMPLE_ONLY", ["AUDIO"]);
   await open(page, sample, true);
-  await button(page, "Sign in to view sample files").click();
+  await button(page, "View sample files").click();
   assert.equal(await page.evaluate(() => window.openedModal), "login");
   assert.equal(
     requests.filter((request) =>

@@ -1,6 +1,14 @@
 "use client";
 
-import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -85,7 +93,11 @@ export function ContentDatasetDetail({
   onRefresh: () => void;
 }) {
   const { user, isAuthenticated } = useAuth();
-  const { openModal } = useModal();
+  const { openModal, currentModal } = useModal();
+  const sampleIntent = useRef<{
+    datasetId: string;
+    publicationId: string;
+  } | null>(null);
   const lenis = useLenis();
   const [discussion, setDiscussion] = useState(false);
   const actorId = isAuthenticated ? user?.id : undefined;
@@ -101,6 +113,45 @@ export function ContentDatasetDetail({
     (material) => material.component === "FULL"
   );
   const measuredMaterial = sampleMaterial ?? fullMaterial!;
+  const scrollToSample = useCallback(() => {
+    const target = document.getElementById("dataset-sample-files");
+    if (!target) return;
+    if (lenis) {
+      lenis.resize();
+      lenis.scrollTo(target, { offset: -112, immediate: true, force: true });
+    } else target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [lenis]);
+  useEffect(() => {
+    if (currentModal || !sampleIntent.current) return;
+    const intent = sampleIntent.current;
+    sampleIntent.current = null;
+    if (
+      actorId &&
+      hasSample &&
+      intent.datasetId === item.id &&
+      intent.publicationId === item.publication.id
+    )
+      scrollToSample();
+  }, [
+    actorId,
+    currentModal,
+    hasSample,
+    item.id,
+    item.publication.id,
+    scrollToSample,
+  ]);
+  function viewSample() {
+    if (!actorId) {
+      sampleIntent.current = {
+        datasetId: item.id,
+        publicationId: item.publication.id,
+      };
+      openModal("login");
+      return;
+    }
+    scrollToSample();
+  }
+
   return (
     <div className="min-h-screen relative">
       <div className="relative z-50">
@@ -374,56 +425,40 @@ export function ContentDatasetDetail({
                 {paid ? "Paid Dataset" : "Dataset Access"}
               </div>
               <div className="border-b border-border/40 dark:border-white/10 pb-5 mb-5">
-                <p className="text-xs text-muted-foreground mb-2">
-                  {item.fullCollectionOffer
-                    ? "Full Collection"
-                    : "Dataset Access"}
-                </p>
                 <p className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
-                  {contentPriceLabel(item)}
+                  {item.fullCollectionOffer
+                    ? "Price on request"
+                    : contentPriceLabel(item)}
                 </p>
               </div>
               <FullCollectionEnquiry item={item} />
-              <div className="mt-4">
-                <AcquisitionControls
-                  key={actorId ?? "anonymous"}
-                  data={data}
-                  actorId={actorId}
-                />
-              </div>
+              {item.uploadChoice !== "SAMPLE_ONLY" && (
+                <div className="mt-4">
+                  <AcquisitionControls
+                    key={actorId ?? "anonymous"}
+                    data={data}
+                    actorId={actorId}
+                  />
+                </div>
+              )}
               {hasSample && (
                 <Button
                   variant="outline"
                   className="w-full mt-4"
-                  onClick={() => {
-                    const target = document.getElementById(
-                      "dataset-sample-files"
-                    );
-                    if (!target) return;
-                    if (lenis) {
-                      lenis.resize();
-                      lenis.scrollTo(target, {
-                        offset: -112,
-                        immediate: true,
-                        force: true,
-                      });
-                    } else
-                      target.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                      });
-                  }}
+                  onClick={viewSample}
                 >
                   <Download className="size-4" />
                   View{" "}
                   {item.fullCollectionOffer ? "free sample" : "sample files"}
                 </Button>
               )}
-              <p className="text-xs leading-relaxed text-muted-foreground mt-5">
-                {item.fullCollectionOffer
-                  ? "Discuss project coverage, delivery formats and licensing with the provider before arranging full-collection access."
-                  : "Review the dataset description, license and available material before requesting access."}
-              </p>
+              {!item.fullCollectionOffer &&
+                item.uploadChoice !== "SAMPLE_ONLY" && (
+                  <p className="text-xs leading-relaxed text-muted-foreground mt-5">
+                    Review the dataset description, license and available
+                    material before requesting access.
+                  </p>
+                )}
             </div>
             <div className={datasetPanelClass}>
               <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground mb-4">
