@@ -1,3 +1,11 @@
+export interface CustomCollectionSampleFile {
+  id: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: string;
+  status: "STAGED" | "READY";
+}
+
 export type CustomCollectionSort = "NEWEST" | "TITLE_ASC" | "TITLE_DESC";
 
 export interface CustomCollectionCategory {
@@ -30,6 +38,7 @@ export interface CustomCollectionRevision {
   deliverables: string;
   qualityAssurance: string;
   complianceNotes: string | null;
+  sampleFiles?: CustomCollectionSampleFile[];
   coverImage: {
     id: string;
     url: string;
