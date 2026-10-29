@@ -1,5 +1,6 @@
 "use client";
 
+import { ServiceSampleFiles } from "@/features/custom-collection/ServiceSampleFiles";
 import { type FormEvent, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -210,6 +211,12 @@ export default function CustomCollectionServicePage({
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
           <article className="space-y-10">
             <ContentSection title="About this service" value={r.description} />
+            <ServiceSampleFiles
+              key={r.id}
+              slug={slug}
+              revisionId={r.id}
+              files={r.sampleFiles}
+            />
             <div className="grid gap-6 sm:grid-cols-2">
               <Capability
                 title="Collection methods"

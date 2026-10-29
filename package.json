@@ -15,7 +15,7 @@
     "test:environment": "node --test scripts/deployment-environment.test.mjs",
     "prebuild": "npm run check:environment && node scripts/check-github-release.mjs",
     "test:rss": "node scripts/check-rss-feed.mjs",
-    "test:release": "node scripts/check-release.mjs",
+    "test:release": "node scripts/check-release.mjs && npm run test:service-samples:browser",
     "test:errors": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test scripts/test-error-details.mjs",
     "test:components": "node scripts/test-components-browser.mjs && node scripts/test-state-lifecycle-browser.mjs && npm run test:dataset-browser",
     "test:contracts": "npm run test:dataset-production && npm run test:release-gate && npm run test:environment && npm run test:errors && npm run test:rss && node scripts/check-dataset-preparation-contracts.mjs && npm run test:dataset-protocol",
@@ -23,7 +23,8 @@
     "test:release-gate": "node --test scripts/check-github-release.test.mjs",
     "test:dataset-protocol": "node --test scripts/test-buyer-dataset-protocol.mjs",
     "test:dataset-browser": "node scripts/test-buyer-dataset-browser.mjs",
-    "test:dataset-production": "node --test scripts/test-dataset-production.mjs"
+    "test:dataset-production": "node --test scripts/test-dataset-production.mjs",
+    "test:service-samples:browser": "node scripts/test-service-samples-browser.mjs"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",

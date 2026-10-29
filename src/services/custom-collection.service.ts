@@ -24,3 +24,35 @@ export const customCollectionService = {
       submissionType: "SIGNED_IN_ONE_TAP",
     }),
 };
+
+export const downloadCustomServiceSample = async (
+  slug: string,
+  revisionId: string,
+  sampleId: string
+) =>
+  validateServiceSampleDownload(
+    await apiClient.post<{ url: string; expiresAt: string; fileName: string }>(
+      `${ROOT}/${slug}/samples/download-url`,
+      { revisionId, sampleId }
+    )
+  );
+
+function validateServiceSampleDownload(result: {
+  url: string;
+  expiresAt: string;
+  fileName: string;
+}) {
+  const url = new URL(result.url);
+  const expiresAt = Date.parse(result.expiresAt);
+  if (
+    !(
+      url.protocol === "https:" ||
+      (url.protocol === "http:" &&
+        ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname))
+    ) ||
+    !Number.isFinite(expiresAt) ||
+    expiresAt <= Date.now()
+  )
+    throw new Error("This download link is unavailable. Please try again.");
+  return result;
+}
