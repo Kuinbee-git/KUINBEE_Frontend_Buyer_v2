@@ -1,0 +1,418 @@
+.animation {
+  --motion-duration: 24s;
+  position: relative;
+  width: 100%;
+  max-width: 1060px;
+  margin-inline: auto;
+  isolation: isolate;
+}
+.animation::before {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  inset: 14% 20%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    color-mix(in srgb, var(--secondary) 7%, transparent),
+    transparent 68%
+  );
+}
+.flow {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.architecture {
+  stroke: var(--secondary);
+  stroke-width: 0.65;
+  opacity: 0.18;
+}
+.architecture .enclosure {
+  opacity: 0.7;
+}
+.architecture .axis {
+  stroke-dasharray: 2 5;
+}
+.routeTracks {
+  stroke: var(--secondary);
+  stroke-width: 0.85;
+  opacity: 0.24;
+}
+.routeTracks .traceTrack {
+  opacity: 0.6;
+}
+.brandMark {
+  filter: drop-shadow(
+    0 8px 14px color-mix(in srgb, var(--primary) 12%, transparent)
+  );
+  transform-origin: 500px 210px;
+  animation: brand-breathe var(--motion-duration) ease-in-out infinite;
+}
+.logoSlice {
+  animation: brand-reveal var(--motion-duration) cubic-bezier(0.22, 1, 0.36, 1)
+    infinite;
+  animation-delay: calc(var(--piece-index) * var(--motion-duration) * 0.0075);
+  animation-fill-mode: both;
+}
+.logoAssembly {
+  animation: brand-assembly var(--motion-duration) linear infinite both;
+  animation-delay: calc(var(--motion-duration) * 0.015);
+}
+.logoComplete {
+  opacity: 0;
+  animation: brand-complete var(--motion-duration) linear infinite both;
+  animation-delay: calc(var(--motion-duration) * 0.015);
+}
+.brandDark {
+  display: none;
+}
+:global(.dark) .brandDark {
+  display: block;
+  filter: brightness(2);
+}
+:global(.dark) .brandLight {
+  display: none;
+}
+.routeDraw path {
+  stroke: var(--secondary);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  opacity: 0;
+}
+.routeDraw .drawIncoming {
+  animation: draw-incoming var(--motion-duration) cubic-bezier(0.4, 0, 0.2, 1)
+    infinite;
+  animation-delay: calc(var(--signal-index) * 220ms);
+}
+.routeDraw .drawOutgoing {
+  animation: draw-outgoing var(--motion-duration) cubic-bezier(0.4, 0, 0.2, 1)
+    infinite;
+  animation-delay: calc(var(--signal-index) * 160ms);
+}
+.pulseRing {
+  stroke: var(--secondary);
+  stroke-width: 0.7;
+  transform-origin: 500px 210px;
+  opacity: 0;
+  animation: outward-pulse var(--motion-duration) cubic-bezier(0.22, 1, 0.36, 1)
+    infinite;
+}
+.signal {
+  stroke: var(--primary);
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-dasharray: 5 100;
+  stroke-dashoffset: 5;
+  opacity: 0;
+}
+.incoming .signal {
+  animation: input-signal var(--motion-duration) cubic-bezier(0.4, 0, 0.2, 1)
+    infinite;
+  animation-delay: calc(var(--signal-index) * 220ms);
+}
+.outgoing .signal {
+  animation: output-signal var(--motion-duration) cubic-bezier(0.4, 0, 0.2, 1)
+    infinite;
+  animation-delay: calc(var(--signal-index) * 160ms);
+}
+.traceSignal path {
+  stroke: var(--secondary);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: preserve-trace var(--motion-duration) ease-in-out infinite;
+  animation-delay: 320ms;
+}
+.traceEndpoint {
+  fill: var(--card);
+  stroke: var(--secondary);
+  stroke-width: 1;
+  opacity: 0.3;
+  animation: trace-arrive var(--motion-duration) ease-in-out infinite;
+  animation-delay: 320ms;
+}
+.terminals {
+  fill: var(--background);
+  stroke: var(--secondary);
+  stroke-width: 0.8;
+  opacity: 0.48;
+}
+.animation[data-animation-state="paused"] *,
+.animation[data-animation-state="paused"]::before {
+  animation-play-state: paused !important;
+}
+.animation[data-animation-state="static"] * {
+  animation: none !important;
+}
+.animation[data-animation-state="static"] .signal {
+  opacity: 0;
+}
+.animation[data-animation-state="static"] .routeDraw path {
+  opacity: 0.35;
+  stroke-dashoffset: 0;
+}
+.animation[data-animation-state="static"] .pulseRing {
+  opacity: 0;
+}
+.animation[data-animation-state="static"] .logoAssembly {
+  display: none;
+}
+.animation[data-animation-state="static"] .logoComplete {
+  opacity: 1;
+}
+.animation[data-animation-state="static"] .traceSignal path {
+  stroke-dashoffset: 0;
+  opacity: 0.5;
+}
+.compact {
+  --motion-duration: 3.6s;
+  width: 120px;
+}
+.intro {
+  --motion-duration: 5.8s;
+}
+.compact .flow {
+  width: 100%;
+  aspect-ratio: 2;
+}
+.compact .architecture,
+.compact .routeTracks,
+.compact .terminals,
+.compact .traceSignal,
+.compact .incoming,
+.compact .outgoing,
+.compact .routeDraw,
+.compact .pulseField {
+  display: none;
+}
+@keyframes draw-incoming {
+  0%,
+  5% {
+    opacity: 0;
+    stroke-dashoffset: 100;
+  }
+  12% {
+    opacity: 0.45;
+  }
+  37%,
+  75% {
+    opacity: 0.45;
+    stroke-dashoffset: 0;
+  }
+  93%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes draw-outgoing {
+  0%,
+  46% {
+    opacity: 0;
+    stroke-dashoffset: 100;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  67%,
+  75% {
+    opacity: 0.5;
+    stroke-dashoffset: 0;
+  }
+  93%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes outward-pulse {
+  0%,
+  46% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.2;
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+@keyframes input-signal {
+  0%,
+  15% {
+    opacity: 0;
+    stroke-dashoffset: 5;
+  }
+  21% {
+    opacity: 0.8;
+  }
+  38% {
+    opacity: 0.8;
+    stroke-dashoffset: -100;
+  }
+  42%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -105;
+  }
+}
+@keyframes brand-reveal {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateX(var(--piece-offset));
+  }
+  18%,
+  92% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  99%,
+  100% {
+    opacity: 0;
+    transform: translateX(var(--piece-offset));
+  }
+}
+@keyframes brand-assembly {
+  0%,
+  18% {
+    opacity: 1;
+  }
+  18.01%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes brand-complete {
+  0%,
+  18% {
+    opacity: 0;
+  }
+  18.01%,
+  92% {
+    opacity: 1;
+  }
+  99%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes brand-breathe {
+  0%,
+  25%,
+  61%,
+  100% {
+    transform: scale(1);
+  }
+  43% {
+    transform: scale(1.025);
+  }
+}
+@keyframes output-signal {
+  0%,
+  46% {
+    opacity: 0;
+    stroke-dashoffset: 5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  67% {
+    opacity: 0.85;
+    stroke-dashoffset: -100;
+  }
+  72%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -105;
+  }
+}
+@keyframes preserve-trace {
+  0%,
+  61% {
+    opacity: 0;
+    stroke-dashoffset: 100;
+  }
+  70% {
+    opacity: 0.65;
+    stroke-dashoffset: 0;
+  }
+  78% {
+    opacity: 0.4;
+    stroke-dashoffset: 0;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes trace-arrive {
+  0%,
+  62%,
+  100% {
+    opacity: 0.3;
+  }
+  69% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.45;
+  }
+}
+@media (max-width: 639px) {
+  .animation {
+    width: calc(100% + 64px);
+    margin-inline: -32px;
+  }
+  .architecture {
+    opacity: 0.14;
+  }
+  .architecture .enclosure,
+  .architecture .crosshair {
+    display: none;
+  }
+  .flow {
+    min-height: 245px;
+  }
+  .compact {
+    width: 104px;
+    margin-inline: auto;
+  }
+  .compact .flow {
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animation * {
+    animation: none !important;
+  }
+  .logoAssembly {
+    display: none;
+  }
+  .logoComplete {
+    opacity: 1;
+  }
+  .signal {
+    opacity: 0;
+  }
+  .routeDraw path {
+    opacity: 0.35;
+    stroke-dashoffset: 0;
+  }
+  .pulseRing {
+    opacity: 0;
+  }
+  .traceSignal path {
+    stroke-dashoffset: 0;
+    opacity: 0.5;
+  }
+}

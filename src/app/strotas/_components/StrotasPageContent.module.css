@@ -1,0 +1,799 @@
+.page {
+  --strotas-background: var(--background);
+  --strotas-panel: var(--card);
+  --strotas-panel-deep: var(--muted);
+  --strotas-text: var(--foreground);
+  --strotas-muted: var(--muted-foreground);
+  --strotas-line: var(--border);
+  --strotas-accent: var(--primary);
+  --strotas-soft: var(--accent);
+  min-width: 0;
+  overflow-x: clip;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+}
+.navigation {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.navigation > header > div > div > div {
+  background: color-mix(in srgb, var(--card) 96%, transparent);
+  border-color: var(--border);
+  backdrop-filter: blur(20px);
+}
+.container {
+  width: calc(100% - 64px);
+  max-width: 1380px;
+  min-width: 0;
+  margin: 0 auto;
+}
+.heroIntro {
+  width: 100%;
+  max-width: 1480px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  text-align: left;
+}
+.heroCopy {
+  min-width: 0;
+}
+.brandLine {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.brandGlyph {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  transform: skew(-20deg);
+}
+.brandGlyph > span {
+  width: 3px;
+  height: 13px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.brandGlyph > span:nth-child(2) {
+  height: 21px;
+}
+.brandGlyph > span:nth-child(3) {
+  height: 16px;
+}
+.byKuinbee {
+  margin-left: 3px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 400;
+}
+.availability {
+  padding: 4px 8px;
+  margin-left: 3px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 6px);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 400;
+}
+.heroTitle {
+  margin: 14px 0 0;
+  color: var(--primary);
+  font-size: clamp(40px, 3.2vw, 56px);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+.heroTitle > span {
+  display: block;
+  color: var(--secondary);
+}
+.heroDescription {
+  margin: 12px 0 0;
+  max-width: 580px;
+  color: var(--muted-foreground);
+  font-size: 16px;
+  line-height: 1.65;
+}
+.heroActions {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+  padding-bottom: 4px;
+}
+.heroNote {
+  max-width: 280px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+.heroFlow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 4px 0;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.heroFlow > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.heroFlow > span:not(:last-child)::after {
+  content: "→";
+  color: var(--secondary);
+}
+.heroFlow:hover {
+  color: var(--primary);
+}
+.heroFlow:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 6px;
+}
+.primaryLink,
+.waitlistSubmit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--primary);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 180ms ease;
+}
+.primaryLink:hover,
+.waitlistSubmit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary) 90%, var(--background));
+}
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 0;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.secondaryLink:hover {
+  color: var(--secondary);
+}
+.primaryLink:focus-visible,
+.secondaryLink:focus-visible,
+.waitlistSubmit:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+.deckMain {
+  padding: 88px 0 0;
+}
+.storyStack {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+.stackCanvas {
+  display: grid;
+  gap: 0;
+}
+.stackCanvas > [data-stack-card] {
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--background);
+}
+.section {
+  position: relative;
+  scroll-margin-top: 112px;
+}
+.sectionContainer {
+  display: grid;
+  gap: 28px;
+  padding: 64px clamp(24px, 3vw, 64px);
+  min-width: 0;
+}
+.storyRail {
+  display: none;
+}
+.sectionHeading {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 0 64px;
+}
+.sectionHeading > .sectionLabel {
+  grid-column: 1 / -1;
+}
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.sectionLabel > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 6px);
+  color: var(--secondary);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.sectionHeading h2,
+.waitlistCopy h2 {
+  margin: 0;
+  color: var(--primary);
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.chapterDescription {
+  max-width: 390px;
+  margin: 0 0 2px;
+  justify-self: end;
+  color: var(--muted-foreground);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.chapterDetails {
+  padding: 18px 0 0;
+  margin: 22px 0 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.chapterDetails li + li {
+  margin-top: 10px;
+}
+.sceneFrame,
+.sceneContent {
+  min-width: 0;
+}
+.sceneContent > div {
+  box-shadow: 0 24px 70px -34px
+    color-mix(in srgb, var(--primary) 18%, transparent);
+  border-color: var(--border);
+}
+.section[data-story-visible="true"] .sectionHeading {
+  animation: chapter-arrive 600ms ease both;
+}
+@keyframes chapter-arrive {
+  from {
+    opacity: 0.7;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.waitlistSection {
+  padding: 76px 0;
+  scroll-margin-top: 96px;
+}
+.waitlistGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 72px;
+  max-width: 1248px;
+  align-items: center;
+}
+.waitlistCopy > p:not(.sectionLabel) {
+  max-width: 350px;
+  margin: 17px 0 0;
+  color: var(--muted-foreground);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.waitlistTrail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 27px;
+  color: var(--secondary);
+}
+.waitlistTrail > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.waitlistTrail > span > svg {
+  color: var(--primary);
+}
+.waitlistCard {
+  width: 100%;
+  max-width: 460px;
+  justify-self: end;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 8px);
+  background: var(--card);
+  padding: 28px;
+}
+.waitlistForm label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 500;
+}
+.emailField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  min-height: 46px;
+  border: 1px solid var(--input);
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--background);
+  color: var(--muted-foreground);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.emailField:focus-within {
+  border-color: color-mix(in srgb, var(--secondary) 65%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--secondary) 10%, transparent);
+}
+.emailField input {
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  caret-color: var(--primary);
+  font-size: 14px;
+}
+.emailField input::selection {
+  background: color-mix(in srgb, var(--primary) 18%, var(--background));
+  color: var(--foreground);
+}
+.emailField input:is(:autofill, :-webkit-autofill) {
+  box-shadow: 0 0 0 1000px var(--background) inset;
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--primary);
+}
+.emailField input::placeholder {
+  color: var(--muted-foreground);
+}
+.emailField svg {
+  flex-shrink: 0;
+}
+.waitlistSubmit {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 14px;
+  cursor: pointer;
+}
+.waitlistSubmit:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.fieldError,
+.formError {
+  color: var(--destructive);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.fieldError:not(:empty) {
+  margin-top: 8px;
+}
+.formError {
+  margin: 13px 0 0;
+}
+.formFinePrint {
+  margin: 14px 0 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  text-align: center;
+}
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 181px;
+  text-align: center;
+}
+.success > span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--primary);
+}
+.success h3 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.success p {
+  max-width: 270px;
+  margin: 12px 0 0;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.65;
+}
+@media (max-width: 1099px) {
+  .sectionContainer {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .sectionHeading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 0 40px;
+    max-width: none;
+  }
+  .sectionHeading > .sectionLabel {
+    grid-column: 1 / -1;
+  }
+  .chapterDetails {
+    grid-column: 1 / -1;
+  }
+  .chapterDescription {
+    max-width: 350px;
+    margin: 0 0 2px;
+  }
+  .waitlistGrid {
+    gap: 40px;
+  }
+}
+@media (max-width: 639px) {
+  .container {
+    width: calc(100% - 40px);
+  }
+  .heroIntro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .brandLine {
+    gap: 8px;
+    font-size: 12px;
+  }
+  .byKuinbee {
+    font-size: 10px;
+  }
+  .availability {
+    font-size: 9px;
+  }
+  .heroTitle {
+    margin-top: 12px;
+    font-size: clamp(36px, 10vw, 44px);
+  }
+  .heroDescription {
+    max-width: 340px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  .heroActions {
+    gap: 20px;
+    margin-top: 0;
+  }
+  .primaryLink,
+  .secondaryLink {
+    font-size: 12px;
+  }
+  .primaryLink {
+    padding: 0 14px;
+    gap: 17px;
+  }
+  .section {
+    scroll-margin-top: 96px;
+  }
+  .deckMain {
+    padding: 64px 0 32px;
+  }
+  .sectionHeading {
+    display: block;
+  }
+  .sectionContainer {
+    gap: 23px;
+    padding: 44px 20px;
+  }
+  .sectionHeading {
+    padding-inline: 6px;
+  }
+  .storyPrelude {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+    padding-block: 24px 0;
+    font-size: 11px;
+  }
+  .sectionLabel {
+    margin-bottom: 13px;
+  }
+  .sectionHeading h2,
+  .waitlistCopy h2 {
+    font-size: clamp(27px, 7vw, 34px);
+  }
+  .chapterDescription {
+    max-width: 340px;
+    margin: 12px 0 0;
+    font-size: 13px;
+  }
+  .waitlistSection {
+    padding: 52px 0;
+  }
+  .waitlistGrid {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .waitlistCopy > p:not(.sectionLabel) {
+    font-size: 14px;
+    margin-top: 13px;
+  }
+  .waitlistTrail {
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .waitlistTrail > span {
+    gap: 5px;
+    font-size: 11px;
+  }
+  .waitlistCard {
+    max-width: none;
+    padding: 23px;
+  }
+  .emailField input {
+    font-size: 16px;
+  }
+}
+@media (min-width: 1100px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
+  .deckMain {
+    padding: 0;
+  }
+  .storyStack[data-stack-active="true"] {
+    --stage-height: 100svh;
+    height: calc(var(--stack-distance) + var(--stage-height));
+  }
+  .storyStack[data-stack-active="true"] .stackStage {
+    position: sticky;
+    top: 0;
+    height: var(--stage-height);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    isolation: isolate;
+  }
+  .storyStack[data-stack-active="true"] .stackCanvas {
+    display: block;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    isolation: isolate;
+    background: var(--background);
+  }
+  .storyStack[data-stack-active="true"] .stackCanvas > [data-stack-card] {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, 18px, 0) scale(0.992);
+    transform-origin: center;
+    pointer-events: none;
+    box-shadow: none;
+    transition:
+      opacity 160ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s 160ms;
+  }
+  .storyStack[data-stack-active="true"]
+    [data-stack-card][data-card-position="before"] {
+    transform: translate3d(0, -12px, 0) scale(0.992);
+  }
+  .storyStack[data-stack-active="true"]
+    [data-stack-card][data-card-current="true"] {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(0, 0, 0) scale(1);
+    z-index: 1;
+    transition:
+      opacity 360ms ease 140ms,
+      transform 520ms cubic-bezier(0.22, 1, 0.36, 1) 100ms,
+      visibility 0s;
+  }
+  .storyStack[data-stack-active="true"] .sectionContainer {
+    height: 100%;
+    grid-template-columns: minmax(240px, 0.7fr) minmax(0, 2.6fr);
+    align-items: center;
+    gap: clamp(28px, 3vw, 56px);
+    padding: 100px clamp(32px, 3vw, 64px) 88px;
+  }
+  .storyStack[data-stack-active="true"] .sectionHeading {
+    display: block;
+    animation: none;
+  }
+  .storyStack[data-stack-active="true"] .sectionHeading h2 {
+    font-size: clamp(32px, 2.7vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -0.045em;
+  }
+  .storyStack[data-stack-active="true"] .chapterDescription {
+    margin-top: 22px;
+    font-size: 15px;
+    max-width: 300px;
+    justify-self: start;
+  }
+  .storyStack[data-stack-active="true"] .sceneFrame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: visible;
+  }
+  .storyStack[data-stack-active="true"] .sceneContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1180px;
+    transform: translate(-50%, -50%) scale(var(--scene-scale, 0.6));
+    transform-origin: center;
+  }
+  .storyStack[data-stack-active="true"]
+    .sceneFrame[data-strotas-artwork="hero"]
+    .sceneContent {
+    width: 1440px;
+  }
+  .storyStack[data-stack-active="true"] .waitlistSection {
+    display: grid;
+    align-items: center;
+    padding: 100px 64px 88px;
+  }
+  .storyStack[data-stack-active="true"] .waitlistGrid {
+    width: 100%;
+    max-width: 1120px;
+  }
+  .storyRail {
+    position: absolute;
+    inset: auto clamp(32px, 3vw, 64px) 16px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 12px 0 0;
+    border-top: 1px solid var(--border);
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+    min-height: 40px;
+  }
+  .railBrand {
+    display: flex;
+    gap: 16px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+  .railBrand > span {
+    color: var(--muted-foreground);
+  }
+  .storyRail > div {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .storyRail button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .storyRail button > span {
+    color: var(--muted-foreground);
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+  }
+  .storyRail button[aria-current="step"] {
+    color: var(--primary);
+    background: var(--card);
+    border-color: var(--border);
+  }
+  .storyRail button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .scrollHint {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+  }
+}
+@media (min-width: 1100px) and (max-width: 1399px) {
+  .railBrand,
+  .scrollHint {
+    display: none;
+  }
+  .storyRail {
+    justify-content: center;
+  }
+  .storyRail button {
+    padding-inline: 10px;
+  }
+  .heroDescription {
+    font-size: 14px;
+  }
+  .chapterDescription {
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storyStack .section {
+    position: relative !important;
+    top: auto !important;
+  }
+  .storyStack .sectionContainer {
+    transform: none !important;
+  }
+  .sectionContainer::after {
+    display: none;
+  }
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

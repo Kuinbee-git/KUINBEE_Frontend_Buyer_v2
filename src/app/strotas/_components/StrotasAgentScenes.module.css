@@ -1,0 +1,1718 @@
+.scene {
+  --scene-line: color-mix(in srgb, var(--secondary) 38%, var(--border));
+  --scene-soft: color-mix(in srgb, var(--secondary) 4%, var(--card));
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 5px);
+  background: var(--card);
+  color: var(--primary);
+  font-family: inherit;
+  box-shadow: 0 24px 70px -34px
+    color-mix(in srgb, var(--primary) 25%, transparent);
+}
+.scene *,
+.scene *::before,
+.scene *::after {
+  box-sizing: border-box;
+}
+.scene strong {
+  font-weight: 500;
+}
+.chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 49px;
+  padding: 14px 26px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 48%, var(--card));
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.chrome > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--primary);
+  font-weight: 500;
+  font-size: 13px;
+}
+.chrome svg,
+.scene svg {
+  flex-shrink: 0;
+}
+.planningBoard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 28px;
+  padding: 28px;
+}
+.planningInput,
+.planningTeam,
+.planResult {
+  min-width: 0;
+}
+.requestCard {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--scene-soft);
+}
+.eyebrow {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.requestCard p {
+  margin: 8px 0 14px;
+  font-size: 17px;
+  line-height: 1.5;
+  letter-spacing: -0.35px;
+  font-weight: 500;
+}
+.requestFiles {
+  display: flex;
+  gap: 7px;
+}
+.requestFiles span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--card);
+  font-size: 11px;
+  color: var(--secondary);
+}
+.contextStack {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+.contextHeading {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.contextCard {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--card);
+}
+.contextIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--scene-soft);
+  color: var(--secondary);
+}
+.contextCard > div {
+  min-width: 0;
+}
+.contextCard strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.contextCard p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+.contextFields {
+  display: block;
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
+.planningTeam {
+  position: relative;
+  padding-top: 8px;
+}
+.planner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: min(100%, 365px);
+  min-height: 82px;
+  margin: 0 auto;
+  padding: 17px 20px;
+  border: 1px solid var(--primary);
+  border-radius: 15px;
+  background: var(--primary);
+  color: var(--card);
+  box-shadow: 0 15px 35px -25px
+    color-mix(in srgb, var(--primary) 60%, transparent);
+}
+.plannerSymbol {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border: 1px solid color-mix(in srgb, var(--card) 18%, transparent);
+  border-radius: 12px;
+}
+.plannerSymbol i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--card);
+  border-radius: 50%;
+}
+.plannerSymbol i:nth-of-type(1) {
+  left: -3px;
+  top: 9px;
+}
+.plannerSymbol i:nth-of-type(2) {
+  right: -3px;
+  top: 21px;
+}
+.plannerSymbol i:nth-of-type(3) {
+  left: 18px;
+  bottom: -3px;
+}
+.planner > div {
+  min-width: 0;
+}
+.planner > div > span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+  opacity: 0.7;
+  line-height: 1.4;
+}
+.planner strong {
+  display: block;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+.plannerContext {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 9px;
+  background: var(--card);
+  color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11px;
+}
+.teamConnections {
+  position: relative;
+  height: 58px;
+  color: var(--scene-line);
+}
+.teamConnections i {
+  position: absolute;
+  display: block;
+  background: currentColor;
+}
+.teamStem {
+  width: 1px;
+  height: 29px;
+  top: 0;
+  left: 50%;
+}
+.teamBus {
+  height: 1px;
+  top: 29px;
+  left: calc(16.6667% - 4.3333px);
+  width: calc(66.6667% + 8.6667px);
+}
+.teamBranch {
+  width: 1px;
+  top: 29px;
+  height: 29px;
+}
+.teamBranch:nth-of-type(3) {
+  left: calc(16.6667% - 4.3333px);
+}
+.teamBranch:nth-of-type(4) {
+  left: 50%;
+}
+.teamBranch:nth-of-type(5) {
+  left: calc(83.3333% + 4.3333px);
+}
+.specialists {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+.specialist {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 260px;
+  padding: 16px 13px 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 8px 22px -17px
+    color-mix(in srgb, var(--primary) 22%, transparent);
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+.specialistPort {
+  position: absolute;
+  top: -4px;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--scene-line);
+  border-radius: 50%;
+  background: var(--card);
+}
+.specialistIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--scene-soft);
+  color: var(--secondary);
+}
+.specialist > strong {
+  font-size: 15px;
+  line-height: 1.4;
+}
+.specialistTask {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.specialistConfig {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  min-height: 76px;
+  margin-top: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.fieldChip {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--scene-soft);
+  color: var(--secondary);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.settingLine {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.settingLine strong,
+.settingLine > span:last-child {
+  color: var(--secondary);
+}
+.monthPair {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  font-size: 11px;
+}
+.monthPair > span:first-child,
+.monthPair > span:last-child {
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--scene-soft);
+}
+.monthPair > span:nth-child(2) {
+  color: var(--muted-foreground);
+}
+.smallMapping {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--secondary);
+}
+.smallMapping > span {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.specialist p {
+  margin: 10px 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.proposedLabel {
+  margin-top: auto;
+  padding-top: 4px;
+  color: var(--secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.proposedLabel::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+.teamCaption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.planResult {
+  align-self: start;
+  margin-top: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--card);
+}
+.planResultHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 18px 16px 12px;
+}
+.planCount {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 6px;
+  background: var(--scene-soft);
+  color: var(--secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.planSteps {
+  display: grid;
+  padding: 0 16px 15px;
+}
+.planSteps > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  font-size: 12px;
+}
+.planSteps > div > span {
+  width: 18px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.planSteps svg {
+  color: var(--secondary);
+}
+.reportShape {
+  margin: 0 12px 15px;
+  padding: 13px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--scene-soft);
+}
+.reportShape > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  color: var(--secondary);
+  font-size: 12px;
+}
+.reportShape > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.reportShape strong {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.reportShape > div > span {
+  max-width: 53%;
+  text-align: right;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.approvalPanel {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 17px 16px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--secondary) 6%, var(--card));
+  color: var(--secondary);
+}
+.approvalPanel > div {
+  min-width: 0;
+  flex: 1;
+}
+.approvalPanel strong {
+  display: block;
+  color: var(--primary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.approvalPanel div > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+.authority {
+  width: 100%;
+  padding-left: 30px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+.workflowToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 28px 0;
+  font-size: 12px;
+}
+.workflowToolbar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  line-height: 1.5;
+}
+.workflowDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--secondary);
+}
+.workflowApproval {
+  color: var(--muted-foreground);
+}
+.workflowCanvas {
+  position: relative;
+  padding: 20px 28px 4px;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--secondary) 14%, transparent) 0.65px,
+    transparent 0.85px
+  );
+  background-size: 20px 20px;
+  background-position: 8px 8px;
+}
+.desktopFlow {
+  display: grid;
+  grid-template-columns: 1.18fr 0.92fr 1.18fr 0.92fr 1.08fr 0.92fr 1.08fr;
+  gap: 24px;
+  height: 298px;
+}
+.desktopFlow > div {
+  position: relative;
+  min-width: 0;
+}
+.flowNode {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  height: 104px;
+  padding: 12px 12px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 7px 20px -14px
+    color-mix(in srgb, var(--primary) 25%, transparent);
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.flowNode[data-kind="Tool"] {
+  background: color-mix(in srgb, var(--secondary) 5%, var(--card));
+}
+.flowNode[data-selected] {
+  border-color: var(--secondary);
+  outline: 4px solid color-mix(in srgb, var(--secondary) 7%, transparent);
+}
+.flowNodeTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 23px;
+  margin-bottom: 9px;
+  color: var(--secondary);
+}
+.flowNodeTop > span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.flowNode[data-kind="Data"] .flowNodeTop > span {
+  display: block;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--scene-soft);
+  color: var(--secondary);
+}
+.flowNode > strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  overflow-wrap: anywhere;
+}
+.flowDetail {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.inPort,
+.outPort {
+  position: absolute;
+  z-index: 2;
+  top: 48px;
+  display: block;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--scene-line);
+  border-radius: 50%;
+  background: var(--card);
+}
+.inPort {
+  left: -4px;
+}
+.outPort {
+  right: -4px;
+}
+.topNode,
+.bottomNode,
+.centerNode,
+.exportNode {
+  position: absolute;
+  width: 100%;
+}
+.topNode {
+  top: 0;
+}
+.bottomNode {
+  top: 188px;
+}
+.centerNode {
+  top: 94px;
+}
+.sourceColumn .flowNode::after,
+.cleanColumn .flowNode::after,
+.mergeColumn .flowNode::after,
+.combinedColumn .flowNode::after,
+.mapColumn .flowNode::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 51px;
+  left: 100%;
+  width: 24px;
+  height: 1px;
+  background: var(--scene-line);
+}
+.sourceColumn .inPort {
+  display: none;
+}
+.sourceColumn > .reportBadge {
+  position: absolute;
+  top: 128px;
+  width: 100%;
+}
+.sourceColumn > .reportBadge::before {
+  content: "";
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  width: 1px;
+  height: 28px;
+  background: var(--scene-line);
+}
+.reportBadge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 7px 8px;
+  border: 1px dashed var(--scene-line);
+  border-radius: 7px;
+  background: var(--background);
+  color: var(--secondary);
+}
+.reportBadge > div {
+  min-width: 0;
+}
+.reportBadge strong {
+  display: block;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.reportBadge span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.mergeConnections {
+  position: absolute;
+  top: 51px;
+  left: -24px;
+  width: 24px;
+  height: 189px;
+}
+.mergeConnections i {
+  position: absolute;
+  display: block;
+  background: var(--scene-line);
+}
+.mergeConnections i:nth-child(1) {
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 1px;
+}
+.mergeConnections i:nth-child(2) {
+  left: 0;
+  bottom: 0;
+  width: 12px;
+  height: 1px;
+}
+.mergeConnections i:nth-child(3) {
+  left: 12px;
+  top: 0;
+  width: 1px;
+  height: 100%;
+}
+.mergeConnections i:nth-child(4) {
+  left: 12px;
+  top: 94px;
+  width: 12px;
+  height: 1px;
+}
+.outputColumn > .reportBadge {
+  position: absolute;
+  top: 14px;
+  width: 100%;
+}
+.outputColumn > .reportBadge::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: 36px;
+  background: var(--scene-line);
+}
+.outputColumn > .centerNode .outPort {
+  display: none;
+}
+.exportNode {
+  top: 226px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-content: center;
+  column-gap: 7px;
+  height: 66px;
+  padding: 10px 11px;
+}
+.exportNode::before {
+  content: "";
+  position: absolute;
+  top: -29px;
+  left: 50%;
+  width: 1px;
+  height: 28px;
+  background: var(--scene-line);
+}
+.exportNode .flowNodeTop {
+  display: contents;
+}
+.exportNode .flowNodeTop > span {
+  display: none;
+}
+.exportNode .flowNodeTop > svg {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  align-self: center;
+  width: 17px;
+  height: 17px;
+}
+.exportNode > strong {
+  grid-column: 2;
+  grid-row: 1;
+}
+.exportNode .flowDetail {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.exportNode .inPort,
+.exportNode .outPort {
+  display: none;
+}
+.mobileFlow {
+  display: none;
+}
+.configurationPanel {
+  display: grid;
+  grid-template-columns: 1.24fr 1fr 0.8fr;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 48%, var(--card));
+}
+.fieldMapping,
+.toolSettings,
+.workflowFootnote {
+  min-width: 0;
+  padding: 18px 24px;
+}
+.fieldMapping,
+.toolSettings {
+  border-right: 1px solid var(--border);
+}
+.configurationHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 23px;
+  margin-bottom: 10px;
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.configurationHeading > span {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.mappingHeaders {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 7px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.mappingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 26px;
+  font-size: 13px;
+}
+.mappingRow > span {
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
+.mappingRow strong {
+  color: var(--primary);
+  overflow-wrap: anywhere;
+}
+.mappingRow svg {
+  color: var(--muted-foreground);
+}
+.toolSettings > div:not(:first-child) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 33px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.toolSettings > div > span {
+  color: var(--muted-foreground);
+}
+.toolSettings > div > strong {
+  text-align: right;
+}
+.footnoteIcon {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--secondary);
+  background: var(--card);
+}
+.workflowFootnote > strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.workflowFootnote p {
+  margin: 5px 0 12px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.workflowFootnote > span:last-child {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--secondary);
+}
+.workflowFootnote > span:last-child svg {
+  margin-top: 2px;
+}
+@media (hover: hover) {
+  .specialist:hover {
+    transform: translateY(-3px);
+    border-color: var(--scene-line);
+  }
+  .flowNode:hover {
+    border-color: var(--secondary);
+    box-shadow: 0 8px 22px -14px
+      color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+}
+:global([data-story-visible="true"]) .planner {
+  animation: planner-settle 700ms ease both;
+}
+:global([data-story-visible="true"]) .teamConnections {
+  animation: connection-ink 900ms ease both;
+}
+:global([data-story-visible="true"]) .specialist {
+  animation: specialist-settle 800ms ease both;
+}
+:global([data-story-visible="true"]) .specialist:nth-child(2) {
+  animation-delay: 110ms;
+}
+:global([data-story-visible="true"]) .specialist:nth-child(3) {
+  animation-delay: 220ms;
+}
+:global([data-story-visible="true"]) .planResult {
+  animation: result-settle 900ms ease 280ms both;
+}
+:global([data-story-visible="true"]) .flowNode[data-selected] {
+  animation: selected-ink 1200ms ease both;
+}
+@keyframes planner-settle {
+  from {
+    transform: translateY(5px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes connection-ink {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes specialist-settle {
+  from {
+    transform: translateY(7px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes result-settle {
+  from {
+    transform: translateX(6px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes selected-ink {
+  40% {
+    outline-color: color-mix(in srgb, var(--secondary) 18%, transparent);
+  }
+}
+@media (max-width: 1150px) {
+  .planningBoard {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 2fr);
+    gap: 24px;
+    padding: 28px 24px;
+  }
+  .planResult {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+  .planResultHeading {
+    grid-column: 1;
+    padding-bottom: 0;
+  }
+  .planSteps {
+    grid-column: 1;
+    grid-row: 2;
+    padding-top: 8px;
+  }
+  .reportShape {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    margin: 16px;
+  }
+  .approvalPanel {
+    grid-column: 1 / -1;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .authority {
+    width: auto;
+    padding-left: 0;
+    margin-left: auto;
+  }
+  .flowNode {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+  .desktopFlow {
+    gap: 18px;
+  }
+  .sourceColumn .flowNode::after,
+  .cleanColumn .flowNode::after,
+  .mergeColumn .flowNode::after,
+  .combinedColumn .flowNode::after,
+  .mapColumn .flowNode::after {
+    width: 18px;
+  }
+  .mergeConnections {
+    left: -18px;
+    width: 18px;
+  }
+  .mergeConnections i:nth-child(1),
+  .mergeConnections i:nth-child(2) {
+    width: 9px;
+  }
+  .mergeConnections i:nth-child(3),
+  .mergeConnections i:nth-child(4) {
+    left: 9px;
+  }
+  .mergeConnections i:nth-child(4) {
+    width: 9px;
+  }
+  .workflowCanvas {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
+@media (max-width: 1000px) {
+  .desktopFlow {
+    display: none;
+  }
+  .mobileFlow {
+    display: block;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .mobileInputPair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px;
+  }
+  .mobileInputLane {
+    display: grid;
+    gap: 27px;
+  }
+  .mobileInputLane .flowNode {
+    height: 106px;
+  }
+  .mobileInputLane .flowNode::after,
+  .mobileOutputChain .flowNode:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 1px;
+    height: 27px;
+    background: var(--scene-line);
+  }
+  .mobileFlow .inPort,
+  .mobileFlow .outPort {
+    display: none;
+  }
+  .mobileMerge {
+    position: relative;
+    height: 52px;
+  }
+  .mobileMerge i {
+    position: absolute;
+    display: block;
+    background: var(--scene-line);
+  }
+  .mobileMerge i:nth-child(1) {
+    top: 0;
+    left: calc(25% - 10px);
+    width: 1px;
+    height: 26px;
+  }
+  .mobileMerge i:nth-child(2) {
+    top: 0;
+    left: calc(75% + 10px);
+    width: 1px;
+    height: 26px;
+  }
+  .mobileMerge i:nth-child(3) {
+    top: 26px;
+    left: calc(25% - 10px);
+    width: calc(50% + 20px);
+    height: 1px;
+  }
+  .mobileMerge i:nth-child(4) {
+    top: 26px;
+    left: 50%;
+    width: 1px;
+    height: 26px;
+  }
+  .mobileOutputChain {
+    display: grid;
+    gap: 27px;
+    width: calc(50% - 20px);
+    min-width: 210px;
+    margin: 0 auto;
+  }
+  .mobileOutputChain .flowNode {
+    height: auto;
+    min-height: 106px;
+  }
+  .mobileReports {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 420px;
+    margin: 28px auto 0;
+  }
+  .mobileReports .reportBadge {
+    justify-content: flex-start;
+  }
+  .configurationPanel {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .toolSettings {
+    border-right: 0;
+  }
+  .workflowFootnote {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 43px 1fr;
+    column-gap: 11px;
+    padding-top: 17px;
+    padding-bottom: 17px;
+    border-top: 1px solid var(--border);
+  }
+  .footnoteIcon {
+    grid-row: 1 / 4;
+    align-self: center;
+    margin: 0;
+  }
+  .workflowFootnote p {
+    margin-bottom: 5px;
+  }
+}
+@media (max-width: 740px) {
+  .chrome {
+    padding: 15px 18px;
+  }
+  .planningBoard {
+    display: block;
+    padding: 23px 20px;
+  }
+  .planningInput {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 18px;
+  }
+  .contextStack {
+    margin-top: 0;
+  }
+  .requestCard {
+    padding: 18px;
+  }
+  .requestCard p {
+    font-size: 17px;
+  }
+  .planningTeam {
+    margin-top: 28px;
+    padding-top: 0;
+  }
+  .specialist {
+    min-height: 276px;
+  }
+  .planResult {
+    margin-top: 25px;
+  }
+  .workflowToolbar {
+    padding: 18px 20px 0;
+  }
+  .workflowCanvas {
+    padding: 26px 22px 24px;
+  }
+  .fieldMapping,
+  .toolSettings {
+    padding: 20px;
+  }
+}
+@media (max-width: 540px) {
+  .scene {
+    border-radius: 14px;
+  }
+  .chrome {
+    align-items: flex-start;
+    padding: 14px 15px;
+    gap: 8px;
+  }
+  .chrome > span:last-child {
+    max-width: 107px;
+    text-align: right;
+    font-size: 11px;
+  }
+  .chrome > span:first-child {
+    font-size: 12px;
+    gap: 6px;
+  }
+  .planningBoard {
+    padding: 16px;
+  }
+  .planningInput {
+    display: block;
+  }
+  .requestCard p {
+    font-size: 17px;
+    margin-bottom: 12px;
+  }
+  .requestCard {
+    padding: 14px;
+  }
+  .contextStack {
+    margin-top: 15px;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+  }
+  .contextHeading {
+    padding: 10px 12px 6px;
+    margin: 0;
+    font-size: 11px;
+  }
+  .contextCard {
+    gap: 8px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 0;
+  }
+  .contextCard + .contextCard {
+    border-top: 1px solid var(--border);
+  }
+  .contextIcon {
+    width: 23px;
+    height: 23px;
+  }
+  .contextIcon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .contextCard strong {
+    font-size: 12px;
+  }
+  .contextCard p,
+  .contextFields {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .contextCard p {
+    margin-top: 2px;
+  }
+  .contextFields {
+    margin-top: 4px;
+  }
+  .planningTeam {
+    margin-top: 18px;
+  }
+  .planner {
+    padding: 13px 15px;
+    min-height: 75px;
+    gap: 12px;
+  }
+  .planner strong {
+    font-size: 18px;
+  }
+  .planner > div > span {
+    font-size: 11px;
+  }
+  .teamConnections {
+    height: 28px;
+  }
+  .teamStem {
+    height: 28px;
+  }
+  .teamBus,
+  .teamBranch {
+    display: none !important;
+  }
+  .specialists {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .specialist {
+    display: grid;
+    grid-template-columns: 35px minmax(0, 1fr);
+    column-gap: 10px;
+    min-height: 0;
+    padding: 14px;
+  }
+  .specialistIcon {
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+  .specialist > strong {
+    grid-column: 2;
+    font-size: 14px;
+  }
+  .specialistTask {
+    grid-column: 2;
+    margin-top: 3px;
+    font-size: 12px;
+  }
+  .specialistConfig {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    min-height: 0;
+    padding: 10px 0 0;
+    gap: 8px;
+    border-bottom: 0;
+  }
+  .fieldChip,
+  .settingLine,
+  .monthPair,
+  .smallMapping {
+    font-size: 12px;
+  }
+  .fieldChip {
+    font-size: 11px;
+  }
+  .settingLine {
+    gap: 7px;
+  }
+  .smallMapping {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .smallMapping svg {
+    transform: rotate(-90deg);
+  }
+  .specialist p {
+    display: none;
+  }
+  .proposedLabel {
+    display: none;
+  }
+  .specialistPort {
+    display: none;
+  }
+  .specialist:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    height: 12px;
+    border-left: 1px dashed var(--scene-line);
+  }
+  .teamCaption {
+    font-size: 12px;
+    align-items: flex-start;
+    margin-top: 14px;
+  }
+  .teamCaption svg {
+    margin-top: 3px;
+  }
+  .planResult {
+    display: block;
+    margin-top: 17px;
+  }
+  .planResultHeading {
+    display: none;
+  }
+  .planSteps {
+    display: none;
+  }
+  .planSteps > div {
+    font-size: 13px;
+  }
+  .reportShape {
+    margin: 12px;
+    padding: 11px;
+  }
+  .reportShape > span {
+    margin-bottom: 8px;
+  }
+  .reportShape > div {
+    padding: 6px 0;
+  }
+  .reportShape strong,
+  .reportShape > span {
+    font-size: 13px;
+  }
+  .reportShape > div > span {
+    font-size: 12px;
+  }
+  .approvalPanel {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 13px;
+  }
+  .authority {
+    width: 100%;
+    padding-left: 30px;
+    margin-left: 0;
+  }
+  .workflowToolbar {
+    align-items: flex-start;
+    padding: 17px 15px 0;
+    font-size: 11px;
+    gap: 9px;
+  }
+  .workflowToolbar > span:first-child {
+    max-width: 105px;
+  }
+  .workflowApproval {
+    max-width: 119px;
+    justify-content: flex-end;
+    text-align: right;
+  }
+  .workflowCanvas {
+    padding: 19px 15px 16px;
+  }
+  .mobileInputPair {
+    gap: 16px;
+  }
+  .mobileInputLane .flowNode {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-content: center;
+    column-gap: 6px;
+    height: 78px;
+    padding: 10px;
+  }
+  .mobileInputLane .flowNodeTop {
+    display: contents;
+  }
+  .mobileInputLane .flowNodeTop > svg {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
+    width: 18px;
+    height: 18px;
+  }
+  .mobileInputLane .flowNodeTop > span {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
+  .mobileInputLane .flowNode > strong {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 12px;
+  }
+  .mobileInputLane .flowDetail {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 3px;
+  }
+  .mobileInputLane .flowNode[data-kind="Tool"] .flowNodeTop > span {
+    display: none;
+  }
+  .mobileInputLane,
+  .mobileOutputChain {
+    gap: 18px;
+  }
+  .mobileInputLane .flowNode::after,
+  .mobileOutputChain .flowNode:not(:last-child)::after {
+    height: 18px;
+  }
+  .mobileMerge {
+    height: 36px;
+  }
+  .flowNode > strong {
+    font-size: 13px;
+  }
+  .flowNodeTop {
+    gap: 5px;
+  }
+  .flowNodeTop > svg {
+    width: 21px;
+    height: 21px;
+  }
+  .flowDetail {
+    font-size: 11px;
+  }
+  .mobileMerge i:nth-child(1) {
+    left: calc(25% - 4px);
+    height: 18px;
+  }
+  .mobileMerge i:nth-child(2) {
+    left: calc(75% + 4px);
+    height: 18px;
+  }
+  .mobileMerge i:nth-child(3) {
+    left: calc(25% - 4px);
+    width: calc(50% + 8px);
+    top: 18px;
+  }
+  .mobileMerge i:nth-child(4) {
+    top: 18px;
+    height: 18px;
+  }
+  .mobileOutputChain {
+    width: 84%;
+    min-width: 0;
+  }
+  .mobileOutputChain .flowNode {
+    display: grid;
+    grid-template-columns: 25px minmax(0, 1fr);
+    column-gap: 9px;
+    align-items: center;
+    min-height: 64px;
+    padding: 11px 13px;
+  }
+  .mobileOutputChain .flowNodeTop {
+    display: contents;
+  }
+  .mobileOutputChain .flowNodeTop > svg {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    width: 24px;
+    height: 24px;
+  }
+  .mobileOutputChain .flowNodeTop > span {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    justify-self: end;
+    margin-top: -4px;
+    font-size: 11px;
+  }
+  .mobileOutputChain .flowNode > strong {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 5px;
+    padding-right: 20px;
+    font-size: 13px;
+  }
+  .mobileOutputChain .flowDetail {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .mobileOutputChain .flowNode[data-kind="Export job"] .flowNodeTop > span {
+    display: none;
+  }
+  .mobileOutputChain .flowNode[data-kind="Tool"] .flowNodeTop > span {
+    display: none;
+  }
+  .mobileReports {
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .mobileReports .reportBadge {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 9px;
+    gap: 6px;
+  }
+  .mobileReports .reportBadge strong {
+    font-size: 12px;
+  }
+  .configurationPanel {
+    display: block;
+  }
+  .fieldMapping,
+  .toolSettings {
+    border-right: 0;
+    padding: 14px 16px;
+  }
+  .toolSettings {
+    border-top: 1px solid var(--border);
+  }
+  .configurationHeading {
+    font-size: 13px;
+    margin-bottom: 9px;
+  }
+  .configurationHeading > span {
+    font-size: 11px;
+  }
+  .mappingHeaders {
+    gap: 26px;
+    font-size: 11px;
+  }
+  .mappingRow {
+    gap: 7px;
+    font-size: 12px;
+    min-height: 28px;
+  }
+  .toolSettings > div:not(:first-child) {
+    font-size: 12px;
+    min-height: 31px;
+  }
+  .workflowFootnote {
+    padding: 14px 16px;
+  }
+  .workflowFootnote p {
+    display: none;
+  }
+  .workflowFootnote > span:last-child {
+    margin-top: 5px;
+  }
+}
+@media (max-width: 350px) {
+  .planningBoard {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+  .requestCard {
+    padding: 16px;
+  }
+  .planner {
+    gap: 9px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .plannerSymbol {
+    width: 39px;
+    height: 39px;
+  }
+  .planner strong {
+    font-size: 17px;
+  }
+  .planner > div > span {
+    font-size: 11px;
+  }
+  .specialist {
+    padding: 16px 14px;
+    column-gap: 10px;
+  }
+  .workflowCanvas {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+  .mobileInputPair {
+    gap: 12px;
+  }
+  .mobileMerge i:nth-child(1) {
+    left: calc(25% - 3px);
+  }
+  .mobileMerge i:nth-child(2) {
+    left: calc(75% + 3px);
+  }
+  .mobileMerge i:nth-child(3) {
+    left: calc(25% - 3px);
+    width: calc(50% + 6px);
+  }
+  .mobileInputLane .flowNode {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+  .mobileInputLane .flowNode > strong {
+    font-size: 12px;
+  }
+  .configurationHeading > span {
+    max-width: 53px;
+    text-align: right;
+  }
+  .mappingRow {
+    font-size: 12px;
+    grid-template-columns: minmax(0, 1.25fr) 13px minmax(0, 1fr);
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene *,
+  .scene *::before,
+  .scene *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
