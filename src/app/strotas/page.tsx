@@ -3,20 +3,20 @@ import { generateMetadata as genMeta } from "@/core/config";
 import { StrotasPageContent } from "./_components/StrotasPageContent";
 
 export const metadata: Metadata = genMeta({
-    title: "Strotas — AI-Native Data Pipeline",
-    description:
-        "Strotas by Kuinbee is an AI-native pipeline engine. Unify scattered sources into validated, query-ready data assets with AI-assisted, human-governed workflows.",
-    keywords: [
-        "data pipeline",
-        "AI data pipeline",
-        "ETL tool",
-        "data integration",
-        "Strotas",
-        "data engineering",
-    ],
-    path: "/strotas",
+  title: "Strotas — AI-Native Pipeline Software by Kuinbee",
+  description:
+    "Discover Strotas by Kuinbee: upcoming AI-native pipeline software for building custom workflows, profiling, cleaning, combining and validating data with versioned outputs and lineage.",
+  keywords: [
+    "data pipeline",
+    "AI data pipeline",
+    "ETL tool",
+    "data integration",
+    "Strotas",
+    "data engineering",
+  ],
+  path: "/strotas",
 });
 
 export default function StrotasPage() {
-    return <StrotasPageContent />;
+  return <StrotasPageContent />;
 }

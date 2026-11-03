@@ -1,0 +1,47 @@
+.reveal {
+  color: var(--primary);
+}
+.mark {
+  display: block;
+  width: 56px;
+  height: 64px;
+  overflow: visible;
+}
+.mark path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: stroke-arrive 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.mark path:nth-child(2) {
+  animation-delay: 120ms;
+}
+.mark path:nth-child(3) {
+  animation-delay: 240ms;
+}
+.reveal[data-compact="true"] .mark {
+  width: 42px;
+  height: 48px;
+}
+.reveal[data-animation-state="paused"] * {
+  animation-play-state: paused !important;
+}
+.reveal[data-animation-state="static"] * {
+  animation: none !important;
+}
+@keyframes stroke-arrive {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 1;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal * {
+    animation: none !important;
+  }
+}

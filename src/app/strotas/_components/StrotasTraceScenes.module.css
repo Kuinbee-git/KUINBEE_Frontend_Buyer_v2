@@ -1,0 +1,1742 @@
+.scene {
+  overflow: hidden;
+  width: 100%;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 5px);
+  background: var(--card);
+  box-shadow: 0 24px 70px -34px
+    color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+.chrome {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 24px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 65%, var(--card));
+  font-size: 11px;
+}
+
+.chromeTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.previewLabel {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.lineageIntro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 21px 30px 0;
+  font-size: 12px;
+}
+
+.lineageIntro > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.lineageIntro > strong {
+  font-weight: 600;
+}
+
+.traceTag {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.lineageGraph {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.58fr 0.8fr 1.15fr;
+  align-items: center;
+  gap: 56px;
+  min-height: 320px;
+  margin: 6px 30px 16px;
+  padding: 15px 0;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--secondary) 15%, transparent) 0.7px,
+    transparent 0.7px
+  );
+  background-size: 18px 18px;
+}
+
+.graphConnections {
+  position: absolute;
+  top: 27px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 54px);
+  overflow: visible;
+  color: color-mix(in srgb, var(--secondary) 40%, var(--border));
+  pointer-events: none;
+}
+
+.graphConnections path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.graphConnections circle {
+  fill: var(--secondary);
+  stroke: var(--card);
+  stroke-width: 1.5;
+}
+
+.graphConnections .selectedConnection {
+  stroke: var(--primary);
+  stroke-width: 2;
+}
+
+.graphConnections .traceDot {
+  fill: var(--primary);
+}
+
+.sources,
+.joined,
+.branches {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.sources {
+  display: grid;
+  gap: 22px;
+}
+
+.stageLabel {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.sourceLane {
+  display: grid;
+  grid-template-columns: 1fr 42px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.artifact {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid color-mix(in srgb, var(--secondary) 19%, var(--border));
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--primary) 3%, transparent);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.artifact:hover {
+  border-color: color-mix(in srgb, var(--secondary) 60%, var(--border));
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--primary) 7%, transparent);
+}
+
+.original {
+  background: color-mix(in srgb, var(--muted) 65%, var(--card));
+}
+
+.artifactTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 9px;
+  color: var(--secondary);
+}
+
+.version,
+.schemaVersion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 19px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--secondary);
+  background: var(--card);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.artifact > strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.artifactDetail {
+  margin-top: 9px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.rawValue,
+.cleanValue {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rawValue {
+  color: var(--muted-foreground);
+}
+
+.cleanValue {
+  color: var(--secondary);
+}
+
+.preserved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.cleanStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: var(--secondary);
+  font-size: 9px;
+}
+
+.toolIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background);
+}
+
+.joined {
+  display: grid;
+  gap: 10px;
+  padding-top: 25px;
+}
+
+.toolBadge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--secondary);
+  background: var(--card);
+  font-size: 10px;
+}
+
+.joined > .toolBadge {
+  justify-self: center;
+}
+
+.combinedRows {
+  display: grid;
+  gap: 3px;
+}
+
+.combinedRows > span {
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: var(--muted);
+  color: var(--secondary);
+}
+
+.artifactNote {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+}
+
+.branches {
+  display: grid;
+  gap: 22px;
+}
+
+.reportBranch {
+  display: grid;
+  gap: 8px;
+}
+
+.branchHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.branchHeading > span:last-child {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.activeArtifact {
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.activeArtifact .artifactTop {
+  color: var(--primary-foreground);
+}
+
+.activeArtifact .version {
+  border-color: color-mix(in srgb, var(--primary-foreground) 28%, transparent);
+  color: var(--primary-foreground);
+  background: color-mix(in srgb, var(--primary-foreground) 8%, transparent);
+}
+
+.reportField {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  color: var(--primary-foreground);
+}
+
+.reportField > span {
+  grid-column: 1 / -1;
+  color: color-mix(in srgb, var(--primary-foreground) 60%, transparent);
+  font-size: 9px;
+}
+
+.reportField > strong {
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.exportArrow {
+  display: flex;
+  justify-content: center;
+  color: var(--secondary);
+}
+
+.exportJob {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.exportIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--secondary);
+}
+
+.exportJob > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.exportJob strong {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.exportJob div > span {
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.exportJob > svg {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--secondary);
+}
+
+.csvBranch {
+  display: grid;
+  gap: 8px;
+}
+
+.branchLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.fieldTrace {
+  margin: 0 30px 16px;
+  padding: 15px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--muted) 65%, var(--card));
+}
+
+.traceHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  color: var(--secondary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.mappingLabel {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.renameFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.renameField {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  color: var(--secondary);
+  font-size: 13px;
+}
+
+.renameField > span {
+  color: var(--muted-foreground);
+}
+
+.renameField > strong {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.renameField > svg {
+  flex: 0 0 auto;
+}
+
+.activity {
+  padding: 16px 30px;
+  border-top: 1px solid var(--border);
+}
+
+.activityHeading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 11px;
+  color: var(--secondary);
+  font-size: 10px;
+}
+
+.activityHeading > span:last-child {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.activityItems {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 20px;
+}
+
+.activityItems > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.activityItems svg {
+  flex: 0 0 auto;
+  color: var(--secondary);
+}
+
+.activityItems strong {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.mobileMerge {
+  display: none;
+}
+
+.reviewIntro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 25px 30px 20px;
+}
+
+.reviewSignal {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.policyLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.reviewComposition {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+  margin: 0 30px 25px;
+}
+
+.schemaComparison {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 36px;
+  min-width: 0;
+}
+
+.schemaCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 4%, transparent);
+}
+
+.schemaHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 16px;
+}
+
+.schemaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--secondary);
+  background: var(--muted);
+}
+
+.schemaHeading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.schemaHeading strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.schemaHeading div > span {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.schemaVersion {
+  margin-left: auto;
+}
+
+.schemaColumnLabels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  background: var(--muted);
+  font-size: 10px;
+}
+
+.schemaFields {
+  display: grid;
+  gap: 8px;
+  padding: 14px 12px;
+}
+
+.schemaField {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.schemaField > span:last-child {
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.removedField {
+  border-color: color-mix(in srgb, var(--destructive) 25%, var(--border));
+  background: color-mix(in srgb, var(--destructive) 6%, var(--card));
+}
+
+.missingField {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 8px;
+  border: 1px dashed color-mix(in srgb, var(--destructive) 40%, var(--border));
+  border-radius: 6px;
+  color: color-mix(in srgb, var(--destructive) 80%, var(--foreground));
+  background: color-mix(in srgb, var(--destructive) 3%, var(--card));
+  font-size: 10px;
+}
+
+.emptyFieldIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 11px;
+}
+
+.schemaFooter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--muted) 30%, var(--card));
+  font-size: 9px;
+}
+
+.schemaDifference {
+  position: absolute;
+  top: 187px;
+  left: calc(50% - 9px);
+  display: flex;
+  align-items: center;
+  color: var(--destructive);
+}
+
+.schemaDifference > span {
+  position: absolute;
+  top: 29px;
+  left: 50%;
+  width: 110px;
+  transform: translateX(-50%);
+  color: var(--muted-foreground);
+  background: var(--card);
+  font-size: 9px;
+  text-align: center;
+}
+
+.reviewPanel {
+  align-self: stretch;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--secondary) 30%, var(--border));
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.reviewPanelHeading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.assistantIcon {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid
+    color-mix(in srgb, var(--primary-foreground) 25%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary-foreground) 8%, transparent);
+}
+
+.reviewPanelHeading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.reviewPanelHeading strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.reviewPanelHeading div > span {
+  color: color-mix(in srgb, var(--primary-foreground) 65%, transparent);
+  font-size: 10px;
+}
+
+.reviewPanelHeading > svg {
+  margin-left: auto;
+}
+
+.reviewAnnotation {
+  padding: 21px 20px;
+}
+
+.annotationLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.reviewAnnotation > strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.reviewAnnotation > p {
+  margin: 13px 0 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.reviewState {
+  display: grid;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 50%, var(--card));
+  font-size: 10px;
+}
+
+.reviewState > span:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted-foreground);
+}
+
+.reviewState strong {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--primary);
+  background: var(--card);
+  font-size: 9px;
+  font-weight: 500;
+}
+
+.reviewState > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--secondary);
+}
+
+.pendingDot {
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--secondary);
+  border-radius: 50%;
+}
+
+.contextAssembly {
+  margin: 0 30px 25px;
+  padding: 19px 21px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+}
+
+.contextHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--secondary);
+  font-size: 11px;
+}
+
+.contextHeading strong {
+  font-weight: 500;
+}
+
+.contextHeading > span {
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.contextCards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.25fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.contextCards > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--secondary);
+  background: var(--card);
+}
+
+.contextCards > div > svg:first-child {
+  flex: 0 0 auto;
+}
+
+.contextCards div > span {
+  display: grid;
+  gap: 5px;
+  color: var(--muted-foreground);
+  font-size: 9px;
+}
+
+.contextCards strong {
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.contextCards div > svg:last-child {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.contextDestination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 2px;
+  color: var(--primary);
+}
+
+.decisionBoundary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 30px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 45%, var(--card));
+}
+
+.decisionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--secondary);
+  background: var(--card);
+}
+
+.decisionBoundary > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.decisionBoundary strong {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.decisionBoundary div > span {
+  color: var(--muted-foreground);
+}
+
+.decisionBoundary > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+:global([data-story-visible="true"]) .selectedConnection {
+  animation: revealConnection 1.2s ease-out both;
+}
+
+:global([data-story-visible="true"]) .traceDot {
+  animation: traceArrival 1.6s ease-out both;
+}
+
+:global([data-story-visible="true"]) .activeArtifact,
+:global([data-story-visible="true"]) .reviewPanel {
+  animation: sceneSettle 800ms ease-out both;
+}
+
+:global([data-story-visible="true"]) .missingField {
+  animation: noticeDifference 1.6s ease-out both;
+}
+
+@keyframes revealConnection {
+  from {
+    stroke-dasharray: 8 6;
+    stroke-dashoffset: 35;
+  }
+  to {
+    stroke-dasharray: 8 6;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes traceArrival {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sceneSettle {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes noticeDifference {
+  from {
+    background: color-mix(in srgb, var(--destructive) 13%, var(--card));
+  }
+  to {
+    background: color-mix(in srgb, var(--destructive) 3%, var(--card));
+  }
+}
+
+@media (max-width: 1199px) {
+  .lineageGraph {
+    gap: 36px;
+    grid-template-columns: 1.62fr 0.75fr 1.1fr;
+  }
+
+  .artifact {
+    padding: 11px;
+  }
+
+  .artifact > strong {
+    font-size: 11px;
+  }
+
+  .sourceLane {
+    grid-template-columns: 1fr 32px 1fr;
+    gap: 5px;
+  }
+
+  .reviewComposition {
+    grid-template-columns: 1.5fr 1fr;
+    gap: 18px;
+  }
+
+  .schemaComparison {
+    gap: 26px;
+  }
+
+  .schemaHeading {
+    padding: 14px 12px;
+    gap: 7px;
+  }
+
+  .schemaIcon {
+    width: 28px;
+    height: 32px;
+  }
+
+  .schemaFields {
+    padding: 14px 8px;
+  }
+
+  .schemaField {
+    padding: 10px 6px;
+    gap: 5px;
+  }
+
+  .schemaField > span:first-child {
+    font-size: 10px;
+  }
+
+  .missingField {
+    font-size: 9px;
+  }
+
+  .reviewPanelHeading,
+  .reviewAnnotation,
+  .reviewState {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 999px) {
+  .lineageGraph {
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 22px 24px;
+    padding: 0;
+  }
+
+  .graphConnections {
+    display: none;
+  }
+
+  .sources {
+    gap: 16px;
+  }
+
+  .sourceLane {
+    grid-template-columns: 1fr 48px 1fr;
+    gap: 12px;
+  }
+
+  .artifact {
+    padding: 16px;
+  }
+
+  .artifact > strong {
+    font-size: 13px;
+  }
+
+  .artifactDetail {
+    font-size: 12px;
+  }
+
+  .sourceLane .artifactTop {
+    margin-bottom: 7px;
+  }
+
+  .joined {
+    width: min(100%, 340px);
+    justify-self: center;
+    gap: 10px;
+    padding: 20px 0 0;
+  }
+
+  .mobileMerge {
+    display: flex;
+    justify-content: center;
+    color: var(--secondary);
+  }
+
+  .branches {
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    gap: 24px;
+    margin-top: 20px;
+    padding-top: 25px;
+    border-top: 1px solid
+      color-mix(in srgb, var(--secondary) 35%, var(--border));
+  }
+
+  .branches::before {
+    position: absolute;
+    top: -21px;
+    left: 50%;
+    width: 1px;
+    height: 21px;
+    background: color-mix(in srgb, var(--secondary) 35%, var(--border));
+    content: "";
+  }
+
+  .reportBranch::before,
+  .csvBranch::before {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 20px;
+    background: color-mix(in srgb, var(--secondary) 35%, var(--border));
+    content: "";
+  }
+
+  .reportBranch::before {
+    left: 25%;
+  }
+  .csvBranch::before {
+    right: 25%;
+  }
+
+  .reportField > strong {
+    font-size: 11px;
+  }
+
+  .exportJob strong {
+    font-size: 12px;
+  }
+
+  .fieldTrace {
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+
+  .renameFields {
+    gap: 14px;
+  }
+
+  .renameField {
+    gap: 9px;
+    font-size: 12px;
+  }
+
+  .activity {
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .activityItems {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .reviewComposition {
+    grid-template-columns: 1fr;
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+
+  .schemaComparison {
+    gap: 36px;
+  }
+
+  .schemaHeading {
+    padding: 18px 16px;
+  }
+
+  .schemaFields {
+    padding: 14px 12px;
+  }
+
+  .schemaField > span:first-child {
+    font-size: 12px;
+  }
+
+  .missingField {
+    font-size: 11px;
+  }
+
+  .reviewAnnotation > p {
+    max-width: 520px;
+    font-size: 13px;
+  }
+
+  .reviewState {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .reviewState > span:first-child {
+    gap: 12px;
+  }
+
+  .contextAssembly {
+    margin-right: 24px;
+    margin-left: 24px;
+  }
+
+  .contextCards {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .contextDestination {
+    grid-column: 1 / -1;
+    justify-content: center;
+    padding: 3px 0 0;
+  }
+
+  .contextDestination > svg:first-child {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 639px) {
+  .scene {
+    border-radius: 12px;
+  }
+
+  .chrome {
+    align-items: start;
+    padding: 10px 16px;
+    gap: 10px;
+    line-height: 1.35;
+  }
+
+  .chromeTitle {
+    font-size: 11px;
+  }
+
+  .chromeTitle > svg {
+    flex: 0 0 auto;
+    margin-top: 1px;
+  }
+
+  .previewLabel {
+    max-width: 92px;
+    font-size: 11px;
+    text-align: right;
+  }
+
+  .lineageIntro {
+    gap: 7px;
+    padding: 16px 16px 0;
+  }
+
+  .lineageIntro > span:first-child {
+    font-size: 11px;
+  }
+
+  .lineageIntro > strong {
+    font-size: 12px;
+  }
+
+  .traceTag {
+    flex-basis: 100%;
+    margin-left: 0;
+    font-size: 11px;
+  }
+
+  .lineageGraph {
+    margin: 16px;
+  }
+
+  .stageLabel {
+    font-size: 11px;
+  }
+
+  .sources {
+    gap: 12px;
+  }
+
+  .sourceLane {
+    grid-template-columns: 1fr 30px 1fr;
+    gap: 5px;
+  }
+
+  .artifact {
+    padding: 10px;
+  }
+
+  .artifactTop {
+    margin-bottom: 6px;
+  }
+
+  .artifact > strong {
+    font-size: 12px;
+  }
+
+  .artifactDetail {
+    margin-top: 6px;
+    font-size: 11px;
+  }
+
+  .preserved {
+    gap: 3px;
+    margin-top: 7px;
+    font-size: 11px;
+  }
+
+  .version,
+  .schemaVersion,
+  .artifactNote {
+    font-size: 11px;
+  }
+
+  .cleanStep {
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .toolIcon {
+    width: 23px;
+    height: 23px;
+  }
+
+  .joined {
+    gap: 7px;
+    padding-top: 14px;
+  }
+
+  .toolBadge {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .branches {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 14px;
+    margin-top: 26px;
+    padding-top: 8px;
+    padding-left: 16px;
+    border-top: 0;
+    border-left: 1px solid
+      color-mix(in srgb, var(--secondary) 30%, var(--border));
+  }
+
+  .branches::before {
+    top: -15px;
+    left: -1px;
+    width: calc(50% + 1px);
+    height: 15px;
+    border-top: 1px solid
+      color-mix(in srgb, var(--secondary) 30%, var(--border));
+    border-left: 1px solid
+      color-mix(in srgb, var(--secondary) 30%, var(--border));
+    background: transparent;
+  }
+
+  .branches::after {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    width: 1px;
+    height: 11px;
+    background: color-mix(in srgb, var(--secondary) 30%, var(--border));
+    content: "";
+  }
+
+  .reportBranch::before,
+  .csvBranch::before {
+    display: none;
+  }
+
+  .reportBranch,
+  .csvBranch {
+    position: relative;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .branchHeading {
+    flex-wrap: wrap;
+  }
+
+  .branchHeading > span:last-child,
+  .branchLabel {
+    font-size: 11px;
+  }
+
+  .reportBranch::after,
+  .csvBranch::after {
+    position: absolute;
+    top: 15px;
+    left: -16px;
+    width: 13px;
+    height: 1px;
+    background: color-mix(in srgb, var(--secondary) 30%, var(--border));
+    content: "";
+  }
+
+  .reportField > span {
+    font-size: 11px;
+  }
+
+  .reportField > strong {
+    font-size: 12px;
+  }
+
+  .exportJob {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .exportJob div > span {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .fieldTrace {
+    margin: 0 16px 16px;
+    padding: 13px;
+  }
+
+  .traceHeading {
+    gap: 6px;
+    margin-bottom: 13px;
+    font-size: 11px;
+  }
+
+  .mappingLabel {
+    flex-basis: 100%;
+    margin-left: 22px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .renameFields {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .renameField {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .activity {
+    padding: 14px 16px;
+  }
+
+  .activityHeading {
+    font-size: 11px;
+  }
+
+  .activityHeading > span:last-child {
+    font-size: 11px;
+  }
+
+  .activityItems {
+    gap: 8px;
+  }
+
+  .activityItems > div {
+    align-items: start;
+    font-size: 11px;
+  }
+
+  .activityItems > div > svg {
+    margin-top: 1px;
+  }
+
+  .reviewIntro {
+    align-items: start;
+    padding: 16px;
+    gap: 7px;
+  }
+
+  .reviewSignal {
+    font-size: 13px;
+  }
+
+  .policyLabel {
+    font-size: 11px;
+  }
+
+  .reviewComposition {
+    gap: 14px;
+    margin: 0 16px 16px;
+  }
+
+  .schemaComparison {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding-bottom: 23px;
+  }
+
+  .schemaHeading {
+    padding: 10px 8px;
+    gap: 4px;
+    align-items: start;
+  }
+
+  .schemaIcon {
+    display: none;
+  }
+
+  .schemaHeading > div {
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .schemaHeading strong {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .schemaHeading div > span {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .schemaVersion {
+    min-width: 21px;
+    padding: 0 3px;
+  }
+
+  .schemaColumnLabels {
+    padding: 7px 9px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .schemaColumnLabels > span:last-child {
+    display: none;
+  }
+
+  .schemaFields {
+    gap: 4px;
+    padding: 8px 5px;
+  }
+
+  .schemaField {
+    min-height: 44px;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 2px;
+    padding: 5px 4px;
+    line-height: 1.3;
+  }
+
+  .schemaField > span:first-child {
+    font-size: 12px;
+  }
+
+  .schemaField > span:last-child {
+    font-size: 11px;
+  }
+
+  .missingField {
+    min-height: 44px;
+    padding: 5px 4px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .emptyFieldIcon {
+    display: none;
+  }
+
+  .schemaFooter {
+    align-items: start;
+    gap: 4px;
+    padding: 9px 8px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .schemaFooter > svg {
+    display: none;
+  }
+
+  .schemaDifference {
+    position: static;
+    display: contents;
+    transform: none;
+  }
+
+  .schemaDifference > svg {
+    position: absolute;
+    top: 147px;
+    left: calc(50% - 6px);
+    width: 12px;
+    height: 12px;
+  }
+
+  .schemaDifference > span {
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    transform: none;
+    color: var(--muted-foreground);
+    background: transparent;
+    font-size: 11px;
+  }
+
+  .reviewPanelHeading {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .assistantIcon {
+    width: 29px;
+    height: 29px;
+  }
+
+  .reviewPanelHeading strong {
+    font-size: 12px;
+  }
+
+  .reviewPanelHeading div > span {
+    font-size: 11px;
+  }
+
+  .reviewAnnotation {
+    padding: 14px 12px;
+  }
+
+  .annotationLabel {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .reviewAnnotation > strong {
+    font-size: 16px;
+  }
+
+  .reviewAnnotation > p {
+    margin-top: 9px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .reviewState {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .reviewState > span:first-child {
+    gap: 7px;
+  }
+
+  .reviewState strong {
+    font-size: 11px;
+    padding: 2px 5px;
+  }
+
+  .contextAssembly {
+    margin: 0 16px 16px;
+    padding: 12px;
+  }
+
+  .contextHeading {
+    gap: 5px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+
+  .contextHeading > span {
+    flex-basis: 100%;
+    margin-left: 20px;
+    font-size: 11px;
+  }
+
+  .contextCards {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .contextCards > div {
+    padding: 8px;
+    gap: 8px;
+    min-height: 40px;
+  }
+
+  .contextCards div > span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 7px;
+    font-size: 11px;
+  }
+
+  .contextCards strong {
+    font-size: 12px;
+  }
+
+  .contextDestination {
+    gap: 9px;
+    padding: 2px 0 0;
+  }
+
+  .decisionBoundary {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .decisionIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .decisionBoundary > div {
+    flex: 1;
+    font-size: 12px;
+  }
+
+  .decisionBoundary > span:last-child {
+    flex-basis: 100%;
+    margin-left: 36px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene *,
+  .scene *::before,
+  .scene *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
