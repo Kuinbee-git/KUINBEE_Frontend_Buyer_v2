@@ -4,6 +4,9 @@ The buyer site had two supplier entry paths: current application links and an ob
 
 Other confirmed obsolete UI removed:
 
+- The unreachable old data-request page and its six-component flow, including the Gmail-compose submission path superseded by current requirement submission.
+- Unreferenced Strotas story scenes and their CSS, the retired registry-access CTA and an unused dataset detail loading screen.
+
 - The footer newsletter email field and Subscribe button had no form or submit handler.
 - Unavailable Discord and YouTube community cards, including a generic YouTube homepage URL.
 - Duplicate footer community links advertised distinct audiences but led to the same page.
