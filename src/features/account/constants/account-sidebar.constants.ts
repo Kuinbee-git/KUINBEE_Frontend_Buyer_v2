@@ -5,24 +5,24 @@ export const ACCOUNT_SIDEBAR_SECTIONS = {
     id: "profile",
     label: "Profile",
     icon: User,
-    href: "/account?tab=profile",
+    href: "/account/profile",
   },
   preferences: {
     id: "preferences",
     label: "Preferences",
     icon: Settings,
-    href: "/account?tab=preferences",
+    href: "/account/preferences",
   },
   activity: {
     id: "activity",
     label: "Activity",
     icon: Activity,
-    href: "/account?tab=activity",
+    href: "/account/activity",
   },
   support: {
     id: "support",
     label: "Support",
     icon: MessageSquare,
-    href: "/account?tab=support",
+    href: "/account/support",
   },
 };

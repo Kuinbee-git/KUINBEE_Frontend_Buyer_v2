@@ -322,6 +322,99 @@ try {
       "PASS compiled mixed catalogue SSR/hydration, bounded page size and display-only sample detail with actual shared layout"
     );
   }
+  if (app === "buyer") {
+    const retiredEnquiry = await fetch(
+      origin + "/contact?source=supplier&requirement=REQ-000022",
+      { redirect: "manual" }
+    );
+    assert.equal(retiredEnquiry.status, 307);
+    const applicationUrl = new URL(retiredEnquiry.headers.get("location"));
+    assert.equal(applicationUrl.pathname, "/apply");
+    assert.equal(applicationUrl.searchParams.get("requirement"), "REQ-000022");
+    assert.equal(applicationUrl.searchParams.get("source"), "supplier");
+    assert.equal(applicationUrl.hostname, "supplier.kuinbee.com");
+    const oldVerification = await fetch(
+      origin +
+        "/verify-email?email=test%2Bbuyer%40example.test&token=abc%2B123",
+      { redirect: "manual" }
+    );
+    assert.equal(oldVerification.status, 308);
+    const verificationUrl = new URL(
+      oldVerification.headers.get("location"),
+      origin
+    );
+    assert.equal(verificationUrl.pathname, "/auth/verify-email");
+    assert.equal(
+      verificationUrl.searchParams.get("email"),
+      "test+buyer@example.test"
+    );
+    assert.equal(verificationUrl.searchParams.get("token"), "abc+123");
+    for (const path of ["/analytics", "/strotas/animation?version=cinematic"]) {
+      const response = await fetch(origin + path, { redirect: "manual" });
+      assert.equal(response.status, 308);
+      assert.equal(
+        new URL(response.headers.get("location"), origin).pathname,
+        "/strotas"
+      );
+    }
+    await page.goto(origin + "/datasets?category=voice", {
+      waitUntil: "domcontentloaded",
+    });
+    await page.waitForURL("**/datasets?q=voice");
+    await page
+      .getByRole("heading", { name: oldCard.title, exact: true })
+      .waitFor();
+    await page.goto(origin + "/contact", { waitUntil: "domcontentloaded" });
+    assert.equal(
+      await page
+        .getByRole("link", {
+          name: "Start your supplier application",
+          exact: true,
+        })
+        .getAttribute("href"),
+      "https://supplier.kuinbee.com/apply?source=supplier"
+    );
+    await page.goto(origin + "/supplier-resources", {
+      waitUntil: "domcontentloaded",
+    });
+    for (const link of await page
+      .locator('a[href*="supplier.kuinbee.com"]')
+      .all()) {
+      assert.equal(new URL(await link.getAttribute("href")).pathname, "/apply");
+    }
+    await page.goto(origin + "/community", { waitUntil: "domcontentloaded" });
+    assert.equal(
+      await page
+        .locator('a[href*="discord.gg"],a[href="https://www.youtube.com"]')
+        .count(),
+      0
+    );
+    assert.equal(
+      await page
+        .getByRole("link", { name: "Kuinbee Community Hub", exact: true })
+        .count(),
+      1
+    );
+    assert.equal(
+      await page
+        .getByRole("button", { name: "Subscribe", exact: true })
+        .count(),
+      0
+    );
+    for (const section of ["preferences", "activity", "support"]) {
+      const oldAccount = await fetch(origin + "/account?tab=" + section, {
+        redirect: "manual",
+      });
+      assert.equal(oldAccount.status, 307);
+      assert.equal(
+        new URL(oldAccount.headers.get("location"), origin).pathname,
+        "/account/" + section
+      );
+    }
+    console.log(
+      "PASS retired supplier enquiry, token-preserving verification, Strotas redirects and current application/community links"
+    );
+  }
   assert.deepEqual(wrongApi, []);
   assert.deepEqual(errors, []);
   console.log(
