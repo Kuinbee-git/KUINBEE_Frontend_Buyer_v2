@@ -44,7 +44,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             Let’s talk.
           </h1>
           <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-            Want a demo, have data to share, or need help finding the right
+            Want a demo or need help finding the right
             dataset? Tell us a little about yourself and we’ll get in touch.
           </p>
           <p className="mt-8 text-sm text-muted-foreground">
