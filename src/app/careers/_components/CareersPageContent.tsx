@@ -77,35 +77,6 @@ const jobOpenings: JobOpening[] = [
         ],
     },
     {
-        id: 4,
-        title: "Sales Intern",
-        location: "Remote",
-        type: "3–6 Months | Paid + Commission Per Sale",
-        overview: "High-intensity revenue role for people who want to sell, close, and earn.",
-        about: "Kuinbee (kuinbee.com) is building a data-on-demand ecosystem where businesses can access ready datasets or request custom data solutions.",
-        responsibilities: [
-            "Prospect and outreach to B2B decision-makers via LinkedIn, email, and cold channels",
-            "Generate, qualify, and convert leads into paying customers",
-            "Pitch Kuinbee’s datasets and custom data solutions",
-            "Close deals independently and manage post-sale relationships",
-            "Work closely with founders on sales strategy and feedback loops",
-        ],
-        requirements: [
-            "Strong communication and persuasion skills",
-            "High ownership and result-driven mindset",
-            "Comfort with cold outreach and follow-ups",
-            "Resilience to rejection and consistency in follow-through",
-            "Prior sales experience is a plus, not mandatory",
-        ],
-        compensation: "Fixed stipend (paid) + uncapped commission on every sale closed",
-        gain: [
-            "Real B2B sales experience with ownership",
-            "Direct exposure to revenue building and deal closing",
-            "High earning potential through commissions",
-            "High-performer pathway to full-time conversion",
-        ],
-    },
-    {
         id: 5,
         title: "Full Stack Developer",
         location: "Pune / Remote",
@@ -118,48 +89,6 @@ const jobOpenings: JobOpening[] = [
         ],
         requirements: ["2–5 years full-stack experience", "JavaScript/TypeScript, React, Node.js, Python", "SQL/NoSQL databases", "Cloud platforms (AWS/GCP)"],
         jdLink: "https://drive.google.com/drive/folders/1G3cnOK5S2NS67slNsD7Wq75UD0-R9LYW?usp=drive_link"
-    },
-    {
-        id: 6,
-        title: "Data Engineer",
-        location: "Pune / Remote",
-        type: "Full-time / Contract",
-        overview: "Design and scale data pipelines, warehousing, and processing infrastructure fast.",
-        about: "You’ll build the core data foundation that powers analytics and marketplace reliability at scale.",
-        responsibilities: [
-            "Design and maintain ETL and ingestion pipelines",
-            "Build resilient warehouse and data processing systems",
-        ],
-        requirements: ["2–4 years of data engineering experience", "SQL, Python, Spark/Hadoop", "AWS/GCP/Azure", "APIs and streaming tools (Kafka/Flink)"],
-        jdLink: "https://drive.google.com/drive/folders/1EIy6H52kzf-t_8L_N20sSrYvwHjgLHsq?usp=drive_link"
-    },
-    {
-        id: 7,
-        title: "Data Visualization Specialist",
-        location: "Pune / Remote",
-        type: "Full-time / Contract",
-        overview: "Turn complex datasets into decision-ready dashboards and narratives, quickly.",
-        about: "You’ll bridge analysis and storytelling so teams can make faster, better decisions.",
-        responsibilities: [
-            "Build dashboards and BI experiences for internal and external stakeholders",
-            "Drive data storytelling that improves execution speed",
-        ],
-        requirements: ["1–3 years of data visualization/BI experience", "Tableau/Power BI", "Strong design and storytelling sense", "SQL and Python (bonus)"],
-        jdLink: "https://drive.google.com/drive/folders/1kEADz9oQG_XAzRDYfCEsxXDyXztBo5xW?usp=drive_link"
-    },
-    {
-        id: 8,
-        title: "Data Collection Specialist",
-        location: "Pune / Remote",
-        type: "Full-time / Contract",
-        overview: "Source and structure high-quality datasets with rigorous validation standards.",
-        about: "You’ll own data acquisition workflows and quality checks for marketplace-ready assets.",
-        responsibilities: [
-            "Source, verify, and validate datasets from diverse domains",
-            "Prepare structured, analysis-ready datasets for publishing",
-        ],
-        requirements: ["Strong research and analytical skills", "Excel/Google Sheets and SQL basics", "Web scraping tools (BeautifulSoup, Scrapy, Selenium)", "High attention to data quality and accuracy"],
-        jdLink: "https://drive.google.com/drive/folders/1V9KPgH9lwPNtOh4CJuF1FVSa01hjKMdi?usp=drive_link"
     },
     {
         id: 9,
