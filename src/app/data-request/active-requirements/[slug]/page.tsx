@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { supplierEntryUrl } from "@/lib/supplier-entry";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -164,7 +165,12 @@ export default async function ActiveRequirementDetailPage({ params }: Props) {
                     </p>
                   </div>
                   <Link
-                    href={`/contact?source=supplier&requirement=${encodeURIComponent(requirement.referenceCode)}`}
+                    href={supplierEntryUrl(
+                      new URLSearchParams({
+                        source: "supplier",
+                        requirement: requirement.referenceCode,
+                      }).toString()
+                    )}
                     className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
                   >
                     Be a supplier

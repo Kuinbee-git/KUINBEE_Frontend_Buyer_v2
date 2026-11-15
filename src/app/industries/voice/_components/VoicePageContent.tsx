@@ -70,7 +70,7 @@ const routes = [
     title: "Explore existing voice data",
     description:
       "Inspect published listings for source, coverage, formats, licence, and access details.",
-    href: "/datasets?category=voice",
+    href: "/datasets?q=voice",
   },
   {
     label: "Collection",
@@ -98,7 +98,7 @@ export function VoicePageContent() {
           industry="voice"
           title="Hear the real world."
           description="Speech and audio data across speakers, languages, and real recording conditions. Explore published datasets and collection services on Kuinbee by coverage, recording setup, transcripts, and labels."
-          datasetHref="/datasets?category=voice"
+          datasetHref="/datasets?q=voice"
           datasetLabel="Explore voice data"
           storyId="voice-story"
           film={{
