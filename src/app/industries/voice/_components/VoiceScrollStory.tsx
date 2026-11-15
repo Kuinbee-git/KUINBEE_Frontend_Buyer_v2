@@ -362,7 +362,7 @@ export function VoiceScrollStory() {
                 href={
                   active === 2
                     ? "/data-request/submit-requirement"
-                    : "/datasets?category=voice"
+                    : "/datasets?q=voice"
                 }
                 className={styles.action}
               >

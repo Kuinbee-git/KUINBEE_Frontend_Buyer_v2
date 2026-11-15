@@ -1,4 +1,4 @@
-import { deploymentEnvironment } from './scripts/deployment-environment.mjs';
+import { deploymentEnvironment } from "./scripts/deployment-environment.mjs";
 import type { NextConfig } from "next";
 
 const deployment = deploymentEnvironment();
@@ -19,7 +19,9 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
-          ...(deployment.isStaging ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] : []),
+          ...(deployment.isStaging
+            ? [{ key: "X-Robots-Tag", value: "noindex, nofollow" }]
+            : []),
           {
             key: "X-Frame-Options",
             value: "DENY",
@@ -42,6 +44,12 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      ...["profile", "preferences", "activity", "support"].map((section) => ({
+        source: "/account",
+        has: [{ type: "query" as const, key: "tab", value: section }],
+        destination: `/account/${section}`,
+        permanent: false,
+      })),
       {
         source: "/analytics",
         destination: "/strotas",

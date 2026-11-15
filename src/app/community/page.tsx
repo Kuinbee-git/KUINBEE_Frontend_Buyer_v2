@@ -5,7 +5,7 @@ import { CommunityPageContent } from "./_components/CommunityPageContent";
 export const metadata: Metadata = genMeta({
     title: "Community",
     description:
-        "Join the Kuinbee data community. Connect with data professionals on Discord, LinkedIn, Instagram, Twitter, Reddit, and YouTube. Share, collaborate, and grow together.",
+        "Join the Kuinbee data community. Connect with data professionals on LinkedIn, Instagram, Twitter, and Reddit. Share, collaborate, and grow together.",
     keywords: [
         "data community",
         "data professionals",
