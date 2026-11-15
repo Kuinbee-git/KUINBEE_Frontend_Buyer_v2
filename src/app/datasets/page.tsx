@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { generateMetadata as genMeta } from "@/core/config";
 import { DatasetDiscoveryV2 } from "@/features/datasets/components";
@@ -46,6 +47,16 @@ export default async function DatasetsPage({
 }) {
   // Reading searchParams avoids a client-only catalogue shell.
   const params = toUrlSearchParams(await searchParams);
+  // The retired voice landing page used a marketing label as a category ID.
+  if (params.getAll("category").includes("voice")) {
+    const categories = params
+      .getAll("category")
+      .filter((value) => value !== "voice");
+    params.delete("category");
+    categories.forEach((value) => params.append("category", value));
+    if (!params.has("q")) params.set("q", "voice");
+    redirect(`/datasets?${params.toString()}`);
+  }
   const query = discoveryQuery(params);
   const client = new QueryClient();
   if (DATASET_CONTENT_BUYER_ENABLED) {

@@ -1,8 +1,6 @@
 import { MapPin } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/components/router/Link";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
 import { ProductHuntBadge } from "./ProductHuntBadge";
 
 // Inline SVG social icons — zero dependency
@@ -195,22 +193,6 @@ export function LandingFooter() {
                   Kuinbee Community Hub
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/community"
-                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
-                >
-                  For Researchers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/community"
-                  className="text-muted-foreground dark:text-white/60 hover:text-foreground dark:hover:text-white/90 transition-colors duration-200 text-sm"
-                >
-                  For Students & Professionals
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -273,28 +255,6 @@ export function LandingFooter() {
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-border dark:border-white/10 mt-12 pt-8">
-          <div className="max-w-md mx-auto text-center space-y-4">
-            <h4 className="text-sm font-semibold text-foreground dark:text-white">
-              Stay ahead with data
-            </h4>
-            <p className="text-muted-foreground dark:text-white/70 text-xs">
-              Subscribe to get updates on datasets, features, and community
-              insights.
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-background dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/40 text-xs"
-              />
-              <Button className="bg-primary dark:bg-white/10 hover:bg-primary/90 dark:hover:bg-white/20 text-primary-foreground dark:text-white border-0 dark:border dark:border-white/10 text-xs px-4">
-                Subscribe
-              </Button>
             </div>
           </div>
         </div>
