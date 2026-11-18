@@ -30,6 +30,7 @@ export function FullCollectionEnquiry({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (item.fullCollectionOffer?.mode !== "PAID_ON_REQUEST") return null;
+  const label = item.fullCollectionOffer.pricePerFile ? "Enquire to license" : "Enquire for pricing";
   function start() {
     if (!isAuthenticated) {
       openModal("login");
@@ -44,7 +45,7 @@ export function FullCollectionEnquiry({
         The full dataset is paid. The sample is free.
       </p>
       <Button className="w-full" onClick={start}>
-        Enquire for pricing
+        {label}
       </Button>
       {sent && (
         <p role="status" className="text-sm">
@@ -59,7 +60,7 @@ export function FullCollectionEnquiry({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enquire for pricing</DialogTitle>
+            <DialogTitle>{label}</DialogTitle>
             <DialogDescription>{item.title}</DialogDescription>
           </DialogHeader>
           <form
