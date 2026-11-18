@@ -655,7 +655,7 @@ try {
   };
   pricedSample.description.fullCollectionOffer = pricedSample.item.fullCollectionOffer;
   await open(page, pricedSample, true);
-  await page.getByText("$4/file", { exact: true }).waitFor();
+  await page.getByText("$4 per file", { exact: true }).waitFor();
   await button(page, "Enquire to license").waitFor();
   await button(page, "View free sample").waitFor();
   assert.equal(await button(page, "Review full dataset access").count(), 0);
@@ -1389,7 +1389,7 @@ try {
     await page.locator(`[data-content-card="${sample.item.id}"]`).waitFor();
     await page
       .locator(`[data-content-card="${pricedSample.item.id}"]`)
-      .getByText("$4/file", { exact: true })
+      .getByText("$4 per file", { exact: true })
       .waitFor();
     await page
       .locator(
