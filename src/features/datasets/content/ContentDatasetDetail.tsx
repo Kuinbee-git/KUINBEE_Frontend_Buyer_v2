@@ -41,6 +41,7 @@ import { FullCollectionEnquiry } from "./FullCollectionEnquiry";
 import { TableMetadataPanel } from "./TableMetadataPanel";
 import { ReferenceViews } from "./ReferenceViews";
 import {
+  collectionPricePerFileLabel,
   contentModalityLabels,
   contentPriceLabel,
   physicalBytes,
@@ -381,7 +382,7 @@ export function ContentDatasetDetail({
               <div className="border-b border-border/40 dark:border-white/10 pb-5 mb-5">
                 <p className="text-2xl font-semibold tracking-tight text-foreground dark:text-white">
                   {item.fullCollectionOffer
-                    ? "Price on request"
+                    ? collectionPricePerFileLabel(item) ?? "Price on request"
                     : contentPriceLabel(item)}
                 </p>
               </div>
