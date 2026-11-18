@@ -655,7 +655,7 @@ try {
   };
   pricedSample.description.fullCollectionOffer = pricedSample.item.fullCollectionOffer;
   await open(page, pricedSample, true);
-  await page.getByText("US$4 per file", { exact: true }).waitFor();
+  await page.getByText("$4/file", { exact: true }).waitFor();
   await button(page, "Enquire to license").waitFor();
   await button(page, "View free sample").waitFor();
   assert.equal(await button(page, "Review full dataset access").count(), 0);
@@ -1384,9 +1384,13 @@ try {
     { id: "enterprise", name: "Enterprise Dataset" },
   ];
   for (const mode of ["wishlist", "wishlist-tab"]) {
-    wishIds = [sample.item.id];
+    wishIds = [sample.item.id, pricedSample.item.id];
     await page.evaluate((mode) => window.mount("wishlist", mode), mode);
     await page.locator(`[data-content-card="${sample.item.id}"]`).waitFor();
+    await page
+      .locator(`[data-content-card="${pricedSample.item.id}"]`)
+      .getByText("$4/file", { exact: true })
+      .waitFor();
     await page
       .locator(
         `[data-content-card="${sample.item.id}"] [data-enterprise-dataset-badge]`
@@ -1402,7 +1406,8 @@ try {
       .locator(`[data-content-card="${sample.item.id}"]`)
       .getByRole("button", { name: "Remove from wishlist", exact: true })
       .click();
-    await wait(() => wishIds.length === 0);
+    await wait(() => !wishIds.includes(sample.item.id));
+    assert.deepEqual(wishIds, [pricedSample.item.id]);
   }
   console.log(
     "PASS both existing wishlist consumers render sample-only cards as display-only and retain exact Dataset identity for removal"

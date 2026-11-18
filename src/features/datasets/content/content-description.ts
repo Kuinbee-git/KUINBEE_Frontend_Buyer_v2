@@ -73,10 +73,8 @@ export function collectionPricePerFileLabel(item: ContentCatalogueCard) {
     currency: price.currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).formatToParts(Number(price.amount)).map((part) =>
-    part.type === "currency" && price.currency === "USD" ? "US$" : part.value
-  ).join("");
-  return `${label} per file`;
+  }).format(Number(price.amount));
+  return `${label}/file`;
 }
 
 export function contentPriceLabel(item: ContentCatalogueCard) {
