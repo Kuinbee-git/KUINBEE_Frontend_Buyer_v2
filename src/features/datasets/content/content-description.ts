@@ -65,9 +65,23 @@ export function physicalBytes(value: string) {
     return `${(bytes / 1_000).toLocaleString(undefined, { maximumFractionDigits: 2 })} KB`;
   return `${bytes} bytes`;
 }
+export function collectionPricePerFileLabel(item: ContentCatalogueCard) {
+  const price = item.fullCollectionOffer?.pricePerFile;
+  if (!price) return null;
+  const label = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: price.currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).formatToParts(Number(price.amount)).map((part) =>
+    part.type === "currency" && price.currency === "USD" ? "US$" : part.value
+  ).join("");
+  return `${label} per file`;
+}
+
 export function contentPriceLabel(item: ContentCatalogueCard) {
   if (item.fullCollectionOffer?.mode === "PAID_ON_REQUEST")
-    return "Full dataset: price on request";
+    return collectionPricePerFileLabel(item) ?? "Full dataset: price on request";
   if (item.purchase.mode === "DISPLAY_ONLY") return "Sample on display";
   if (item.purchase.mode === "UNAVAILABLE") return "Full access unavailable";
   if (item.purchase.mode === "FREE_CLAIM") return "Free full dataset";
