@@ -647,6 +647,18 @@ try {
   console.log(
     "PASS all 21 modality/composition-by-choice details render scoped descriptions and unknown values; sample-only has no claim, checkout or inquiry"
   );
+  const pricedSample = add("SAMPLE_ONLY", ["IMAGE"]);
+  pricedSample.item.fullCollectionOffer = {
+    mode: "PAID_ON_REQUEST",
+    terms: "Contact Kuinbee to license the full collection. The sample is free.",
+    pricePerFile: { amount: "4", currency: "USD" },
+  };
+  pricedSample.description.fullCollectionOffer = pricedSample.item.fullCollectionOffer;
+  await open(page, pricedSample, true);
+  await page.getByText("US$4 per file", { exact: true }).waitFor();
+  await button(page, "Enquire to license").waitFor();
+  await button(page, "View free sample").waitFor();
+  assert.equal(await button(page, "Review full dataset access").count(), 0);
   const cad = add("SAMPLE_ONLY", ["CAD"]);
   cad.item.owner = {
     id: id(9),
