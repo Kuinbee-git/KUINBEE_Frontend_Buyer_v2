@@ -74,7 +74,7 @@ export function collectionPricePerFileLabel(item: ContentCatalogueCard) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(Number(price.amount));
-  return `${label}/file`;
+  return `${label} per file`;
 }
 
 export function contentPriceLabel(item: ContentCatalogueCard) {
