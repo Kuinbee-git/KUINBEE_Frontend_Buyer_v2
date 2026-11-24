@@ -1,10 +1,16 @@
 .page {
-  --gutter: clamp(1.25rem, 6.5vw, 8rem);
-  padding: clamp(6rem, 8vw, 8rem) var(--gutter) clamp(4rem, 8vw, 8rem);
-  min-height: 78svh;
+  position: relative;
+  isolation: isolate;
+  padding: clamp(4.5rem, 7vw, 7rem) clamp(1.25rem, 4vw, 3rem)
+    clamp(4rem, 7vw, 7rem);
   background: var(--background);
   color: var(--primary);
   text-align: left;
+}
+.content {
+  position: relative;
+  max-width: 84rem;
+  margin-inline: auto;
 }
 .trail,
 .inlineLink,
@@ -36,7 +42,7 @@
 }
 .title {
   font-weight: 560;
-  font-size: clamp(3.25rem, 5.8vw, 5.6rem);
+  font-size: clamp(2.75rem, 5.4vw, 5.25rem);
   line-height: 1.04;
   letter-spacing: -0.058em;
   text-wrap: balance;
@@ -52,11 +58,10 @@
 .careersLayout {
   display: grid;
   align-items: start;
-  max-width: 88rem;
-  gap: clamp(2.5rem, 7vw, 8rem);
+  gap: clamp(2.5rem, 6vw, 6rem);
 }
 .supportLayout {
-  grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.48fr);
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.52fr);
 }
 .careersLayout {
   grid-template-columns: minmax(0, 0.55fr) minmax(0, 1fr);
@@ -357,17 +362,6 @@
     font-size: 0.8rem;
   }
 
-  .supportLayout,
-  .careersLayout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
-  }
-  .careersIntro {
-    position: static;
-  }
-  .careersIntro .inlineLink {
-    margin-top: 0.5rem;
-  }
   .job {
     grid-template-columns: 1fr auto;
     gap: 0.3rem 0.7rem;
@@ -390,7 +384,22 @@
 .mobileContact {
   display: none;
 }
-@media (max-width: 760px) {
+@media (width < 56rem) {
+  .supportLayout,
+  .careersLayout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+  .careersIntro {
+    position: static;
+  }
+  .careersIntro .inlineLink {
+    margin-top: 0.5rem;
+  }
+  .contact {
+    width: 100%;
+    max-width: 32rem;
+  }
   .mobileContact {
     display: inline-flex;
     align-items: center;
@@ -400,14 +409,6 @@
     font-size: 0.9rem;
     font-weight: 550;
   }
-}
-
-.page {
-  position: relative;
-  isolation: isolate;
-}
-.content {
-  position: relative;
 }
 .copy {
   display: inline-flex;
