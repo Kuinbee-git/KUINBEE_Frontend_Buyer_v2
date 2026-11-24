@@ -71,14 +71,6 @@ const departmentHeads: TeamMember[] = [
     imageSrc: "/mayank.png",
     linkedinUrl: "https://www.linkedin.com/in/mayank-saxena-pune/",
   },
-  {
-    name: "Mahalekshmi Vijayachandran",
-    displayName: "Mahalekshmi Vijayachandran",
-    role: "Data Operations Lead",
-    initials: "MV",
-    imageSrc: "/mahalekshmi.jpeg",
-    linkedinUrl: "https://www.linkedin.com/in/vmahalekshmi/",
-  },
 ];
 
 function TeamPhoto({ member }: { member: TeamMember }) {
