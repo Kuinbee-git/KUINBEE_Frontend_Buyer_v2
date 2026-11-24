@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { marketplaceCardSurface } from "./marketplace-card-surface";
 import { cn } from "@/shared/utils/cn";
 
 export type MarketplaceOption = {
@@ -84,9 +85,8 @@ function OptionCard({
         transform: open && revealOnHover ? "translateY(-3px)" : "translateY(0)",
       }}
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden rounded-2xl border p-7 outline-none",
-        "bg-gradient-to-br from-[#1a2240]/97 via-[#242f52]/94 to-[#2d3a5f]/97 text-[#f7f8fa] backdrop-blur-xl",
-        "dark:from-white/15 dark:via-white/10 dark:to-white/5 dark:text-[#f1f5f9]",
+        "group relative flex flex-col justify-between overflow-hidden p-7 outline-none",
+        marketplaceCardSurface,
         "transition-[transform,border-color,box-shadow] duration-500",
         "focus-visible:ring-2 focus-visible:ring-[#1a2240]/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         "motion-reduce:transform-none",
