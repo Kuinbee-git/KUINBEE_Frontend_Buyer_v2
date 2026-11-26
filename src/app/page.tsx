@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { generateMetadata as genMeta } from "@/core/config";
+import { generateMetadata as genMeta, siteConfig } from "@/core/config";
 import { DatasetCategoryDirectory } from "@/features/datasets/components/DatasetCategoryDirectory";
 import {
   LandingHeader,
@@ -16,8 +16,6 @@ import {
 
 export const metadata: Metadata = genMeta({
   title: "Kuinbee — Global Data Marketplace for AI & Research",
-  description:
-    "Discover, evaluate, and buy verified datasets from a governed marketplace. Kuinbee connects data buyers with trusted data sources globally.",
   keywords: [
     "buy datasets",
     "AI training data",
@@ -29,9 +27,24 @@ export const metadata: Metadata = genMeta({
   path: "/",
 });
 
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  description: siteConfig.description,
+  publisher: { "@id": `${siteConfig.url}/#organization` },
+};
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="sticky top-0 z-50">
         <LandingHeader />
       </div>

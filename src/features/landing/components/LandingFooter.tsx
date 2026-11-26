@@ -94,6 +94,22 @@ export function LandingFooter() {
             </div>
             <div className="pt-1">
               <ProductHuntBadge className="justify-start py-0 scale-75 origin-top-left" />
+              <a
+                href="https://peerpush.com/p/data-marketplace"
+                target="_blank"
+                rel="noopener"
+                className="block w-fit max-w-full rounded-lg"
+              >
+                <Image
+                  src="https://peerpush.com/p/data-marketplace/badge.png"
+                  alt="Data Marketplace on PeerPush"
+                  width={230}
+                  height={65}
+                  loading="lazy"
+                  unoptimized
+                  className="h-auto max-w-full"
+                />
+              </a>
             </div>
           </div>
 

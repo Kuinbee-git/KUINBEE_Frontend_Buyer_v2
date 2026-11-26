@@ -7,12 +7,13 @@ import type { Metadata } from "next";
 export const siteConfig = {
   name: "Kuinbee",
   description:
-    "Discover and purchase premium datasets for AI, ML, and data science projects. Browse curated, high-quality datasets across multiple categories.",
+    "Kuinbee is a marketplace where companies can license datasets or request custom data, and suppliers can sell datasets or respond to open buyer requests.",
   url: "https://www.kuinbee.com",
+  logo: "/logo-light.png",
   ogImage: "/og-image.png",
   links: {
-    twitter: "https://twitter.com/kuinbee",
-    github: "https://github.com/kuinbee",
+    twitter: "https://twitter.com/Kuinbee00",
+    linkedin: "https://www.linkedin.com/company/kuinbee",
   },
   keywords: [
     "datasets",
@@ -85,7 +86,7 @@ export function generateMetadata({
       title: metaTitle,
       description: metaDescription,
       images: [metaImage],
-      creator: "@kuinbee",
+      creator: "@Kuinbee00",
     },
     alternates: {
       // Layout metadata must not make every child canonical to the homepage.
@@ -134,11 +135,12 @@ export function generateOrganizationSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/logo.png`,
+    logo: `${siteConfig.url}${siteConfig.logo}`,
     description: siteConfig.description,
-    sameAs: [siteConfig.links.twitter, siteConfig.links.github],
+    sameAs: [siteConfig.links.linkedin, siteConfig.links.twitter],
   };
 }
 
