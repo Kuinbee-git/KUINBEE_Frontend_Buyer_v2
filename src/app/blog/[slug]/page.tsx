@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { generateMetadata as genMeta, generateBreadcrumbSchema } from "@/core/config";
+import { generateMetadata as genMeta, generateBreadcrumbSchema, siteConfig } from "@/core/config";
 import { blogPostsMeta, type ContentBlock } from "@/features/blog/blog-posts";
 import { getBlogPost } from "@/features/blog/get-blog-post";
 import { NotchNavigation } from "@/shared/components/ui/notch-navigation";
@@ -327,7 +327,12 @@ export default async function BlogPostPage({ params }: Props) {
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
     author: { "@type": "Organization", name: "Kuinbee" },
-    publisher: { "@type": "Organization", name: "Kuinbee", logo: { "@type": "ImageObject", url: "https://www.kuinbee.com/logo.png" } },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}${siteConfig.logo}` },
+    },
     keywords: post.keywords.join(", "),
     url: `https://www.kuinbee.com/blog/${slug}`,
   };
