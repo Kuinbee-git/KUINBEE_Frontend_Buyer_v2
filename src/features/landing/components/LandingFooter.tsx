@@ -101,7 +101,7 @@ export function LandingFooter() {
                 className="block w-fit max-w-full rounded-lg"
               >
                 <Image
-                  src="https://peerpush.com/p/data-marketplace/badge.png"
+                  src="/peerpush-badge.png"
                   alt="Data Marketplace on PeerPush"
                   width={230}
                   height={65}
