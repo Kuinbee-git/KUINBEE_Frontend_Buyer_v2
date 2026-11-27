@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { SupplierEntryLink } from "@/app/supplier-resources/components/supplier-entry-link";
 import { PublicInformationPage } from "@/features/landing/components/PublicInformationPage";
 import {
   Accordion,
@@ -71,9 +72,9 @@ export function SupportPageContent() {
             </Accordion>
           </section>
           <div className={styles.related}>
-            <Link href="/contact?source=supplier">
-              Supplier enquiries <ArrowRight size={15} />
-            </Link>
+            <SupplierEntryLink>
+              Apply to become a supplier <ArrowRight size={15} />
+            </SupplierEntryLink>
             <Link href="/careers">
               Careers at Kuinbee <ArrowRight size={15} />
             </Link>

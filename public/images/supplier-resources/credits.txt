@@ -1,0 +1,23 @@
+Kuinbee supplier resources film
+
+First-person kitchen footage and poster
+Diffraction, Egocentric Kitchen Capture Sample (2026)
+https://huggingface.co/datasets/diffracting/egocentric-kitchen-sample
+Revision 75ccd3fc9fbb78be56029539ab1ebf9fb1f3e2f4
+Licensed under Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+
+Excerpts from pepper-dicing.mp4 and onion-preparation.mp4 were trimmed, cropped
+for desktop and mobile, colour adjusted and encoded for the web. The poster
+is a still from pepper-dicing.mp4.
+
+Healthcare footage
+Anna Tarazevich — https://www.pexels.com/video/8392607/
+Tima Miroshnichenko — https://www.pexels.com/video/6010766/
+
+Voice footage
+cottonbro studio — https://www.pexels.com/video/6892737/
+ANTONI SHKRABA production — https://www.pexels.com/video/8134903/
+
+Healthcare and voice footage used under the Pexels License.
+https://www.pexels.com/license/

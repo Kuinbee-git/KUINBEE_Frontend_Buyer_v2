@@ -96,6 +96,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
     "/industries/healthcare",
     "/industries/voice",
   ].includes(pathname);
+  const isSupplierResources = pathname === "/supplier-resources";
   const isMarketplaceListing =
     pathname === "/datasets" || pathname === "/data-request/services";
   const shouldShowNavSearch =
@@ -213,7 +214,8 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
     <header
       className={cn(
         "absolute top-0 left-0 right-0 z-50",
-        isIndustryOpening && styles.industryInk
+        isIndustryOpening && styles.industryInk,
+        isSupplierResources && styles.supplierHeader
       )}
       data-egocentric-navigation={
         pathname === "/industries/egocentric" ? "true" : undefined
@@ -232,9 +234,17 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
           <div
             className={cn(
               "relative overflow-hidden rounded-b-[2.5rem]",
-              "border-x border-b transition-all duration-500 ease-out",
+              "border-x border-b duration-500 ease-out",
+              isSupplierResources
+                ? "pointer-events-auto transition-[backdrop-filter,box-shadow]"
+                : "transition-all",
               scrolled
-                ? "border-border/20 dark:border-white/5 bg-background/95 dark:bg-[#1a2240]/90 backdrop-blur-3xl shadow-2xl shadow-black/5 dark:shadow-black/10"
+                ? cn(
+                    "border-border/20 dark:border-white/5 backdrop-blur-3xl shadow-2xl shadow-black/5 dark:shadow-black/10",
+                    isSupplierResources
+                      ? "bg-popover/95"
+                      : "bg-background/95 dark:bg-[#1a2240]/90"
+                  )
                 : "border-transparent bg-transparent backdrop-blur-none shadow-none"
             )}
           >
@@ -254,7 +264,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
               )}
             >
               {/* Left: Logo (Fixed Width) */}
-              <div className="w-32">
+              <div className={isSupplierResources ? "w-auto lg:w-32" : "w-32"}>
                 <Link
                   href="/"
                   className="group flex items-center gap-2 transition-opacity hover:opacity-80"
@@ -389,7 +399,12 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                         );
                       }}
                     >
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground dark:text-white/40" />
+                      <Search
+                        className={cn(
+                          "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground",
+                          !isSupplierResources && "dark:text-white/40"
+                        )}
+                      />
                       <input
                         type="text"
                         placeholder={searchPlaceholder}
@@ -421,7 +436,11 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                             );
                           }
                         }}
-                        className="h-9 w-full rounded-lg border border-primary/25 bg-white/90 pl-9 pr-8 text-sm text-foreground shadow-sm shadow-primary/[0.04] placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-none dark:placeholder:text-white/40 dark:focus:border-white/25 dark:focus:ring-white/20"
+                        className={cn(
+                          "h-9 w-full rounded-lg border border-primary/25 bg-white/90 pl-9 pr-8 text-sm text-foreground shadow-sm shadow-primary/[0.04] placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-none dark:focus:border-white/25 dark:focus:ring-white/20",
+                          !isSupplierResources &&
+                            "dark:placeholder:text-white/40"
+                        )}
                       />
                       {navSearchQuery && (
                         <button
@@ -452,7 +471,12 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
               </nav>
 
               {/* Right Side Actions (Fixed Width - Equal to Logo) */}
-              <div className="w-32 flex items-center justify-end gap-2">
+              <div
+                className={cn(
+                  "flex items-center justify-end gap-2",
+                  isSupplierResources ? "shrink-0" : "w-32"
+                )}
+              >
                 <ThemeToggle />
 
                 {/* Notifications Bell (code-split and disabled for lite nav) */}
@@ -485,11 +509,7 @@ function NotchNavigationInner({ lite = false }: NotchNavigationProps) {
                 ) : (
                   <div className="hidden items-center gap-2 md:flex">
                     {navConfig.isSupplierPage ? (
-                      <Button
-                        size="sm"
-                        className="bg-primary dark:bg-white text-white dark:text-[#1a2240] hover:bg-primary/90 dark:hover:bg-white/90"
-                        asChild
-                      >
+                      <Button size="sm" asChild>
                         <SupplierEntryLink>Apply</SupplierEntryLink>
                       </Button>
                     ) : (

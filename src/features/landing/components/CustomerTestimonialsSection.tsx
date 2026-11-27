@@ -184,40 +184,56 @@ type SupplierTestimonialsBlockProps = {
   id?: string;
   className?: string;
   showDivider?: boolean;
+  editorialLayout?: { list: string; card: string };
 };
 
 export function SupplierTestimonialsBlock({
   id = "supplier-testimonials",
   className = "",
   showDivider = true,
+  editorialLayout,
 }: SupplierTestimonialsBlockProps) {
   return (
     <div
       id={id}
       className={[
         "scroll-mt-24",
-        showDivider ? "border-t border-primary/10 pt-10 dark:border-white/10" : "",
+        showDivider
+          ? "border-t border-primary/10 pt-10 dark:border-white/10"
+          : "",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mx-auto max-w-2xl text-center">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">Supplier Testimonials</span>
-          <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+      {!editorialLayout && (
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/50 dark:text-white/40">
+              Supplier Testimonials
+            </span>
+            <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
+          </div>
+          <h3 className="text-2xl font-medium tracking-tight text-primary dark:text-white md:text-3xl">
+            Suppliers Trust Kuinbee for Market Access
+          </h3>
         </div>
-        <h3 className="text-2xl font-medium tracking-tight text-primary dark:text-white md:text-3xl">
-          Suppliers Trust Kuinbee for Market Access
-        </h3>
-      </div>
+      )}
 
-      <div className="mx-auto mt-7 grid max-w-5xl gap-4 md:grid-cols-2">
+      <div
+        className={
+          editorialLayout?.list ??
+          "mx-auto mt-7 grid max-w-5xl gap-4 md:grid-cols-2"
+        }
+      >
         {supplierTestimonials.map((testimonial) => (
           <article
             key={testimonial.company}
-            className="relative flex flex-col rounded-xl border border-primary/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-white/20"
+            className={
+              editorialLayout?.card ??
+              "relative flex flex-col rounded-xl border border-primary/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-white/20"
+            }
           >
             <blockquote className="flex-1 space-y-3 text-[13px] leading-6 text-foreground/80 dark:text-white/80">
               {testimonial.paragraphs.map((paragraph, index) => (

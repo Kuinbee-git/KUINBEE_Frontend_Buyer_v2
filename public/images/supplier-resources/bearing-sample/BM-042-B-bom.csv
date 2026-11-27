@@ -1,0 +1,9 @@
+assembly_id,revision,part_id,description,quantity,material,units
+BM-042,B,BM-042-01,Base plate,1,Steel,mm
+BM-042,B,BM-042-02,Housing,1,Steel,mm
+BM-042,B,BM-042-03,Bronze bushing,1,Bronze,mm
+BM-042,B,BM-042-04,Front seal,1,Elastomer,mm
+BM-042,B,BM-042-05,Rear retainer,1,Steel,mm
+BM-042,B,BM-042-06,Socket bolt,2,Steel,mm
+BM-042,B,BM-042-07,Washer,2,Steel,mm
+BM-042,B,BM-042-08,Grease fitting,1,Brass,mm

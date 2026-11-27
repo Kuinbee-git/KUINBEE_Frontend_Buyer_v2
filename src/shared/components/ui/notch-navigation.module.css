@@ -8,6 +8,11 @@
   color: #000;
 }
 
+/* Capture the new theme's colours before the theme reveal animates. */
+:global(:active-view-transition) .supplierHeader :where(*) {
+  transition-duration: 0s;
+}
+
 @media (hover: hover) {
   :global(html:not(.dark)) .industryInk .inkSignup:hover {
     color: #fff;
