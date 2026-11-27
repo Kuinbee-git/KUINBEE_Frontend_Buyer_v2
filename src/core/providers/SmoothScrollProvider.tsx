@@ -36,6 +36,19 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
         lerp: 0.08,
         syncTouch: false,
         wheelMultiplier: 0.9,
+        virtualScroll(input) {
+          const { event, deltaX, deltaY } = input;
+          if (
+            event.type === "wheel" &&
+            !event.ctrlKey &&
+            Math.abs(deltaY) > Math.abs(deltaX) &&
+            event.target instanceof Element &&
+            event.target.closest("[data-supplier-guide-pace]")
+          ) {
+            input.deltaY *= 0.72;
+          }
+          return true;
+        },
       }}
     >
       {children}

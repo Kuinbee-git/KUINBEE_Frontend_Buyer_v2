@@ -1,103 +1,119 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Search, DollarSign, Shield, BadgeCheck, FileText, Settings, CheckCircle2 } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { useEffect, useRef } from "react";
+import {
+  DiscoveryDrawing,
+  EnquiryDrawing,
+  FolioDrawing,
+  GovernanceDrawing,
+  PriceDrawing,
+} from "./supplier-benefit-drawings";
+import { SupplierVisibilityPreview } from "./supplier-visibility-preview";
+import styles from "./suppliers-value.module.css";
+
+const questions = [
+  {
+    title: "Who will find my work?",
+    benefits: [
+      {
+        title: "Curated discovery",
+        copy: "Reach buyers browsing a catalogue where each published dataset has passed review.",
+        Drawing: DiscoveryDrawing,
+      },
+      {
+        title: "Email-verified enquiries",
+        copy: "Buyers confirm their email address before sending an enquiry about your dataset.",
+        Drawing: EnquiryDrawing,
+      },
+    ],
+  },
+  {
+    title: "On whose terms do I sell?",
+    benefits: [
+      {
+        title: "Supplier-set pricing",
+        copy: "Set a fixed price for an off-the-shelf dataset. Buyers see your price before they purchase.",
+        Drawing: PriceDrawing,
+      },
+      {
+        title: "Clear usage rights",
+        copy: "Publish the licence, source and schema together so buyers can assess provenance and permitted use.",
+        Drawing: GovernanceDrawing,
+      },
+    ],
+  },
+  {
+    title: "How much control do I have?",
+    benefits: [
+      {
+        title: "A portfolio with depth",
+        copy: "Use samples, collection methods and use cases to show what each dataset can do and where its limits are.",
+        Drawing: FolioDrawing,
+      },
+      {
+        title: "Control over visibility",
+        copy: "Choose which collections buyers can discover. You can change a dataset’s visibility after publication.",
+        Drawing: SupplierVisibilityPreview,
+      },
+    ],
+  },
+];
 
 export function SuppliersValue() {
-    const sectionRef = useRef<HTMLElement>(null);
-    const [isVisible, setIsVisible] = useState(false);
+  const spread = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
-            { threshold: 0.1 }
-        );
-        if (sectionRef.current) observer.observe(sectionRef.current);
-        return () => observer.disconnect();
-    }, []);
+  useEffect(() => {
+    if (!spread.current || !("IntersectionObserver" in window)) return;
 
-    const pillars = [
-        { icon: Search, title: "Curated Discovery", description: "Manual review means low-quality data doesn't clutter the marketplace. If it's here, buyers know it's valuable." },
-        { icon: DollarSign, title: "No Hidden Negotiations", description: "You set a fixed price. Buyers either purchase at your stated terms or move on. No painful back-and-forth." },
-        { icon: Shield, title: "Strict Governance", description: "Column-level schemas, explicit licensing, and quality statements protect you from liability and prove data provenance." },
-        { icon: BadgeCheck, title: "Zero Bot Traffic", description: "Identity verification (PAN/business registration) for all. No bots, no fake buyers. Only verified humans." },
-        { icon: FileText, title: "Comprehensive Portfolios", description: "Go beyond file uploads. Document use cases, limitations, methodology, and samples. Sell the true value of your work." },
-        { icon: Settings, title: "Complete Autonomy", description: "You control visibility. Set datasets to Public, Private, or Unlisted. Unlist anytime. You're always in command." },
-    ];
-
-    return (
-        <section
-            ref={sectionRef}
-            className={`relative bg-gradient-to-b from-background/50 via-background to-background dark:from-[#0a0f1e] dark:via-[#0f1729] dark:to-[#0a0f1e] pt-12 pb-16 md:pt-16 md:pb-24 transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}
-        >
-            {/* Subtle dot pattern — matches DataCategories */}
-            <div
-                className="absolute inset-0 dark:hidden"
-                style={{
-                    backgroundImage: `radial-gradient(circle at 1px 1px, rgba(26, 34, 64, 0.04) 1px, transparent 0)`,
-                    backgroundSize: "32px 32px",
-                }}
-            />
-
-            <div className="mx-auto max-w-6xl px-6 relative z-20">
-                {/* Section header */}
-                <div className="mx-auto max-w-3xl text-center mb-20">
-                    <div className="flex items-center justify-center gap-3 mb-6">
-                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
-                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60 dark:from-white dark:to-white/60 drop-shadow-[0_0_8px_rgba(26,34,64,0.3)] dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                            Why Kuinbee
-                        </span>
-                        <span className="h-px w-8 bg-primary/25 dark:bg-white/20" />
-                    </div>
-                    <h2 className="text-3xl font-medium tracking-tight text-primary dark:text-white sm:text-4xl md:text-5xl">
-                        Why Suppliers Choose
-                        <br />
-                        <span className="text-muted-foreground">Kuinbee</span>
-                    </h2>
-                    <p className="mt-6 text-lg text-muted-foreground dark:text-white/70 max-w-3xl mx-auto">
-                        Built specifically for data creators. No fake buyers. No negotiations. No compromise on your intellectual property.
-                    </p>
-                </div>
-
-                {/* Pillars grid */}
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {pillars.map((pillar) => {
-                        const Icon = pillar.icon;
-                        return (
-                            <div key={pillar.title} className="group relative rounded-2xl overflow-hidden border border-primary/15 dark:border-white/10 bg-card/80 dark:bg-card/30 backdrop-blur-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                                <div className="relative z-10 p-6 lg:p-8 h-full flex flex-col">
-                                    <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-primary/20 dark:border-white/15 mb-6 bg-primary/10 dark:bg-white/10">
-                                        <Icon className="h-7 w-7 text-primary dark:text-white" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-foreground dark:text-white mb-3">{pillar.title}</h3>
-                                    <p className="text-sm leading-relaxed text-muted-foreground dark:text-white/70 flex-1">{pillar.description}</p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Comparison row */}
-                <div className="mt-20 grid gap-6 md:grid-cols-2">
-                    {[
-                        { title: "Traditional Marketplaces", items: ["Low data quality", "Endless negotiations", "No visibility on usage", "Buyer anonymity"] },
-                        { title: "On Kuinbee", items: ["Strictly reviewed", "Fixed pricing", "Full transparency", "Verified buyers only"] }
-                    ].map((col, i) => (
-                        <div key={i} className={cn("rounded-lg border p-8 backdrop-blur-sm", i === 0 ? "border-border/50 bg-card/50 dark:bg-card/30" : "border-primary/20 dark:border-white/20 bg-primary/[0.03] dark:bg-white/[0.03]")}>
-                            <h3 className={cn("font-semibold mb-4", i === 0 ? "text-muted-foreground" : "text-foreground dark:text-white")}>{col.title}</h3>
-                            <ul className="space-y-3">
-                                {col.items.map((item) => (
-                                    <li key={item} className="flex items-start gap-3">
-                                        {i === 0 ? <span className="text-muted-foreground/50 mt-1">✕</span> : <CheckCircle2 className="h-5 w-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0 mt-0.5" />}
-                                        <span className={cn("text-sm", i === 0 ? "text-muted-foreground" : "text-foreground/90 dark:text-white/90")}>{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.removeAttribute("data-pending");
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.12 }
     );
+    const drawings = spread.current.querySelectorAll("[data-illustration]");
+    drawings.forEach((drawing) => {
+      if (drawing.getBoundingClientRect().top >= window.innerHeight) {
+        drawing.setAttribute("data-pending", "");
+        observer.observe(drawing);
+      }
+    });
+    return () => {
+      observer.disconnect();
+      drawings.forEach((drawing) => drawing.removeAttribute("data-pending"));
+    };
+  }, []);
+
+  return (
+    <section
+      id="why-suppliers"
+      className={styles.section}
+      aria-labelledby="supplier-value-title"
+    >
+      <div className={styles.inner}>
+        <h2 id="supplier-value-title">Why Suppliers Choose Kuinbee</h2>
+        <div className={styles.spread} ref={spread}>
+          {questions.map(({ title, benefits }) => (
+            <div className={styles.pair} key={title}>
+              <h3>{title}</h3>
+              {benefits.map(({ title: benefit, copy, Drawing }) => (
+                <div className={styles.benefit} key={benefit}>
+                  <div className={styles.illustration} data-illustration="">
+                    <Drawing />
+                  </div>
+                  <h4>{benefit}</h4>
+                  <p>{copy}</p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

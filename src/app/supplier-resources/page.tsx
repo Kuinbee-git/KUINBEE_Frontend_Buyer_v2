@@ -12,10 +12,12 @@ import { SuppliersTestimonials } from "./components/suppliers-testimonials";
 import { SuppliersFAQ } from "./components/suppliers-faq";
 import { SuppliersCTA } from "./components/suppliers-cta";
 
+import styles from "./supplier-page.module.css";
+
 export const metadata: Metadata = genMeta({
   title: "Supplier Resources",
   description:
-    "Become a data supplier on Kuinbee Marketplace. Learn how to list, monetize, and manage your datasets with our step-by-step guide and best practices.",
+    "Learn how to become a Kuinbee supplier, document your dataset, prepare a sample, and submit licensing and pricing details for marketplace review.",
   keywords: [
     "sell datasets",
     "data supplier",
@@ -26,22 +28,31 @@ export const metadata: Metadata = genMeta({
   path: "/supplier-resources",
 });
 
-export default async function SupplierResourcePage({ searchParams }: {
+export default async function SupplierResourcePage({
+  searchParams,
+}: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(await searchParams)) {
-    for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) query.append(key, item);
+    for (const item of Array.isArray(value)
+      ? value
+      : value === undefined
+        ? []
+        : [value]) {
+      query.append(key, item);
+    }
   }
   const supplierQuery = query.toString();
+
   return (
-    <main className="min-h-screen bg-background">
-      <div className="sticky top-0 z-50">
+    <main className={styles.page}>
+      <div className="pointer-events-none sticky top-0 z-50 h-16">
         <LandingHeader />
       </div>
       <SuppliersHero supplierQuery={supplierQuery} />
       <SuppliersValue />
-      <SuppliersGuide />
+      <SuppliersGuide supplierQuery={supplierQuery} />
       <SuppliersBestPractices />
       <SuppliersTraction />
       <SuppliersTestimonials />
