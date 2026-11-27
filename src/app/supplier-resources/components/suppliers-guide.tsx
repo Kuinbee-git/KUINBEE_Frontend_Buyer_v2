@@ -191,17 +191,21 @@ const cueByKey = new Map(
 const wideLayout = "(min-width: 68rem) and (min-height: 30rem)";
 
 function ExampleDetails() {
+  const hasProductionCollection =
+    process.env.NEXT_PUBLIC_APP_ENV === "production";
+
   return (
     <div className={styles.creditText}>
       <strong>About this example</strong>
       <p>
         The bearing mount, drawing and parts list are examples for this
-        walkthrough. Kuinbee’s engineering CAD collection offers an evaluation
-        sample with STEP and IGES models.
+        walkthrough.
       </p>
-      <Link href="/datasets/cmvqyaj1s0001hynvd0mnfn9z">
-        View Kuinbee’s engineering CAD collection
-      </Link>
+      {hasProductionCollection && (
+        <Link href="/datasets/cmvqyaj1s0001hynvd0mnfn9z">
+          View Kuinbee’s engineering CAD collection
+        </Link>
+      )}
     </div>
   );
 }
