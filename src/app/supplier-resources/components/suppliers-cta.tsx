@@ -11,7 +11,7 @@ const benefits = [
 ];
 
 const stats = [
-  { value: "50+", label: "Active Suppliers" },
+  { value: "150+", label: "Enterprise Suppliers" },
   { value: "1000+", label: "Published Datasets" },
   { value: "20+", label: "Unique Sources" },
 ];
